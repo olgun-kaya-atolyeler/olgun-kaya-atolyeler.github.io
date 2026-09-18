@@ -1,0 +1,1976 @@
+<!doctype html><html lang="tr"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<style>:root{color-scheme:light}html{-webkit-text-size-adjust:100%}body{margin:0;font:14px system-ui,-apple-system,"Segoe UI",sans-serif;background:#faf9f7}img{max-width:100%}[hidden]{display:none!important}</style>
+<title>Desibel ve Duyma Duyarlılığı</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&family=Newsreader:ital,opsz,wght@1,6..72,400&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ground:#E5ECF3; --panel:#FFFFFF; --panel-2:#F1F6FA;
+  --ink:#0B1620; --ink-2:#3F5265; --ink-3:#697E92;
+  --line:#C7D4E0; --line-2:#DEE7EF;
+  --sin:#A8600A; --cos:#0F5F80; --arc:#A81E6E; --brass:#4A7A12;
+  --on-sin:#FFFFFF; --ok:#1E6B45; --no:#A8203C;
+  --radius:2px; --track:.02em; --fs:15px;
+  --h-why:228px; --h-db:400px; --h-spl:450px; --h-iso:460px; --h-son:320px; --h-wa:430px; --h-stu:360px;
+  --font-display:"Chakra Petch",system-ui,sans-serif;
+  --font-body:"IBM Plex Sans",system-ui,sans-serif;
+  --font-mono:"IBM Plex Mono",ui-monospace,monospace;
+  --font-quote:"Newsreader",Georgia,serif;
+  color-scheme:light;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --ground:#070F17; --panel:#0E1720; --panel-2:#13202C;
+    --ink:#E7F2FB; --ink-2:#9FB6C9; --ink-3:#6B8296;
+    --line:#213240; --line-2:#182533;
+    --sin:#FFB01F; --cos:#4FD3FF; --arc:#FF6AC1; --brass:#A8FF60;
+    --on-sin:#0A1017; --ok:#3EE59B; --no:#FF5F86;
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --ground:#070F17; --panel:#0E1720; --panel-2:#13202C;
+  --ink:#E7F2FB; --ink-2:#9FB6C9; --ink-3:#6B8296;
+  --line:#213240; --line-2:#182533;
+  --sin:#FFB01F; --cos:#4FD3FF; --arc:#FF6AC1; --brass:#A8FF60;
+  --on-sin:#0A1017; --ok:#3EE59B; --no:#FF5F86;
+  color-scheme:dark;
+}
+:root[data-mode="proj"]{
+  --ground:#F3F8FC; --panel:#FFFFFF; --panel-2:#EDF4F9;
+  --ink:#040B12; --ink-2:#2A3A49; --ink-3:#546678;
+  --line:#ADBFCE; --line-2:#D2DEE9;
+  --sin:#8A4D00; --cos:#084A66; --arc:#8A1258; --brass:#3A6208;
+  --on-sin:#FFFFFF; --ok:#155338; --no:#8A1730;
+  --fs:17px; --h-why:265px; --h-db:464px; --h-spl:522px; --h-iso:534px; --h-son:371px; --h-wa:499px; --h-stu:418px;
+  color-scheme:light;
+}
+
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+body{
+  margin:0; background:var(--ground); color:var(--ink);
+  font-family:var(--font-body); font-size:var(--fs); line-height:1.55;
+  -webkit-text-size-adjust:100%;
+}
+.wrap{max-width:1180px; margin:0 auto; padding-inline:20px; padding-block:22px 64px}
+
+/* ---------- ust ---------- */
+.top{display:flex; gap:20px; align-items:flex-start; justify-content:space-between; flex-wrap:wrap;
+  border-bottom:2px solid var(--line); padding-bottom:16px; margin-bottom:26px}
+.eyebrow{font-family:var(--font-mono); font-size:.72em; letter-spacing:.12em; text-transform:uppercase;
+  color:var(--brass); font-weight:600}
+h1{font-family:var(--font-display); font-weight:700; letter-spacing:var(--track);
+  font-size:clamp(2rem,6vw,3.1rem); line-height:1.02; margin:.16em 0 .1em; text-transform:uppercase}
+.lede{margin:0; color:var(--ink-2); max-width:46ch}
+.themebar{display:flex; gap:0; border:1px solid var(--line); border-radius:var(--radius); overflow:hidden; flex-shrink:0}
+.themebar button{
+  font-family:var(--font-mono); font-size:.76em; letter-spacing:.06em; text-transform:uppercase;
+  background:var(--panel); color:var(--ink-2); border:0; border-left:1px solid var(--line);
+  padding:9px 13px; cursor:pointer}
+.themebar button:first-child{border-left:0}
+.themebar button[aria-pressed="true"]{background:var(--sin); color:var(--on-sin); font-weight:600}
+
+/* ---------- bolumler ---------- */
+section{margin-block:52px; scroll-margin-top:18px}
+h2{font-family:var(--font-display); font-weight:600; letter-spacing:var(--track); text-transform:uppercase;
+  font-size:clamp(1.15rem,3.1vw,1.6rem); margin:0 0 14px; display:flex; align-items:baseline; gap:12px;
+  border-bottom:1px solid var(--line); padding-bottom:10px}
+h2 .num{font-family:var(--font-mono); color:var(--brass); font-size:.82em; font-weight:600}
+h3{font-family:var(--font-display); font-weight:600; letter-spacing:var(--track);
+  font-size:1.02em; margin:0 0 6px; text-transform:uppercase}
+p{margin:0 0 .8em}
+.kicker{font-family:var(--font-quote); font-style:italic; font-size:1.28em; line-height:1.4;
+  color:var(--ink-2); max-width:38ch; margin:0 0 18px; border-left:3px solid var(--arc); padding-left:14px}
+
+/* ---------- panel / canvas ---------- */
+.panel{background:var(--panel); border:1px solid var(--line); border-radius:var(--radius)}
+.canvas-wrap{margin:0; background:var(--panel); border:1px solid var(--line); border-radius:var(--radius); overflow:hidden}
+.canvas-inner{min-width:0}
+.lab>div,.quizwrap>div,.hook>*,.lab>aside{min-width:0}
+.lit{text-transform:none;font-style:normal;font-weight:inherit}
+.sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+canvas{display:block; width:100%; touch-action:none}
+#cWhy{height:var(--h-why)}
+#cDb{height:var(--h-db)}
+#cSpl{height:var(--h-spl)}
+#cIso{height:var(--h-iso)}
+#cSon{height:var(--h-son)}
+#cWa{height:var(--h-wa)}
+#cStu{height:var(--h-stu)}
+figcaption{font-size:.82em; color:var(--ink-3); padding:8px 12px; border-top:1px solid var(--line-2);
+  background:var(--panel-2)}
+
+/* ---------- s1 duzen ---------- */
+.hook{display:grid; grid-template-columns:minmax(0,1.05fr) minmax(0,1fr); gap:20px; align-items:start}
+.cols{display:grid; grid-template-columns:1fr; gap:14px}
+.qcol h3{color:var(--ink)}
+.qcol p{font-size:.94em; color:var(--ink-2); margin:0}
+
+/* ---------- kontroller ---------- */
+.ctrls{display:flex; flex-wrap:wrap; gap:14px 18px; align-items:flex-end;
+  padding:12px; background:var(--panel-2); border-top:1px solid var(--line-2)}
+.ctrl{display:flex; flex-direction:column; gap:3px; min-width:150px; flex:1 1 150px}
+.ctrl label{font-family:var(--font-mono); font-size:.72em; letter-spacing:.07em; text-transform:uppercase;
+  color:var(--ink-3); display:flex; justify-content:space-between; gap:8px}
+.ctrl label b{font-weight:600; color:var(--ink); font-variant-numeric:tabular-nums}
+input[type=range]{-webkit-appearance:none; appearance:none; width:100%; height:22px; background:transparent; margin:0; cursor:pointer}
+input[type=range]::-webkit-slider-runnable-track{height:3px; background:var(--line); border-radius:0}
+input[type=range]::-moz-range-track{height:3px; background:var(--line)}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none; width:16px; height:16px; border-radius:50%;
+  background:var(--arc); border:2px solid var(--panel); margin-top:-7px}
+input[type=range]::-moz-range-thumb{width:16px; height:16px; border-radius:50%; background:var(--arc); border:2px solid var(--panel)}
+.btn{font-family:var(--font-mono); font-size:.78em; letter-spacing:.06em; text-transform:uppercase;
+  background:var(--panel); color:var(--ink); border:1px solid var(--line); border-radius:var(--radius);
+  padding:8px 12px; cursor:pointer; white-space:nowrap}
+.btn:hover{border-color:var(--ink-3)}
+.btn.pri{background:var(--sin); color:var(--on-sin); border-color:var(--sin); font-weight:600}
+.btn[aria-pressed="true"]{background:var(--cos); color:var(--panel); border-color:var(--cos)}
+:root[data-theme="dark"] .btn[aria-pressed="true"]{color:#07131B}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]):not([data-mode="proj"]) .btn[aria-pressed="true"]{color:#07131B}
+}
+.btnrow{display:flex; gap:8px; flex-wrap:wrap; align-items:center}
+
+/* ---------- okumalar ---------- */
+.readout{display:grid; grid-template-columns:repeat(auto-fit,minmax(112px,1fr)); gap:1px;
+  background:var(--line-2); border-top:1px solid var(--line-2)}
+.readout.r3{grid-template-columns:repeat(3,minmax(0,1fr))}
+.readout div{background:var(--panel); padding:8px 11px; min-width:0}
+.readout span{display:block; font-family:var(--font-mono); font-size:.68em; letter-spacing:.07em;
+  text-transform:uppercase; color:var(--ink-3)}
+.readout b{font-family:var(--font-mono); font-size:1.08em; font-weight:600; font-variant-numeric:tabular-nums}
+
+/* ---------- kart izgarasi ---------- */
+.cards{display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:14px}
+.card{background:var(--panel); border:1px solid var(--line); border-top:3px solid var(--cos);
+  border-radius:var(--radius); padding:14px 15px}
+.card:nth-child(3n+1){border-top-color:var(--sin)}
+.card:nth-child(3n+3){border-top-color:var(--arc)}
+.card p{font-size:.92em; color:var(--ink-2); margin:0}
+.card .bridge{margin-top:9px; padding-top:9px; border-top:1px dashed var(--line);
+  font-size:.86em; color:var(--ink-3)}
+.card .bridge b{color:var(--brass); font-family:var(--font-mono); font-size:.9em;
+  letter-spacing:.05em; text-transform:uppercase}
+
+/* ---------- atolye duzeni ---------- */
+.lab{display:grid; grid-template-columns:minmax(0,560px) minmax(0,1fr); gap:18px; align-items:start}
+.steps{background:var(--panel); border:1px solid var(--line); border-radius:var(--radius); padding:13px 14px}
+.steps h3{margin-bottom:9px}
+.stepnav{display:flex; gap:6px; align-items:center; margin-bottom:10px}
+.stepnav .count{font-family:var(--font-mono); font-size:.78em; color:var(--ink-3); margin-left:auto}
+.steplist{list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:5px}
+.steplist button{width:100%; text-align:left; font:inherit; font-size:.9em; background:transparent;
+  color:var(--ink-2); border:1px solid transparent; border-left:2px solid var(--line);
+  padding:7px 10px; cursor:pointer; border-radius:0}
+.steplist button:hover{background:var(--panel-2)}
+.steplist button[aria-current="true"]{border-left-color:var(--arc); background:var(--panel-2); color:var(--ink)}
+.steplist .k{font-family:var(--font-mono); font-size:.82em; color:var(--brass); margin-right:6px}
+
+table{width:100%; border-collapse:collapse; font-size:.88em}
+.tablebox{overflow-x:auto; max-width:100%; background:var(--panel); border:1px solid var(--line); border-radius:var(--radius); margin-top:16px}
+th,td{padding:7px 11px; text-align:right; border-bottom:1px solid var(--line-2); white-space:nowrap}
+th:first-child,td:first-child{text-align:left}
+th:last-child,td:last-child{text-align:left; white-space:normal; min-width:170px}
+thead th{font-family:var(--font-mono); font-size:.76em; letter-spacing:.06em; text-transform:uppercase;
+  color:var(--ink-3); font-weight:600; background:var(--panel-2)}
+tbody tr{cursor:pointer}
+tbody tr:hover{background:var(--panel-2)}
+tbody tr[aria-selected="true"]{background:var(--panel-2); box-shadow:inset 3px 0 0 var(--arc)}
+td.num{font-family:var(--font-mono); font-variant-numeric:tabular-nums}
+
+/* ---------- terimler ---------- */
+.terms{display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:14px}
+.term{background:var(--panel); border:1px solid var(--line); border-radius:var(--radius); padding:14px 15px}
+.term .sym{font-family:var(--font-mono); font-size:.74em; letter-spacing:.08em; color:var(--ink-3)}
+.term p{font-size:.92em; color:var(--ink-2); margin:.35em 0 0}
+.mus{margin-top:10px; border-left:3px solid var(--brass); padding:6px 0 6px 10px; font-size:.9em}
+.mus span{font-family:var(--font-mono); font-size:.72em; letter-spacing:.08em; text-transform:uppercase;
+  color:var(--brass); font-weight:600; display:block}
+
+/* ---------- quiz ---------- */
+.quizwrap{display:grid; grid-template-columns:minmax(0,1fr) 300px; gap:18px; align-items:start}
+.q{background:var(--panel); border:1px solid var(--line); border-radius:var(--radius); padding:14px 15px; margin-bottom:12px}
+.q .qh{font-family:var(--font-mono); font-size:.74em; letter-spacing:.08em; color:var(--brass); font-weight:600}
+.q p.qt{margin:.3em 0 .7em; font-weight:500}
+.opts{display:flex; flex-direction:column; gap:6px}
+.opts button{font:inherit; font-size:.93em; text-align:left; background:var(--panel-2); color:var(--ink);
+  border:1px solid var(--line); border-radius:var(--radius); padding:9px 12px; cursor:pointer}
+.opts button:hover{border-color:var(--ink-3)}
+.opts button.ok{border-color:var(--ok); box-shadow:inset 3px 0 0 var(--ok)}
+.opts button.no{border-color:var(--no); box-shadow:inset 3px 0 0 var(--no)}
+.opts button[disabled]{cursor:default}
+.fb{margin-top:9px; font-size:.9em; color:var(--ink-2); border-top:1px dashed var(--line); padding-top:8px}
+.fb b{font-family:var(--font-mono); font-size:.82em; letter-spacing:.06em; text-transform:uppercase}
+.fb.good b{color:var(--ok)} .fb.bad b{color:var(--no)}
+.recap{background:var(--panel); border:1px solid var(--line); border-top:3px solid var(--brass);
+  border-radius:var(--radius); padding:14px 15px; position:sticky; top:14px}
+.recap ol{margin:0; padding-left:1.15em; display:flex; flex-direction:column; gap:9px}
+.recap li{font-size:.91em; color:var(--ink-2)}
+.recap li b{color:var(--ink)}
+.score{font-family:var(--font-mono); font-size:.8em; color:var(--ink-3); margin-top:12px;
+  padding-top:10px; border-top:1px solid var(--line-2)}
+
+.note{font-size:.86em; color:var(--ink-3); margin-top:10px}
+.legend{display:flex; flex-wrap:wrap; gap:6px 16px; padding:10px 12px; background:var(--panel-2);
+  border-top:1px solid var(--line-2); font-family:var(--font-mono); font-size:.74em; letter-spacing:.04em}
+.legend i{display:inline-block; width:15px; height:3px; vertical-align:middle; margin-right:6px}
+footer{margin-top:56px; padding-top:16px; border-top:1px solid var(--line); font-size:.84em; color:var(--ink-3)}
+footer a{color:var(--ink-2)}
+
+@media (max-width:980px){
+  .lab{grid-template-columns:1fr}
+  .quizwrap{grid-template-columns:1fr}
+  .recap{position:static}
+  .cards,.terms{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@media (max-width:760px){
+  :root{--h-why:242px; --h-db:428px; --h-spl:478px; --h-iso:492px; --h-son:340px; --h-wa:456px; --h-stu:384px}
+  :root[data-mode="proj"]{--h-why:281px; --h-db:497px; --h-spl:555px; --h-iso:571px; --h-son:394px; --h-wa:529px; --h-stu:446px}
+  .wrap{padding-inline:16px}
+  .hook{grid-template-columns:1fr}
+  .cards,.terms{grid-template-columns:1fr}
+  .ctrl{flex:1 1 100%}
+  .btn{padding:9px 14px}
+  .opts button{padding:12px 14px}
+  input[type=range]{height:30px}
+  input[type=range]::-webkit-slider-thumb{width:22px; height:22px; margin-top:-10px}
+  input[type=range]::-moz-range-thumb{width:22px; height:22px}
+  .canvas-inner{min-width:0}
+}
+@media (max-width:480px){
+  :root{--h-why:226px; --h-db:406px; --h-spl:450px; --h-iso:466px; --h-son:318px; --h-wa:430px; --h-stu:360px}
+  :root[data-mode="proj"]{--h-why:262px; --h-db:471px; --h-spl:522px; --h-iso:541px; --h-son:369px; --h-wa:499px; --h-stu:418px}
+}
+@media (prefers-reduced-motion:reduce){*{animation:none!important; transition:none!important}}
+
+/* ---------- karsilastirma / hesap tablosu ---------- */
+.cmpbox{background:var(--panel); border:1px solid var(--line); border-radius:var(--radius); margin-bottom:16px}
+.cmpbox h3{padding:13px 14px 8px; margin:0}
+.cmpscroll{overflow-x:auto; max-width:100%}
+.cmp{width:100%; border-collapse:collapse; font-size:.9em}
+.cmp th,.cmp td{padding:6px 12px; border-bottom:1px solid var(--line-2); text-align:right; white-space:nowrap}
+.cmp th:first-child,.cmp td:first-child{text-align:left; white-space:normal; color:var(--ink-2)}
+.cmp thead th{font-family:var(--font-mono); font-size:.76em; letter-spacing:.06em; text-transform:uppercase;
+  font-weight:600; background:var(--panel-2)}
+.cmp thead th.a{color:var(--sin)} .cmp thead th.b{color:var(--cos)}
+.cmp td.v{font-family:var(--font-mono); font-variant-numeric:tabular-nums; font-weight:600}
+.cmp tr.key td{background:var(--panel-2)}
+.cmp tr.key td:first-child{color:var(--ink); font-weight:600}
+.cmp tbody tr:last-child td{border-bottom:0}
+
+/* ---------- olcum haplari ---------- */
+.cmp td.lbl{width:56%}
+.pillrow{display:flex; gap:7px; flex-wrap:wrap; flex:1 1 100%}
+.pill{font-family:var(--font-mono); font-size:.74em; letter-spacing:.05em; text-transform:uppercase;
+  background:var(--panel); color:var(--ink-2); border:1px solid var(--line); border-radius:var(--radius);
+  padding:8px 11px; cursor:pointer}
+.pill[aria-pressed="true"]{background:var(--arc); color:#fff; border-color:var(--arc); font-weight:600}
+
+/* ---------- kontrol gruplari ---------- */
+.grp{flex:1 1 100%; display:flex; flex-wrap:wrap; gap:12px 16px; border-left:3px solid var(--line);
+  padding-left:11px; margin-bottom:2px}
+.grp.ga{border-left-color:var(--sin)} .grp.gb{border-left-color:var(--cos)}
+.grp .tag{flex:1 1 100%; font-family:var(--font-mono); font-size:.72em; letter-spacing:.09em;
+  text-transform:uppercase; font-weight:600; margin:0}
+.grp.ga .tag{color:var(--sin)} .grp.gb .tag{color:var(--cos)}
+.sw{display:inline-block; width:11px; height:11px; border-radius:50%; vertical-align:-1px; margin-right:6px}
+#tbl2 td:last-child,#tbl2 th:last-child{text-align:right; min-width:0}
+#tbl2 td,#tbl2 th{padding:6px 9px}
+#tbl2 td:nth-child(n+2){font-family:var(--font-mono); font-variant-numeric:tabular-nums}
+
+/* ---------- pasif kontrol ---------- */
+.ctrl.off{opacity:.42}
+.ctrl.off label{color:var(--ink-3)}
+input[type=range]:disabled{cursor:default}
+.warn{background:var(--panel-2); border:1px solid var(--line); border-left:3px solid var(--arc);
+  border-radius:var(--radius); padding:11px 13px; font-size:.9em; color:var(--ink-2); margin:0 0 16px}
+.warn b{color:var(--ink)}
+
+/* ---------- surukleme ipucu ---------- */
+.dragnote{font-family:var(--font-mono); font-size:.72em; letter-spacing:.06em; text-transform:uppercase;
+  color:var(--ink-3); padding:8px 12px; border-top:1px solid var(--line-2); background:var(--panel-2)}
+.dragnote b{color:var(--arc)}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+
+<header class="top">
+  <div class="brand">
+    <div class="eyebrow">Müzik Teknolojisi · Ses Fiziği I · 17. Atölye</div>
+    <h1>Desibel ve Duyma Duyarlılığı</h1>
+    <p class="lede">Desibeli şimdiye kadar hep kullandık ama hiç tanımlamadık. Bu atölyede önce onu kuruyoruz — <b>oranın logaritması</b> — sonra asıl zor soruya geçiyoruz: ölçü aleti bir sayı gösteriyor, peki <b>kulak</b> ne duyuyor? İkisi aynı şey değil, ve aradaki farkın adı <b>fon</b> ile <b>son</b>.</p>
+  </div>
+  <div class="themebar" role="group" aria-label="Tema seçimi">
+    <button type="button" data-t="light" aria-pressed="false">Açık</button>
+    <button type="button" data-t="dark" aria-pressed="false">Koyu</button>
+    <button type="button" data-t="proj" aria-pressed="false">Projeksiyon</button>
+  </div>
+</header>
+
+<!-- ============ 01 ============ -->
+<section id="s1">
+  <h2><span class="num">01</span> Neden buna ihtiyacımız var?</h2>
+  <p class="kicker">Duyabildiğin en sessiz ses ile acı veren ses arasında <b>bir trilyon kat</b> şiddet farkı var. Bu aralığı düz bir cetvele çizmeyi dene: sessiz seslerin hepsi sıfırın üstüne yığılıyor.</p>
+
+  <div class="hook">
+    <figure class="canvas-wrap">
+      <div class="canvas-inner"><canvas id="cWhy" aria-label="Aynı seslerin düz cetvelde ve desibel cetvelinde dağılımı"></canvas></div>
+      <div class="ctrls">
+        <div class="pillrow">
+          <button type="button" class="pill" data-wy="0" aria-pressed="true">İşitme eşiği</button>
+          <button type="button" class="pill" data-wy="1">Fısıltı</button>
+          <button type="button" class="pill" data-wy="2">Konuşma</button>
+          <button type="button" class="pill" data-wy="3">Konser</button>
+          <button type="button" class="pill" data-wy="4">Acı eşiği</button>
+        </div>
+      </div>
+      <div class="readout r3">
+        <div><span>Şiddet <i class="lit">I</i></span><b id="wyI">1,00 pW/m²</b></div>
+        <div><span>Düz cetveldeki yeri</span><b id="wyPos">%0,0000000001</b></div>
+        <div><span>Desibel cetvelinde</span><b id="wyDb">0 dB</b></div>
+      </div>
+      <figcaption>Üstteki düz cetvelde beş sesin dördü aynı noktada. Alttaki desibel cetvelinde hepsi rahatça yayılıyor — çünkü desibel, sayının kendisini değil <b>logaritmasını</b> çiziyor.</figcaption>
+    </figure>
+
+    <div class="cols">
+      <div class="qcol">
+        <h3>Logaritma ne yapıyor?</h3>
+        <p>Çarpmayı toplamaya çeviriyor. 10 kat büyütmek düz cetvelde "on kat uzağa git" demek; logaritmik cetvelde her seferinde <b>aynı adım</b>. Bir trilyon kat, 12 eşit adıma iniyor.</p>
+      </div>
+      <div class="qcol">
+        <h3>Kulak da öyle çalışıyor</h3>
+        <p>Ses iki katına çıkınca kulak "iki kat" demiyor; <b>oranlara</b> tepki veriyor. Aynı fark her yerde aynı hissediliyorsa, ölçünün de oranlara dayanması gerekir. Desibel tam olarak bunu yapar.</p>
+      </div>
+      <div class="qcol">
+        <h3>Ama dB kulak değildir</h3>
+        <p>Desibel bir <b>fizik</b> ölçüsü. Kulak her frekansa aynı duyarlı değil: 50 Hz'lik bir sesi 1 kHz'lik bir sesle aynı gürlükte duymak için yaklaşık 38 dB daha yüksek basınç gerekir. Gürlüğün kendi birimleri var: <b>fon</b> ve <b>son</b>.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 02 ============ -->
+<section id="s2">
+  <h2><span class="num">02</span> Bilmemiz gereken kavramlar</h2>
+  <p style="max-width:62ch; color:var(--ink-2)">Altı kavram. İlk üçü desibelin kendisi, sonraki üçü kulağın işin içine girmesi.</p>
+  <div class="cards">
+    <div class="card">
+      <h3>Desibel bir orandır</h3>
+      <p>Tek başına "50 dB" bir büyüklük değil, <b>neye göre</b> 50 dB olduğu söylenmezse anlamsızdır. Desibel daima iki sayının oranını anlatır.</p>
+      <div class="bridge"><b>Sezgi</b> "İki katı" gibi — ama logaritmik yazılmış hâli.</div>
+    </div>
+    <div class="card">
+      <h3>10·log ve 20·log</h3>
+      <p>Güç, şiddet, enerji için <b>10·log(oran)</b>; basınç, genlik, voltaj için <b>20·log(oran)</b>. İkisi çelişmiyor: güç genliğin karesi olduğu için aynı olayı veriyorlar.</p>
+      <div class="bridge"><b>9. atölye</b> I ∝ A² kuralının doğrudan sonucu.</div>
+    </div>
+    <div class="card">
+      <h3>Referans düzeyi</h3>
+      <p>Mutlak bir sayı istiyorsak bir sıfır noktası seçmemiz gerekir. Havada bu <b>20 µPa</b>'dır ve ölçüye <b>dB SPL</b> denir. Stüdyoda referans volt olur, dijitalde tam ölçek olur.</p>
+      <div class="bridge"><b>Not</b> 0 dB "ses yok" demek değil, "referansın tam kendisi" demek.</div>
+    </div>
+    <div class="card">
+      <h3>Eşit gürlük eğrileri</h3>
+      <p>Kulağın duyarlılığı frekansa göre değişir. Aynı gürlükte duyulan sesleri frekans–dB düzleminde birleştirirsen bir eğri elde edersin; bunlara <b>ISO 226</b> eşit gürlük eğrileri denir.</p>
+      <div class="bridge"><b>Tarih</b> İlk ölçümler 1933'te Fletcher ve Munson.</div>
+    </div>
+    <div class="card">
+      <h3>Fon</h3>
+      <p>Gürlük <b>düzeyi</b>. Bir ses kaç fonsa, 1 kHz'de kaç dB SPL'lik sesle aynı gürlükte duyuluyor demektir. 1 kHz'de fon ile dB sayısı eşittir.</p>
+      <div class="bridge"><b>Birim</b> fon · İngilizcesi <i class="lit">phon</i>.</div>
+    </div>
+    <div class="card">
+      <h3>Son</h3>
+      <p>Gürlüğün <b>kendisi</b>: iki katı ses iki katı son. Tanım gereği 40 fon = 1 son; ondan sonra her <b>+10 fon</b> sonu ikiye katlar.</p>
+      <div class="bridge"><b>Birim</b> son · İngilizcesi <i class="lit">sone</i>.</div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 03 ============ -->
+<section id="s3">
+  <h2><span class="num">03</span> Atölye: desibel makinesi</h2>
+  <p style="max-width:70ch; color:var(--ink-2)">Bir oran ver, desibel karşılığını al. Aynı oran <b>güç</b> oranıysa başka, <b>genlik</b> oranıysa başka bir sayı verir — ve öğrencilerin en sık takıldığı yer burasıdır. İki eğriyi yan yana çizdik.</p>
+
+  <div class="lab">
+    <div>
+      <figure class="canvas-wrap">
+        <div class="canvas-inner"><canvas id="cDb" aria-label="Oran ile desibel arasındaki logaritmik ilişki: güç için 10 log, genlik için 20 log"></canvas></div>
+        <div class="legend">
+          <span><i style="background:var(--sin)"></i>genlik oranı · 20·log</span>
+          <span><i style="background:var(--cos)"></i>güç oranı · 10·log</span>
+          <span><i style="background:var(--arc)"></i>seçili oran</span>
+        </div>
+        <div class="ctrls">
+          <div class="pillrow">
+            <button type="button" class="pill" data-r="0.5">× 0,5</button>
+            <button type="button" class="pill" data-r="2" aria-pressed="true">× 2</button>
+            <button type="button" class="pill" data-r="4">× 4</button>
+            <button type="button" class="pill" data-r="10">× 10</button>
+            <button type="button" class="pill" data-r="100">× 100</button>
+            <button type="button" class="pill" data-r="1000">× 1000</button>
+          </div>
+          <div class="ctrl" style="flex:1 1 280px">
+            <label for="dbR"><span>Oran</span><b class="lit" id="dbRV">2,00 ×</b></label>
+            <input type="range" id="dbR" min="0" max="100" step="0.25" value="55">
+          </div>
+        </div>
+        <div class="readout r3">
+          <div><span>Oran</span><b id="qOran">2,00 ×</b></div>
+          <div><span>Güç oranıysa</span><b id="qPw">+3,0 dB</b></div>
+          <div><span>Genlik oranıysa</span><b id="qAm">+6,0 dB</b></div>
+          <div><span>Tersi</span><b id="qInv">0,50 ×</b></div>
+          <div><span>Tersi · güç dB</span><b id="qInvDb">−3,0 dB</b></div>
+          <div><span>İki kez uygulanırsa</span><b id="qTwice">4,00 × · +6,0 dB</b></div>
+        </div>
+      </figure>
+      <p class="note" style="margin:10px 0 0"><b>Desibeller toplanır, oranlar çarpılır.</b> Bir mikrofon ön yükselteci +30 dB, ardından bir kanal +6 dB veriyorsa toplam +36 dB'dir — yani güç oranı 1000 × 4 = 4000 kat. Logaritmanın bütün faydası bu tek satırda.</p>
+      <div class="tablebox">
+        <table id="tblR">
+          <caption class="sr-only">Sık kullanılan oranların desibel karşılıkları</caption>
+          <thead><tr><th>Oran</th><th>Güç · 10·log</th><th>Genlik · 20·log</th><th>Nerede karşımıza çıkar</th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+      <p class="note">Bir satıra tıkla: o oran seçilir.</p>
+    </div>
+
+    <div>
+      <aside class="steps">
+        <h3>Ders adımları</h3>
+        <div class="stepnav">
+          <button type="button" class="btn" id="daPrev" aria-label="Önceki adım">‹</button>
+          <button type="button" class="btn" id="daNext" aria-label="Sonraki adım">›</button>
+          <span class="count" id="daCount">1 / 6</span>
+        </div>
+        <ol class="steplist" id="daList"></ol>
+        <p class="note" id="daText"></p>
+      </aside>
+
+      <div class="cmpbox" style="margin-top:16px">
+        <h3>Hesap adım adım</h3>
+        <div class="cmpscroll">
+          <table class="cmp">
+            <tbody>
+              <tr><td class="lbl">Oran</td><td class="v" id="cOr"></td></tr>
+              <tr><td class="lbl">log₁₀(oran)</td><td class="v" id="cLg"></td></tr>
+              <tr class="key"><td class="lbl">Güç için × 10</td><td class="v" id="cPw"></td></tr>
+              <tr class="key"><td class="lbl">Genlik için × 20</td><td class="v" id="cAm"></td></tr>
+              <tr><td class="lbl">Aynı olayın iki yüzü</td><td class="v" id="cEq"></td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="note" style="padding:0 14px 12px; margin:0" id="cNote"></p>
+      </div>
+
+      <div class="grp gb" style="margin-top:16px; border-left-color:var(--cos)">
+        <p class="tag">Kulakla dene</p>
+        <div class="btnrow" style="flex:1 1 100%">
+          <button type="button" class="btn" id="dbP1">+1 dB</button>
+          <button type="button" class="btn" id="dbP3">+3 dB</button>
+          <button type="button" class="btn" id="dbP6">+6 dB</button>
+          <button type="button" class="btn pri" id="dbP10">+10 dB</button>
+        </div>
+        <p class="note" style="flex:1 1 100%; margin:8px 0 0">Önce referans, sonra yükseltilmiş hâli çalar. +1 dB'i ayırt etmek zordur — zaten "fark edilebilir en küçük değişim" oralardadır.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 04 ============ -->
+<section id="s4">
+  <h2><span class="num">04</span> Atölye: dB SPL merdiveni</h2>
+  <p style="max-width:70ch; color:var(--ink-2)">Şimdi orana bir sıfır noktası verelim: <b>20 µPa</b>. Bu sayı, sağlıklı bir kulağın 1 kHz civarında duyabildiği en küçük basınç. Merdiveni gezdir ve aynı sesin basınç, şiddet ve "eşiğin kaç katı" karşılıklarına bak.</p>
+
+  <div class="lab">
+    <div>
+      <figure class="canvas-wrap">
+        <div class="canvas-inner"><canvas id="cSpl" aria-label="Desibel merdiveni ve karşılık gelen basınç ile şiddet değerleri"></canvas></div>
+        <div class="legend">
+          <span><i style="background:var(--sin)"></i>basınç ölçeği</span>
+          <span><i style="background:var(--cos)"></i>şiddet ölçeği</span>
+          <span><i style="background:var(--arc)"></i>seçili düzey</span>
+        </div>
+        <div class="ctrls">
+          <div class="ctrl" style="flex:1 1 100%">
+            <label for="spL"><span>Ses düzeyi</span><b class="lit" id="spLV">60 dB SPL</b></label>
+            <input type="range" id="spL" min="0" max="140" step="1" value="60">
+          </div>
+        </div>
+        <div class="readout r3">
+          <div><span>Düzey</span><b id="qSpl">60 dB</b></div>
+          <div><span>Basınç <i class="lit">p</i></span><b id="qPa">20,0 mPa</b></div>
+          <div><span>Şiddet <i class="lit">I</i></span><b id="qInt">969 nW/m²</b></div>
+          <div><span>Eşiğin kaç katı · basınç</span><b id="qKp">1000 ×</b></div>
+          <div><span>Eşiğin kaç katı · şiddet</span><b id="qKi">1 milyon ×</b></div>
+          <div><span>Eşdeğer mesafe kuralı</span><b id="qDist">−6 dB / 2 kat</b></div>
+        </div>
+      </figure>
+      <p class="note" style="margin:10px 0 0">Merdivenin iki ucu arasında basınç <b>on milyon</b>, şiddet <b>yüz trilyon</b> kat değişiyor. Desibel bu iki uçlu devi 0'dan 140'a kadar okunabilir bir sayıya indiriyor. <b>94 dB</b>'i aklında tut: tam olarak <b>1 paskal</b> demektir ve 16. atölyedeki bütün hesaplar oradan çıkmıştı.</p>
+      <div class="tablebox">
+        <table id="tblS">
+          <caption class="sr-only">Gündelik seslerin desibel karşılıkları</caption>
+          <thead><tr><th>Ses</th><th>dB SPL</th><th>Basınç</th><th>Şiddet</th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+      <p class="note">Bir satıra tıkla: merdiven o düzeye gider.</p>
+    </div>
+
+    <div>
+      <div class="cmpbox">
+        <h3>Hesap adım adım</h3>
+        <div class="cmpscroll">
+          <table class="cmp">
+            <tbody>
+              <tr><td class="lbl">Düzey</td><td class="v" id="sL"></td></tr>
+              <tr><td class="lbl">Basınç oranı = 10<sup>dB/20</sup></td><td class="v" id="sR"></td></tr>
+              <tr class="key"><td class="lbl">Basınç = oran × 20 µPa</td><td class="v" id="sP"></td></tr>
+              <tr><td class="lbl">Şiddet = p² / 413</td><td class="v" id="sI"></td></tr>
+              <tr class="key"><td class="lbl">Eşiğe göre şiddet</td><td class="v" id="sK"></td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="note" style="padding:0 14px 12px; margin:0" id="sNote"></p>
+      </div>
+      <p class="note" style="margin-top:14px">Bu merdiven bir <b>fizik</b> merdiveni: her satır gerçek bir basınç. Kulağın o basınca ne kadar duyarlı olduğu ise frekansa bağlı — sıradaki bölüm tam olarak bunun hakkında.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 05 ============ -->
+<section id="s5">
+  <h2><span class="num">05</span> Atölye: eşit gürlük eğrileri</h2>
+  <p style="max-width:70ch; color:var(--ink-2)">Bir eğri üzerindeki bütün sesler <b>aynı gürlükte</b> duyulur — ama bakacağın gibi aynı dB SPL'de değiller. Noktayı sürükle: hangi eğrinin üzerinde olduğunu, kaç <b>fon</b> ve kaç <b>son</b> ettiğini canlı oku. Eğriler ISO 226:2003 standardından.</p>
+
+  <div class="warn"><b>Kulaklıkla dinle ve seviyeyi değiştirme.</b> Tarayıcı kalibre bir ses düzeyi üretemez; buradaki dB sayıları standardın kendisinden geliyor, senin hoparlöründen değil. Ses düğmeleri eğrinin <b>şeklini</b> duyurmak için var, mutlak düzeyi değil.</div>
+
+  <div class="lab">
+    <div>
+      <figure class="canvas-wrap">
+        <div class="canvas-inner"><canvas id="cIso" aria-label="ISO 226 eşit gürlük eğrileri: frekansa göre gereken ses basınç düzeyi"></canvas></div>
+        <div class="legend">
+          <span><i style="background:var(--cos)"></i>eşit gürlük eğrileri</span>
+          <span><i style="background:var(--sin)"></i>seçili eğri</span>
+          <span><i style="background:var(--arc)"></i>sürüklenen nokta</span>
+        </div>
+        <div class="dragnote">Grafiğin üstünde <b>sürükle</b> · ya da aşağıdaki kaydıraçları kullan</div>
+        <div class="ctrls">
+          <div class="ctrl" style="flex:1 1 250px">
+            <label for="isF"><span>Frekans</span><b class="lit" id="isFV">1000 Hz</b></label>
+            <input type="range" id="isF" min="0" max="100" step="0.25" value="60.75">
+          </div>
+          <div class="ctrl" style="flex:1 1 250px">
+            <label for="isL"><span>Ses düzeyi</span><b class="lit" id="isLV">60 dB SPL</b></label>
+            <input type="range" id="isL" min="-10" max="120" step="1" value="60">
+          </div>
+          <div class="btnrow" style="flex:1 1 100%">
+            <button type="button" class="btn" id="isPlay">Bu sesi çal</button>
+            <button type="button" class="btn pri" id="isCmp">1 kHz ile karşılaştır</button>
+          </div>
+        </div>
+        <div class="readout r3">
+          <div><span>Frekans</span><b id="qIsF">1000 Hz</b></div>
+          <div><span>Düzey</span><b id="qIsL">60 dB SPL</b></div>
+          <div><span>Gürlük düzeyi</span><b id="qIsP">60 fon</b></div>
+          <div><span>Gürlük</span><b id="qIsS">4,00 son</b></div>
+          <div><span>1 kHz'de eşdeğeri</span><b id="qIsE">60 dB</b></div>
+          <div><span>1 kHz'e göre fark</span><b id="qIsD">0,0 dB</b></div>
+        </div>
+      </figure>
+      <p class="note" style="margin:10px 0 0">Eğriler alçak frekanslarda <b>yukarı fırlıyor</b>: 50 Hz'lik bir sesi 40 fon gürlükte duymak için 1 kHz'e göre yaklaşık <b>38 dB</b> daha fazla basınç gerekiyor; 80 fonda bu fark <b>22 dB</b>'ye iniyor. Yüksek düzeylerde eğriler <b>düzleşiyor</b> — bu yüzden bir parçayı kısık dinlediğinde baslar önce kaybolur. Ev tipi amfilerdeki eski "loudness" düğmesi tam olarak bunu telafi etmek içindi.</p>
+    </div>
+
+    <div>
+      <aside class="steps">
+        <h3>Ders adımları</h3>
+        <div class="stepnav">
+          <button type="button" class="btn" id="iaPrev" aria-label="Önceki adım">‹</button>
+          <button type="button" class="btn" id="iaNext" aria-label="Sonraki adım">›</button>
+          <span class="count" id="iaCount">1 / 6</span>
+        </div>
+        <ol class="steplist" id="iaList"></ol>
+        <p class="note" id="iaText"></p>
+      </aside>
+
+      <div class="cmpbox" style="margin-top:16px">
+        <h3>Aynı gürlük, farklı dB</h3>
+        <div class="cmpscroll">
+          <table class="cmp">
+            <thead><tr><th>Frekans</th><th class="a">Gereken dB SPL</th></tr></thead>
+            <tbody id="isoBody"></tbody>
+          </table>
+        </div>
+        <p class="note" style="padding:0 14px 12px; margin:0" id="isoNote"></p>
+      </div>
+      <p class="note" style="margin-top:12px">15. atölyede <b>kendi</b> eşik eğrini çizmiştin; bu bölüm onun standart hâli ve bir adım ötesi: yalnız eşiği değil, <b>her düzeydeki</b> eşit gürlük eğrisini gösteriyor.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 06 ============ -->
+<section id="s6">
+  <h2><span class="num">06</span> Fon ve son: gürlük ne zaman iki katına çıkar?</h2>
+  <p style="max-width:70ch; color:var(--ink-2)">Fon bir <b>düzey</b>dir; iki katı fon iki katı gürlük demek değildir. Gürlüğün kendisini ölçen birim <b>son</b>. Tanım: 40 fon = 1 son, ve ondan sonra her <b>+10 fon</b> sonu ikiye katlar. Kaydıracı gezdir, iki ölçeğin nasıl ayrıştığına bak.</p>
+
+  <div class="hook">
+    <figure class="canvas-wrap">
+      <div class="canvas-inner"><canvas id="cSon" aria-label="Fon ile son arasındaki ilişki: her on fon gürlüğü ikiye katlar"></canvas></div>
+      <div class="legend">
+        <span><i style="background:var(--sin)"></i>gürlük · son</span>
+        <span><i style="background:var(--cos)"></i>gereken güç oranı</span>
+        <span><i style="background:var(--arc)"></i>seçili nokta</span>
+      </div>
+      <div class="ctrls">
+        <div class="ctrl" style="flex:1 1 100%">
+          <label for="soP"><span>Gürlük düzeyi</span><b class="lit" id="soPV">40 fon</b></label>
+          <input type="range" id="soP" min="10" max="100" step="1" value="40">
+        </div>
+        <div class="btnrow" style="flex:1 1 100%">
+          <button type="button" class="btn" id="soD10">+10 dB dinle</button>
+          <button type="button" class="btn" id="soD20">+20 dB dinle</button>
+        </div>
+      </div>
+      <div class="readout r3">
+        <div><span>Gürlük düzeyi</span><b id="qSoP">40 fon</b></div>
+        <div><span>Gürlük</span><b id="qSoS">1,00 son</b></div>
+        <div><span>40 fona göre gürlük</span><b id="qSoR">1,00 ×</b></div>
+        <div><span>40 fona göre güç</span><b id="qSoW">1,00 ×</b></div>
+        <div><span>İki katı gürlük için</span><b id="qSoN">+10 fon</b></div>
+        <div><span>Bunun güç karşılığı</span><b id="qSoP10">10 × güç</b></div>
+      </div>
+    </figure>
+
+    <div>
+      <div class="cmpbox">
+        <h3>Amfi kaç watt olmalı?</h3>
+        <div class="cmpscroll">
+          <table class="cmp">
+            <tbody>
+              <tr><td class="lbl">Elindeki amfi</td><td class="v">10 W</td></tr>
+              <tr><td class="lbl">Sesi iki katı gür istiyorsun</td><td class="v">+10 fon</td></tr>
+              <tr class="key"><td class="lbl">Gereken güç</td><td class="v">100 W</td></tr>
+              <tr><td class="lbl">Dört katı gür istersen</td><td class="v">1000 W</td></tr>
+              <tr class="key"><td class="lbl">Kural</td><td class="v">gürlük ×2 = güç ×10</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="note" style="padding:0 14px 12px; margin:0">100 W'lık bir amfi, 10 W'lıktan on kat güçlü ama yalnızca <b>iki kat</b> gür. Hoparlörün hassasiyetini 3 dB artırmak çoğu zaman amfiyi iki katına çıkarmaktan ucuzdur — 10. atölyedeki hassasiyet tartışmasının pratik karşılığı budur.</p>
+      </div>
+      <p class="note" style="margin-top:0">Son ölçeği yalnızca 40 fonun üstünde temiz çalışır. Daha sessiz seslerde gürlük dB ile daha hızlı düşer; grafikteki eğrinin alt ucunun bükülmesinin sebebi bu.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 07 ============ -->
+<section id="s7">
+  <h2><span class="num">07</span> A-ağırlıklama ve gürültüye maruz kalma</h2>
+  <p style="max-width:70ch; color:var(--ink-2)">Ses düzey ölçerler tek bir sayı vermek zorunda. Ama kulak alçak frekansları daha az duyuyorsa, ölçer de onları daha az saymalı. <b>A eğrisi</b> tam olarak bunu yapar: 40 fonluk eşit gürlük eğrisinin ters çevrilmiş, basitleştirilmiş hâli. Sonuç <b>dB(A)</b> olarak yazılır.</p>
+
+  <div class="lab">
+    <div>
+      <figure class="canvas-wrap">
+        <div class="canvas-inner"><canvas id="cWa" aria-label="A ağırlıklama eğrisi ve bir tayfa uygulanması"></canvas></div>
+        <div class="legend">
+          <span><i style="background:var(--cos)"></i>ham tayf · dB(Z)</span>
+          <span><i style="background:var(--sin)"></i>A ağırlıklı tayf · dB(A)</span>
+          <span><i style="background:var(--arc)"></i>A eğrisi</span>
+        </div>
+        <div class="ctrls">
+          <div class="pillrow">
+            <button type="button" class="pill" data-sp="kulup" aria-pressed="true">Kulüp · bas ağırlıklı</button>
+            <button type="button" class="pill" data-sp="konusma">Konuşma</button>
+            <button type="button" class="pill" data-sp="zil">Zil · tiz</button>
+            <button type="button" class="pill" data-sp="pembe">Pembe gürültü</button>
+          </div>
+          <div class="ctrl" style="flex:1 1 280px">
+            <label for="waG"><span>Genel düzey ayarı</span><b class="lit" id="waGV">0 dB</b></label>
+            <input type="range" id="waG" min="-20" max="15" step="1" value="0">
+          </div>
+        </div>
+        <div class="readout r3">
+          <div><span>Ağırlıksız <i class="lit">dB(Z)</i></span><b id="qLz">106 dB</b></div>
+          <div><span>A ağırlıklı <i class="lit">dB(A)</i></span><b id="qLa">93 dB</b></div>
+          <div><span>A'nın kestiği</span><b id="qDif">−13 dB</b></div>
+          <div><span>1 kHz'de A</span><b id="qA1k">0,0 dB</b></div>
+          <div><span>63 Hz'de A</span><b id="qA63">−26,2 dB</b></div>
+          <div><span>Güvenli süre</span><b id="qTime">2 saat</b></div>
+        </div>
+      </figure>
+      <p class="note" style="margin:10px 0 0">Bas ağırlıklı bir kulüp sesi, ağırlıksız ölçüldüğünde çok yüksek görünür ama dB(A) belirgin biçimde daha düşük çıkar — çünkü kulak o basları görece az duyar. <b>Ama bu, basların zararsız olduğu anlamına gelmez:</b> A eğrisi 40 fonluk bir eğriden türetilmiştir ve yüksek düzeylerde eğriler düzleştiği için basları olduğundan fazla küçümser.</p>
+      <div class="tablebox">
+        <table id="tblE">
+          <caption class="sr-only">Gürültü düzeyine göre güvenli maruz kalma süreleri</caption>
+          <thead><tr><th>Düzey</th><th>Güvenli süre</th><th>Nerede</th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+      <p class="note">Her <b>+3 dB</b> izin verilen süreyi yarıya indirir (ISO / AB kuralı). Bir satıra tıkla: tayfın genel düzeyi o dB(A) değerine ayarlanır.</p>
+    </div>
+
+    <div>
+      <div class="cmpbox">
+        <h3>Ağırlıklama eğrileri</h3>
+        <div class="cmpscroll">
+          <table class="cmp">
+            <thead><tr><th>Frekans</th><th class="a">A düzeltmesi</th></tr></thead>
+            <tbody id="waBody"></tbody>
+          </table>
+        </div>
+        <p class="note" style="padding:0 14px 12px; margin:0">A eğrisi 1 kHz'de tam <b>0 dB</b>'dir: orası referans noktası. Aşağı indikçe sertçe kesiyor, 4 kHz civarında hafifçe <b>yükseltiyor</b> — kulak kanalının rezonansı oraya denk geldiği için.</p>
+      </div>
+      <div class="warn" style="margin-top:16px">Sahne ve stüdyoda <b>85 dB(A)</b> sekiz saatlik sınırdır. 100 dB(A)'da güvenli süre <b>15 dakikaya</b> iner. İşitme kaybı ağrısız ve geri dönüşsüzdür; kulak tıkacı en ucuz stüdyo ekipmanıdır.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 08 ============ -->
+<section id="s8">
+  <h2><span class="num">08</span> Stüdyodaki desibeller: dBu, dBV, dBFS</h2>
+  <p style="max-width:70ch; color:var(--ink-2)">Aynı matematik, başka referans. Akustikte sıfır noktası 20 µPa'ydı; kabloda <b>volt</b>, dijitalde <b>tam ölçek</b> olur. Üç merdiveni yan yana koyduk — kaydıracı gezdirip aynı sinyalin üç ayrı dilde nasıl okunduğunu gör.</p>
+
+  <div class="hook">
+    <figure class="canvas-wrap">
+      <div class="canvas-inner"><canvas id="cStu" aria-label="dBu, dBV ve dBFS ölçeklerinin hizalanması"></canvas></div>
+      <div class="legend">
+        <span><i style="background:var(--sin)"></i>analog · dBu ve volt</span>
+        <span><i style="background:var(--cos)"></i>dijital · dBFS</span>
+        <span><i style="background:var(--arc)"></i>seçili sinyal</span>
+      </div>
+      <div class="ctrls">
+        <div class="pillrow">
+          <button type="button" class="pill" data-al="18" aria-pressed="true">EBU · −18 dBFS</button>
+          <button type="button" class="pill" data-al="20">SMPTE · −20 dBFS</button>
+        </div>
+        <div class="ctrl" style="flex:1 1 100%">
+          <label for="stU"><span>Sinyal düzeyi</span><b class="lit" id="stUV">+4,0 dBu</b></label>
+          <input type="range" id="stU" min="-30" max="24" step="0.5" value="4">
+        </div>
+      </div>
+      <div class="readout r3">
+        <div><span>Düzey</span><b id="qStU">+4,0 dBu</b></div>
+        <div><span>Aynısı dBV olarak</span><b id="qStV">+1,8 dBV</b></div>
+        <div><span>Gerilim (RMS)</span><b id="qStVolt">1,23 V</b></div>
+        <div><span>Dijitalde</span><b id="qStFs">−18,0 dBFS</b></div>
+        <div><span>Kalan tavan</span><b id="qStHead">18,0 dB</b></div>
+        <div><span>Tepe gerilimi</span><b id="qStPk">1,74 V</b></div>
+      </div>
+    </figure>
+
+    <div>
+      <div class="cmpbox">
+        <h3>Üç referans</h3>
+        <div class="cmpscroll">
+          <table class="cmp">
+            <tbody>
+              <tr><td class="lbl">dBu · 0 dBu =</td><td class="v">0,775 V RMS</td></tr>
+              <tr><td class="lbl">dBV · 0 dBV =</td><td class="v">1,000 V RMS</td></tr>
+              <tr><td class="lbl">Aradaki sabit fark</td><td class="v">2,2 dB</td></tr>
+              <tr class="key"><td class="lbl">Profesyonel nominal</td><td class="v">+4 dBu = 1,23 V</td></tr>
+              <tr class="key"><td class="lbl">Tüketici nominal</td><td class="v">−10 dBV = 0,316 V</td></tr>
+              <tr><td class="lbl">Aradaki fark</td><td class="v">11,8 dB · 14 değil</td></tr>
+              <tr><td class="lbl">dBFS</td><td class="v">tavanı 0, üstü yok</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="note" style="padding:0 14px 12px; margin:0">dBFS'te <b>artı değer yoktur</b>: 0 dBFS tam ölçektir, üstü kırpılmadır. Analogda ise 0 dBu sıradan bir işaret düzeyidir, tavan çok daha yukarıdadır. "0" kelimesinin iki tarafta bambaşka anlaması, en sık yapılan hatadır.</p>
+      </div>
+      <p class="note" style="margin-top:0">Akustik tarafla bağ kurmanın kolay yolu: <b>üçünde de matematik aynı</b>. Gerilim bir genlik olduğu için hepsinde <b>20·log</b> kullanılır; değişen tek şey, logaritmanın içindeki bölenin ne olduğudur.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 09 ============ -->
+<section id="s9">
+  <h2><span class="num">09</span> Kavramın dili</h2>
+  <p style="max-width:64ch; color:var(--ink-2)">Altı terim. Üçü ölçünün, üçü kulağın dili.</p>
+
+  <div class="terms">
+    <div class="term">
+      <h3>Desibel</h3>
+      <div class="sym">dB = 10·log(güç oranı) = 20·log(genlik oranı)</div>
+      <p>Bir oranın logaritmik yazılışı. Tek başına mutlak bir büyüklük değildir; neye göre olduğu söylenmelidir.</p>
+      <div class="mus"><span>Müzikte</span> Bütün fader, kazanç ve seviye göstergeleri dB ile işaretlenir.</div>
+      <div class="btnrow" style="margin-top:10px">
+        <button type="button" class="btn snd" data-snd="db6">+6 dB dinle</button>
+      </div>
+    </div>
+
+    <div class="term">
+      <h3>dB SPL</h3>
+      <div class="sym">referans 20 µPa · havada</div>
+      <p>Akustik mutlak düzey. 0 dB SPL yaklaşık işitme eşiği, 94 dB SPL tam 1 paskal, 120 dB SPL acı sınırı.</p>
+      <div class="mus"><span>Müzikte</span> Hoparlör hassasiyeti (dB SPL @ 1 W / 1 m) bu ölçekte verilir.</div>
+    </div>
+
+    <div class="term">
+      <h3>Referans düzeyi</h3>
+      <div class="sym">logaritmanın içindeki bölen</div>
+      <p>Her dB ölçeği kendi sıfırını seçer: 20 µPa, 0,775 V, 1 V ya da tam ölçek. Referans değişince sayı değişir, fizik değişmez.</p>
+      <div class="mus"><span>Müzikte</span> −10 dBV ile +4 dBu arasındaki 11,8 dB'lik fark tam olarak budur.</div>
+    </div>
+
+    <div class="term">
+      <h3>Eşit gürlük eğrisi</h3>
+      <div class="sym">ISO 226:2003 · Fletcher–Munson</div>
+      <p>Aynı gürlükte duyulan seslerin frekans–düzey haritası. Alçak frekanslarda yukarı fırlar, yüksek düzeylerde düzleşir.</p>
+      <div class="mus"><span>Müzikte</span> Kısık dinlerken basların kaybolmasının ve "loudness" düğmesinin sebebi.</div>
+      <div class="btnrow" style="margin-top:10px">
+        <button type="button" class="btn snd" data-snd="bass">Kısıkta bas kaybı</button>
+      </div>
+    </div>
+
+    <div class="term">
+      <h3>Fon</h3>
+      <div class="sym">gürlük düzeyi · 1 kHz'de dB ile eşit</div>
+      <p>Bir sesin gürlüğünü, onunla aynı gürlükte duyulan 1 kHz sesin dB SPL değeriyle ifade eder. Ölçü aletiyle değil, <b>insanla</b> ölçülmüştür.</p>
+      <div class="mus"><span>15. atölye</span> Kendi eşik eğrini çizerken aslında 0 fon eğrisini arıyordun.</div>
+    </div>
+
+    <div class="term">
+      <h3>Son</h3>
+      <div class="sym">1 son = 40 fon · +10 fon = ×2</div>
+      <p>Gürlüğün doğrusal ölçüsü: 2 son, 1 sonun iki katı gür duyulur. Fondan farkı, oran hesabı yapılabilmesidir.</p>
+      <div class="mus"><span>Müzikte</span> Gürlüğü iki katına çıkarmak on kat güç ister; amfi seçiminin acı gerçeği.</div>
+      <div class="btnrow" style="margin-top:10px">
+        <button type="button" class="btn snd" data-snd="ten">Güç ×10 dinle</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 10 ============ -->
+<section id="s10">
+  <h2><span class="num">10</span> Şimdi sen dene</h2>
+  <div class="quizwrap">
+    <div id="quiz"></div>
+    <aside class="recap">
+      <h3>Aklında kalsın</h3>
+      <ol>
+        <li>Desibel bir <b>orandır</b>: güç için 10·log, genlik için 20·log. Desibeller toplanır, oranlar çarpılır.</li>
+        <li><b>+3 dB</b> güç iki katı, <b>+6 dB</b> genlik iki katı, <b>+10 dB</b> güç on katı.</li>
+        <li><b>dB SPL</b>'in sıfırı 20 µPa'dır. 94 dB SPL tam 1 paskal, 120 dB SPL acı eşiği.</li>
+        <li>Kulak her frekansa aynı duyarlı değil. <b>Eşit gürlük eğrileri</b> alçak frekanslarda yukarı fırlar, yüksek düzeylerde düzleşir. Gürlük düzeyinin birimi <b>fon</b>.</li>
+        <li><b>+10 fon</b> gürlüğü iki katına çıkarır ama bunun için <b>on kat güç</b> gerekir. 85 dB(A) sekiz saatlik sınırdır; her +3 dB süreyi yarıya indirir.</li>
+      </ol>
+      <div class="score" id="score">Doğru: 0 / 12</div>
+    </aside>
+  </div>
+</section>
+
+<footer>
+  <p>Müzik Teknolojisi · Ses Fiziği I dersi 17. atölye — Desibel ve Duyma Duyarlılığı. 9., 10., 15. ve 16. atölyelerdeki kavramları varsayar. Eğriler ISO 226:2003'ten; konu haritası için: UNSW Physclips – Sound (animations.physics.unsw.edu.au).</p>
+</footer>
+
+</div>
+
+<script>
+(function(){
+'use strict';
+var root=document.documentElement, TAU=Math.PI*2;
+var C={}, K={lw:1,fs:1,faint:.32,glow:0};
+var mqDark=window.matchMedia('(prefers-color-scheme: dark)');
+var mqSlow=window.matchMedia('(prefers-reduced-motion: reduce)');
+var CKEYS=['ground','panel','panel-2','ink','ink-2','ink-3','line','line-2','sin','cos','arc','brass','ok','no'];
+
+/* ---------------- tema ---------------- */
+function isProj(){ return root.getAttribute('data-mode')==='proj'; }
+function isDarkNow(){
+  if(isProj()) return false;
+  var t=root.getAttribute('data-theme');
+  if(t==='dark') return true;
+  if(t==='light') return false;
+  return mqDark.matches;
+}
+function readTheme(){
+  var cs=getComputedStyle(root);
+  for(var i=0;i<CKEYS.length;i++) C[CKEYS[i]]=cs.getPropertyValue('--'+CKEYS[i]).trim()||'#888';
+  var proj=isProj(), dark=isDarkNow();
+  K.glow = (dark && !proj) ? 0.7 : 0;
+  K.lw   = proj ? 1.5 : 1;
+  K.fs   = proj ? 1.24 : 1;
+  K.faint= proj ? 0.42 : (K.glow ? 0.34 : 0.32);
+}
+var tBtns=[].slice.call(document.querySelectorAll('.themebar button'));
+function syncTheme(){
+  var cur;
+  if(isProj()) cur='proj';
+  else if(root.getAttribute('data-theme')==='dark') cur='dark';
+  else if(root.getAttribute('data-theme')==='light') cur='light';
+  else cur = mqDark.matches ? 'dark' : 'light';
+  tBtns.forEach(function(b){ b.setAttribute('aria-pressed', b.dataset.t===cur?'true':'false'); });
+}
+function applyTheme(v,store){
+  if(v==='light'){ root.setAttribute('data-theme','light'); root.removeAttribute('data-mode'); }
+  else if(v==='dark'){ root.setAttribute('data-theme','dark'); root.removeAttribute('data-mode'); }
+  else if(v==='proj'){ root.setAttribute('data-theme','light'); root.setAttribute('data-mode','proj'); }
+  if(store){ try{ localStorage.setItem('mt-tema',v); }catch(e){} }
+  syncTheme();
+}
+tBtns.forEach(function(b){ b.addEventListener('click',function(){ applyTheme(b.dataset.t,true); }); });
+(function(){
+  var v=null; try{ v=localStorage.getItem('mt-tema'); }catch(e){}
+  if(v==='light'||v==='dark'||v==='proj') applyTheme(v,false); else syncTheme();
+})();
+
+/* ---------------- yardimcilar ---------------- */
+function nf(v,d){
+  d=(d===undefined)?2:d;
+  var r=Number(v.toFixed(d)); if(r===0) r=0;
+  return r.toFixed(d).replace('-','−').replace('.',',');
+}
+function deg(v,d){ return nf(v,d===undefined?0:d)+'°'; }
+function setFont(ctx,px,w,sans){
+  ctx.font=(w||500)+' '+Math.max(9,Math.round(px*K.fs))+'px '+(sans?'"IBM Plex Sans",system-ui,sans-serif':'"IBM Plex Mono",ui-monospace,monospace');
+}
+function gOn(ctx,col,amt){ if(K.glow){ ctx.shadowColor=col; ctx.shadowBlur=amt*K.glow; } }
+function gOff(ctx){ ctx.shadowBlur=0; ctx.shadowColor='transparent'; }
+function dash(ctx,a){ ctx.setLineDash(a?a.map(function(v){return v*K.lw;}):[]); }
+function line(ctx,x1,y1,x2,y2,col,w,d){
+  ctx.save(); ctx.strokeStyle=col; ctx.lineWidth=(w||1)*K.lw; dash(ctx,d);
+  ctx.beginPath(); ctx.moveTo(x1,y1); ctx.lineTo(x2,y2); ctx.stroke(); ctx.restore();
+}
+function dot(ctx,x,y,r,col,glow){
+  ctx.save(); ctx.fillStyle=col; if(glow) gOn(ctx,col,10);
+  ctx.beginPath(); ctx.arc(x,y,r*K.fs,0,TAU); ctx.fill(); gOff(ctx); ctx.restore();
+}
+function label(ctx,txt,x,y,col,px,align,bg){
+  var fs=px||11;
+  ctx.save(); setFont(ctx,fs,500,false);
+  ctx.textAlign=align||'left'; ctx.textBaseline='alphabetic';
+  if(bg){
+    var w=ctx.measureText(txt).width, h=fs*K.fs;
+    var lx=(align==='right')?x-w:((align==='center')?x-w/2:x);
+    ctx.fillStyle=alpha(C.panel,0.86);
+    ctx.fillRect(lx-3,y-h-1,w+6,h+5);
+  }
+  ctx.fillStyle=col; ctx.fillText(txt,x,y); ctx.restore();
+}
+function labelV(ctx,txt,x,y,col,px){
+  ctx.save(); setFont(ctx,px||11,500,false);
+  ctx.translate(x,y); ctx.rotate(Math.PI/2);
+  ctx.textAlign='center'; ctx.textBaseline='alphabetic';
+  ctx.fillStyle=col; ctx.fillText(txt,0,0); ctx.restore();
+}
+function textW(ctx,txt,px){ ctx.save(); setFont(ctx,px||11,500,false); var w=ctx.measureText(txt).width; ctx.restore(); return w; }
+function alpha(hex,a){
+  var h=hex.replace('#',''); if(h.length===3) h=h[0]+h[0]+h[1]+h[1]+h[2]+h[2];
+  var n=parseInt(h,16);
+  if(isNaN(n)) return hex;
+  return 'rgba('+((n>>16)&255)+','+((n>>8)&255)+','+(n&255)+','+a+')';
+}
+
+/* ---------------- sahne altyapisi ---------------- */
+var scenes=[];
+function makeScene(cv,painter){
+  var ctx=cv.getContext('2d'), s={cv:cv,ctx:ctx,W:0,H:0};
+  s.resize=function(){
+    var r=cv.getBoundingClientRect();
+    var w=Math.max(1,r.width), h=Math.max(1,r.height);
+    var dpr=Math.min(2,window.devicePixelRatio||1);
+    s.W=w; s.H=h; cv.width=Math.round(w*dpr); cv.height=Math.round(h*dpr);
+    ctx.setTransform(dpr,0,0,dpr,0,0);
+  };
+  s.draw=function(){ if(s.W<2) s.resize(); ctx.clearRect(0,0,s.W,s.H); painter(ctx,s.W,s.H); };
+  if(window.ResizeObserver) new ResizeObserver(function(){ s.resize(); s.draw(); }).observe(cv);
+  scenes.push(s); return s;
+}
+function markAll(){ WY.dirty=true; DB.dirty=true; SP.dirty=true; IS.dirty=true; SO.dirty=true; WA.dirty=true; ST.dirty=true; }
+function redrawAll(){ readTheme(); scenes.forEach(function(s){ s.resize(); s.draw(); }); markAll(); }
+new MutationObserver(redrawAll).observe(root,{attributes:true,attributeFilter:['data-theme','data-mode']});
+if(mqDark.addEventListener) mqDark.addEventListener('change',function(){ redrawAll(); syncTheme(); });
+window.addEventListener('resize',function(){ markAll(); });
+
+/* ---------------- ses ---------------- */
+var AC=null;
+function ac(){
+  try{
+    if(!AC){ var Ctor=window.AudioContext||window.webkitAudioContext; if(!Ctor) return null; AC=new Ctor(); }
+    if(AC.state==='suspended') AC.resume();
+    return AC;
+  }catch(e){ return null; }
+}
+function playTones(specs,dur){
+  var c=ac(); if(!c) return;
+  try{
+    var t0=c.currentTime+0.06, master=c.createGain();
+    master.gain.setValueAtTime(0.0001,t0);
+    master.gain.linearRampToValueAtTime(1,t0+0.03);
+    master.gain.setValueAtTime(1,t0+dur-0.08);
+    master.gain.linearRampToValueAtTime(0.0001,t0+dur);
+    master.connect(c.destination);
+    specs.forEach(function(sp){
+      var o=c.createOscillator(); o.type='sine'; o.frequency.setValueAtTime(sp.f,t0);
+      var g=c.createGain(); g.gain.setValueAtTime(sp.g,t0);
+      o.connect(g); g.connect(master); o.start(t0); o.stop(t0+dur+0.06);
+    });
+    setTimeout(function(){ try{ master.disconnect(); }catch(e){} },(dur+0.4)*1000);
+  }catch(e){}
+}
+function playSeq(list,dur,gap){
+  var c=ac(); if(!c) return;
+  list.forEach(function(f,i){ setTimeout(function(){ playTones([{f:f,g:0.16}],dur); }, i*(dur+gap)*1000); });
+}
+function hatch(ctx,x0,x1,y,col,dir){
+  ctx.save(); ctx.strokeStyle=col; ctx.lineWidth=1*K.lw;
+  for(var x=x0+5;x<x1;x+=12){ ctx.beginPath(); ctx.moveTo(x,y); ctx.lineTo(x-5,y+5*(dir||1)); ctx.stroke(); }
+  ctx.restore();
+}
+
+/* ---------------- dalga bicimi sesi ---------------- */
+function gauss(){
+  var u=0,v=0;
+  while(u===0) u=Math.random();
+  while(v===0) v=Math.random();
+  return Math.sqrt(-2*Math.log(u))*Math.cos(TAU*v);
+}
+function playPeriodic(arr,f,amp,dur,noiseRms){
+  var c=ac(); if(!c) return;
+  try{
+    var sr=c.sampleRate, per=Math.max(8,Math.round(sr/f)), n=Math.max(per,Math.round(sr*dur));
+    var buf=c.createBuffer(1,n,sr), d=buf.getChannelData(0), i;
+    if(noiseRms){
+      for(i=0;i<n;i++){ var x=gauss()*noiseRms; if(x>1)x=1; if(x<-1)x=-1; d[i]=x*amp; }
+    } else {
+      var L=arr.length;
+      for(i=0;i<n;i++) d[i]=arr[Math.floor((i%per)/per*L)%L]*amp;
+    }
+    var src=c.createBufferSource(); src.buffer=buf;
+    var g=c.createGain(), t0=c.currentTime+0.05;
+    g.gain.setValueAtTime(0.0001,t0);
+    g.gain.linearRampToValueAtTime(1,t0+0.02);
+    g.gain.setValueAtTime(1,Math.max(t0+0.03,t0+dur-0.05));
+    g.gain.linearRampToValueAtTime(0.0001,t0+dur);
+    src.connect(g); g.connect(c.destination);
+    src.start(t0); src.stop(t0+dur+0.05);
+    setTimeout(function(){ try{ g.disconnect(); }catch(e){} },(dur+0.5)*1000);
+  }catch(e){}
+}
+function playMuffled(f,cut,g0,dur,delay){
+  var c=ac(); if(!c) return;
+  try{
+    var t0=c.currentTime+0.05+(delay||0);
+    var o=c.createOscillator(); o.type='sawtooth'; o.frequency.setValueAtTime(f,t0);
+    var lp=c.createBiquadFilter(); lp.type='lowpass';
+    lp.frequency.setValueAtTime(cut,t0); lp.Q.setValueAtTime(0.7,t0);
+    var g=c.createGain();
+    g.gain.setValueAtTime(0.0001,t0);
+    g.gain.linearRampToValueAtTime(g0,t0+0.03);
+    g.gain.setValueAtTime(g0,t0+dur-0.08);
+    g.gain.linearRampToValueAtTime(0.0001,t0+dur);
+    o.connect(lp); lp.connect(g); g.connect(c.destination);
+    o.start(t0); o.stop(t0+dur+0.05);
+    setTimeout(function(){ try{ g.disconnect(); }catch(e){} },(dur+(delay||0)+0.6)*1000);
+  }catch(e){}
+}
+
+
+/* ---------------- ortak ---------------- */
+var ZAIR=413, PREF=2e-5, IREF=1e-12;
+function arrowH(ctx,x1,x2,y,col,lw){
+  ctx.save(); ctx.strokeStyle=col; ctx.lineWidth=(lw||1.7)*K.lw; ctx.lineCap='round';
+  ctx.beginPath(); ctx.moveTo(x1,y); ctx.lineTo(x2,y); ctx.stroke();
+  var d=(x2>x1)?1:-1, h=5;
+  ctx.beginPath(); ctx.moveTo(x1,y); ctx.lineTo(x1+d*7,y-h); ctx.moveTo(x1,y); ctx.lineTo(x1+d*7,y+h);
+  ctx.moveTo(x2,y); ctx.lineTo(x2-d*7,y-h); ctx.moveTo(x2,y); ctx.lineTo(x2-d*7,y+h);
+  ctx.stroke(); ctx.restore();
+}
+function arrow1(ctx,x1,y1,x2,y2,col,lw){
+  ctx.save(); ctx.strokeStyle=col; ctx.lineWidth=(lw||2)*K.lw; ctx.lineCap='round';
+  ctx.beginPath(); ctx.moveTo(x1,y1); ctx.lineTo(x2,y2); ctx.stroke();
+  var a=Math.atan2(y2-y1,x2-x1), h=Math.max(6,(lw||2)*2.2);
+  ctx.beginPath(); ctx.moveTo(x2,y2); ctx.lineTo(x2-h*Math.cos(a-0.45),y2-h*Math.sin(a-0.45));
+  ctx.moveTo(x2,y2); ctx.lineTo(x2-h*Math.cos(a+0.45),y2-h*Math.sin(a+0.45));
+  ctx.stroke(); ctx.restore();
+}
+function axLab(ctx,txt,x,y,px0,px1,col,px){
+  var w=textW(ctx,txt,px||9), al='center', tx=x;
+  if(tx+w/2>px1){ al='right'; tx=px1; }
+  else if(tx-w/2<px0){ al='left'; tx=px0; }
+  label(ctx,txt,tx,y,col,px||9,al);
+}
+var PRE=[[1e9,'G'],[1e6,'M'],[1e3,'k'],[1,''],[1e-3,'m'],[1e-6,'µ'],[1e-9,'n'],[1e-12,'p']];
+function si(v,unit){
+  if(!isFinite(v)||v===0) return '0 '+unit;
+  var a=Math.abs(v), p=PRE[PRE.length-1], i;
+  for(i=0;i<PRE.length;i++){ if(a>=PRE[i][0]*0.9995){ p=PRE[i]; break; } }
+  var m=v/p[0], am=Math.abs(m), d=(am>=100?0:(am>=10?1:2));
+  return nf(m,d)+' '+p[1]+unit;
+}
+function $(id){ return document.getElementById(id); }
+function setTxt(id,v){ var e=$(id); if(e) e.textContent=v; }
+function sdb(v,d){ return (v>0.049?'+':'')+nf(v,d===undefined?1:d)+' dB'; }
+function nfR(x){
+  if(!isFinite(x)) return '—';
+  if(x>=1e6) return nf(x/1e6,x>=1e7?0:1)+' milyon';
+  if(x>=1000) return nf(x,0);
+  if(x>=100) return nf(x,0);
+  if(x>=10) return nf(x,1);
+  return nf(x,2);
+}
+function pressGroup(list,match){ list.forEach(function(b){ b.setAttribute('aria-pressed',match(b)?'true':'false'); }); }
+function makeSteps(ids,steps){
+  var list=$(ids.list), txt=$(ids.text), cnt=$(ids.count), cur=0;
+  steps.forEach(function(s,i){
+    var li=document.createElement('li'), b=document.createElement('button');
+    b.type='button'; b.innerHTML='<span class="k">'+(i+1)+'</span>'+s.t;
+    b.addEventListener('click',function(){ set(i,true); });
+    li.appendChild(b); list.appendChild(li);
+  });
+  function set(i,run){
+    cur=(i+steps.length)%steps.length;
+    [].slice.call(list.querySelectorAll('button')).forEach(function(b,j){ b.setAttribute('aria-current', j===cur?'true':'false'); });
+    txt.textContent=steps[cur].d; cnt.textContent=(cur+1)+' / '+steps.length;
+    if(run && steps[cur].apply) steps[cur].apply();
+  }
+  $(ids.prev).addEventListener('click',function(){ set(cur-1,true); });
+  $(ids.next).addEventListener('click',function(){ set(cur+1,true); });
+  set(0,false);
+  return { set:set };
+}
+
+/* ---------------- ISO 226:2003 esit gurluk egrileri ---------------- */
+var ISOF=[20,25,31.5,40,50,63,80,100,125,160,200,250,315,400,500,630,800,1000,1250,1600,2000,2500,3150,4000,5000,6300,8000,10000,12500];
+var ISOA=[0.532,0.506,0.480,0.455,0.432,0.409,0.387,0.367,0.349,0.330,0.315,0.301,0.288,0.276,0.267,0.259,0.253,0.250,0.246,0.244,0.243,0.243,0.243,0.242,0.242,0.245,0.254,0.271,0.301];
+var ISOU=[-31.6,-27.2,-23.0,-19.1,-15.9,-13.0,-10.3,-8.1,-6.2,-4.5,-3.1,-2.0,-1.1,-0.4,0.0,0.3,0.5,0.0,-2.7,-4.1,-1.0,1.7,2.5,1.2,-2.1,-7.1,-11.2,-10.7,-3.1];
+var ISOT=[78.5,68.7,59.5,51.1,44.0,37.5,31.5,26.5,22.1,17.9,14.4,11.4,8.6,6.2,4.4,3.0,2.2,2.4,3.5,1.7,-1.3,-4.2,-6.0,-5.4,-1.5,6.0,12.6,13.9,12.3];
+function isoIp(a,f){
+  var n=ISOF.length, i;
+  if(f<=ISOF[0]) return a[0];
+  if(f>=ISOF[n-1]) return a[n-1];
+  for(i=1;i<n;i++) if(f<=ISOF[i]){
+    var t=Math.log(f/ISOF[i-1])/Math.log(ISOF[i]/ISOF[i-1]);
+    return a[i-1]+(a[i]-a[i-1])*t;
+  }
+  return a[n-1];
+}
+function isoSpl(f,LN){
+  var af=isoIp(ISOA,f), lu=isoIp(ISOU,f), tf=isoIp(ISOT,f);
+  var Af=4.47e-3*(Math.pow(10,0.025*LN)-1.15)+Math.pow(0.4*Math.pow(10,(tf+lu)/10-9),af);
+  return (10/af)*Math.log(Af)/Math.LN10-lu+94;
+}
+function isoPhon(f,Lp){                       /* ters cozum : ikiye bolme */
+  var lo=-5, hi=95, m, i;
+  if(Lp<=isoSpl(f,lo)) return lo;
+  if(Lp>=isoSpl(f,hi)) return hi;
+  for(i=0;i<40;i++){ m=(lo+hi)/2; if(isoSpl(f,m)<Lp) lo=m; else hi=m; }
+  return (lo+hi)/2;
+}
+function soneOf(P){
+  if(P>=40) return Math.pow(2,(P-40)/10);
+  return Math.pow(Math.max(0,P)/40,2.642);
+}
+function aWeight(f){
+  var f2=f*f;
+  var r=(12194*12194*f2*f2)/((f2+20.6*20.6)*Math.sqrt((f2+107.7*107.7)*(f2+737.9*737.9))*(f2+12194*12194));
+  return 20*Math.log(r)/Math.LN10+2.00;
+}
+function splToP(L){ return PREF*Math.pow(10,L/20); }
+function splToI(L){ var p=splToP(L); return p*p/ZAIR; }
+function safeHours(La){ return 8*Math.pow(2,(85-La)/3); }
+function durTxt(h){
+  if(h>=8) return nf(h,h>=100?0:1)+' saat';
+  if(h>=1) return nf(h,1)+' saat';
+  var m=h*60;
+  if(m>=1) return nf(m,m>=10?0:1)+' dakika';
+  return nf(m*60,0)+' saniye';
+}
+
+/* ================= 01 : duz cetvel vs desibel ================= */
+var WYS=[{n:'İşitme eşiği',L:0},{n:'Fısıltı',L:30},{n:'Konuşma',L:60},{n:'Konser',L:100},{n:'Acı eşiği',L:120}];
+var WY={i:0, dirty:true};
+function wyInt(L){ return IREF*Math.pow(10,L/10); }
+var whyScene=makeScene(document.getElementById('cWhy'),function(ctx,W,H){
+  var pad=14, px0=pad+12, px1=W-pad-12, i;
+  var yA=pad+50, yB=H-pad-38, sw=px1-px0;
+  var xA=function(L){ return px0+sw*wyInt(L)/1.0; };
+  var xB=function(L){ return px0+sw*L/120; };
+
+  /* --- duz cetvel --- */
+  label(ctx,'düz cetvel · şiddet (W/m²)',px0,yA-30,alpha(C['ink-3'],0.95),10,'left');
+  line(ctx,px0,yA,px1,yA,alpha(C['ink-3'],0.65),1.4);
+  for(i=0;i<=4;i++){
+    var xv=px0+sw*i/4;
+    line(ctx,xv,yA-4,xv,yA+4,alpha(C['ink-3'],0.55),1);
+    axLab(ctx,i===0?'0':nf(i/4,2),xv,yA+16,px0,px1,alpha(C['ink-3'],0.95),9);
+  }
+  label(ctx,'1,00',px1,yA+16,alpha(C['ink-3'],0.95),9,'right');
+
+  /* --- desibel cetveli --- */
+  label(ctx,'desibel cetveli · dB SPL',px0,yB-24,alpha(C['ink-3'],0.95),10,'left');
+  line(ctx,px0,yB,px1,yB,alpha(C['ink-3'],0.65),1.4);
+  for(i=0;i<=12;i++){
+    var xd=px0+sw*i/12, big=(i%2===0);
+    line(ctx,xd,yB-(big?5:3),xd,yB+(big?5:3),alpha(C['ink-3'],big?0.6:0.35),1);
+    if(big) axLab(ctx,String(i*10),xd,yB+17,px0,px1,alpha(C['ink-3'],0.95),9);
+  }
+
+  /* --- isaretler --- */
+  for(i=0;i<WYS.length;i++){
+    var sel=(i===WY.i), col=sel?C.arc:alpha(C.cos,0.75);
+    dot(ctx,xA(WYS[i].L),yA,sel?5:3,col,sel);
+    dot(ctx,xB(WYS[i].L),yB,sel?5:3,col,sel);
+  }
+  var s=WYS[WY.i];
+  /* baglanti : ayni ses, iki cetvel */
+  ctx.save(); ctx.strokeStyle=alpha(C.arc,0.55); ctx.lineWidth=1.4*K.lw; dash(ctx,[4,4]);
+  ctx.beginPath(); ctx.moveTo(xA(s.L),yA+7);
+  ctx.bezierCurveTo(xA(s.L),yA+42,xB(s.L),yB-42,xB(s.L),yB-7);
+  ctx.stroke(); ctx.restore();
+  label(ctx,'aynı ses',(xA(s.L)+xB(s.L))/2+10,(yA+yB)/2+4,alpha(C.arc,0.9),9,'left',true);
+  label(ctx,s.n,Math.min(px1-textW(ctx,s.n,11),Math.max(px0,xB(s.L)-20)),yB-8,C.arc,11,'left',true);
+
+  /* --- yigilma aciklamasi --- */
+  var nHid=0;
+  for(i=0;i<WYS.length;i++) if(xA(WYS[i].L)-px0<6) nHid++;
+  if(nHid>1){
+    var t=nHid+' ses burada üst üste';
+    label(ctx,'↑ '+t,px0+8,yA-9,alpha(C.cos,0.95),10,'left',true);
+  }
+});
+
+/* ================= 03 : desibel makinesi ================= */
+var DB={r:2, dirty:true};
+var DBLO=1e-3, DBHI=1e3;
+function dbRfromV(v){ return DBLO*Math.pow(DBHI/DBLO,v/100); }
+function dbVfromR(r){ return 100*Math.log(r/DBLO)/Math.log(DBHI/DBLO); }
+function dbPow(r){ return 10*Math.log(r)/Math.LN10; }
+function dbAmp(r){ return 20*Math.log(r)/Math.LN10; }
+var dbScene=makeScene(document.getElementById('cDb'),function(ctx,W,H){
+  var pad=14, px0=pad+42, px1=W-pad-14;
+  var top=pad+28, bot=H-pad-34, i;
+  var xOf=function(r){ return px0+(Math.log(r)/Math.LN10+3)/6*(px1-px0); };
+  var yOf=function(d){ return bot-(d+60)/120*(bot-top); };
+  var faint=alpha(C['ink-3'],K.faint);
+
+  /* izgara */
+  for(i=-3;i<=3;i++){
+    var gx=xOf(Math.pow(10,i));
+    line(ctx,gx,top,gx,bot,i===0?alpha(C['ink-3'],0.5):faint,i===0?1.4:1);
+    var lt=(i===0)?'1':(i<0?('0,'+'0'.repeat(-i-1)+'1'):('1'+'0'.repeat(i)));
+    axLab(ctx,lt,gx,bot+16,px0-30,px1,alpha(C['ink-3'],0.95),9);
+  }
+  for(i=-60;i<=60;i+=20){
+    var gy=yOf(i);
+    line(ctx,px0,gy,px1,gy,i===0?alpha(C['ink-3'],0.5):faint,i===0?1.4:1);
+    label(ctx,(i>0?'+':'')+i,px0-7,gy+3,alpha(C['ink-3'],0.95),9,'right');
+  }
+  label(ctx,'oran (× kaç)',px1,bot+30,alpha(C['ink-3'],0.95),10,'right');
+  label(ctx,'dB',px0-7,top-8,alpha(C['ink-3'],0.95),10,'right');
+
+  /* dogrular : dB = k · log(oran) */
+  ctx.save(); ctx.strokeStyle=C.cos; ctx.lineWidth=2.3*K.lw; gOn(ctx,C.cos,8);
+  ctx.beginPath(); ctx.moveTo(xOf(DBLO),yOf(dbPow(DBLO))); ctx.lineTo(xOf(DBHI),yOf(dbPow(DBHI))); ctx.stroke();
+  gOff(ctx); ctx.restore();
+  ctx.save(); ctx.strokeStyle=C.sin; ctx.lineWidth=2.6*K.lw; gOn(ctx,C.sin,8);
+  ctx.beginPath(); ctx.moveTo(xOf(DBLO),yOf(dbAmp(DBLO))); ctx.lineTo(xOf(DBHI),yOf(dbAmp(DBHI))); ctx.stroke();
+  gOff(ctx); ctx.restore();
+  label(ctx,'20·log  genlik',xOf(500),yOf(dbAmp(500))-8,C.sin,11,'right',true);
+  label(ctx,'10·log  güç',xOf(900),yOf(dbPow(900))-8,C.cos,11,'right',true);
+
+  /* secili oran */
+  var r=DB.r, xs=xOf(r), yp=yOf(dbPow(r)), ya=yOf(dbAmp(r));
+  line(ctx,xs,top,xs,bot,alpha(C.arc,0.75),1.6,[4,4]);
+  line(ctx,px0,ya,xs,ya,alpha(C.sin,0.55),1.2,[3,4]);
+  line(ctx,px0,yp,xs,yp,alpha(C.cos,0.55),1.2,[3,4]);
+  dot(ctx,xs,ya,4.6,C.sin,true);
+  dot(ctx,xs,yp,4.6,C.cos,true);
+  var rt='× '+(r>=100?nf(r,0):nf(r,r<0.1?3:2));
+  label(ctx,rt,xs,top-8,C.arc,11,(xs>px1-60)?'right':'center',true);
+  var lx=xs+9, al2='left';
+  if(lx>px1-66){ lx=xs-9; al2='right'; }
+  var cy1=Math.max(top+11,Math.min(bot-4,ya-7)), cy2=Math.max(top+11,Math.min(bot-4,yp+17));
+  label(ctx,sdb(dbAmp(r)),lx,cy1,C.sin,11,al2);
+  label(ctx,sdb(dbPow(r)),lx,cy2,C.cos,11,al2);
+});
+
+/* ================= 04 : dB SPL merdiveni ================= */
+var SPA=[
+  {L:0,  n:'İşitme eşiği'},
+  {L:10, n:'Yaprak hışırtısı'},
+  {L:30, n:'Sessiz yatak odası'},
+  {L:50, n:'Sakin ofis'},
+  {L:70, n:'Yoğun trafik'},
+  {L:85, n:'Maruz kalma sınırı'},
+  {L:94, n:'Tam 1 paskal'},
+  {L:110,n:'Rock konseri'},
+  {L:120,n:'Acı eşiği'},
+  {L:140,n:'Jet motoru · anında hasar'}
+];
+var SP={L:60, dirty:true};
+var splScene=makeScene(document.getElementById('cSpl'),function(ctx,W,H){
+  var pad=14, px0=pad+8, px1=W-pad-8, w=px1-px0;
+  var top=pad+30, bot=H-pad-20;
+  var xA=px0+Math.max(120,w*0.40), xP=xA+16, xI=xA+16+Math.max(70,w*0.20);
+  var yOf=function(L){ return bot-(L/140)*(bot-top); };
+  var faint=alpha(C['ink-3'],K.faint);
+  var i,L;
+
+  /* eksen */
+  line(ctx,xA,top-6,xA,bot+6,alpha(C['ink-3'],0.65),1.6);
+  for(L=0;L<=140;L+=10){
+    var big=(L%20===0), y=yOf(L);
+    line(ctx,xA-(big?6:3),y,xA+(big?6:3),y,alpha(C['ink-3'],big?0.55:0.3),1);
+  }
+  var ysHl=yOf(SP.L);
+  ctx.save(); ctx.fillStyle=alpha(C.arc,K.glow?0.16:0.09);
+  ctx.fillRect(px0,ysHl-9,px1-px0,18); ctx.restore();
+  label(ctx,'basınç',xP,top-10,alpha(C.sin,0.95),10,'left');
+  label(ctx,'şiddet',xI,top-10,alpha(C.cos,0.95),10,'left');
+  label(ctx,'dB SPL',xA-8,top-10,alpha(C['ink-3'],0.95),10,'right');
+  for(L=0;L<=140;L+=20){
+    var yy=yOf(L);
+    label(ctx,si(splToP(L),'Pa'),xP,yy+3,alpha(C.sin,0.9),9,'left');
+    label(ctx,si(splToI(L),'W/m²'),xI,yy+3,alpha(C.cos,0.9),9,'left');
+  }
+
+  /* referans sesler */
+  for(i=0;i<SPA.length;i++){
+    var ya=yOf(SPA[i].L);
+    line(ctx,xA-6,ya,xA,ya,alpha(C['ink-3'],0.5),1);
+    label(ctx,SPA[i].n+'  '+SPA[i].L,xA-10,ya+3,alpha(C['ink-2'],0.95),10,'right');
+  }
+
+  /* secili duzey */
+  var ys=yOf(SP.L);
+  line(ctx,px0,ys,xA+7,ys,alpha(C.arc,0.8),1.6,[5,4]);
+  ctx.save(); ctx.fillStyle=alpha(C.arc,K.glow?0.22:0.14);
+  ctx.fillRect(xA-3,ys,6,bot-ys); ctx.restore();
+  dot(ctx,xA,ys,5.2,C.arc,true);
+  label(ctx,SP.L+' dB',px1,ys+4,C.arc,12,'right',true);
+});
+
+/* ================= 05 : esit gurluk egrileri ================= */
+var ISPH=[0,10,20,30,40,50,60,70,80,90];
+var IS={f:1000, L:60, dirty:true};
+var ISFLO=20, ISFHI=12500, ISLLO=-10, ISLHI=120;
+function isFfromV(v){ return ISFLO*Math.pow(ISFHI/ISFLO,v/100); }
+function isVfromF(f){ return 100*Math.log(f/ISFLO)/Math.log(ISFHI/ISFLO); }
+var isoScene=makeScene(document.getElementById('cIso'),function(ctx,W,H){
+  var pad=14, px0=pad+34, px1=W-pad-10;
+  var top=pad+22, bot=H-pad-30, i, j;
+  var xOf=function(f){ return px0+Math.log(f/ISFLO)/Math.log(ISFHI/ISFLO)*(px1-px0); };
+  var yOf=function(L){ return bot-(L-ISLLO)/(ISLHI-ISLLO)*(bot-top); };
+  isoScene.map={px0:px0,px1:px1,top:top,bot:bot};
+  var faint=alpha(C['ink-3'],K.faint);
+
+  /* izgara */
+  var GF=[20,50,100,200,500,1000,2000,5000,10000];
+  for(i=0;i<GF.length;i++){
+    var gx=xOf(GF[i]);
+    line(ctx,gx,top,gx,bot,GF[i]===1000?alpha(C['ink-3'],0.45):faint,GF[i]===1000?1.3:1);
+    axLab(ctx,GF[i]>=1000?(GF[i]/1000+'k'):String(GF[i]),gx,bot+16,px0-20,px1,alpha(C['ink-3'],0.95),9);
+  }
+  for(i=0;i<=120;i+=20){
+    var gy=yOf(i);
+    line(ctx,px0,gy,px1,gy,faint,1);
+    label(ctx,String(i),px0-7,gy+3,alpha(C['ink-3'],0.95),9,'right');
+  }
+  label(ctx,'frekans (Hz)',px1,bot+30,alpha(C['ink-3'],0.95),10,'right');
+  label(ctx,'dB SPL',px0-7,top-7,alpha(C['ink-3'],0.95),10,'right');
+
+  /* egriler */
+  var selPh=isoPhon(IS.f,IS.L);
+  var drawC=function(LN,sel){
+    ctx.save();
+    ctx.strokeStyle=sel?C.sin:alpha(C.cos,0.55);
+    ctx.lineWidth=(sel?2.6:1.3)*K.lw; ctx.lineJoin='round';
+    if(sel) gOn(ctx,C.sin,9);
+    ctx.beginPath();
+    for(j=0;j<=120;j++){
+      var f=ISFLO*Math.pow(ISFHI/ISFLO,j/120), y=yOf(isoSpl(f,LN));
+      if(j===0) ctx.moveTo(xOf(f),y); else ctx.lineTo(xOf(f),y);
+    }
+    ctx.stroke(); gOff(ctx); ctx.restore();
+  };
+  for(i=0;i<ISPH.length;i++) drawC(ISPH[i],false);
+  if(selPh>-4 && selPh<94) drawC(selPh,true);
+
+  /* egri etiketleri */
+  for(i=0;i<ISPH.length;i++){
+    var ye=yOf(isoSpl(ISFHI*0.92,ISPH[i]));
+    label(ctx,ISPH[i]+(i===ISPH.length-1?' fon':''),px1-2,ye+3,alpha(C.cos,0.95),9,'right',true);
+  }
+
+  /* secili nokta */
+  var xs=xOf(IS.f), ys=yOf(IS.L);
+  line(ctx,xs,top,xs,bot,alpha(C.arc,0.45),1,[3,4]);
+  line(ctx,px0,ys,px1,ys,alpha(C.arc,0.45),1,[3,4]);
+  dot(ctx,xs,ys,6,C.arc,true);
+  var tp=nf(selPh,0)+' fon';
+  label(ctx,tp,xs+(xs>px1-70?-8:8),ys-9,C.arc,12,xs>px1-70?'right':'left',true);
+
+  /* 1 kHz esdegeri */
+  var xk=xOf(1000), yk=yOf(selPh);
+  if(Math.abs(IS.f-1000)>1){
+    dot(ctx,xk,yk,4,alpha(C.sin,0.9),true);
+    label(ctx,nf(selPh,0)+' dB',xk+7,yk+14,alpha(C.sin,0.95),10,'left',true);
+  }
+});
+
+/* ================= 06 : fon ve son ================= */
+var SO={P:40, dirty:true};
+var SOLO=1e-3, SOHI=1e6;
+var sonScene=makeScene(document.getElementById('cSon'),function(ctx,W,H){
+  var pad=14, px0=pad+44, px1=W-pad-12;
+  var top=pad+22, bot=H-pad-30, i, j;
+  var xOf=function(P){ return px0+(P-10)/90*(px1-px0); };
+  var yOf=function(v){ return bot-(Math.log(v/SOLO)/Math.log(SOHI/SOLO))*(bot-top); };
+  var faint=alpha(C['ink-3'],K.faint);
+  var LBL=['0,001','0,01','0,1','1','10','100','1000','10 bin','100 bin','1 milyon'];
+
+  for(i=0;i<=9;i++){
+    var gy=yOf(Math.pow(10,i-3));
+    line(ctx,px0,gy,px1,gy,(i===3)?alpha(C['ink-3'],0.45):faint,(i===3)?1.3:1);
+    label(ctx,LBL[i],px0-7,gy+3,alpha(C['ink-3'],0.95),9,'right');
+  }
+  for(i=10;i<=100;i+=10){
+    var gx=xOf(i);
+    line(ctx,gx,top,gx,bot,faint,1);
+    axLab(ctx,String(i),gx,bot+16,px0-20,px1,alpha(C['ink-3'],0.95),9);
+  }
+  label(ctx,'gürlük düzeyi (fon)',px1,bot+30,alpha(C['ink-3'],0.95),10,'right');
+  label(ctx,'kaç kat',px0-7,top-7,alpha(C['ink-3'],0.95),10,'right');
+
+  var curve=function(fn,col,lw){
+    ctx.save(); ctx.strokeStyle=col; ctx.lineWidth=lw*K.lw; ctx.lineJoin='round'; gOn(ctx,col,8);
+    ctx.beginPath();
+    for(j=0;j<=180;j++){
+      var P=10+90*j/180, v=Math.max(SOLO,Math.min(SOHI,fn(P)));
+      if(j===0) ctx.moveTo(xOf(P),yOf(v)); else ctx.lineTo(xOf(P),yOf(v));
+    }
+    ctx.stroke(); gOff(ctx); ctx.restore();
+  };
+  curve(function(P){ return Math.pow(10,(P-40)/10); },C.cos,2.3);
+  curve(function(P){ return soneOf(P); },C.sin,2.7);
+  label(ctx,'gereken güç',xOf(88),yOf(Math.pow(10,4.8))-8,C.cos,11,'right',true);
+  label(ctx,'gürlük · son',xOf(96),yOf(soneOf(96))-9,C.sin,11,'right',true);
+
+  /* ikiye katlama merdiveni */
+  for(i=40;i<=90;i+=10){
+    var yy=yOf(soneOf(i));
+    line(ctx,xOf(i)-5,yy,xOf(i)+5,yy,alpha(C.sin,0.5),1.4);
+  }
+
+  var xs=xOf(SO.P), ysS=yOf(soneOf(SO.P)), ysW=yOf(Math.pow(10,(SO.P-40)/10));
+  line(ctx,xs,top,xs,bot,alpha(C.arc,0.7),1.5,[4,4]);
+  dot(ctx,xs,ysS,5,C.arc,true);
+  dot(ctx,xs,ysW,4.4,C.arc,true);
+  var al=(xs>px1-95)?'right':'left', ox=(xs>px1-95)?-8:8;
+  label(ctx,nf(soneOf(SO.P),2)+' son',xs+ox,ysS-9,C.sin,11,al);
+  label(ctx,nfR(Math.pow(10,(SO.P-40)/10))+' × güç',xs+ox,ysW+17,C.cos,11,al);
+});
+
+/* ================= 07 : A agirliklama ================= */
+var WAF=[31.5,63,125,250,500,1000,2000,4000,8000,16000];
+var WASP={
+  kulup:{n:'Kulüp', v:[100,102,98,92,88,85,82,78,72,64]},
+  konusma:{n:'Konuşma', v:[42,48,55,62,68,68,64,58,50,42]},
+  zil:{n:'Zil', v:[48,52,58,64,70,76,82,86,84,78]},
+  pembe:{n:'Pembe gürültü', v:[80,80,80,80,80,80,80,80,80,80]}
+};
+var WA={k:'kulup', g:0, dirty:true};
+function waBands(){
+  var b=WASP[WA.k].v, o=[], i;
+  for(i=0;i<b.length;i++) o.push(b[i]+WA.g);
+  return o;
+}
+function waSum(arr,w){
+  var s=0, i;
+  for(i=0;i<arr.length;i++) s+=Math.pow(10,(arr[i]+(w?aWeight(WAF[i]):0))/10);
+  return 10*Math.log(s)/Math.LN10;
+}
+var waScene=makeScene(document.getElementById('cWa'),function(ctx,W,H){
+  var pad=14, px0=pad+36, px1=W-pad-12, i;
+  var top=pad+20, bot=H-pad-30;
+  var gap=22, hA=(bot-top-gap)*0.40, hB=(bot-top-gap)-hA;
+  var aTop=top, aBot=top+hA, bTop=aBot+gap, bBot=bot;
+  var FLO=20, FHI=20000;
+  var xOf=function(f){ return px0+Math.log(f/FLO)/Math.log(FHI/FLO)*(px1-px0); };
+  var yA=function(d){ return aBot-(d+60)/70*(hA); };
+  var yB=function(d){ return bBot-(d/115)*(hB); };
+  var faint=alpha(C['ink-3'],K.faint);
+  var GF=[31.5,125,500,2000,8000];
+
+  /* ust : A egrisi */
+  for(i=0;i<GF.length;i++) line(ctx,xOf(GF[i]),aTop,xOf(GF[i]),aBot,faint,1);
+  line(ctx,px0,yA(0),px1,yA(0),alpha(C['ink-3'],0.45),1.2);
+  label(ctx,'0',px0-6,yA(0)+3,alpha(C['ink-3'],0.95),9,'right');
+  label(ctx,'−40',px0-6,yA(-40)+3,alpha(C['ink-3'],0.95),9,'right');
+  line(ctx,px0,yA(-40),px1,yA(-40),faint,1);
+  ctx.save(); ctx.strokeStyle=C.arc; ctx.lineWidth=2.5*K.lw; ctx.lineJoin='round'; gOn(ctx,C.arc,9);
+  ctx.beginPath();
+  for(i=0;i<=140;i++){
+    var f=FLO*Math.pow(FHI/FLO,i/140), y=yA(Math.max(-60,aWeight(f)));
+    if(i===0) ctx.moveTo(xOf(f),y); else ctx.lineTo(xOf(f),y);
+  }
+  ctx.stroke(); gOff(ctx); ctx.restore();
+  label(ctx,'A eğrisi · dB düzeltmesi',px0+4,aTop+11,alpha(C.arc,0.95),10,'left',true);
+
+  /* alt : tayf */
+  var bw=(xOf(63)-xOf(31.5))*0.62;
+  var raw=waBands();
+  for(i=0;i<WAF.length;i++){
+    var xc=xOf(WAF[i]), lz=raw[i], la=raw[i]+aWeight(WAF[i]);
+    ctx.save(); ctx.strokeStyle=alpha(C.cos,0.9); ctx.lineWidth=1.6*K.lw;
+    ctx.strokeRect(xc-bw/2,yB(Math.max(0,lz)),bw,bBot-yB(Math.max(0,lz)));
+    ctx.restore();
+    if(la>0){
+      ctx.save(); ctx.fillStyle=alpha(C.sin,0.85); if(K.glow) gOn(ctx,C.sin,7);
+      ctx.fillRect(xc-bw/2+1.5,yB(la),bw-3,bBot-yB(la)); gOff(ctx); ctx.restore();
+    }
+    axLab(ctx,WAF[i]>=1000?(WAF[i]/1000+'k'):String(WAF[i]),xc,bBot+16,px0-18,px1,alpha(C['ink-3'],0.95),9);
+  }
+  line(ctx,px0,bBot,px1,bBot,alpha(C['ink-3'],0.55),1.2);
+  for(i=20;i<=100;i+=20){
+    line(ctx,px0,yB(i),px1,yB(i),faint,1);
+    label(ctx,String(i),px0-6,yB(i)+3,alpha(C['ink-3'],0.95),9,'right');
+  }
+  label(ctx,'oktav bandı düzeyleri (dB)',px0+4,bTop+11,alpha(C['ink-3'],0.95),10,'left',true);
+  label(ctx,'frekans (Hz)',px1,bBot+30,alpha(C['ink-3'],0.95),10,'right');
+});
+
+/* ================= 08 : studyo desibelleri ================= */
+var ST={u:4, al:18, dirty:true};
+var STLO=-30, STHI=24;
+function stVolt(u){ return 0.7746*Math.pow(10,u/20); }
+function stFs(u){ return u-4-ST.al; }
+var stuScene=makeScene(document.getElementById('cStu'),function(ctx,W,H){
+  var pad=14, px0=pad+10, px1=W-pad-10, w=px1-px0;
+  var top=pad+26, bot=H-pad-22, i;
+  var xA=px0+Math.max(46,w*0.30), xV=xA+10;
+  var xF=xV+Math.max(66,w*0.24), xM=xF+Math.max(60,w*0.22);
+  var yOf=function(u){ return bot-(u-STLO)/(STHI-STLO)*(bot-top); };
+  var uTop=4+ST.al, yTop=yOf(uTop);
+
+  /* kirpilma bolgesi */
+  ctx.save(); ctx.fillStyle=alpha(C.arc,K.glow?0.18:0.10);
+  ctx.fillRect(px0,top-8,px1-px0,Math.max(0,yTop-(top-8))); ctx.restore();
+
+  line(ctx,xA,top-6,xA,bot+6,alpha(C['ink-3'],0.6),1.6);
+  label(ctx,'dBu',xA-8,top-12,alpha(C.sin,0.95),10,'right');
+  label(ctx,'gerilim',xV,top-12,alpha(C.sin,0.95),10,'left');
+  label(ctx,'dBFS',xF,top-12,alpha(C.cos,0.95),10,'left');
+  for(i=STLO;i<=STHI;i+=6){
+    var y=yOf(i), fs=i-4-ST.al;
+    line(ctx,xA-5,y,xA+5,y,alpha(C['ink-3'],0.5),1);
+    label(ctx,(i>0?'+':'')+i,xA-8,y+3,alpha(C['ink-3'],0.95),9,'right');
+    label(ctx,si(stVolt(i),'V'),xV,y+3,alpha(C.sin,0.85),9,'left');
+    if(fs<=0.2) label(ctx,nf(fs,0),xF,y+3,alpha(C.cos,0.85),9,'left');
+  }
+
+  /* 0 dBFS tavani */
+  line(ctx,px0,yTop,px1,yTop,C.arc,2);
+  label(ctx,'0 dBFS · tavan',xF,yTop-6,C.arc,10,'left',true);
+  label(ctx,'kırpılma',px1-2,top+4,alpha(C.arc,0.9),9,'right',true);
+
+  /* nominal isaretler */
+  var mk=function(u,t,col){
+    var y=yOf(u);
+    line(ctx,xA-4,y,xA+4,y,col,2.4);
+    label(ctx,t,xA-8,y+3,col,9,'right',true);
+  };
+  mk(4,'+4 dBu · pro',alpha(C.sin,0.95));
+  mk(-7.8,'−10 dBV · tüketici',alpha(C.cos,0.95));
+
+  /* secili sinyal */
+  var ys=yOf(ST.u);
+  ctx.save(); ctx.fillStyle=alpha(C.arc,K.glow?0.22:0.14);
+  ctx.fillRect(xA-4,ys,8,bot-ys); ctx.restore();
+  line(ctx,xA-6,ys,xM-14,ys,alpha(C.arc,0.8),1.6,[5,4]);
+  dot(ctx,xA,ys,5.2,C.arc,true);
+
+  /* tavana kalan */
+  if(ys>yTop+16){
+    var xb=xM-6;
+    ctx.save(); ctx.strokeStyle=alpha(C.arc,0.85); ctx.lineWidth=1.4*K.lw; ctx.lineCap='round';
+    ctx.beginPath(); ctx.moveTo(xb,ys); ctx.lineTo(xb,yTop);
+    ctx.moveTo(xb-4,ys-5); ctx.lineTo(xb,ys); ctx.lineTo(xb+4,ys-5);
+    ctx.moveTo(xb-4,yTop+5); ctx.lineTo(xb,yTop); ctx.lineTo(xb+4,yTop+5);
+    ctx.stroke(); ctx.restore();
+    label(ctx,nf(uTop-ST.u,1)+' dB',xb+6,(ys+yTop)/2-3,C.arc,10,'left',true);
+    label(ctx,'tavan',xb+6,(ys+yTop)/2+10,alpha(C.arc,0.9),9,'left',true);
+  }
+});
+
+/* ================= 01 kontrolleri ================= */
+var wyPills=[].slice.call(document.querySelectorAll('.pill[data-wy]'));
+function wySet(i){
+  WY.i=i; WY.dirty=true;
+  pressGroup(wyPills,function(b){ return +b.dataset.wy===i; });
+  var L=WYS[i].L, I=wyInt(L);
+  setTxt('wyI',si(I,'W/m²'));
+  var pos=I*100;
+  setTxt('wyPos',pos>=0.001?('%'+nf(pos,pos>=1?1:4)):'< %0,001');
+  setTxt('wyDb',L+' dB');
+}
+wyPills.forEach(function(b){ b.addEventListener('click',function(){ wySet(+b.dataset.wy); }); });
+
+/* ================= 03 kontrolleri ================= */
+var dbPills=[].slice.call(document.querySelectorAll('.pill[data-r]'));
+var dbR=$('dbR');
+var RROWS=[
+  {r:0.5,  w:'Yarım güç ya da yarım genlik — hangisi olduğunu söylemek şart.'},
+  {r:1.259,w:'Fark edilebilir en küçük değişim: güçte %26 artış, yalnızca +1 dB.'},
+  {r:2,    w:'İki hoparlör yerine dört hoparlör (+3 dB) ya da iki mikrofonu fazda toplamak (+6 dB).'},
+  {r:3.162,w:'Genlik 3,16 katıysa güç 10 katıdır: +10 dB.'},
+  {r:4,    w:'Mesafeyi yarıya indirmek şiddeti dört katına çıkarır: +6 dB.'},
+  {r:10,   w:'10 W yerine 100 W amfi: +10 dB, yani yaklaşık iki katı gürlük.'},
+  {r:100,  w:'Mikrofon ön yükseltecinin tipik kazancı bu mertebededir.'},
+  {r:1000, w:'+30 dB güç ya da +60 dB genlik. Logaritma olmasa bu sayıları konuşamazdık.'}
+];
+function dbUpd(){
+  var r=DB.r, lg=Math.log(r)/Math.LN10;
+  var rt=(r>=100?nf(r,0):nf(r,r<0.1?3:2))+' ×';
+  setTxt('dbRV',rt); setTxt('qOran',rt);
+  setTxt('qPw',sdb(dbPow(r)));
+  setTxt('qAm',sdb(dbAmp(r)));
+  setTxt('qInv',(1/r>=100?nf(1/r,0):nf(1/r,1/r<0.1?3:2))+' ×');
+  setTxt('qInvDb',sdb(-dbPow(r)));
+  setTxt('qTwice',(r*r>=100?nf(r*r,0):nf(r*r,2))+' × · '+sdb(2*dbPow(r)));
+  setTxt('cOr',rt);
+  setTxt('cLg',nf(lg,3));
+  setTxt('cPw',sdb(dbPow(r)));
+  setTxt('cAm',sdb(dbAmp(r)));
+  setTxt('cEq',nf(r,r<0.1?3:2)+' kat genlik = '+nf(r*r,r*r<0.1?3:2)+' kat güç');
+  var note;
+  if(Math.abs(r-2)<0.06) note='Klasik çift: güç iki katıysa +3 dB, genlik iki katıysa +6 dB. Aynı sayı, iki ayrı soru.';
+  else if(Math.abs(r-10)<0.3) note='On kat güç tam +10 dB. Kulak bunu yaklaşık "iki katı gür" olarak duyar — 6. bölümde göreceğiz.';
+  else if(r<1) note='Oran 1’in altındayken logaritma eksi çıkar; desibel de eksi olur. Eksi dB "ses yok" demek değil, "referanstan küçük" demektir.';
+  else if(Math.abs(r-1.259)<0.03) note='Güçte %26 artış yalnızca +1 dB eder ve zar zor duyulur. Desibelin "kaba" bir birim olmadığının kanıtı.';
+  else note='log₁₀(oran) = '+nf(lg,3)+'. Onu 10 ile çarpınca güç desibeli, 20 ile çarpınca genlik desibeli çıkar.';
+  setTxt('cNote',note);
+  pressGroup(dbPills,function(b){ return Math.abs(+b.dataset.r-r)/r<0.02; });
+  [].slice.call(document.querySelectorAll('#tblR tbody tr')).forEach(function(tr){
+    tr.setAttribute('aria-selected', Math.abs(+tr.dataset.r-r)/r<0.02?'true':'false');
+  });
+  DB.dirty=true;
+}
+function dbSet(r){ DB.r=r; dbR.value=Math.max(0,Math.min(100,dbVfromR(r))); dbUpd(); }
+dbPills.forEach(function(b){ b.addEventListener('click',function(){ dbSet(+b.dataset.r); }); });
+dbR.addEventListener('input',function(){ dbSet(2); });
+(function(){
+  var tb=document.querySelector('#tblR tbody');
+  RROWS.forEach(function(row){
+    var tr=document.createElement('tr'); tr.dataset.r=row.r;
+    tr.innerHTML='<td>× '+(row.r>=100?nf(row.r,0):nf(row.r,row.r<0.1?3:2))+'</td>'+
+      '<td class="num">'+sdb(dbPow(row.r))+'</td>'+
+      '<td class="num">'+sdb(dbAmp(row.r))+'</td><td>'+row.w+'</td>';
+    tr.addEventListener('click',function(){ dbSet(row.r); });
+    tb.appendChild(tr);
+  });
+})();
+function playLevel(db){
+  var g0=0.10;
+  playTones([{f:440,g:g0}],0.6);
+  setTimeout(function(){ playTones([{f:440,g:g0*Math.pow(10,db/20)}],0.6); },800);
+}
+$('dbP1').addEventListener('click',function(){ playLevel(1); });
+$('dbP3').addEventListener('click',function(){ playLevel(3); });
+$('dbP6').addEventListener('click',function(){ playLevel(6); });
+$('dbP10').addEventListener('click',function(){ playLevel(10); });
+makeSteps({list:'daList',text:'daText',count:'daCount',prev:'daPrev',next:'daNext'},[
+  {t:'Oranı 1 yap', d:'Kaydıracı 1’e getir. Oran 1 ise logaritma 0, desibel de 0’dır. "0 dB" hiçbir zaman "ses yok" demek değildir; "iki büyüklük eşit" demektir.', apply:function(){ dbSet(1); }},
+  {t:'× 2 · en önemli çift', d:'Güç iki katıysa +3,0 dB; genlik iki katıysa +6,0 dB. Aynı "iki kat" sözcüğü iki ayrı sayı veriyor — hangi büyüklüğü konuştuğunu söylemeden desibel yazma.', apply:function(){ dbSet(2); }},
+  {t:'× 10 · yuvarlak sayı', d:'On kat güç tam +10 dB, on kat genlik tam +20 dB. Desibelin bütün rahatlığı bu yuvarlaklıkta: çarpanlar toplanabilir sayılara dönüşüyor.', apply:function(){ dbSet(10); }},
+  {t:'× 1000 · neden logaritma', d:'Bin kat güç yalnızca +30 dB. Grafikte iki doğru da düz — çünkü desibel, oranın kendisiyle değil logaritmasıyla orantılı. Bir trilyon kat bile 120 dB’de kalıyor.', apply:function(){ dbSet(1000); }},
+  {t:'× 0,5 · eksi desibel', d:'Oran 1’in altına inince desibel eksiye geçiyor: −3,0 dB güç, −6,0 dB genlik. Eksi işareti "azalma" demek, "yokluk" değil.', apply:function(){ dbSet(0.5); }},
+  {t:'Kulakla ölç', d:'× 1,26’yı seç: güçte %26 artış, sadece +1 dB. Sağdaki "+1 dB" düğmesine bas — ayırt etmek çok zor. Sonra +3, +6 ve +10 dB’i dene; +10 dB açıkça "belirgin biçimde daha gür" duyulur.', apply:function(){ dbSet(1.259); }}
+]);
+
+/* ================= 04 kontrolleri ================= */
+var spL=$('spL');
+function spUpd(){
+  var L=SP.L, p=splToP(L), I=splToI(L);
+  setTxt('spLV',L+' dB SPL');
+  setTxt('qSpl',L+' dB');
+  setTxt('qPa',si(p,'Pa'));
+  setTxt('qInt',si(I,'W/m²'));
+  setTxt('qKp',nfR(Math.pow(10,L/20))+' ×');
+  setTxt('qKi',nfR(Math.pow(10,L/10))+' ×');
+  setTxt('qDist',nf(L-6,0)+' dB @ 2 kat mesafe');
+  setTxt('sL',L+' dB SPL');
+  setTxt('sR',nfR(Math.pow(10,L/20))+' ×');
+  setTxt('sP',si(p,'Pa'));
+  setTxt('sI',si(I,'W/m²'));
+  setTxt('sK',nfR(Math.pow(10,L/10))+' ×');
+  var note;
+  if(L>=138) note='Anlık işitme hasarı bölgesi. Bu düzeyde kulak koruması tartışma konusu bile değil.';
+  else if(L>=118) note='Acı eşiği civarı. Basınç 20 Pa’ı geçti — atmosfer basıncının beş binde biri, ama kulak için devasa.';
+  else if(Math.abs(L-94)<1) note='Tam 1 paskal. 16. atölyedeki bütün hesaplar bu düzeyden çıkmıştı: parçacık hızı 2,42 mm/s, şiddet 2,42 mW/m².';
+  else if(L>=85) note='Sekiz saatlik maruz kalma sınırının üstü. Süre her +3 dB’de yarıya iniyor.';
+  else if(L<=10) note='Neredeyse mutlak sessizlik. Bu düzeyi ölçmek için özel bir yankısız oda gerekir; normal bir odanın kendi gürültüsü bile daha yüksektir.';
+  else note='Basınç '+si(p,'Pa')+', şiddet '+si(I,'W/m²')+'. Eşiğe göre şiddet '+nfR(Math.pow(10,L/10))+' kat.';
+  setTxt('sNote',note);
+  [].slice.call(document.querySelectorAll('#tblS tbody tr')).forEach(function(tr){
+    tr.setAttribute('aria-selected', +tr.dataset.l===L?'true':'false');
+  });
+  SP.dirty=true;
+}
+function spSet(L){ SP.L=L; spL.value=L; spUpd(); }
+spL.addEventListener('input',function(){ SP.L=+spL.value; spUpd(); });
+(function(){
+  var tb=document.querySelector('#tblS tbody');
+  SPA.forEach(function(a){
+    var tr=document.createElement('tr'); tr.dataset.l=a.L;
+    tr.innerHTML='<td>'+a.n+'</td><td class="num">'+a.L+'</td><td class="num">'+si(splToP(a.L),'Pa')+
+      '</td><td class="num">'+si(splToI(a.L),'W/m²')+'</td>';
+    tr.addEventListener('click',function(){ spSet(a.L); });
+    tb.appendChild(tr);
+  });
+})();
+
+/* ================= 05 kontrolleri ================= */
+var isF=$('isF'), isL=$('isL');
+var ISTBL=[63,125,250,500,1000,2000,4000,8000];
+function isFmt(f){ return (f>=100?nf(f,0):nf(f,1))+' Hz'; }
+function gSpl(L){ return Math.max(0.0004,Math.min(0.45,0.30*Math.pow(10,(L-90)/20))); }
+function isUpd(fromDrag){
+  var f=IS.f, L=IS.L, P=isoPhon(f,L), S=soneOf(P);
+  setTxt('isFV',isFmt(f)); setTxt('isLV',nf(L,0)+' dB SPL');
+  setTxt('qIsF',isFmt(f)); setTxt('qIsL',nf(L,0)+' dB SPL');
+  setTxt('qIsP',P<=-4.5?'eşiğin altı':(nf(P,0)+' fon'));
+  setTxt('qIsS',nf(S,S<10?2:1)+' son');
+  setTxt('qIsE',nf(P,0)+' dB');
+  setTxt('qIsD',sdb(L-P));
+  if(!fromDrag){ isF.value=Math.max(0,Math.min(100,isVfromF(f))); isL.value=Math.round(L); }
+  var tb=$('isoBody'); tb.innerHTML='';
+  ISTBL.forEach(function(ff){
+    var need=isoSpl(ff,P), tr=document.createElement('tr');
+    tr.innerHTML='<td>'+(ff>=1000?(ff/1000+' kHz'):(ff+' Hz'))+'</td><td class="v">'+nf(need,0)+' dB</td>';
+    if(Math.abs(Math.log(ff/f))<0.12) tr.className='key';
+    tb.appendChild(tr);
+  });
+  var d38=isoSpl(50,P)-P, dHi=isoSpl(8000,P)-P;
+  setTxt('isoNote',nf(P,0)+' fonluk bir gürlük için 50 Hz’de '+sdb(d38,0)+', 8 kHz’de '+sdb(dHi,0)+
+    ' fazla basınç gerekiyor. Düzey yükseldikçe bu farklar küçülür — eğriler düzleşir.');
+  IS.dirty=true;
+}
+function isSet(f,L){ IS.f=f; IS.L=L; isUpd(false); }
+isF.addEventListener('input',function(){ IS.f=isFfromV(+isF.value); isUpd(true); });
+isL.addEventListener('input',function(){ IS.L=+isL.value; isUpd(true); });
+$('isPlay').addEventListener('click',function(){ playTones([{f:IS.f,g:gSpl(IS.L)}],0.8); });
+$('isCmp').addEventListener('click',function(){
+  var P=isoPhon(IS.f,IS.L);
+  playTones([{f:IS.f,g:gSpl(IS.L)}],0.7);
+  setTimeout(function(){ playTones([{f:1000,g:gSpl(P)}],0.7); },950);
+});
+(function(){
+  var cv=document.getElementById('cIso'), drag=false;
+  function pick(e){
+    var m=isoScene.map; if(!m) return;
+    var r=cv.getBoundingClientRect();
+    var t=Math.max(0,Math.min(1,(e.clientX-r.left-m.px0)/(m.px1-m.px0)));
+    var u=Math.max(0,Math.min(1,(e.clientY-r.top-m.top)/(m.bot-m.top)));
+    IS.f=ISFLO*Math.pow(ISFHI/ISFLO,t);
+    IS.L=Math.round(ISLHI-(ISLHI-ISLLO)*u);
+    isUpd(false);
+  }
+  cv.addEventListener('pointerdown',function(e){ drag=true; try{cv.setPointerCapture(e.pointerId);}catch(x){} pick(e); e.preventDefault(); });
+  cv.addEventListener('pointermove',function(e){ if(drag){ pick(e); e.preventDefault(); } });
+  cv.addEventListener('pointerup',function(e){ drag=false; try{cv.releasePointerCapture(e.pointerId);}catch(x){} });
+  cv.addEventListener('pointercancel',function(){ drag=false; });
+})();
+makeSteps({list:'iaList',text:'iaText',count:'iaCount',prev:'iaPrev',next:'iaNext'},[
+  {t:'1 kHz · 40 dB ile başla', d:'Noktayı 1 kHz’e ve 40 dB’e getir. Tam 40 fon okuyor: 1 kHz’de fon ile dB sayısı tanım gereği eşittir. Bütün ölçek buradan kalibre edilmiştir.', apply:function(){ isSet(1000,40); }},
+  {t:'Aynı eğri üzerinde 50 Hz’e git', d:'Frekansı 50 Hz’e indir, düzeyi 40 dB’de bırak. Fon sayısı çöktü — çünkü artık çok daha alçak bir eğridesin. Aynı dB, çok daha sessiz duyuluyor.', apply:function(){ isSet(50,40); }},
+  {t:'40 fona geri çık', d:'Düzeyi 78 dB’e yükselt. Yeniden 40 fon. Yani 50 Hz’lik bir sesi 1 kHz’lik 40 dB’lik sesle aynı gürlükte duymak için yaklaşık 38 dB fazla basınç gerekiyor.', apply:function(){ isSet(50,78); }},
+  {t:'Yüksek düzeyde tekrar dene', d:'Şimdi 50 Hz’de 102 dB’e çık: 80 fon. 1 kHz’deki 80 dB ile arasındaki fark yalnızca 22 dB. Eğriler yukarıda düzleşiyor — yüksek sesle dinlerken baslar "geri geliyor".', apply:function(){ isSet(50,102); }},
+  {t:'En duyarlı bölgeyi bul', d:'3–4 kHz civarına git ve düzeyi düşür. Eğriler orada çukurlaşıyor: kulak kanalının rezonansı sesi yükseltiyor. Konuşmanın ayırt edici bilgisi de tam oraya düşer.', apply:function(){ isSet(3500,20); }},
+  {t:'Eşiği gör', d:'Düzeyi 0 fon eğrisine kadar indir. Bu eğri işitme eşiği: altındaki hiçbir sesi duymuyorsun. 15. atölyede kendi ölçtüğün eğri tam olarak bunun kişisel hâliydi.', apply:function(){ isSet(1000,3); }}
+]);
+
+/* ================= 06 kontrolleri ================= */
+var soP=$('soP');
+function soUpd(){
+  var P=SO.P, S=soneOf(P), Wr=Math.pow(10,(P-40)/10);
+  setTxt('soPV',P+' fon');
+  setTxt('qSoP',P+' fon');
+  setTxt('qSoS',nf(S,S<10?2:1)+' son');
+  setTxt('qSoR',nf(S,S<10?2:1)+' ×');
+  setTxt('qSoW',nfR(Wr)+' ×');
+  setTxt('qSoN','+10 fon → '+nf(soneOf(P+10),soneOf(P+10)<10?2:1)+' son');
+  setTxt('qSoP10',nfR(Math.pow(10,(P+10-40)/10))+' × güç');
+  SO.dirty=true;
+}
+soP.addEventListener('input',function(){ SO.P=+soP.value; soUpd(); });
+$('soD10').addEventListener('click',function(){ playLevel(10); });
+$('soD20').addEventListener('click',function(){ playLevel(20); });
+
+/* ================= 07 kontrolleri ================= */
+var waPills=[].slice.call(document.querySelectorAll('.pill[data-sp]'));
+var waG=$('waG');
+var EROWS=[
+  {L:82, n:'Sesli restoran'},
+  {L:85, n:'Yasal sınır · 8 saat'},
+  {L:88, n:'Orkestra provası'},
+  {L:91, n:'Gürültülü kulüp'},
+  {L:94, n:'Bateri yanında'},
+  {L:100,n:'Büyük konser alanı'},
+  {L:106,n:'Sahne monitörünün önü'},
+  {L:112,n:'PA hoparlörünün önü'}
+];
+function waUpd(){
+  var b=waBands(), lz=waSum(b,false), la=waSum(b,true);
+  setTxt('waGV',(WA.g>0?'+':'')+WA.g+' dB');
+  setTxt('qLz',nf(lz,0)+' dB');
+  setTxt('qLa',nf(la,0)+' dB');
+  setTxt('qDif',sdb(la-lz,0));
+  setTxt('qA1k',sdb(aWeight(1000)));
+  setTxt('qA63',sdb(aWeight(63)));
+  setTxt('qTime',durTxt(safeHours(la)));
+  pressGroup(waPills,function(x){ return x.dataset.sp===WA.k; });
+  WA.dirty=true;
+}
+function waSet(k){ WA.k=k; waUpd(); }
+waPills.forEach(function(x){ x.addEventListener('click',function(){ waSet(x.dataset.sp); }); });
+waG.addEventListener('input',function(){ WA.g=+waG.value; waUpd(); });
+(function(){
+  var tb=document.querySelector('#tblE tbody');
+  EROWS.forEach(function(row){
+    var tr=document.createElement('tr');
+    tr.innerHTML='<td>'+row.L+' dB(A)</td><td class="num">'+durTxt(safeHours(row.L))+'</td><td>'+row.n+'</td>';
+    tr.addEventListener('click',function(){
+      var base=waSum(WASP[WA.k].v,true);
+      WA.g=Math.max(-20,Math.min(15,Math.round(row.L-base)));
+      waG.value=WA.g; waUpd();
+    });
+    tb.appendChild(tr);
+  });
+  var wb=$('waBody');
+  WAF.forEach(function(f){
+    var tr=document.createElement('tr');
+    tr.innerHTML='<td>'+(f>=1000?(f/1000+' kHz'):(f+' Hz'))+'</td><td class="v">'+sdb(aWeight(f))+'</td>';
+    if(f===1000) tr.className='key';
+    wb.appendChild(tr);
+  });
+})();
+
+/* ================= 08 kontrolleri ================= */
+var stPills=[].slice.call(document.querySelectorAll('.pill[data-al]'));
+var stU=$('stU');
+function stUpd(){
+  var u=ST.u, v=stVolt(u), fs=stFs(u);
+  setTxt('stUV',sdb(u));
+  setTxt('qStU',sdb(u));
+  setTxt('qStV',sdb(u-2.218));
+  setTxt('qStVolt',si(v,'V'));
+  setTxt('qStFs',nf(fs,1)+' dBFS');
+  setTxt('qStHead',nf(-fs,1)+' dB');
+  setTxt('qStPk',si(v*Math.SQRT2,'V'));
+  pressGroup(stPills,function(b){ return +b.dataset.al===ST.al; });
+  ST.dirty=true;
+}
+stPills.forEach(function(b){ b.addEventListener('click',function(){ ST.al=+b.dataset.al; stUpd(); }); });
+stU.addEventListener('input',function(){ ST.u=+stU.value; stUpd(); });
+
+/* ================= 09 ses dugmeleri ================= */
+[].slice.call(document.querySelectorAll('.snd')).forEach(function(b){
+  b.addEventListener('click',function(){
+    var s=b.dataset.snd;
+    if(s==='db6') playLevel(6);
+    else if(s==='ten') playLevel(10);
+    else if(s==='bass'){
+      playTones([{f:60,g:0.22},{f:1000,g:0.10}],0.9);
+      setTimeout(function(){ playTones([{f:60,g:0.22*0.05},{f:1000,g:0.10*0.05}],0.9); },1100);
+    }
+  });
+});
+
+/* ================= 10 : quiz ================= */
+var QS=[
+{q:'Bir amfinin gücünü iki katına çıkarırsan ses düzeyi ne kadar artar?',
+ o:['+3 dB','+6 dB','+10 dB','İki katına, yani %100'],a:0,
+ f:'Güç oranı 2 ise dB = 10·log(2) = <b>3,0 dB</b>. Kulak bu farkı zar zor "biraz daha yüksek" olarak duyar — iki katı gür duymak için +10 dB gerekir.'},
+{q:'Sinyalin genliğini iki katına çıkarırsan?',
+ o:['+6 dB','+3 dB','+12 dB','+20 dB'],a:0,
+ f:'Genlik için 20·log kullanılır: 20·log(2) = <b>6,0 dB</b>. Güç genliğin karesi olduğundan aynı olay güç cinsinden dört kat, yani yine +6 dB’dir.'},
+{q:'0 dB SPL ne demektir?',
+ o:['Basınç referansın (20 µPa) tam kendisi kadardır','Hiç ses yoktur','Ölçüm yapılamamıştır','Sesin gücü sıfırdır'],a:0,
+ f:'log(1) = 0 olduğu için 0 dB, oranın 1 olduğu yerdir. Sessizlik değil, <b>referansa eşitlik</b> demektir. Eksi dB değerleri de gayet mümkündür.'},
+{q:'94 dB SPL kaç paskallık bir basınçtır?',
+ o:['Tam 1 Pa','20 Pa','0,02 Pa','94 Pa'],a:0,
+ f:'p = 20 µPa × 10^(94/20) = 20 µPa × 50 000 = <b>1 Pa</b>. Bu yüzden 94 dB akustikte pratik bir çapa sayısıdır; 16. atölyedeki bütün hesaplar oradan çıkmıştı.'},
+{q:'Bir ön yükselteç +30 dB, ardından gelen kanal +6 dB veriyor. Toplam nedir?',
+ o:['+36 dB','+180 dB','+5 dB','Hesaplanamaz'],a:0,
+ f:'Desibeller <b>toplanır</b>, oranlar çarpılır: +30 dB (güçte 1000 ×) ile +6 dB (güçte 4 ×) birleşince 4000 × eder, yani +36 dB. Logaritmanın bütün faydası budur.'},
+{q:'Bir ses 40 fon gürlüğünde. Bu ne demek?',
+ o:['1 kHz’deki 40 dB SPL’lik bir sesle aynı gürlükte duyuluyor','Şiddeti 40 W/m²','Basıncı 40 Pa','40 dB SPL’dir, frekansı ne olursa olsun'],a:0,
+ f:'Fon bir <b>karşılaştırma</b> birimidir: sesi 1 kHz’lik bir referansla eşleştirir. Yalnızca 1 kHz’de fon ile dB sayısı çakışır; başka frekanslarda ikisi ayrışır.'},
+{q:'50 Hz’lik bir sesi, 1 kHz’deki 40 dB’lik bir sesle aynı gürlükte duymak için kaç dB gerekir?',
+ o:['Yaklaşık 78 dB — yani 38 dB fazla','Yine 40 dB','Yaklaşık 20 dB','Yaklaşık 55 dB'],a:0,
+ f:'ISO 226’ya göre 40 fon eğrisi 50 Hz’de yaklaşık <b>78 dB SPL</b>’e çıkar. Kulak alçak frekanslara çok daha az duyarlıdır; bu yüzden kısık dinlerken baslar önce kaybolur.'},
+{q:'Bir sesi <b>iki katı gür</b> duymak için düzeyi ne kadar artırmak gerekir?',
+ o:['Yaklaşık +10 dB','+3 dB','+6 dB','İki katına, yani +100 dB'],a:0,
+ f:'40 fonun üstünde her <b>+10 fon</b> gürlüğü (sonu) ikiye katlar. +10 dB ise güçte on kat demektir: gürlüğü ikiye katlamanın bedeli on kat güçtür.'},
+{q:'10 W’lık amfiyi 100 W’lık ile değiştirdin. Ne kadar daha gür duyarsın?',
+ o:['Yaklaşık iki katı','On katı','Üç katı','Neredeyse hiç fark etmez'],a:0,
+ f:'On kat güç = +10 dB = +10 fon = gürlükte <b>iki katı</b>. Hoparlörün hassasiyetini 3 dB artırmak çoğu zaman amfiyi iki katına çıkarmaktan ucuz ve etkilidir.'},
+{q:'dB(A) ölçümü ne yapar?',
+ o:['Alçak ve çok tiz frekansları, kulağın duyarlılığına yakın biçimde kısarak tek sayı üretir','Sesi yükseltir','Yalnızca bas frekansları ölçer','Ölçümü daha hassas yapar'],a:0,
+ f:'A eğrisi, 40 fonluk eşit gürlük eğrisinin ters çevrilmiş basitleştirilmiş hâlidir. 1 kHz’de tam 0 dB’dir; 63 Hz’de −26 dB, 31,5 Hz’de −39 dB düzeltme uygular.'},
+{q:'85 dB(A)’da güvenli maruz kalma süresi 8 saat. 94 dB(A)’da kaç saattir?',
+ o:['1 saat','4 saat','8 saat','30 dakika'],a:0,
+ f:'Her <b>+3 dB</b> süreyi yarıya indirir. 85 → 88 → 91 → 94 üç adım eder: 8 → 4 → 2 → <b>1 saat</b>. 100 dB(A)’da yalnızca 15 dakika kalır.'},
+{q:'0 dBFS ile 0 dBu arasındaki en temel fark nedir?',
+ o:['0 dBFS bir tavandır, üstü yoktur; 0 dBu ise sıradan bir sinyal düzeyidir','İkisi aynı şeydir','0 dBu dijitaldir','0 dBFS sessizliktir'],a:0,
+ f:'dBFS’te tam ölçek sıfırdır ve aşılamaz — üstü kırpılmadır. Analogda 0 dBu = 0,775 V sıradan bir düzeydir ve tepe noktası çok daha yukarıdadır. "0" kelimesinin iki taraftaki anlamı bambaşkadır.'}
+];
+function shuffle(a){ for(var i=a.length-1;i>0;i--){ var j=Math.floor(Math.random()*(i+1)); var t=a[i]; a[i]=a[j]; a[j]=t; } return a; }
+var quiz=$('quiz'), scoreEl=$('score'), correct=0, answered=0;
+QS.forEach(function(item,i){
+  var idx=shuffle(item.o.map(function(_,k){return k;}));
+  var d=document.createElement('div'); d.className='q';
+  d.innerHTML='<div class="qh">Soru '+(i+1)+'</div><p class="qt">'+item.q+'</p>';
+  var op=document.createElement('div'); op.className='opts';
+  var fb=document.createElement('div'); fb.className='fb'; fb.style.display='none';
+  idx.forEach(function(k){
+    var b=document.createElement('button'); b.type='button'; b.textContent=item.o[k];
+    b.addEventListener('click',function(){
+      if(fb.style.display!=='none') return;
+      var good=(k===item.a);
+      [].slice.call(op.children).forEach(function(x,n){ x.disabled=true; if(idx[n]===item.a) x.classList.add('ok'); });
+      if(!good) b.classList.add('no');
+      fb.className='fb '+(good?'good':'bad');
+      fb.innerHTML='<b>'+(good?'Doğru':'Tekrar bak')+'</b> — '+item.f;
+      fb.style.display='';
+      answered++; if(good) correct++;
+      scoreEl.textContent='Doğru: '+correct+' / '+QS.length+(answered===QS.length?'  · tamamlandı':'');
+    });
+    op.appendChild(b);
+  });
+  d.appendChild(op); d.appendChild(fb); quiz.appendChild(d);
+});
+scoreEl.textContent='Doğru: 0 / '+QS.length;
+
+/* ================= baslangic + dongu ================= */
+readTheme();
+scenes.forEach(function(s){ s.resize(); });
+wySet(0);
+dbSet(2);
+SP.L=+spL.value; spUpd();
+IS.f=1000; IS.L=+isL.value; isUpd(false);
+SO.P=+soP.value; soUpd();
+WA.g=+waG.value; waUpd();
+ST.u=+stU.value; stUpd();
+
+function frame(){
+  if(WY.dirty){ whyScene.draw(); WY.dirty=false; }
+  if(DB.dirty){ dbScene.draw(); DB.dirty=false; }
+  if(SP.dirty){ splScene.draw(); SP.dirty=false; }
+  if(IS.dirty){ isoScene.draw(); IS.dirty=false; }
+  if(SO.dirty){ sonScene.draw(); SO.dirty=false; }
+  if(WA.dirty){ waScene.draw(); WA.dirty=false; }
+  if(ST.dirty){ stuScene.draw(); ST.dirty=false; }
+  requestAnimationFrame(frame);
+}
+requestAnimationFrame(frame);
+})();
+</script>
+
+</body></html>

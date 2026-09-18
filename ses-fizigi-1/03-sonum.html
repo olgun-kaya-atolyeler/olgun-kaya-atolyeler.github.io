@@ -1,0 +1,1240 @@
+<!doctype html><html lang="tr"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<style>:root{color-scheme:light}html{-webkit-text-size-adjust:100%}body{margin:0;font:14px system-ui,-apple-system,"Segoe UI",sans-serif;background:#faf9f7}img{max-width:100%}[hidden]{display:none!important}</style>
+<title>Sönüm ve Rezonans</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&family=Newsreader:ital,opsz,wght@1,6..72,400&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ground:#E5ECF3; --panel:#FFFFFF; --panel-2:#F1F6FA;
+  --ink:#0B1620; --ink-2:#3F5265; --ink-3:#697E92;
+  --line:#C7D4E0; --line-2:#DEE7EF;
+  --sin:#A8600A; --cos:#0F5F80; --arc:#A81E6E; --brass:#4A7A12;
+  --on-sin:#FFFFFF; --ok:#1E6B45; --no:#A8203C;
+  --radius:2px; --track:.02em; --fs:15px;
+  --h-swing:240px; --h-lab:620px; --h-curve:400px;
+  --font-display:"Chakra Petch",system-ui,sans-serif;
+  --font-body:"IBM Plex Sans",system-ui,sans-serif;
+  --font-mono:"IBM Plex Mono",ui-monospace,monospace;
+  --font-quote:"Newsreader",Georgia,serif;
+  color-scheme:light;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --ground:#070F17; --panel:#0E1720; --panel-2:#13202C;
+    --ink:#E7F2FB; --ink-2:#9FB6C9; --ink-3:#6B8296;
+    --line:#213240; --line-2:#182533;
+    --sin:#FFB01F; --cos:#4FD3FF; --arc:#FF6AC1; --brass:#A8FF60;
+    --on-sin:#0A1017; --ok:#3EE59B; --no:#FF5F86;
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --ground:#070F17; --panel:#0E1720; --panel-2:#13202C;
+  --ink:#E7F2FB; --ink-2:#9FB6C9; --ink-3:#6B8296;
+  --line:#213240; --line-2:#182533;
+  --sin:#FFB01F; --cos:#4FD3FF; --arc:#FF6AC1; --brass:#A8FF60;
+  --on-sin:#0A1017; --ok:#3EE59B; --no:#FF5F86;
+  color-scheme:dark;
+}
+:root[data-mode="proj"]{
+  --ground:#F3F8FC; --panel:#FFFFFF; --panel-2:#EDF4F9;
+  --ink:#040B12; --ink-2:#2A3A49; --ink-3:#546678;
+  --line:#ADBFCE; --line-2:#D2DEE9;
+  --sin:#8A4D00; --cos:#084A66; --arc:#8A1258; --brass:#3A6208;
+  --on-sin:#FFFFFF; --ok:#155338; --no:#8A1730;
+  --fs:17px; --h-swing:285px; --h-lab:740px; --h-curve:480px;
+  color-scheme:light;
+}
+
+*{box-sizing:border-box}
+body{
+  margin:0; background:var(--ground); color:var(--ink);
+  font-family:var(--font-body); font-size:var(--fs); line-height:1.55;
+  -webkit-text-size-adjust:100%;
+}
+.wrap{max-width:1180px; margin:0 auto; padding-inline:20px; padding-block:22px 64px}
+
+/* ---------- ust ---------- */
+.top{display:flex; gap:20px; align-items:flex-start; justify-content:space-between; flex-wrap:wrap;
+  border-bottom:2px solid var(--line); padding-bottom:16px; margin-bottom:26px}
+.eyebrow{font-family:var(--font-mono); font-size:.72em; letter-spacing:.12em; text-transform:uppercase;
+  color:var(--brass); font-weight:600}
+h1{font-family:var(--font-display); font-weight:700; letter-spacing:var(--track);
+  font-size:clamp(2rem,6vw,3.1rem); line-height:1.02; margin:.16em 0 .1em; text-transform:uppercase}
+.lede{margin:0; color:var(--ink-2); max-width:46ch}
+.themebar{display:flex; gap:0; border:1px solid var(--line); border-radius:var(--radius); overflow:hidden; flex-shrink:0}
+.themebar button{
+  font-family:var(--font-mono); font-size:.76em; letter-spacing:.06em; text-transform:uppercase;
+  background:var(--panel); color:var(--ink-2); border:0; border-left:1px solid var(--line);
+  padding:9px 13px; cursor:pointer}
+.themebar button:first-child{border-left:0}
+.themebar button[aria-pressed="true"]{background:var(--sin); color:var(--on-sin); font-weight:600}
+
+/* ---------- bolumler ---------- */
+section{margin-block:52px; scroll-margin-top:18px}
+h2{font-family:var(--font-display); font-weight:600; letter-spacing:var(--track); text-transform:uppercase;
+  font-size:clamp(1.15rem,3.1vw,1.6rem); margin:0 0 14px; display:flex; align-items:baseline; gap:12px;
+  border-bottom:1px solid var(--line); padding-bottom:10px}
+h2 .num{font-family:var(--font-mono); color:var(--brass); font-size:.82em; font-weight:600}
+h3{font-family:var(--font-display); font-weight:600; letter-spacing:var(--track);
+  font-size:1.02em; margin:0 0 6px; text-transform:uppercase}
+p{margin:0 0 .8em}
+.kicker{font-family:var(--font-quote); font-style:italic; font-size:1.28em; line-height:1.4;
+  color:var(--ink-2); max-width:38ch; margin:0 0 18px; border-left:3px solid var(--arc); padding-left:14px}
+
+/* ---------- panel / canvas ---------- */
+.panel{background:var(--panel); border:1px solid var(--line); border-radius:var(--radius)}
+.canvas-wrap{margin:0; background:var(--panel); border:1px solid var(--line); border-radius:var(--radius); overflow:hidden}
+.canvas-inner{min-width:0}
+.lab>div,.quizwrap>div,.hook>*,.lab>aside{min-width:0}
+.lit{text-transform:none;font-style:normal;font-weight:inherit}
+.sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+canvas{display:block; width:100%; touch-action:none}
+#cSwing{height:var(--h-swing)}
+#cLab{height:var(--h-lab)}
+#cCurve{height:var(--h-curve)}
+figcaption{font-size:.82em; color:var(--ink-3); padding:8px 12px; border-top:1px solid var(--line-2);
+  background:var(--panel-2)}
+
+/* ---------- s1 duzen ---------- */
+.hook{display:grid; grid-template-columns:minmax(0,1.05fr) minmax(0,1fr); gap:20px; align-items:start}
+.cols{display:grid; grid-template-columns:1fr; gap:14px}
+.qcol h3{color:var(--ink)}
+.qcol p{font-size:.94em; color:var(--ink-2); margin:0}
+
+/* ---------- kontroller ---------- */
+.ctrls{display:flex; flex-wrap:wrap; gap:14px 18px; align-items:flex-end;
+  padding:12px; background:var(--panel-2); border-top:1px solid var(--line-2)}
+.ctrl{display:flex; flex-direction:column; gap:3px; min-width:150px; flex:1 1 150px}
+.ctrl label{font-family:var(--font-mono); font-size:.72em; letter-spacing:.07em; text-transform:uppercase;
+  color:var(--ink-3); display:flex; justify-content:space-between; gap:8px}
+.ctrl label b{font-weight:600; color:var(--ink); font-variant-numeric:tabular-nums}
+input[type=range]{-webkit-appearance:none; appearance:none; width:100%; height:22px; background:transparent; margin:0; cursor:pointer}
+input[type=range]::-webkit-slider-runnable-track{height:3px; background:var(--line); border-radius:0}
+input[type=range]::-moz-range-track{height:3px; background:var(--line)}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none; width:16px; height:16px; border-radius:50%;
+  background:var(--arc); border:2px solid var(--panel); margin-top:-7px}
+input[type=range]::-moz-range-thumb{width:16px; height:16px; border-radius:50%; background:var(--arc); border:2px solid var(--panel)}
+.btn{font-family:var(--font-mono); font-size:.78em; letter-spacing:.06em; text-transform:uppercase;
+  background:var(--panel); color:var(--ink); border:1px solid var(--line); border-radius:var(--radius);
+  padding:8px 12px; cursor:pointer; white-space:nowrap}
+.btn:hover{border-color:var(--ink-3)}
+.btn.pri{background:var(--sin); color:var(--on-sin); border-color:var(--sin); font-weight:600}
+.btn[aria-pressed="true"]{background:var(--cos); color:var(--panel); border-color:var(--cos)}
+:root[data-theme="dark"] .btn[aria-pressed="true"]{color:#07131B}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]):not([data-mode="proj"]) .btn[aria-pressed="true"]{color:#07131B}
+}
+.btnrow{display:flex; gap:8px; flex-wrap:wrap; align-items:center}
+
+/* ---------- okumalar ---------- */
+.readout{display:grid; grid-template-columns:repeat(auto-fit,minmax(112px,1fr)); gap:1px;
+  background:var(--line-2); border-top:1px solid var(--line-2)}
+.readout.r3{grid-template-columns:repeat(3,minmax(0,1fr))}
+.readout div{background:var(--panel); padding:8px 11px; min-width:0}
+.readout span{display:block; font-family:var(--font-mono); font-size:.68em; letter-spacing:.07em;
+  text-transform:uppercase; color:var(--ink-3)}
+.readout b{font-family:var(--font-mono); font-size:1.08em; font-weight:600; font-variant-numeric:tabular-nums}
+
+/* ---------- kart izgarasi ---------- */
+.cards{display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:14px}
+.card{background:var(--panel); border:1px solid var(--line); border-top:3px solid var(--cos);
+  border-radius:var(--radius); padding:14px 15px}
+.card:nth-child(3n+1){border-top-color:var(--sin)}
+.card:nth-child(3n+3){border-top-color:var(--arc)}
+.card p{font-size:.92em; color:var(--ink-2); margin:0}
+.card .bridge{margin-top:9px; padding-top:9px; border-top:1px dashed var(--line);
+  font-size:.86em; color:var(--ink-3)}
+.card .bridge b{color:var(--brass); font-family:var(--font-mono); font-size:.9em;
+  letter-spacing:.05em; text-transform:uppercase}
+
+/* ---------- atolye duzeni ---------- */
+.lab{display:grid; grid-template-columns:minmax(0,560px) minmax(0,1fr); gap:18px; align-items:start}
+.steps{background:var(--panel); border:1px solid var(--line); border-radius:var(--radius); padding:13px 14px}
+.steps h3{margin-bottom:9px}
+.stepnav{display:flex; gap:6px; align-items:center; margin-bottom:10px}
+.stepnav .count{font-family:var(--font-mono); font-size:.78em; color:var(--ink-3); margin-left:auto}
+.steplist{list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:5px}
+.steplist button{width:100%; text-align:left; font:inherit; font-size:.9em; background:transparent;
+  color:var(--ink-2); border:1px solid transparent; border-left:2px solid var(--line);
+  padding:7px 10px; cursor:pointer; border-radius:0}
+.steplist button:hover{background:var(--panel-2)}
+.steplist button[aria-current="true"]{border-left-color:var(--arc); background:var(--panel-2); color:var(--ink)}
+.steplist .k{font-family:var(--font-mono); font-size:.82em; color:var(--brass); margin-right:6px}
+
+table{width:100%; border-collapse:collapse; font-size:.88em}
+.tablebox{overflow-x:auto; max-width:100%; background:var(--panel); border:1px solid var(--line); border-radius:var(--radius); margin-top:16px}
+th,td{padding:7px 11px; text-align:right; border-bottom:1px solid var(--line-2); white-space:nowrap}
+th:first-child,td:first-child{text-align:left}
+th:last-child,td:last-child{text-align:left; white-space:normal; min-width:170px}
+thead th{font-family:var(--font-mono); font-size:.76em; letter-spacing:.06em; text-transform:uppercase;
+  color:var(--ink-3); font-weight:600; background:var(--panel-2)}
+tbody tr{cursor:pointer}
+tbody tr:hover{background:var(--panel-2)}
+tbody tr[aria-selected="true"]{background:var(--panel-2); box-shadow:inset 3px 0 0 var(--arc)}
+td.num{font-family:var(--font-mono); font-variant-numeric:tabular-nums}
+
+/* ---------- terimler ---------- */
+.terms{display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:14px}
+.term{background:var(--panel); border:1px solid var(--line); border-radius:var(--radius); padding:14px 15px}
+.term .sym{font-family:var(--font-mono); font-size:.74em; letter-spacing:.08em; color:var(--ink-3)}
+.term p{font-size:.92em; color:var(--ink-2); margin:.35em 0 0}
+.mus{margin-top:10px; border-left:3px solid var(--brass); padding:6px 0 6px 10px; font-size:.9em}
+.mus span{font-family:var(--font-mono); font-size:.72em; letter-spacing:.08em; text-transform:uppercase;
+  color:var(--brass); font-weight:600; display:block}
+
+/* ---------- quiz ---------- */
+.quizwrap{display:grid; grid-template-columns:minmax(0,1fr) 300px; gap:18px; align-items:start}
+.q{background:var(--panel); border:1px solid var(--line); border-radius:var(--radius); padding:14px 15px; margin-bottom:12px}
+.q .qh{font-family:var(--font-mono); font-size:.74em; letter-spacing:.08em; color:var(--brass); font-weight:600}
+.q p.qt{margin:.3em 0 .7em; font-weight:500}
+.opts{display:flex; flex-direction:column; gap:6px}
+.opts button{font:inherit; font-size:.93em; text-align:left; background:var(--panel-2); color:var(--ink);
+  border:1px solid var(--line); border-radius:var(--radius); padding:9px 12px; cursor:pointer}
+.opts button:hover{border-color:var(--ink-3)}
+.opts button.ok{border-color:var(--ok); box-shadow:inset 3px 0 0 var(--ok)}
+.opts button.no{border-color:var(--no); box-shadow:inset 3px 0 0 var(--no)}
+.opts button[disabled]{cursor:default}
+.fb{margin-top:9px; font-size:.9em; color:var(--ink-2); border-top:1px dashed var(--line); padding-top:8px}
+.fb b{font-family:var(--font-mono); font-size:.82em; letter-spacing:.06em; text-transform:uppercase}
+.fb.good b{color:var(--ok)} .fb.bad b{color:var(--no)}
+.recap{background:var(--panel); border:1px solid var(--line); border-top:3px solid var(--brass);
+  border-radius:var(--radius); padding:14px 15px; position:sticky; top:14px}
+.recap ol{margin:0; padding-left:1.15em; display:flex; flex-direction:column; gap:9px}
+.recap li{font-size:.91em; color:var(--ink-2)}
+.recap li b{color:var(--ink)}
+.score{font-family:var(--font-mono); font-size:.8em; color:var(--ink-3); margin-top:12px;
+  padding-top:10px; border-top:1px solid var(--line-2)}
+
+.note{font-size:.86em; color:var(--ink-3); margin-top:10px}
+.legend{display:flex; flex-wrap:wrap; gap:6px 16px; padding:10px 12px; background:var(--panel-2);
+  border-top:1px solid var(--line-2); font-family:var(--font-mono); font-size:.74em; letter-spacing:.04em}
+.legend i{display:inline-block; width:15px; height:3px; vertical-align:middle; margin-right:6px}
+footer{margin-top:56px; padding-top:16px; border-top:1px solid var(--line); font-size:.84em; color:var(--ink-3)}
+footer a{color:var(--ink-2)}
+
+@media (max-width:980px){
+  .lab{grid-template-columns:1fr}
+  .quizwrap{grid-template-columns:1fr}
+  .recap{position:static}
+  .cards,.terms{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@media (max-width:760px){
+  :root{--h-swing:250px; --h-lab:650px; --h-curve:430px}
+  :root[data-mode="proj"]{--h-swing:290px; --h-lab:720px; --h-curve:480px}
+  .wrap{padding-inline:16px}
+  .hook{grid-template-columns:1fr}
+  .cards,.terms{grid-template-columns:1fr}
+  .ctrl{flex:1 1 100%}
+  .btn{padding:9px 14px}
+  .opts button{padding:12px 14px}
+  input[type=range]{height:30px}
+  input[type=range]::-webkit-slider-thumb{width:22px; height:22px; margin-top:-10px}
+  input[type=range]::-moz-range-thumb{width:22px; height:22px}
+  .canvas-inner{min-width:0}
+}
+@media (prefers-reduced-motion:reduce){*{animation:none!important; transition:none!important}}
+
+/* ---------- karsilastirma / hesap tablosu ---------- */
+.cmpbox{background:var(--panel); border:1px solid var(--line); border-radius:var(--radius); margin-bottom:16px}
+.cmpbox h3{padding:13px 14px 8px; margin:0}
+.cmpscroll{overflow-x:auto; max-width:100%}
+.cmp{width:100%; border-collapse:collapse; font-size:.9em}
+.cmp th,.cmp td{padding:6px 12px; border-bottom:1px solid var(--line-2); text-align:right; white-space:nowrap}
+.cmp th:first-child,.cmp td:first-child{text-align:left; white-space:normal; color:var(--ink-2)}
+.cmp thead th{font-family:var(--font-mono); font-size:.76em; letter-spacing:.06em; text-transform:uppercase;
+  font-weight:600; background:var(--panel-2)}
+.cmp thead th.a{color:var(--sin)} .cmp thead th.b{color:var(--cos)}
+.cmp td.v{font-family:var(--font-mono); font-variant-numeric:tabular-nums; font-weight:600}
+.cmp tr.key td{background:var(--panel-2)}
+.cmp tr.key td:first-child{color:var(--ink); font-weight:600}
+.cmp tbody tr:last-child td{border-bottom:0}
+
+/* ---------- olcum haplari ---------- */
+.cmp td.lbl{width:56%}
+.pillrow{display:flex; gap:7px; flex-wrap:wrap; flex:1 1 100%}
+.pill{font-family:var(--font-mono); font-size:.74em; letter-spacing:.05em; text-transform:uppercase;
+  background:var(--panel); color:var(--ink-2); border:1px solid var(--line); border-radius:var(--radius);
+  padding:8px 11px; cursor:pointer}
+.pill[aria-pressed="true"]{background:var(--arc); color:#fff; border-color:var(--arc); font-weight:600}
+
+/* ---------- kontrol gruplari ---------- */
+.grp{flex:1 1 100%; display:flex; flex-wrap:wrap; gap:12px 16px; border-left:3px solid var(--line);
+  padding-left:11px; margin-bottom:2px}
+.grp.ga{border-left-color:var(--sin)} .grp.gb{border-left-color:var(--cos)}
+.grp .tag{flex:1 1 100%; font-family:var(--font-mono); font-size:.72em; letter-spacing:.09em;
+  text-transform:uppercase; font-weight:600; margin:0}
+.grp.ga .tag{color:var(--sin)} .grp.gb .tag{color:var(--cos)}
+.sw{display:inline-block; width:11px; height:11px; border-radius:50%; vertical-align:-1px; margin-right:6px}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+
+<header class="top">
+  <div class="brand">
+    <div class="eyebrow">Müzik Teknolojisi · Ses Fiziği I · 3. Atölye</div>
+    <h1>Sönüm ve Rezonans</h1>
+    <p class="lede">Bir ses neden söner, ve neden bazı notalarda enstrüman birden canlanır? İki soru, tek bir ayar düğmesi.</p>
+  </div>
+  <div class="themebar" role="group" aria-label="Tema seçimi">
+    <button type="button" data-t="light" aria-pressed="false">Açık</button>
+    <button type="button" data-t="dark" aria-pressed="false">Koyu</button>
+    <button type="button" data-t="proj" aria-pressed="false">Projeksiyon</button>
+  </div>
+</header>
+
+<!-- ============ 01 ============ -->
+<section id="s1">
+  <h2><span class="num">01</span> Neden buna ihtiyacımız var?</h2>
+  <p class="kicker">Salıncağı doğru ritimde itersen yükselir. Yanlış ritimde ne kadar itersen it, bir yere varamazsın.</p>
+
+  <div class="hook">
+    <figure class="canvas-wrap">
+      <div class="canvas-inner"><canvas id="cSwing" aria-label="Ritimli itilen bir salıncak: itme ritmi salıncağın kendi ritmine yaklaştıkça genlik büyüyor"></canvas></div>
+      <div class="ctrls">
+        <div class="btnrow">
+          <button type="button" class="btn pri" id="swPlay">İt</button>
+          <button type="button" class="btn" id="swReset">Başa al</button>
+        </div>
+        <div class="ctrl" style="flex:1 1 200px">
+          <label for="swT"><span>İtme ritmi</span><b id="swTV">her 1,00 s'de bir</b></label>
+          <input type="range" id="swT" min="0.8" max="2.8" step="0.05" value="1">
+        </div>
+      </div>
+      <figcaption>Salıncağın kendi ritmi 1,5 saniye. Kaydırıcıyı oynat: mor <b>hedef</b> çizgisi anında yer değiştirir — itme ritmi doğru olduğunda hedef tavana çıkar. İt'e basınca çubuğun oraya tırmanmasını izle. Kuvvet hep aynı; değişen tek şey zamanlama.</figcaption>
+    </figure>
+
+    <div class="cols">
+      <div class="qcol">
+        <h3>Bir gitar gövdesi ne işe yarar?</h3>
+        <p>Tel tek başına havayı zar zor iter — çok ince, çok küçük. Gövde, telin titreşimini alıp çok daha geniş bir yüzeyle havaya aktarır. Ama bunu <b>her frekansta eşit yapmaz</b>: gövdenin de kendi tercih ettiği ritimleri vardır.</p>
+      </div>
+      <div class="qcol">
+        <h3>Neden bazı notalar daha gür çıkıyor?</h3>
+        <p>Çalınan nota gövdenin kendi frekanslarından birine denk gelirse gövde salıncak gibi davranır: her itme bir öncekinin üstüne biner ve ses patlar. Denk gelmezse gövde isteksizce katılır. Buna <b>rezonans</b> diyoruz.</p>
+      </div>
+      <div class="qcol">
+        <h3>Sustain neden enstrümandan enstrümana değişir?</h3>
+        <p>Ses, enerji dışarı sızdıkça söner. Hızlı sızma gür ama kısa bir ses verir; yavaş sızma kısık ama uzun. Luthier'in yaptığı şey bu dengeyi ayarlamaktır — kusur değil, tercih.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 02 ============ -->
+<section id="s2">
+  <h2><span class="num">02</span> Bilmemiz gereken kavramlar</h2>
+  <p style="max-width:62ch; color:var(--ink-2)">Altı kelime. İlk üçü sönümle, son üçü rezonansla ilgili.</p>
+  <div class="cards">
+    <div class="card">
+      <h3>Sönüm</h3>
+      <p>Enerjiyi sistemden dışarı sızdıran her şey: hava direnci, malzeme içindeki sürtünme, titreşimin gövdeye ve oradan havaya aktarılması. Sönüm olmasaydı bir kere vurduğun ses hiç durmazdı.</p>
+      <div class="bridge"><b>Sezgi</b> Sönüm = enerjinin kaçtığı delik.</div>
+    </div>
+    <div class="card">
+      <h3>Serbest titreşim</h3>
+      <p>Bir kere vur ve kendi haline bırak. Sistem kendi <i>doğal</i> frekansında titreşir ve giderek söner. Bir telin çekilip bırakılması, bir zilin vurulması.</p>
+      <div class="bridge"><b>Şekli</b> Sinüs, ama zarfı giderek alçalıyor.</div>
+    </div>
+    <div class="card">
+      <h3>Çınlama süresi</h3>
+      <p>Sesin sönmesi ne kadar sürüyor. Genliğin yaklaşık üçte birine düşmesi için geçen süreye <b>τ</b> (tau) diyoruz. Stüdyoda daha çok 60 dB düşme süresi (T60) kullanılır.</p>
+      <div class="bridge"><b>Müzikte</b> Sustain, reverb kuyruğu, zilin çınlaması.</div>
+    </div>
+    <div class="card">
+      <h3>Doğal frekans</h3>
+      <p>Sistemin kendi tercih ettiği frekans: <b>f₀</b>. 2. atölyede bunu yay sertliği ve kütleden bulmuştuk. Burada onu sabit tutup başka bir soru soruyoruz.</p>
+      <div class="bridge"><b>Bağlantı</b> f₀ = √(k/m) / 2π</div>
+    </div>
+    <div class="card">
+      <h3>Zorlamalı titreşim</h3>
+      <p>Sistem kendi haline bırakılmıyor; dışarıdan ritimli bir şey onu sürüyor. Salıncağı iten el, gövdeyi süren tel, odayı süren hoparlör.</p>
+      <div class="bridge"><b>Kritik olan</b> Kuvvetin büyüklüğü değil, ritmi.</div>
+    </div>
+    <div class="card">
+      <h3>Rezonans</h3>
+      <p>Sürme ritmi doğal frekansa denk geldiğinde tepkinin patlaması. Her itme bir öncekinin üstüne biner; küçük kuvvetler birikip büyük genlik yapar.</p>
+      <div class="bridge"><b>Ne kadar büyük?</b> Sönüme bağlı — atölyede göreceğiz.</div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 03 ============ -->
+<section id="s3">
+  <h2><span class="num">03</span> Atölye: sön, sür, rezonansa gir</h2>
+  <p style="max-width:68ch; color:var(--ink-2)">Soldaki blok <b>sürücü</b> — bunu gövdeyi zorlayan tel gibi düşün. Ortadaki kütle titreşen sistem, sağdaki amortisör de enerjiyi dışarı sızdıran şey. Altta zaman aşağı akıyor: ince soğuk eğri sürücünün hareketi, kalın sıcak eğri kütlenin cevabı.</p>
+
+  <div class="lab">
+    <div>
+      <figure class="canvas-wrap">
+        <div class="canvas-inner"><canvas id="cLab" aria-label="Sürücü, yay, kütle ve amortisörden oluşan sistem ve zaman içindeki cevabı"></canvas></div>
+        <div class="legend">
+          <span><i style="background:var(--sin)"></i>kütlenin hareketi</span>
+          <span><i style="background:var(--cos)"></i>sürücünün hareketi</span>
+          <span><i style="background:var(--brass)"></i>çınlama süresi τ</span>
+          <span><i style="background:var(--ink-3)"></i>denge</span>
+        </div>
+        <div class="ctrls">
+          <div class="btnrow" style="flex:1 1 100%">
+            <button type="button" class="btn pri" id="lPlay">Oynat</button>
+            <button type="button" class="btn" id="lPluck">Vur ve bırak</button>
+            <button type="button" class="btn" id="lDrive" aria-pressed="true">Sürücü açık</button>
+            <button type="button" class="btn" id="lSound">Bu sönümü duy</button>
+          </div>
+          <div class="ctrl" style="flex:1 1 230px">
+            <label for="fd"><span>Sürücü frekansı <i class="lit">f</i><sub>s</sub></span><b id="fdV">1,00 Hz</b></label>
+            <input type="range" id="fd" min="0.2" max="2.5" step="0.01" value="1">
+          </div>
+          <div class="ctrl" style="flex:1 1 230px">
+            <label for="zp"><span>Sönüm</span><b id="zpV">orta</b></label>
+            <input type="range" id="zp" min="0" max="100" step="1" value="15">
+          </div>
+          <div class="pillrow">
+            <button type="button" class="pill" data-zp="0">Uzun çınlama</button>
+            <button type="button" class="pill" data-zp="15">Orta</button>
+            <button type="button" class="pill" data-zp="65">Kısa çınlama</button>
+            <button type="button" class="pill" data-zp="94">Çınlama yok</button>
+          </div>
+        </div>
+        <div class="readout r3">
+          <div><span>Doğal <i class="lit">f₀</i></span><b>1,00 Hz</b></div>
+          <div><span>Sürücü <i class="lit">f</i><sub class="lit">s</sub></span><b id="rFd">1,00 Hz</b></div>
+          <div><span><i class="lit">f</i><sub class="lit">s</sub> / <i class="lit">f₀</i></span><b id="rR">1,00</b></div>
+          <div><span>Kalite <i class="lit">Q</i></span><b id="rQ">5,0</b></div>
+          <div><span>Çınlama <i class="lit">τ</i></span><b id="rTau">1,59 s</b></div>
+          <div><span>Tepki</span><b id="rResp">5,0×</b></div>
+        </div>
+      </figure>
+      <p class="note" style="margin:10px 0 0">Sürücü hep aynı güçte itiyor; değişen tek şey ritmi. <b>Vur ve bırak</b> düğmesi sürücüyü kapatıp sistemi tek bir darbeyle serbest bırakır — sönmeyi orada izle. Frekansı veya sönümü kaydırıcıyla değiştirdiğinde sistem yeni duruma anında geçmez; izde önce bir <b>geçiş dönemi</b> görürsün. Sağdaki hazır durumlara tıklarsan sistem doğrudan oturmuş hâlde başlar.</p>
+    </div>
+
+    <div>
+      <aside class="steps">
+        <h3>Ders adımları</h3>
+        <div class="stepnav">
+          <button type="button" class="btn" id="stPrev" aria-label="Önceki adım">‹</button>
+          <button type="button" class="btn" id="stNext" aria-label="Sonraki adım">›</button>
+          <span class="count" id="stCount">1 / 6</span>
+        </div>
+        <ol class="steplist" id="stList"></ol>
+        <p class="note" id="stText"></p>
+      </aside>
+
+      <div class="cmpbox">
+        <h3>Tek düğme, iki sonuç</h3>
+        <div class="cmpscroll">
+          <table class="cmp">
+            <tbody>
+              <tr><td class="lbl">Sönüm oranı <i class="lit">ζ</i></td><td class="v" id="vZeta"></td></tr>
+              <tr class="key"><td class="lbl">Kalite faktörü <i class="lit">Q = 1 / 2ζ</i></td><td class="v" id="vQ"></td></tr>
+              <tr><td class="lbl">Çınlama süresi <i class="lit">τ = Q / (π·f₀)</i></td><td class="v" id="vTau"></td></tr>
+              <tr><td class="lbl">60 dB sönme süresi <i class="lit">T₆₀</i></td><td class="v" id="vT60"></td></tr>
+              <tr class="key"><td class="lbl">Rezonans tepesinin yüksekliği</td><td class="v" id="vPeak"></td></tr>
+              <tr><td class="lbl">Tepe genişliği <i class="lit">Δf</i></td><td class="v" id="vBw"></td></tr>
+              <tr><td class="lbl">Şu anki tepki (<i class="lit">f</i><sub class="lit">s</sub>'de)</td><td class="v" id="vResp"></td></tr>
+              <tr><td class="lbl">Kütlenin faz gecikmesi</td><td class="v" id="vPhase"></td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="note" style="padding:0 14px 12px; margin:0" id="qNote"></p>
+      </div>
+
+      <div class="tablebox" style="margin-top:0">
+        <table id="tbl">
+          <caption class="sr-only">Hazır durumlar</caption>
+          <thead><tr><th>Durum</th><th><i class="lit">f</i><sub class="lit">s</sub></th><th><i class="lit">Q</i></th><th>Tepki</th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+      <p class="note">Bir satıra tıkla: sistem o duruma ayarlanır ve baştan başlar.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 04 ============ -->
+<section id="s4">
+  <h2><span class="num">04</span> İkinci görüş: rezonans eğrisi</h2>
+  <p style="max-width:66ch; color:var(--ink-2)">Aynı sistem, bu kez frekans tarafından. Eğri, her sürücü frekansı için kütlenin ne kadar büyük cevap verdiğini gösteriyor. 03. bölümdeki sönüm düğmesini oynat: tepenin hem <b>boyu</b> hem <b>genişliği</b> aynı anda değişiyor.</p>
+
+  <div class="hook">
+    <figure class="canvas-wrap">
+      <div class="canvas-inner"><canvas id="cCurve" aria-label="Sürücü frekansına göre tepki oranı eğrisi"></canvas></div>
+      <div class="legend">
+        <span><i style="background:var(--sin)"></i>tepki eğrisi</span>
+        <span><i style="background:var(--arc)"></i>şu anki sürücü ve tepe genişliği</span>
+        <span><i style="background:var(--ink-3)"></i>doğal frekans f₀</span>
+      </div>
+      <div class="ctrls">
+        <div class="btnrow" style="flex:1 1 100%">
+          <button type="button" class="btn" id="cvBw" aria-pressed="true">Tepe genişliğini göster</button>
+          <button type="button" class="btn" id="cvGhost" aria-pressed="false">Diğer sönümleri göster</button>
+        </div>
+      </div>
+      <figcaption>Dikey eksen "kütle, sürücüden kaç kat büyük hareket ediyor" demek. Tepe sığmadığında eksen bir kademe büyür.</figcaption>
+    </figure>
+
+    <div class="cols">
+      <div class="qcol">
+        <h3>Tepe neden tam orada?</h3>
+        <p>Çünkü sistem kendi ritminde itildiğinde her itme bir öncekinin üstüne biner — salıncak gibi. Biraz sağa veya sola kayarsan itmeler zamanla ters düşmeye başlar ve birikmeyi bozar. Tepe <b>f₀</b>'da.</p>
+      </div>
+      <div class="qcol">
+        <h3>Dar tepe = uzun çınlama</h3>
+        <p>Bunlar iki ayrı özellik değil, aynı sayının iki yüzü: <b>Q</b>. Sönümü azalt — tepe hem yükselir hem daralır, ve aynı anda çınlama uzar. Bir EQ'da Q düğmesini çevirdiğinde yaptığın şey tam olarak budur.</p>
+      </div>
+      <div class="qcol">
+        <h3>Gövde tasarımı bir tercih</h3>
+        <p><b>Geniş tepe:</b> her notaya biraz yardım, dengeli ama kısa sustain. <b>Dar tepe:</b> birkaç notaya çok yardım, uzun sustain ama dengesiz — o notalar diğerlerini bastırır. Luthier bu ikisi arasında bir yer seçer.</p>
+      </div>
+    </div>
+  </div>
+  <p class="note">Eğrinin tepe noktasındaki yükseklik yaklaşık <b>Q</b>'ya, tepenin genişliği ise <b>f₀ / Q</b>'ya eşittir. Aynı Q, 03. bölümdeki çınlama süresini de belirliyor: <b>τ = Q / (π·f₀)</b>.</p>
+</section>
+
+<!-- ============ 05 ============ -->
+<section id="s5">
+  <h2><span class="num">05</span> Kavramın dili</h2>
+  <p style="max-width:64ch; color:var(--ink-2)">Altı terim; üçü zaman tarafında, üçü frekans tarafında. Ama hepsi aynı düğmeye bağlı.</p>
+
+  <div class="terms">
+    <div class="term">
+      <h3>Sönüm oranı</h3>
+      <div class="sym">ζ (zeta) · birimsiz</div>
+      <p>Enerjinin ne kadar hızlı sızdığının ölçüsü. Küçük ζ = az kayıp, uzun çınlama. ζ = 1 olduğunda sistem artık hiç salınmaz, sadece yavaşça dengeye döner (kritik sönüm).</p>
+      <div class="mus"><span>Müzikte</span> Bir davul derisine el koymak ζ'yı büyütür: ses anında kesilir.</div>
+    </div>
+
+    <div class="term">
+      <h3>Kalite faktörü</h3>
+      <div class="sym">Q = 1 / (2ζ) · birimsiz</div>
+      <p>Kabaca "kaç çevrim çınlar" demek. Q büyükse sistem uzun süre titreşir ve dar bir frekans aralığına tepki verir. Bu atölyenin tek kahramanı bu sayı.</p>
+      <div class="mus"><span>Müzikte</span> EQ'daki Q düğmesiyle <i>aynı sayı</i>. Dar bant = yüksek Q = çınlayan bir vurgu.</div>
+    </div>
+
+    <div class="term">
+      <h3>Çınlama süresi</h3>
+      <div class="sym">τ = Q / (π · f₀) · saniye &nbsp;·&nbsp; T₆₀ ≈ 6,9 τ</div>
+      <p>τ, genliğin yaklaşık üçte birine (1/e) düşme süresi. T₆₀ ise 60 dB, yani binde bire düşme süresi — oda akustiğinde ve reverb ayarlarında kullanılan sayı.</p>
+      <div class="mus"><span>Müzikte</span> Sustain, reverb decay, zilin kuyruğu. Hepsi aynı ölçü.</div>
+      <div class="btnrow" style="margin-top:10px">
+        <button type="button" class="btn snd" data-snd="long">Uzun çınlama</button>
+        <button type="button" class="btn snd" data-snd="short">Kısa çınlama</button>
+      </div>
+    </div>
+
+    <div class="term">
+      <h3>Zorlamalı titreşim</h3>
+      <div class="sym">sürücü frekansı f<sub>s</sub></div>
+      <p>Sistem kendi haline bırakılmıyor, dışarıdan ritimli bir kuvvet onu sürüyor. Bir süre sonra sistem kendi frekansını unutup <b>sürücünün frekansında</b> titreşmeye başlar — sadece genliği ve zamanlaması değişir.</p>
+      <div class="mus"><span>Müzikte</span> Tel gövdeyi sürer, gövde havayı. Duyduğun nota telin notasıdır, gövdenin değil.</div>
+    </div>
+
+    <div class="term">
+      <h3>Rezonans</h3>
+      <div class="sym">f<sub>s</sub> ≈ f₀ · tepe yüksekliği ≈ Q</div>
+      <p>Sürücü frekansı doğal frekansa denk geldiğinde tepkinin en büyük olması. Tepe yüksekliği kabaca Q kadardır: Q = 8 ise kütle, sürücüden sekiz kat büyük hareket eder.</p>
+      <div class="mus"><span>Müzikte</span> Gitar gövdesinin ve ses deliğinin öne çıkardığı notalar; kemanın "kurt notası".</div>
+      <div class="btnrow" style="margin-top:10px">
+        <button type="button" class="btn snd" data-snd="on">Rezonanstaki nota</button>
+        <button type="button" class="btn snd" data-snd="off">Rezonans dışı nota</button>
+      </div>
+    </div>
+
+    <div class="term">
+      <h3>Tepe genişliği</h3>
+      <div class="sym">Δf = f₀ / Q · hertz</div>
+      <p>Rezonansın kaç hertzlik bir aralığa yayıldığı. Q büyüdükçe daralır. f₀ = 200 Hz ve Q = 10 ise tepe yaklaşık 20 Hz genişliğindedir.</p>
+      <div class="mus"><span>Müzikte</span> Bir gövde rezonansı dar ise sadece bir iki notayı şişirir; geniş ise bütün bir bölgeyi hafifçe kaldırır.</div>
+    </div>
+  </div>
+  <p class="note">Ses düğmeleri gerçek ölçekli değil; çınlamanın <i>hissini</i> göstermek için hazırlandı. Sınıfta hoparlör seviyesini önceden kontrol et.</p>
+</section>
+
+<!-- ============ 06 ============ -->
+<section id="s6">
+  <h2><span class="num">06</span> Şimdi sen dene</h2>
+  <div class="quizwrap">
+    <div id="quiz"></div>
+    <aside class="recap">
+      <h3>Aklında kalsın</h3>
+      <ol>
+        <li><b>Sönüm</b>, enerjinin dışarı sızması. Sönüm arttıkça ses daha çabuk söner.</li>
+        <li><b>Q = 1 / (2ζ)</b>. Büyük Q = uzun çınlama: <b>τ = Q / (π·f₀)</b>.</li>
+        <li><b>Rezonans:</b> sürücü frekansı f₀'a denk geldiğinde tepki en büyüktür. Tepe yüksekliği kabaca <b>Q</b> kadardır.</li>
+        <li>Aynı Q iki şeyi birden belirler: tepenin darlığı (<b>Δf = f₀/Q</b>) ve çınlamanın uzunluğu. <b>Uzun çınlama = dar tepe.</b></li>
+        <li>Enstrümanda bu bir <b>tercih</b>: geniş tepe = dengeli ama kısa sustain; dar tepe = birkaç notaya büyük yardım ama dengesiz.</li>
+      </ol>
+      <div class="score" id="score">Doğru: 0 / 8</div>
+    </aside>
+  </div>
+</section>
+
+<footer>
+  <p>Müzik Teknolojisi · Ses Fiziği I dersi 3. atölye. 1. atölyedeki (Osilasyonlar) genlik–periyot–frekans–faz tanımlarını ve 2. atölyedeki (Yay, Kütle ve Frekans) doğal frekans hesabını varsayar. Konu haritası için: UNSW Physclips – Oscillations (animations.physics.unsw.edu.au).</p>
+</footer>
+
+</div>
+<script>
+(function(){
+'use strict';
+var root=document.documentElement, TAU=Math.PI*2;
+var C={}, K={lw:1,fs:1,faint:.32,glow:0};
+var mqDark=window.matchMedia('(prefers-color-scheme: dark)');
+var mqSlow=window.matchMedia('(prefers-reduced-motion: reduce)');
+var CKEYS=['ground','panel','panel-2','ink','ink-2','ink-3','line','line-2','sin','cos','arc','brass','ok','no'];
+
+/* ---------------- tema ---------------- */
+function isProj(){ return root.getAttribute('data-mode')==='proj'; }
+function isDarkNow(){
+  if(isProj()) return false;
+  var t=root.getAttribute('data-theme');
+  if(t==='dark') return true;
+  if(t==='light') return false;
+  return mqDark.matches;
+}
+function readTheme(){
+  var cs=getComputedStyle(root);
+  for(var i=0;i<CKEYS.length;i++) C[CKEYS[i]]=cs.getPropertyValue('--'+CKEYS[i]).trim()||'#888';
+  var proj=isProj(), dark=isDarkNow();
+  K.glow = (dark && !proj) ? 0.7 : 0;
+  K.lw   = proj ? 1.5 : 1;
+  K.fs   = proj ? 1.24 : 1;
+  K.faint= proj ? 0.42 : (K.glow ? 0.34 : 0.32);
+}
+var tBtns=[].slice.call(document.querySelectorAll('.themebar button'));
+function syncTheme(){
+  var cur;
+  if(isProj()) cur='proj';
+  else if(root.getAttribute('data-theme')==='dark') cur='dark';
+  else if(root.getAttribute('data-theme')==='light') cur='light';
+  else cur = mqDark.matches ? 'dark' : 'light';
+  tBtns.forEach(function(b){ b.setAttribute('aria-pressed', b.dataset.t===cur?'true':'false'); });
+}
+function applyTheme(v,store){
+  if(v==='light'){ root.setAttribute('data-theme','light'); root.removeAttribute('data-mode'); }
+  else if(v==='dark'){ root.setAttribute('data-theme','dark'); root.removeAttribute('data-mode'); }
+  else if(v==='proj'){ root.setAttribute('data-theme','light'); root.setAttribute('data-mode','proj'); }
+  if(store){ try{ localStorage.setItem('mt-tema',v); }catch(e){} }
+  syncTheme();
+}
+tBtns.forEach(function(b){ b.addEventListener('click',function(){ applyTheme(b.dataset.t,true); }); });
+(function(){
+  var v=null; try{ v=localStorage.getItem('mt-tema'); }catch(e){}
+  if(v==='light'||v==='dark'||v==='proj') applyTheme(v,false); else syncTheme();
+})();
+
+/* ---------------- yardimcilar ---------------- */
+function nf(v,d){
+  d=(d===undefined)?2:d;
+  var r=Number(v.toFixed(d)); if(r===0) r=0;
+  return r.toFixed(d).replace('-','−').replace('.',',');
+}
+function deg(v,d){ return nf(v,d===undefined?0:d)+'°'; }
+function setFont(ctx,px,w,sans){
+  ctx.font=(w||500)+' '+Math.max(9,Math.round(px*K.fs))+'px '+(sans?'"IBM Plex Sans",system-ui,sans-serif':'"IBM Plex Mono",ui-monospace,monospace');
+}
+function gOn(ctx,col,amt){ if(K.glow){ ctx.shadowColor=col; ctx.shadowBlur=amt*K.glow; } }
+function gOff(ctx){ ctx.shadowBlur=0; ctx.shadowColor='transparent'; }
+function dash(ctx,a){ ctx.setLineDash(a?a.map(function(v){return v*K.lw;}):[]); }
+function line(ctx,x1,y1,x2,y2,col,w,d){
+  ctx.save(); ctx.strokeStyle=col; ctx.lineWidth=(w||1)*K.lw; dash(ctx,d);
+  ctx.beginPath(); ctx.moveTo(x1,y1); ctx.lineTo(x2,y2); ctx.stroke(); ctx.restore();
+}
+function dot(ctx,x,y,r,col,glow){
+  ctx.save(); ctx.fillStyle=col; if(glow) gOn(ctx,col,10);
+  ctx.beginPath(); ctx.arc(x,y,r*K.fs,0,TAU); ctx.fill(); gOff(ctx); ctx.restore();
+}
+function label(ctx,txt,x,y,col,px,align,bg){
+  var fs=px||11;
+  ctx.save(); setFont(ctx,fs,500,false);
+  ctx.textAlign=align||'left'; ctx.textBaseline='alphabetic';
+  if(bg){
+    var w=ctx.measureText(txt).width, h=fs*K.fs;
+    var lx=(align==='right')?x-w:((align==='center')?x-w/2:x);
+    ctx.fillStyle=alpha(C.panel,0.86);
+    ctx.fillRect(lx-3,y-h-1,w+6,h+5);
+  }
+  ctx.fillStyle=col; ctx.fillText(txt,x,y); ctx.restore();
+}
+function labelV(ctx,txt,x,y,col,px){
+  ctx.save(); setFont(ctx,px||11,500,false);
+  ctx.translate(x,y); ctx.rotate(Math.PI/2);
+  ctx.textAlign='center'; ctx.textBaseline='alphabetic';
+  ctx.fillStyle=col; ctx.fillText(txt,0,0); ctx.restore();
+}
+function textW(ctx,txt,px){ ctx.save(); setFont(ctx,px||11,500,false); var w=ctx.measureText(txt).width; ctx.restore(); return w; }
+function alpha(hex,a){
+  var h=hex.replace('#',''); if(h.length===3) h=h[0]+h[0]+h[1]+h[1]+h[2]+h[2];
+  var n=parseInt(h,16);
+  if(isNaN(n)) return hex;
+  return 'rgba('+((n>>16)&255)+','+((n>>8)&255)+','+(n&255)+','+a+')';
+}
+
+/* ---------------- sahne altyapisi ---------------- */
+var scenes=[];
+function makeScene(cv,painter){
+  var ctx=cv.getContext('2d'), s={cv:cv,ctx:ctx,W:0,H:0};
+  s.resize=function(){
+    var r=cv.getBoundingClientRect();
+    var w=Math.max(1,r.width), h=Math.max(1,r.height);
+    var dpr=Math.min(2,window.devicePixelRatio||1);
+    s.W=w; s.H=h; cv.width=Math.round(w*dpr); cv.height=Math.round(h*dpr);
+    ctx.setTransform(dpr,0,0,dpr,0,0);
+  };
+  s.draw=function(){ if(s.W<2) s.resize(); ctx.clearRect(0,0,s.W,s.H); painter(ctx,s.W,s.H); };
+  if(window.ResizeObserver) new ResizeObserver(function(){ s.resize(); s.draw(); }).observe(cv);
+  scenes.push(s); return s;
+}
+function markAll(){ SW.dirty=true; S.dirty=true; CV.dirty=true; }
+function redrawAll(){ readTheme(); scenes.forEach(function(s){ s.resize(); s.draw(); }); markAll(); }
+new MutationObserver(redrawAll).observe(root,{attributes:true,attributeFilter:['data-theme','data-mode']});
+if(mqDark.addEventListener) mqDark.addEventListener('change',function(){ redrawAll(); syncTheme(); });
+window.addEventListener('resize',function(){ markAll(); });
+
+/* ---------------- ses ---------------- */
+var AC=null;
+function ac(){
+  try{
+    if(!AC){ var Ctor=window.AudioContext||window.webkitAudioContext; if(!Ctor) return null; AC=new Ctor(); }
+    if(AC.state==='suspended') AC.resume();
+    return AC;
+  }catch(e){ return null; }
+}
+function playTones(specs,dur){
+  var c=ac(); if(!c) return;
+  try{
+    var t0=c.currentTime+0.06, master=c.createGain();
+    master.gain.setValueAtTime(0.0001,t0);
+    master.gain.linearRampToValueAtTime(1,t0+0.03);
+    master.gain.setValueAtTime(1,t0+dur-0.08);
+    master.gain.linearRampToValueAtTime(0.0001,t0+dur);
+    master.connect(c.destination);
+    specs.forEach(function(sp){
+      var o=c.createOscillator(); o.type='sine'; o.frequency.setValueAtTime(sp.f,t0);
+      var g=c.createGain(); g.gain.setValueAtTime(sp.g,t0);
+      o.connect(g); g.connect(master); o.start(t0); o.stop(t0+dur+0.06);
+    });
+    setTimeout(function(){ try{ master.disconnect(); }catch(e){} },(dur+0.4)*1000);
+  }catch(e){}
+}
+function playSeq(list,dur,gap){
+  var c=ac(); if(!c) return;
+  list.forEach(function(f,i){ setTimeout(function(){ playTones([{f:f,g:0.16}],dur); }, i*(dur+gap)*1000); });
+}
+
+
+/* ---------------- ortak fizik ---------------- */
+var F0=1.0, W0=TAU*F0, YD=0.125, ZMIN=0.0625, ZMAX=1.5, WIN=6, XMAX=1.05;
+function zetaOf(p){ return ZMIN*Math.pow(ZMAX/ZMIN,p/100); }
+function Rof(r,z){ var a=1-r*r, b=2*z*r; return 1/Math.sqrt(a*a+b*b); }
+function peakOf(z){
+  if(z<Math.SQRT1_2) return {r:Math.sqrt(1-2*z*z), R:1/(2*z*Math.sqrt(1-z*z))};
+  return {r:0,R:1};
+}
+function bwOf(z){
+  var pk=peakOf(z); if(!(pk.R>Math.SQRT2)) return null;
+  var tgt=pk.R/Math.SQRT2;
+  function bis(lo,hi,inc){ for(var i=0;i<60;i++){ var m=(lo+hi)/2; if((Rof(m,z)<tgt)===inc) lo=m; else hi=m; } return (lo+hi)/2; }
+  var rl=bis(0,pk.r,true), rh=bis(pk.r,8,false);
+  return {lo:rl,hi:rh,df:(rh-rl)*F0,pk:pk};
+}
+function phaseOf(r,z){ return Math.atan2(2*z*r,1-r*r); }
+function labelVUp(ctx,txt,x,y,col,px){
+  ctx.save(); setFont(ctx,px||11,500,false);
+  ctx.translate(x,y); ctx.rotate(-Math.PI/2);
+  ctx.textAlign='center'; ctx.textBaseline='alphabetic';
+  ctx.fillStyle=col; ctx.fillText(txt,0,0); ctx.restore();
+}
+function hatch(ctx,x0,x1,y,col,dir){
+  ctx.save(); ctx.strokeStyle=col; ctx.lineWidth=1*K.lw;
+  for(var x=x0+5;x<x1;x+=12){ ctx.beginPath(); ctx.moveTo(x,y); ctx.lineTo(x-5,y+5*(dir||1)); ctx.stroke(); }
+  ctx.restore();
+}
+function playDecay(f,dur,g0){
+  var c=ac(); if(!c) return;
+  try{
+    var t0=c.currentTime+0.05;
+    var o=c.createOscillator(); o.type='sine'; o.frequency.setValueAtTime(f,t0);
+    var g=c.createGain();
+    g.gain.setValueAtTime(0.0001,t0);
+    g.gain.linearRampToValueAtTime(g0,t0+0.012);
+    g.gain.exponentialRampToValueAtTime(0.0001,t0+dur);
+    o.connect(g); g.connect(c.destination); o.start(t0); o.stop(t0+dur+0.05);
+    setTimeout(function(){ try{ g.disconnect(); }catch(e){} },(dur+0.5)*1000);
+  }catch(e){}
+}
+
+/* ================= 01 : salincak ================= */
+var SW={t:0,playing:false,Td:1.0,th:0,w:0,amp:0,dirty:true};
+var ST0=1.5, SF0=1/ST0, SW0=TAU*SF0, SZ=0.09, SY=0.10, SAMAX=0.58;
+function swTarget(){ return SY*Rof(ST0/SW.Td,SZ); }
+function swStep(dt){
+  var n=Math.max(1,Math.ceil(dt/0.002)), h=dt/n;
+  for(var i=0;i<n;i++){
+    var y=SY*Math.cos(TAU*(1/SW.Td)*SW.t);
+    var a=SW0*SW0*(y-SW.th)-2*SZ*SW0*SW.w;
+    SW.w+=a*h; SW.th+=SW.w*h; SW.t+=h;
+  }
+  SW.amp=Math.max(Math.abs(SW.th),SW.amp*Math.pow(0.9990,n));
+}
+var swScene=makeScene(document.getElementById('cSwing'),function(ctx,W,H){
+  var pad=12, barW=30, narrow=W<430;
+  var right=W-pad-barW-10, cx=(pad+right)/2, yPiv=pad+32;
+  var Lr=Math.max(60,Math.min(H-yPiv-pad-36, (right-pad)*0.34));
+  var faint=alpha(C['ink-3'],K.faint);
+  var th=SW.th, bx=cx+Lr*Math.sin(th), by=yPiv+Lr*Math.cos(th);
+  var env=Math.max(SW.amp,0.015), tgt=swTarget();
+
+  line(ctx,cx-46,yPiv,cx+46,yPiv,alpha(C['ink-3'],0.9),2.2);
+  hatch(ctx,cx-46,cx+46,yPiv,faint,-1);
+  line(ctx,cx,yPiv,cx,yPiv+Lr+14,faint,1,[4,6]);
+  /* hedef yayi */
+  ctx.save(); ctx.strokeStyle=alpha(C.arc,0.55); ctx.lineWidth=1.6*K.lw; dash(ctx,[4,4]);
+  ctx.beginPath(); ctx.arc(cx,yPiv,Lr+13,Math.PI/2-tgt,Math.PI/2+tgt); ctx.stroke(); ctx.restore();
+  [-1,1].forEach(function(sg){
+    var a2=Math.PI/2+sg*tgt;
+    line(ctx,cx+(Lr+7)*Math.cos(a2),yPiv+(Lr+7)*Math.sin(a2),cx+(Lr+19)*Math.cos(a2),yPiv+(Lr+19)*Math.sin(a2),C.arc,1.6);
+  });
+  /* ulasilan yay */
+  ctx.save(); ctx.strokeStyle=alpha(C.sin,K.glow?0.5:0.4); ctx.lineWidth=2.4*K.lw;
+  ctx.beginPath(); ctx.arc(cx,yPiv,Lr,Math.PI/2-env,Math.PI/2+env); ctx.stroke(); ctx.restore();
+  /* cubuk ve top */
+  ctx.save(); ctx.strokeStyle=alpha(C['ink-3'],0.85); ctx.lineWidth=2.2*K.lw;
+  ctx.beginPath(); ctx.moveTo(cx,yPiv); ctx.lineTo(bx,by); ctx.stroke(); ctx.restore();
+  dot(ctx,bx,by,narrow?12:15,C.sin,true);
+  /* itme oku */
+  var dv=Math.cos(TAU*(1/SW.Td)*SW.t), aw=dv*(narrow?28:38);
+  if(Math.abs(aw)>4){
+    var ax0=bx+(aw>0?(narrow?15:18):-(narrow?15:18));
+    ctx.save(); ctx.strokeStyle=C.cos; ctx.lineWidth=2.6*K.lw; ctx.lineCap='round'; gOn(ctx,C.cos,9);
+    ctx.beginPath(); ctx.moveTo(ax0,by); ctx.lineTo(ax0+aw,by); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(ax0+aw,by); ctx.lineTo(ax0+aw-Math.sign(aw)*7,by-5);
+    ctx.moveTo(ax0+aw,by); ctx.lineTo(ax0+aw-Math.sign(aw)*7,by+5); ctx.stroke(); gOff(ctx); ctx.restore();
+  }
+  /* etiketler */
+  label(ctx,'salıncağın kendi ritmi: '+nf(ST0,1)+' s',pad,pad+12,alpha(C['ink-3'],0.95),10,'left');
+  var tuned=Math.abs(SW.Td-ST0)<0.08;
+  label(ctx,'itme ritmi: '+nf(SW.Td,2)+' s'+(tuned?'   ← tam ritim':''),pad,pad+26,tuned?C.arc:C.cos,10,'left');
+  /* genlik cubugu */
+  var bx0=W-pad-barW, by0=pad+36, bh=H-pad-16-by0;
+  ctx.save(); ctx.strokeStyle=faint; ctx.lineWidth=1*K.lw; ctx.strokeRect(bx0,by0,barW,bh); ctx.restore();
+  var fr=Math.min(1,env/SAMAX), ft=Math.min(1,tgt/SAMAX);
+  ctx.save(); ctx.fillStyle=alpha(C.sin,0.8); gOn(ctx,C.sin,9);
+  ctx.fillRect(bx0+1,by0+bh-fr*(bh-2)+1,barW-2,fr*(bh-2)); gOff(ctx); ctx.restore();
+  var yT=by0+bh-ft*(bh-2);
+  line(ctx,bx0-5,yT,bx0+barW+5,yT,C.arc,2);
+  label(ctx,'hedef',bx0+barW+4,yT-5,C.arc,9.5,'right',true);
+  label(ctx,'genlik',bx0+barW/2,by0-8,alpha(C['ink-3'],0.95),9.5,'center');
+  label(ctx,nf(env*180/Math.PI,0)+'°',bx0+barW/2,H-pad-2,C.sin,11.5,'center');
+});
+var swPlay=document.getElementById('swPlay'), swT=document.getElementById('swT'), swTV=document.getElementById('swTV');
+function setSwPlay(v){ SW.playing=v; swPlay.textContent=v?'Duraklat':'İt'; swPlay.classList.toggle('pri',!v); SW.dirty=true; }
+swPlay.addEventListener('click',function(){ setSwPlay(!SW.playing); });
+document.getElementById('swReset').addEventListener('click',function(){ SW.t=0; SW.th=0; SW.w=0; SW.amp=0; setSwPlay(false); });
+swT.addEventListener('input',function(){
+  SW.Td=parseFloat(this.value);
+  swTV.textContent="her "+nf(SW.Td,2)+" s'de bir";
+  SW.t=0; SW.th=0; SW.w=0; SW.amp=0; SW.dirty=true;
+});
+swTV.textContent="her "+nf(SW.Td,2)+" s'de bir";
+
+/* ================= 03 : surulen sonumlu sistem ================= */
+var S={zp:15,fd:1.0,drive:true,playing:false,x:0,v:0,t:0,sel:-1,dirty:true};
+function sysStep(st,dt,z){
+  var n=Math.max(1,Math.ceil(dt/0.002)), h=dt/n;
+  for(var i=0;i<n;i++){
+    var y=st.drive?YD*Math.cos(TAU*S.fd*st.t):0;
+    var a=W0*W0*(y-st.x)-2*z*W0*st.v;
+    st.v+=a*h; st.x+=st.v*h; st.t+=h;
+  }
+}
+function steadyNow(){
+  var z=zetaOf(S.zp), r=S.fd/F0, X=YD*Rof(r,z), ph=phaseOf(r,z);
+  S.x=X*Math.cos(-ph); S.v=X*TAU*S.fd*Math.sin(-ph)*-1; S.t=0;
+}
+function labGeom(W,H){
+  var pad=12, narrow=W<520;
+  var mw=narrow?30:36, dashW=narrow?30:38, mh=narrow?26:30;
+  var sL=(W/2-pad-mw/2-67)/1.3, sR=(W/2-pad-mw/2-dashW-16)/1.05;
+  var scale=Math.max(18,Math.min(sL,sR,narrow?66:112));
+  var g={pad:pad,narrow:narrow,scale:scale,mw:mw,mh:mh,dashW:dashW};
+  g.cx=W/2; g.xD0=pad+16+0.125*scale;
+  g.xPost=Math.min(W-pad-6, g.cx+XMAX*scale+mw/2+8+dashW+24);
+  g.yLbl=pad+12; g.ySurf=pad+62; g.yRuler=g.ySurf+26; g.yTop=pad+112;
+  g.traceLen=Math.max(90,H-pad-g.yTop); g.pps=g.traceLen/WIN;
+  return g;
+}
+var labScene=makeScene(document.getElementById('cLab'),function(ctx,W,H){
+  var g=labGeom(W,H), z=zetaOf(S.zp), r=S.fd/F0;
+  var Xss=YD*Rof(r,z), tau=1/(z*W0), wd=W0*Math.sqrt(Math.max(0,1-z*z));
+  var yb=g.yTop+g.traceLen, cx=g.cx, sc=g.scale;
+  var faint=alpha(C['ink-3'],K.faint), faint2=alpha(C['ink-3'],K.faint*0.55);
+  var yNow=S.drive?YD*Math.cos(TAU*S.fd*S.t):0;
+  var mx=cx+S.x*sc, dx=g.xD0+yNow*sc;
+
+  /* zarflar */
+  line(ctx,cx,g.yLbl+8,cx,yb,faint,1,[4,6]);
+  if(S.drive){
+    [cx-Xss*sc,cx+Xss*sc].forEach(function(x){ line(ctx,x,g.yLbl+8,x,yb,alpha(C.sin,K.glow?0.34:0.3),1.2,[3,5]); });
+    [cx-YD*sc,cx+YD*sc].forEach(function(x){ line(ctx,x,g.ySurf-46,x,g.yRuler+8,alpha(C.cos,K.glow?0.36:0.32),1.1,[2,4]); });
+  }
+
+  /* ---- diyagram ---- */
+  line(ctx,g.pad+2,g.ySurf,g.xPost,g.ySurf,alpha(C['ink-3'],0.9),1.8);
+  hatch(ctx,g.pad+2,g.xPost,g.ySurf,faint,1);
+  line(ctx,g.xPost,g.ySurf,g.xPost,g.ySurf-54,alpha(C['ink-3'],0.9),2.4);
+  ctx.save(); ctx.strokeStyle=faint; ctx.lineWidth=1*K.lw;
+  for(var hy=g.ySurf-50;hy<g.ySurf;hy+=10){ ctx.beginPath(); ctx.moveTo(g.xPost,hy); ctx.lineTo(g.xPost+6,hy+6); ctx.stroke(); }
+  ctx.restore();
+
+  var dW=g.narrow?22:26, dH=g.mh-2;
+  ctx.save(); ctx.fillStyle=C.cos; gOn(ctx,C.cos,10);
+  ctx.fillRect(dx-dW/2,g.ySurf-dH,dW,dH); gOff(ctx); ctx.restore();
+
+  var mL=mx-g.mw/2, sL2=Math.max(12,mL-(dx+dW/2)), yMid=g.ySurf-g.mh/2;
+  ctx.save(); ctx.strokeStyle=alpha(C['ink-3'],0.9); ctx.lineWidth=1.7*K.lw; ctx.lineJoin='round';
+  var nc=10, seg=sL2/nc, xs=dx+dW/2;
+  ctx.beginPath(); ctx.moveTo(xs,yMid);
+  for(var i2=0;i2<nc;i2++) ctx.lineTo(xs+seg*(i2+0.5),yMid+((i2%2)?8:-8));
+  ctx.lineTo(mL,yMid); ctx.stroke(); ctx.restore();
+
+  ctx.save(); ctx.fillStyle=C.sin; gOn(ctx,C.sin,11);
+  ctx.fillRect(mL,g.ySurf-g.mh,g.mw,g.mh); gOff(ctx); ctx.restore();
+
+  /* amortisor : silindir kutleye bagli, mil direge */
+  var cyL=mx+g.mw/2+8, cyR=cyL+g.dashW, fillA=0.10+0.42*(z/ZMAX);
+  ctx.save(); ctx.fillStyle=alpha(C.brass,fillA); ctx.fillRect(cyL,yMid-9,g.dashW,18); ctx.restore();
+  ctx.save(); ctx.strokeStyle=C.brass; ctx.lineWidth=1.7*K.lw;
+  ctx.strokeRect(cyL,yMid-9,g.dashW,18);
+  ctx.beginPath(); ctx.moveTo(mx+g.mw/2,yMid); ctx.lineTo(cyL,yMid); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(cyR-10,yMid-7); ctx.lineTo(cyR-10,yMid+7); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(cyR-10,yMid); ctx.lineTo(g.xPost,yMid); ctx.stroke();
+  ctx.restore();
+
+  label(ctx,'sürücü',dx,g.ySurf-dH-7,C.cos,9.5,'center',true);
+  label(ctx,'kütle',mx,g.ySurf-g.mh-7,C.sin,9.5,'center',true);
+  label(ctx,'sönüm',(cyL+cyR)/2,yMid-13,C.brass,9.5,'center',true);
+
+  /* aralik cubuklari : kutlenin araligi vs surucunun araligi */
+  var envFree=(z<1)?Math.sqrt(S.x*S.x+Math.pow((S.v+z*W0*S.x)/(W0*Math.sqrt(Math.max(1e-6,1-z*z))),2)):Math.abs(S.x);
+  var envM=Math.min(XMAX,S.drive?Xss:envFree);
+  var yBarM=g.yRuler-7, yBarD=g.yRuler+8, xLab=Math.min(W-g.pad-46,cx+XMAX*sc+8);
+  line(ctx,cx,yBarM-6,cx,yBarD+6,alpha(C['ink-3'],0.6),1,[2,3]);
+  ctx.save(); ctx.strokeStyle=C.sin; ctx.lineWidth=3.4*K.lw; ctx.lineCap='round'; gOn(ctx,C.sin,9);
+  ctx.beginPath(); ctx.moveTo(cx-envM*sc,yBarM); ctx.lineTo(cx+envM*sc,yBarM); ctx.stroke(); gOff(ctx); ctx.restore();
+  label(ctx,'kütle',xLab,yBarM+4,C.sin,9.5,'left',true);
+  if(S.drive){
+    ctx.save(); ctx.strokeStyle=C.cos; ctx.lineWidth=3.4*K.lw; ctx.lineCap='round'; gOn(ctx,C.cos,9);
+    ctx.beginPath(); ctx.moveTo(cx-YD*sc,yBarD); ctx.lineTo(cx+YD*sc,yBarD); ctx.stroke(); gOff(ctx); ctx.restore();
+    label(ctx,'sürücü',xLab,yBarD+4,C.cos,9.5,'left',true);
+  }
+
+  /* ---- zaman ekseni ---- */
+  var xAxis=Math.max(g.pad+26,cx-XMAX*sc-26);
+  line(ctx,xAxis,g.yTop,xAxis,yb,faint,1);
+  for(var s3=0;s3<=WIN*2;s3++){
+    var tt=s3*0.5, y=g.yTop+tt*g.pps, full=(s3%2===0);
+    line(ctx,xAxis,y,W-g.pad,y,full?faint2:alpha(C['ink-3'],K.faint*0.26),1,[3,6]);
+    line(ctx,xAxis-4,y,xAxis,y,alpha(C['ink-3'],0.8),1);
+    if(full) label(ctx,nf(tt,0)+(s3===WIN*2?' s':''),xAxis-6,y+4,alpha(C['ink-3'],0.95),9.5,'right',true);
+  }
+  label(ctx,'zaman ↓',g.pad,g.yTop-9,alpha(C['ink-3'],0.95),10,'left');
+
+  /* ---- ileri benzetim ---- */
+  var N=Math.max(2,Math.round(g.traceLen));
+  var dtP=WIN/N, tmp={x:S.x,v:S.v,t:S.t,drive:S.drive};
+  var xs2=new Float64Array(N+1), ys2=new Float64Array(N+1);
+  for(var n2=0;n2<=N;n2++){
+    xs2[n2]=tmp.x; ys2[n2]=tmp.drive?YD*Math.cos(TAU*S.fd*tmp.t):0;
+    if(n2<N) sysStep(tmp,dtP,z);
+  }
+  function curve(arr,col,lw,gl,dsh){
+    ctx.save(); ctx.strokeStyle=col; ctx.lineWidth=lw*K.lw; ctx.lineJoin='round';
+    if(dsh) dash(ctx,dsh); if(gl) gOn(ctx,col,11);
+    ctx.beginPath();
+    for(var n3=0;n3<=N;n3++){
+      var yy=g.yTop+n3*g.traceLen/N, xx=cx+arr[n3]*sc;
+      if(n3===0) ctx.moveTo(xx,yy); else ctx.lineTo(xx,yy);
+    }
+    ctx.stroke(); gOff(ctx); ctx.restore();
+  }
+  if(S.drive) curve(ys2,C.cos,1.8,false,null);
+  /* serbest sonum zarfi */
+  if(!S.drive && z<1){
+    var E0=Math.sqrt(S.x*S.x+Math.pow((S.v+z*W0*S.x)/wd,2));
+    [1,-1].forEach(function(sg){
+      ctx.save(); ctx.strokeStyle=alpha(C.sin,0.55); ctx.lineWidth=1.4*K.lw; dash(ctx,[4,4]);
+      ctx.beginPath();
+      for(var n4=0;n4<=N;n4++){
+        var tt2=n4*dtP, yy2=g.yTop+n4*g.traceLen/N, xx2=cx+sg*E0*Math.exp(-z*W0*tt2)*sc;
+        if(n4===0) ctx.moveTo(xx2,yy2); else ctx.lineTo(xx2,yy2);
+      }
+      ctx.stroke(); ctx.restore();
+    });
+  }
+  curve(xs2,C.sin,2.7,true,null);
+
+  /* tau isareti */
+  if(tau<WIN){
+    var yT=g.yTop+tau*g.pps;
+    line(ctx,xAxis,yT,Math.min(W-g.pad,cx+XMAX*sc+10),yT,C.brass,1.5,[6,4]);
+    label(ctx,'τ = '+nf(tau,2)+' s',Math.min(W-g.pad,cx+XMAX*sc+8),yT-6,C.brass,10,'right',true);
+  }
+  dot(ctx,mx,g.yRuler-7,3.6,C.sin,true);
+  dot(ctx,mx,g.yTop,4.2,C.sin,true);
+  if(S.drive) dot(ctx,cx+yNow*sc,g.yTop,3.4,C.cos,true);
+});
+
+/* ---- kontroller ve okumalar ---- */
+var fdEl=document.getElementById('fd'), fdV=document.getElementById('fdV');
+var zpEl=document.getElementById('zp'), zpV=document.getElementById('zpV');
+var lPlay=document.getElementById('lPlay'), lDrive=document.getElementById('lDrive');
+var out={}; ['rFd','rR','rQ','rTau','rResp','vZeta','vQ','vTau','vT60','vPeak','vBw','vResp','vPhase','qNote']
+  .forEach(function(k){ out[k]=document.getElementById(k); });
+function damperWord(z){ return z<0.09?'uzun çınlama':(z<0.25?'orta':(z<0.75?'kısa çınlama':(z<1.05?'kritik sönüm':'çınlama yok'))); }
+function labRead(){
+  var z=zetaOf(S.zp), Q=1/(2*z), r=S.fd/F0, tau=1/(z*W0), T60=Math.log(1000)/(z*W0);
+  var R=Rof(r,z), pk=peakOf(z), bw=bwOf(z), ph=phaseOf(r,z)*180/Math.PI;
+  fdV.textContent=nf(S.fd,2)+' Hz'; zpV.textContent=damperWord(z);
+  out.rFd.textContent=nf(S.fd,2)+' Hz';
+  out.rR.textContent=nf(r,2);
+  out.rQ.textContent=nf(Q,1);
+  out.rTau.textContent=nf(tau,2)+' s';
+  out.rResp.textContent=nf(R,1)+'×';
+  out.vZeta.textContent=nf(z,3);
+  out.vQ.textContent=nf(Q,2);
+  out.vTau.textContent=nf(tau,2)+' s';
+  out.vT60.textContent=nf(T60,1)+' s';
+  out.vPeak.textContent=(z<Math.SQRT1_2? nf(pk.R,1)+'×  ('+nf(pk.r*F0,2)+' Hz)' : 'tepe yok');
+  out.vBw.textContent=bw? nf(bw.df,3)+' Hz' : '—';
+  out.vResp.textContent=nf(R,2)+'×';
+  out.vPhase.textContent=nf(ph,0)+'°';
+  out.qNote.innerHTML='Q = '+nf(Q,1)+': kütle rezonansta sürücüden yaklaşık <b>'+nf(pk.R,1)+
+    ' kat</b> büyük hareket eder ve darbeden sonra yaklaşık <b>'+nf(tau,2)+' saniye</b> çınlar.';
+  CV.dirty=true;
+}
+function setLPlay(v){ S.playing=v; lPlay.textContent=v?'Duraklat':'Oynat'; lPlay.classList.toggle('pri',!v); S.dirty=true; }
+function setDrive(v){ S.drive=v; lDrive.textContent=v?'Sürücü açık':'Sürücü kapalı'; lDrive.setAttribute('aria-pressed',v?'true':'false'); S.dirty=true; }
+lPlay.addEventListener('click',function(){ setLPlay(!S.playing); });
+lDrive.addEventListener('click',function(){ setDrive(!S.drive); if(S.drive){ S.t=0; } selRow(-1); });
+document.getElementById('lPluck').addEventListener('click',function(){
+  setDrive(false); S.x=1.0; S.v=0; S.t=0; setLPlay(true); selRow(-1);
+});
+document.getElementById('lSound').addEventListener('click',function(){
+  var tau=1/(zetaOf(S.zp)*W0);
+  playDecay(330,Math.max(0.2,Math.min(3.0,0.25+(tau/2.55)*2.6)),0.2);
+});
+fdEl.addEventListener('input',function(){ S.fd=parseFloat(this.value); selRow(-1); labRead(); S.dirty=true; });
+zpEl.addEventListener('input',function(){ S.zp=parseFloat(this.value); syncPills(); selRow(-1); labRead(); S.dirty=true; });
+var pills=[].slice.call(document.querySelectorAll('.pill'));
+function syncPills(){ pills.forEach(function(b){ b.setAttribute('aria-pressed',parseFloat(b.dataset.zp)===S.zp?'true':'false'); }); }
+pills.forEach(function(b){
+  b.addEventListener('click',function(){ S.zp=parseFloat(b.dataset.zp); zpEl.value=S.zp; syncPills(); selRow(-1); labRead(); S.dirty=true; });
+});
+
+/* ---- hazir durumlar ---- */
+var CASES=[
+ {n:'Gövde notanın çok altında', fd:0.45, zp:15},
+ {n:'Notaya yaklaşıyor',         fd:0.80, zp:15},
+ {n:'Tam rezonans',              fd:1.00, zp:15},
+ {n:'Notanın üstünde',           fd:1.70, zp:15},
+ {n:'Çınlayan gövde',            fd:1.00, zp:0},
+ {n:'Sönümlü gövde',             fd:1.00, zp:65},
+ {n:'Aşırı sönüm — tepe yok',    fd:1.00, zp:94}
+];
+var tbody=document.querySelector('#tbl tbody');
+function applyCase(c,play){
+  S.fd=c.fd; S.zp=c.zp; fdEl.value=c.fd; zpEl.value=c.zp;
+  setDrive(true); steadyNow(); syncPills(); labRead(); setLPlay(!!play); S.dirty=true;
+}
+CASES.forEach(function(c,i){
+  var z=zetaOf(c.zp), Q=1/(2*z), R=Rof(c.fd/F0,z);
+  var tr=document.createElement('tr');
+  tr.innerHTML='<td>'+c.n+'</td><td class="num">'+nf(c.fd,2)+'</td><td class="num">'+nf(Q,1)+'</td><td class="num">'+nf(R,2)+'×</td>';
+  tr.addEventListener('click',function(){ applyCase(c,true); selRow(i); });
+  tbody.appendChild(tr);
+});
+function selRow(i){ S.sel=i; [].slice.call(tbody.children).forEach(function(tr,j){ tr.setAttribute('aria-selected',j===i?'true':'false'); }); }
+
+/* ---- ders adimlari ---- */
+var STEPS=[
+ {t:'Sönümü "Orta"ya, sürücü frekansını 1,00 Hz\'e getir ve durdur. Sistem rezonansta: kütlenin gidip geldiği aralık sürücününkinden çok geniş.',
+  a:function(){ applyCase({fd:1.0,zp:15},false); }},
+ {t:'Başa al yerine sıfırdan başlat: Oynat\'a bas. Genlik bir anda değil, birkaç çevrimde birikiyor — salıncak gibi.',
+  a:function(){ applyCase({fd:1.0,zp:15},true); S.x=0; S.v=0; S.t=0; }},
+ {t:'Sürücü frekansını 1,70 Hz\'e çek. Aynı güçle itiyoruz ama kütle zar zor kıpırdıyor; üstelik sürücüye neredeyse ters düşüyor.',
+  a:function(){ applyCase({fd:1.7,zp:15},true); }},
+ {t:'Frekansı 1,00\'e geri al, sönümü "Uzun çınlama"ya getir. Tepki iyice büyüdü — ve 04. bölümdeki tepe sivrildi.',
+  a:function(){ applyCase({fd:1.0,zp:0},true); }},
+ {t:'Vur ve bırak\'a bas. Sürücü kapandı, sistem kendi kendine sönüyor. Pirinç renkli τ çizgisine kadar genlik üçte birine iniyor.',
+  a:function(){ applyCase({fd:1.0,zp:0},true); setDrive(false); S.x=1; S.v=0; S.t=0; }},
+ {t:'Sönümü "Kısa çınlama"ya getir ve tekrar vur. Aynı frekans, çok daha kısa kuyruk. Tepe de bu arada bodurlaşıp genişledi.',
+  a:function(){ S.zp=65; zpEl.value=65; syncPills(); setDrive(false); S.x=1; S.v=0; S.t=0; setLPlay(true); labRead(); }}
+];
+var stList=document.getElementById('stList'), stText=document.getElementById('stText'), stCount=document.getElementById('stCount');
+var curStep=0;
+STEPS.forEach(function(st,i){
+  var li=document.createElement('li'), b=document.createElement('button');
+  b.type='button'; b.innerHTML='<span class="k">'+(i+1)+'.</span>'+st.t.split('. ')[0]+'.';
+  b.addEventListener('click',function(){ setStep(i,true); });
+  li.appendChild(b); stList.appendChild(li);
+});
+function setStep(i,apply){
+  curStep=Math.max(0,Math.min(STEPS.length-1,i));
+  [].slice.call(stList.querySelectorAll('button')).forEach(function(b,j){ b.setAttribute('aria-current',j===curStep?'true':'false'); });
+  stText.textContent=STEPS[curStep].t; stCount.textContent=(curStep+1)+' / '+STEPS.length;
+  if(apply){ STEPS[curStep].a(); selRow(-1); labRead(); S.dirty=true; }
+}
+document.getElementById('stPrev').addEventListener('click',function(){ setStep(curStep-1,true); });
+document.getElementById('stNext').addEventListener('click',function(){ setStep(curStep+1,true); });
+
+/* ================= 04 : rezonans egrisi ================= */
+var CV={bw:true,ghost:false,dirty:true};
+var GHOSTS=[0,15,65,94];
+var curveScene=makeScene(document.getElementById('cCurve'),function(ctx,W,H){
+  var pad=12, narrow=W<520;
+  var mgL=narrow?44:60, mgR=pad+10, mgT=pad+18, mgB=narrow?38:42;
+  var px0=mgL, px1=W-mgR, py0=mgT, py1=H-mgB;
+  var z=zetaOf(S.zp), pk=peakOf(z), bw=bwOf(z);
+  var LEVELS=[1.5,3,6,9], yMax=LEVELS[LEVELS.length-1];
+  for(var li=0;li<LEVELS.length;li++){ if(LEVELS[li]>=pk.R*1.08){ yMax=LEVELS[li]; break; } }
+  var xMax=2.5;
+  var X=function(v){ return px0+(v/xMax)*(px1-px0); };
+  var Y=function(v){ return py1-(Math.min(v,yMax)/yMax)*(py1-py0); };
+  var faint=alpha(C['ink-3'],K.faint), faint2=alpha(C['ink-3'],K.faint*0.5);
+  var yt=(yMax===1.5)?[0,0.5,1,1.5]:(yMax===3?[0,1,2,3]:(yMax===6?[0,2,4,6]:[0,3,6,9]));
+  var xt=[0,0.5,1,1.5,2,2.5];
+
+  yt.forEach(function(v){ line(ctx,px0,Y(v),px1,Y(v),v===0?faint:faint2,1,v===0?null:[3,6]);
+    label(ctx,(yMax===1.5?nf(v,1):nf(v,0))+'×',px0-7,Y(v)+4,alpha(C['ink-3'],0.95),9.5,'right'); });
+  xt.forEach(function(v){ line(ctx,X(v),py0,X(v),py1,v===0?faint:faint2,1,v===0?null:[3,6]);
+    line(ctx,X(v),py1,X(v),py1+4,alpha(C['ink-3'],0.8),1);
+    label(ctx,nf(v,1),X(v),py1+17,alpha(C['ink-3'],0.95),9.5,'center'); });
+  label(ctx,'sürücü frekansı (Hz) →',px1,py1+31,alpha(C['ink-3'],0.95),10,'right');
+  labelVUp(ctx,'tepki oranı →',pad+9,(py0+py1)/2,alpha(C['ink-3'],0.95),10);
+
+  function drawCurve(zz,col,lw,gl,dsh){
+    ctx.save(); ctx.strokeStyle=col; ctx.lineWidth=lw*K.lw; ctx.lineJoin='round';
+    if(dsh) dash(ctx,dsh); if(gl) gOn(ctx,col,10);
+    ctx.beginPath(); var started=false;
+    for(var p=px0;p<=px1;p+=1){
+      var f=(p-px0)/(px1-px0)*xMax, Rv=Rof(f/F0,zz);
+      if(Rv>yMax){ started=false; continue; }
+      if(!started){ ctx.moveTo(p,Y(Rv)); started=true; } else ctx.lineTo(p,Y(Rv));
+    }
+    ctx.stroke(); gOff(ctx); ctx.restore();
+  }
+  if(CV.ghost) GHOSTS.forEach(function(gp){ if(gp!==S.zp) drawCurve(zetaOf(gp),alpha(C['ink-3'],0.45),1.4,false,[5,4]); });
+
+  /* dogal frekans */
+  line(ctx,X(F0),py0,X(F0),py1,alpha(C['ink-3'],0.7),1.3,[5,5]);
+  label(ctx,'f₀',X(F0),py0-4,alpha(C['ink-3'],0.95),10,'center');
+
+  drawCurve(z,C.sin,2.8,true,null);
+
+  /* tepe genisligi */
+  if(CV.bw && bw){
+    var yH=Y(pk.R/Math.SQRT2), xL=X(bw.lo*F0), xR=X(bw.hi*F0);
+    ctx.save(); ctx.strokeStyle=C.arc; ctx.lineWidth=1.7*K.lw; dash(ctx,[5,4]);
+    ctx.beginPath(); ctx.moveTo(xL,yH); ctx.lineTo(xR,yH); ctx.stroke(); ctx.restore();
+    [xL,xR].forEach(function(x){ line(ctx,x,yH-5,x,yH+5,C.arc,1.7); });
+    var bt='Δf = '+nf(bw.df,3)+' Hz', btw=textW(ctx,bt,10.5);
+    label(ctx,bt,Math.max(px0+btw/2,Math.min(px1-btw/2,(xL+xR)/2)),yH-9,C.arc,10.5,'center',true);
+  }
+
+  /* su anki surucu */
+  var Rc=Rof(S.fd/F0,z), cX=X(S.fd), cY=Y(Rc);
+  line(ctx,cX,py1,cX,cY,alpha(C.arc,0.6),1.2,[3,4]);
+  dot(ctx,cX,cY,5,C.arc,true);
+  var ct=nf(Rc,1)+'×', ctw=textW(ctx,ct,10.5);
+  if(cX+9+ctw<=px1) label(ctx,ct,cX+9,cY-8,C.arc,10.5,'left',true);
+  else label(ctx,ct,cX-9,cY-8,C.arc,10.5,'right',true);
+});
+document.getElementById('cvBw').addEventListener('click',function(){ CV.bw=!CV.bw; this.setAttribute('aria-pressed',CV.bw?'true':'false'); CV.dirty=true; });
+document.getElementById('cvGhost').addEventListener('click',function(){ CV.ghost=!CV.ghost; this.setAttribute('aria-pressed',CV.ghost?'true':'false'); CV.dirty=true; });
+
+/* ================= 05 : ses ================= */
+var SND={ long:[330,2.6,0.2], short:[330,0.35,0.2], on:[440,2.4,0.24], off:[415,0.6,0.08] };
+[].slice.call(document.querySelectorAll('.snd')).forEach(function(b){
+  b.addEventListener('click',function(){ var s=SND[b.dataset.snd]; if(s) playDecay(s[0],s[1],s[2]); });
+});
+
+/* ================= 06 : quiz ================= */
+var QS=[
+{q:'Sönümü artırdık. Bir kere vurulan sesin kuyruğuna ne olur?',
+ o:['Daha çabuk söner','Daha uzun sürer','Değişmez','Perde düşer'],a:0,
+ f:'Sönüm, enerjinin dışarı sızma hızıdır. Ne kadar hızlı sızarsa ses o kadar çabuk biter. Davul derisine el koymak tam olarak bunu yapar.'},
+{q:'Sönüm oranı ζ = 0,10 ise kalite faktörü Q kaçtır?',
+ o:['5','10','0,2','20'],a:0,
+ f:'Q = 1 / (2ζ) = 1 / 0,20 = 5. Bu sistem rezonansta sürücüsünden yaklaşık 5 kat büyük hareket eder ve τ = Q/(π·f₀) kadar çınlar.'},
+{q:'Bir sistemi doğal frekansının çok üstünde bir frekansla sürersek ne olur?',
+ o:['Tepki küçük kalır; sistem yetişemez','Tepki en büyük olur','Sistem o frekansta çınlar','Sönüm artar'],a:0,
+ f:'Sürücü çok hızlı yön değiştirir, kütle ataleti yüzünden yetişemez. Atölyede sürücüyü 1,70 Hz\'e çek: kütle zar zor kıpırdıyor ve sürücüye ters düşüyor.'},
+{q:'Rezonans tepesi çok dar olan bir gövde nasıl davranır?',
+ o:['Uzun çınlar ama yalnızca dar bir frekans aralığına yardım eder','Kısa çınlar ve her notaya eşit yardım eder','Hiç çınlamaz','Bütün notaları bastırır'],a:0,
+ f:'Dar tepe = yüksek Q. Yüksek Q hem uzun çınlama hem dar yardım aralığı demek: Δf = f₀/Q ve τ = Q/(π·f₀). Aynı sayının iki yüzü.'},
+{q:'Bir gövde çok gür ses veriyor ama sustain\'i kısa. En olası sebep nedir?',
+ o:['Enerji hızla dışarı sızıyor: sönüm yüksek','Doğal frekansı çok yüksek','Kütlesi çok büyük','Yay sertliği çok düşük'],a:0,
+ f:'Gürlük, enerjinin havaya ne kadar hızlı aktarıldığıdır; sustain ise ne kadar süre kaldığı. Aynı enerjiyi hızlı harcarsan gür ve kısa, yavaş harcarsan kısık ve uzun olur. Luthier bu dengeyi seçer.'},
+{q:'Sönümü çok artırmaya devam edersek rezonans tepesine ne olur?',
+ o:['Önce bodurlaşıp genişler, sonra tamamen kaybolur','Daha da sivrilir','Yer değiştirir ama boyu aynı kalır','İkiye ayrılır'],a:0,
+ f:'ζ büyüdükçe tepe alçalır ve yayılır; ζ yaklaşık 0,71\'i geçtiğinde tepe diye bir şey kalmaz — sistem hiçbir frekansı öne çıkarmaz. Atölyede "Çınlama yok" ön ayarına bas.'},
+{q:'f₀ = 200 Hz ve Q = 10 olan bir gövde rezonansı kaç hertzlik bir aralığa yayılır?',
+ o:['Yaklaşık 20 Hz','Yaklaşık 2 Hz','Yaklaşık 200 Hz','Yaklaşık 2000 Hz'],a:0,
+ f:'Δf = f₀ / Q = 200 / 10 = 20 Hz. Yani bu gövde kabaca 190–210 Hz arasındaki notalara belirgin şekilde yardım eder.'},
+{q:'Salıncağı doğru ritimde itmek neden bu kadar etkili?',
+ o:['Her itme bir öncekinin üstüne biner, genlik birikir','İtme kuvveti kendiliğinden büyür','Sürtünme ortadan kalkar','Salıncağın kütlesi azalır'],a:0,
+ f:'Doğru zamanlamada her itme, hareketin gittiği yöne denk gelir ve enerji eklenir. Yanlış zamanlamada bazı itmeler hareketi frenler. Kuvvet değişmiyor, sadece ritmi.'}
+];
+function shuffle(a){ for(var i=a.length-1;i>0;i--){ var j=Math.floor(Math.random()*(i+1)); var t=a[i]; a[i]=a[j]; a[j]=t; } return a; }
+var quiz=document.getElementById('quiz'), scoreEl=document.getElementById('score'), correct=0, answered=0;
+QS.forEach(function(item,i){
+  var idx=shuffle(item.o.map(function(_,k){return k;}));
+  var d=document.createElement('div'); d.className='q';
+  var h=document.createElement('div'); h.className='qh'; h.textContent='SORU '+(i+1);
+  var pq=document.createElement('p'); pq.className='qt'; pq.textContent=item.q;
+  var box=document.createElement('div'); box.className='opts';
+  var fb=document.createElement('div'); fb.className='fb'; fb.hidden=true;
+  idx.forEach(function(k){
+    var b=document.createElement('button'); b.type='button'; b.textContent=item.o[k];
+    b.addEventListener('click',function(){
+      if(d.dataset.done) return;
+      d.dataset.done='1'; answered++;
+      var good=(k===item.a); if(good) correct++;
+      [].slice.call(box.children).forEach(function(bb,pos){ bb.disabled=true; if(idx[pos]===item.a) bb.classList.add('ok'); });
+      if(!good) b.classList.add('no');
+      fb.hidden=false; fb.className='fb '+(good?'good':'bad');
+      fb.innerHTML='<b>'+(good?'Doğru':'Tekrar bak')+'</b> — '+item.f;
+      scoreEl.textContent='Doğru: '+correct+' / '+QS.length+(answered===QS.length?'  · tamamlandı':'');
+    });
+    box.appendChild(b);
+  });
+  d.appendChild(h); d.appendChild(pq); d.appendChild(box); d.appendChild(fb);
+  quiz.appendChild(d);
+});
+scoreEl.textContent='Doğru: 0 / '+QS.length;
+
+/* ================= dongu ================= */
+readTheme();
+setDrive(true); steadyNow(); syncPills(); labRead(); setStep(0,false);
+scenes.forEach(function(s){ s.resize(); s.draw(); });
+var last=0;
+function frame(ts){
+  if(!last) last=ts;
+  var dt=Math.min(0.05,(ts-last)/1000); last=ts;
+  if(SW.playing){ swStep(dt); if(SW.t>3600) SW.t=0; }
+  if(S.playing){ sysStep(S,dt,zetaOf(S.zp)); if(S.t>3600) S.t=0; }
+  if(SW.playing||SW.dirty){ swScene.draw(); SW.dirty=false; }
+  if(S.playing||S.dirty){ labScene.draw(); S.dirty=false; }
+  if(CV.dirty){ curveScene.draw(); CV.dirty=false; }
+  requestAnimationFrame(frame);
+}
+requestAnimationFrame(frame);
+})();
+</script>
+
+</body></html>

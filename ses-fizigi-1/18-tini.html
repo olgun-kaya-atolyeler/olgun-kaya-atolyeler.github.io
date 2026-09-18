@@ -1,0 +1,2103 @@
+<!doctype html><html lang="tr"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<style>:root{color-scheme:light}html{-webkit-text-size-adjust:100%}body{margin:0;font:14px system-ui,-apple-system,"Segoe UI",sans-serif;background:#faf9f7}img{max-width:100%}[hidden]{display:none!important}</style>
+<title>Tını ve Spektrogram</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&family=Newsreader:ital,opsz,wght@1,6..72,400&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ground:#E5ECF3; --panel:#FFFFFF; --panel-2:#F1F6FA;
+  --ink:#0B1620; --ink-2:#3F5265; --ink-3:#697E92;
+  --line:#C7D4E0; --line-2:#DEE7EF;
+  --sin:#A8600A; --cos:#0F5F80; --arc:#A81E6E; --brass:#4A7A12;
+  --on-sin:#FFFFFF; --ok:#1E6B45; --no:#A8203C;
+  --radius:2px; --track:.02em; --fs:15px;
+  --h-why:250px; --h-slp:400px; --h-spc:485px; --h-frm:430px; --h-trn:390px; --h-phs:380px;
+  --font-display:"Chakra Petch",system-ui,sans-serif;
+  --font-body:"IBM Plex Sans",system-ui,sans-serif;
+  --font-mono:"IBM Plex Mono",ui-monospace,monospace;
+  --font-quote:"Newsreader",Georgia,serif;
+  color-scheme:light;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --ground:#070F17; --panel:#0E1720; --panel-2:#13202C;
+    --ink:#E7F2FB; --ink-2:#9FB6C9; --ink-3:#6B8296;
+    --line:#213240; --line-2:#182533;
+    --sin:#FFB01F; --cos:#4FD3FF; --arc:#FF6AC1; --brass:#A8FF60;
+    --on-sin:#0A1017; --ok:#3EE59B; --no:#FF5F86;
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --ground:#070F17; --panel:#0E1720; --panel-2:#13202C;
+  --ink:#E7F2FB; --ink-2:#9FB6C9; --ink-3:#6B8296;
+  --line:#213240; --line-2:#182533;
+  --sin:#FFB01F; --cos:#4FD3FF; --arc:#FF6AC1; --brass:#A8FF60;
+  --on-sin:#0A1017; --ok:#3EE59B; --no:#FF5F86;
+  color-scheme:dark;
+}
+:root[data-mode="proj"]{
+  --ground:#F3F8FC; --panel:#FFFFFF; --panel-2:#EDF4F9;
+  --ink:#040B12; --ink-2:#2A3A49; --ink-3:#546678;
+  --line:#ADBFCE; --line-2:#D2DEE9;
+  --sin:#8A4D00; --cos:#084A66; --arc:#8A1258; --brass:#3A6208;
+  --on-sin:#FFFFFF; --ok:#155338; --no:#8A1730;
+  --fs:17px; --h-why:290px; --h-slp:464px; --h-spc:562px; --h-frm:499px; --h-trn:452px; --h-phs:441px;
+  color-scheme:light;
+}
+
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+body{
+  margin:0; background:var(--ground); color:var(--ink);
+  font-family:var(--font-body); font-size:var(--fs); line-height:1.55;
+  -webkit-text-size-adjust:100%;
+}
+.wrap{max-width:1180px; margin:0 auto; padding-inline:20px; padding-block:22px 64px}
+
+/* ---------- ust ---------- */
+.top{display:flex; gap:20px; align-items:flex-start; justify-content:space-between; flex-wrap:wrap;
+  border-bottom:2px solid var(--line); padding-bottom:16px; margin-bottom:26px}
+.eyebrow{font-family:var(--font-mono); font-size:.72em; letter-spacing:.12em; text-transform:uppercase;
+  color:var(--brass); font-weight:600}
+h1{font-family:var(--font-display); font-weight:700; letter-spacing:var(--track);
+  font-size:clamp(2rem,6vw,3.1rem); line-height:1.02; margin:.16em 0 .1em; text-transform:uppercase}
+.lede{margin:0; color:var(--ink-2); max-width:46ch}
+.themebar{display:flex; gap:0; border:1px solid var(--line); border-radius:var(--radius); overflow:hidden; flex-shrink:0}
+.themebar button{
+  font-family:var(--font-mono); font-size:.76em; letter-spacing:.06em; text-transform:uppercase;
+  background:var(--panel); color:var(--ink-2); border:0; border-left:1px solid var(--line);
+  padding:9px 13px; cursor:pointer}
+.themebar button:first-child{border-left:0}
+.themebar button[aria-pressed="true"]{background:var(--sin); color:var(--on-sin); font-weight:600}
+
+/* ---------- bolumler ---------- */
+section{margin-block:52px; scroll-margin-top:18px}
+h2{font-family:var(--font-display); font-weight:600; letter-spacing:var(--track); text-transform:uppercase;
+  font-size:clamp(1.15rem,3.1vw,1.6rem); margin:0 0 14px; display:flex; align-items:baseline; gap:12px;
+  border-bottom:1px solid var(--line); padding-bottom:10px}
+h2 .num{font-family:var(--font-mono); color:var(--brass); font-size:.82em; font-weight:600}
+h3{font-family:var(--font-display); font-weight:600; letter-spacing:var(--track);
+  font-size:1.02em; margin:0 0 6px; text-transform:uppercase}
+p{margin:0 0 .8em}
+.kicker{font-family:var(--font-quote); font-style:italic; font-size:1.28em; line-height:1.4;
+  color:var(--ink-2); max-width:38ch; margin:0 0 18px; border-left:3px solid var(--arc); padding-left:14px}
+
+/* ---------- panel / canvas ---------- */
+.panel{background:var(--panel); border:1px solid var(--line); border-radius:var(--radius)}
+.canvas-wrap{margin:0; background:var(--panel); border:1px solid var(--line); border-radius:var(--radius); overflow:hidden}
+.canvas-inner{min-width:0}
+.lab>div,.quizwrap>div,.hook>*,.lab>aside{min-width:0}
+.lit{text-transform:none;font-style:normal;font-weight:inherit}
+.sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+canvas{display:block; width:100%; touch-action:none}
+#cWhy{height:var(--h-why)}
+#cSlp{height:var(--h-slp)}
+#cSpc{height:var(--h-spc)}
+#cFrm{height:var(--h-frm)}
+#cTrn{height:var(--h-trn)}
+#cPhs{height:var(--h-phs)}
+figcaption{font-size:.82em; color:var(--ink-3); padding:8px 12px; border-top:1px solid var(--line-2);
+  background:var(--panel-2)}
+
+/* ---------- s1 duzen ---------- */
+.hook{display:grid; grid-template-columns:minmax(0,1.05fr) minmax(0,1fr); gap:20px; align-items:start}
+.cols{display:grid; grid-template-columns:1fr; gap:14px}
+.qcol h3{color:var(--ink)}
+.qcol p{font-size:.94em; color:var(--ink-2); margin:0}
+
+/* ---------- kontroller ---------- */
+.ctrls{display:flex; flex-wrap:wrap; gap:14px 18px; align-items:flex-end;
+  padding:12px; background:var(--panel-2); border-top:1px solid var(--line-2)}
+.ctrl{display:flex; flex-direction:column; gap:3px; min-width:150px; flex:1 1 150px}
+.ctrl label{font-family:var(--font-mono); font-size:.72em; letter-spacing:.07em; text-transform:uppercase;
+  color:var(--ink-3); display:flex; justify-content:space-between; gap:8px}
+.ctrl label b{font-weight:600; color:var(--ink); font-variant-numeric:tabular-nums}
+input[type=range]{-webkit-appearance:none; appearance:none; width:100%; height:22px; background:transparent; margin:0; cursor:pointer}
+input[type=range]::-webkit-slider-runnable-track{height:3px; background:var(--line); border-radius:0}
+input[type=range]::-moz-range-track{height:3px; background:var(--line)}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none; width:16px; height:16px; border-radius:50%;
+  background:var(--arc); border:2px solid var(--panel); margin-top:-7px}
+input[type=range]::-moz-range-thumb{width:16px; height:16px; border-radius:50%; background:var(--arc); border:2px solid var(--panel)}
+.btn{font-family:var(--font-mono); font-size:.78em; letter-spacing:.06em; text-transform:uppercase;
+  background:var(--panel); color:var(--ink); border:1px solid var(--line); border-radius:var(--radius);
+  padding:8px 12px; cursor:pointer; white-space:nowrap}
+.btn:hover{border-color:var(--ink-3)}
+.btn.pri{background:var(--sin); color:var(--on-sin); border-color:var(--sin); font-weight:600}
+.btn[aria-pressed="true"]{background:var(--cos); color:var(--panel); border-color:var(--cos)}
+:root[data-theme="dark"] .btn[aria-pressed="true"]{color:#07131B}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]):not([data-mode="proj"]) .btn[aria-pressed="true"]{color:#07131B}
+}
+.btnrow{display:flex; gap:8px; flex-wrap:wrap; align-items:center}
+
+/* ---------- okumalar ---------- */
+.readout{display:grid; grid-template-columns:repeat(auto-fit,minmax(112px,1fr)); gap:1px;
+  background:var(--line-2); border-top:1px solid var(--line-2)}
+.readout.r3{grid-template-columns:repeat(3,minmax(0,1fr))}
+.readout div{background:var(--panel); padding:8px 11px; min-width:0}
+.readout span{display:block; font-family:var(--font-mono); font-size:.68em; letter-spacing:.07em;
+  text-transform:uppercase; color:var(--ink-3)}
+.readout b{font-family:var(--font-mono); font-size:1.08em; font-weight:600; font-variant-numeric:tabular-nums}
+
+/* ---------- kart izgarasi ---------- */
+.cards{display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:14px}
+.card{background:var(--panel); border:1px solid var(--line); border-top:3px solid var(--cos);
+  border-radius:var(--radius); padding:14px 15px}
+.card:nth-child(3n+1){border-top-color:var(--sin)}
+.card:nth-child(3n+3){border-top-color:var(--arc)}
+.card p{font-size:.92em; color:var(--ink-2); margin:0}
+.card .bridge{margin-top:9px; padding-top:9px; border-top:1px dashed var(--line);
+  font-size:.86em; color:var(--ink-3)}
+.card .bridge b{color:var(--brass); font-family:var(--font-mono); font-size:.9em;
+  letter-spacing:.05em; text-transform:uppercase}
+
+/* ---------- atolye duzeni ---------- */
+.lab{display:grid; grid-template-columns:minmax(0,560px) minmax(0,1fr); gap:18px; align-items:start}
+.steps{background:var(--panel); border:1px solid var(--line); border-radius:var(--radius); padding:13px 14px}
+.steps h3{margin-bottom:9px}
+.stepnav{display:flex; gap:6px; align-items:center; margin-bottom:10px}
+.stepnav .count{font-family:var(--font-mono); font-size:.78em; color:var(--ink-3); margin-left:auto}
+.steplist{list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:5px}
+.steplist button{width:100%; text-align:left; font:inherit; font-size:.9em; background:transparent;
+  color:var(--ink-2); border:1px solid transparent; border-left:2px solid var(--line);
+  padding:7px 10px; cursor:pointer; border-radius:0}
+.steplist button:hover{background:var(--panel-2)}
+.steplist button[aria-current="true"]{border-left-color:var(--arc); background:var(--panel-2); color:var(--ink)}
+.steplist .k{font-family:var(--font-mono); font-size:.82em; color:var(--brass); margin-right:6px}
+
+table{width:100%; border-collapse:collapse; font-size:.88em}
+.tablebox{overflow-x:auto; max-width:100%; background:var(--panel); border:1px solid var(--line); border-radius:var(--radius); margin-top:16px}
+th,td{padding:7px 11px; text-align:right; border-bottom:1px solid var(--line-2); white-space:nowrap}
+th:first-child,td:first-child{text-align:left}
+th:last-child,td:last-child{text-align:left; white-space:normal; min-width:170px}
+thead th{font-family:var(--font-mono); font-size:.76em; letter-spacing:.06em; text-transform:uppercase;
+  color:var(--ink-3); font-weight:600; background:var(--panel-2)}
+tbody tr{cursor:pointer}
+tbody tr:hover{background:var(--panel-2)}
+tbody tr[aria-selected="true"]{background:var(--panel-2); box-shadow:inset 3px 0 0 var(--arc)}
+td.num{font-family:var(--font-mono); font-variant-numeric:tabular-nums}
+
+/* ---------- terimler ---------- */
+.terms{display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:14px}
+.term{background:var(--panel); border:1px solid var(--line); border-radius:var(--radius); padding:14px 15px}
+.term .sym{font-family:var(--font-mono); font-size:.74em; letter-spacing:.08em; color:var(--ink-3)}
+.term p{font-size:.92em; color:var(--ink-2); margin:.35em 0 0}
+.mus{margin-top:10px; border-left:3px solid var(--brass); padding:6px 0 6px 10px; font-size:.9em}
+.mus span{font-family:var(--font-mono); font-size:.72em; letter-spacing:.08em; text-transform:uppercase;
+  color:var(--brass); font-weight:600; display:block}
+
+/* ---------- quiz ---------- */
+.quizwrap{display:grid; grid-template-columns:minmax(0,1fr) 300px; gap:18px; align-items:start}
+.q{background:var(--panel); border:1px solid var(--line); border-radius:var(--radius); padding:14px 15px; margin-bottom:12px}
+.q .qh{font-family:var(--font-mono); font-size:.74em; letter-spacing:.08em; color:var(--brass); font-weight:600}
+.q p.qt{margin:.3em 0 .7em; font-weight:500}
+.opts{display:flex; flex-direction:column; gap:6px}
+.opts button{font:inherit; font-size:.93em; text-align:left; background:var(--panel-2); color:var(--ink);
+  border:1px solid var(--line); border-radius:var(--radius); padding:9px 12px; cursor:pointer}
+.opts button:hover{border-color:var(--ink-3)}
+.opts button.ok{border-color:var(--ok); box-shadow:inset 3px 0 0 var(--ok)}
+.opts button.no{border-color:var(--no); box-shadow:inset 3px 0 0 var(--no)}
+.opts button[disabled]{cursor:default}
+.fb{margin-top:9px; font-size:.9em; color:var(--ink-2); border-top:1px dashed var(--line); padding-top:8px}
+.fb b{font-family:var(--font-mono); font-size:.82em; letter-spacing:.06em; text-transform:uppercase}
+.fb.good b{color:var(--ok)} .fb.bad b{color:var(--no)}
+.recap{background:var(--panel); border:1px solid var(--line); border-top:3px solid var(--brass);
+  border-radius:var(--radius); padding:14px 15px; position:sticky; top:14px}
+.recap ol{margin:0; padding-left:1.15em; display:flex; flex-direction:column; gap:9px}
+.recap li{font-size:.91em; color:var(--ink-2)}
+.recap li b{color:var(--ink)}
+.score{font-family:var(--font-mono); font-size:.8em; color:var(--ink-3); margin-top:12px;
+  padding-top:10px; border-top:1px solid var(--line-2)}
+
+.note{font-size:.86em; color:var(--ink-3); margin-top:10px}
+.legend{display:flex; flex-wrap:wrap; gap:6px 16px; padding:10px 12px; background:var(--panel-2);
+  border-top:1px solid var(--line-2); font-family:var(--font-mono); font-size:.74em; letter-spacing:.04em}
+.legend i{display:inline-block; width:15px; height:3px; vertical-align:middle; margin-right:6px}
+footer{margin-top:56px; padding-top:16px; border-top:1px solid var(--line); font-size:.84em; color:var(--ink-3)}
+footer a{color:var(--ink-2)}
+
+@media (max-width:980px){
+  .lab{grid-template-columns:1fr}
+  .quizwrap{grid-template-columns:1fr}
+  .recap{position:static}
+  .cards,.terms{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@media (max-width:760px){
+  :root{--h-why:266px; --h-slp:428px; --h-spc:516px; --h-frm:458px; --h-trn:414px; --h-phs:404px}
+  :root[data-mode="proj"]{--h-why:308px; --h-slp:497px; --h-spc:598px; --h-frm:531px; --h-trn:480px; --h-phs:469px}
+  .wrap{padding-inline:16px}
+  .hook{grid-template-columns:1fr}
+  .cards,.terms{grid-template-columns:1fr}
+  .ctrl{flex:1 1 100%}
+  .btn{padding:9px 14px}
+  .opts button{padding:12px 14px}
+  input[type=range]{height:30px}
+  input[type=range]::-webkit-slider-thumb{width:22px; height:22px; margin-top:-10px}
+  input[type=range]::-moz-range-thumb{width:22px; height:22px}
+  .canvas-inner{min-width:0}
+}
+@media (max-width:480px){
+  :root{--h-why:248px; --h-slp:406px; --h-spc:488px; --h-frm:434px; --h-trn:392px; --h-phs:382px}
+  :root[data-mode="proj"]{--h-why:288px; --h-slp:471px; --h-spc:566px; --h-frm:503px; --h-trn:455px; --h-phs:443px}
+}
+@media (prefers-reduced-motion:reduce){*{animation:none!important; transition:none!important}}
+
+/* ---------- karsilastirma / hesap tablosu ---------- */
+.cmpbox{background:var(--panel); border:1px solid var(--line); border-radius:var(--radius); margin-bottom:16px}
+.cmpbox h3{padding:13px 14px 8px; margin:0}
+.cmpscroll{overflow-x:auto; max-width:100%}
+.cmp{width:100%; border-collapse:collapse; font-size:.9em}
+.cmp th,.cmp td{padding:6px 12px; border-bottom:1px solid var(--line-2); text-align:right; white-space:nowrap}
+.cmp th:first-child,.cmp td:first-child{text-align:left; white-space:normal; color:var(--ink-2)}
+.cmp thead th{font-family:var(--font-mono); font-size:.76em; letter-spacing:.06em; text-transform:uppercase;
+  font-weight:600; background:var(--panel-2)}
+.cmp thead th.a{color:var(--sin)} .cmp thead th.b{color:var(--cos)}
+.cmp td.v{font-family:var(--font-mono); font-variant-numeric:tabular-nums; font-weight:600}
+.cmp tr.key td{background:var(--panel-2)}
+.cmp tr.key td:first-child{color:var(--ink); font-weight:600}
+.cmp tbody tr:last-child td{border-bottom:0}
+@media (max-width:760px){
+  .cmp th,.cmp td{white-space:normal; padding:6px 9px; overflow-wrap:anywhere}
+  .cmp td.lbl{width:46%}
+}
+
+/* ---------- olcum haplari ---------- */
+.cmp td.lbl{width:56%}
+.pillrow{display:flex; gap:7px; flex-wrap:wrap; flex:1 1 100%}
+.pill{font-family:var(--font-mono); font-size:.74em; letter-spacing:.05em; text-transform:uppercase;
+  background:var(--panel); color:var(--ink-2); border:1px solid var(--line); border-radius:var(--radius);
+  padding:8px 11px; cursor:pointer}
+.pill[aria-pressed="true"]{background:var(--arc); color:#fff; border-color:var(--arc); font-weight:600}
+
+/* ---------- kontrol gruplari ---------- */
+.grp{flex:1 1 100%; display:flex; flex-wrap:wrap; gap:12px 16px; border-left:3px solid var(--line);
+  padding-left:11px; margin-bottom:2px}
+.grp.ga{border-left-color:var(--sin)} .grp.gb{border-left-color:var(--cos)}
+.grp .tag{flex:1 1 100%; font-family:var(--font-mono); font-size:.72em; letter-spacing:.09em;
+  text-transform:uppercase; font-weight:600; margin:0}
+.grp.ga .tag{color:var(--sin)} .grp.gb .tag{color:var(--cos)}
+.sw{display:inline-block; width:11px; height:11px; border-radius:50%; vertical-align:-1px; margin-right:6px}
+#tbl2 td:last-child,#tbl2 th:last-child{text-align:right; min-width:0}
+#tbl2 td,#tbl2 th{padding:6px 9px}
+#tbl2 td:nth-child(n+2){font-family:var(--font-mono); font-variant-numeric:tabular-nums}
+
+/* ---------- pasif kontrol ---------- */
+.ctrl.off{opacity:.42}
+.ctrl.off label{color:var(--ink-3)}
+input[type=range]:disabled{cursor:default}
+.warn{background:var(--panel-2); border:1px solid var(--line); border-left:3px solid var(--arc);
+  border-radius:var(--radius); padding:11px 13px; font-size:.9em; color:var(--ink-2); margin:0 0 16px}
+.warn b{color:var(--ink)}
+
+/* ---------- surukleme ipucu ---------- */
+.dragnote{font-family:var(--font-mono); font-size:.72em; letter-spacing:.06em; text-transform:uppercase;
+  color:var(--ink-3); padding:8px 12px; border-top:1px solid var(--line-2); background:var(--panel-2)}
+.dragnote b{color:var(--arc)}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+
+<header class="top">
+  <div class="brand">
+    <div class="eyebrow">Müzik Teknolojisi · Ses Fiziği I · 18. Atölye</div>
+    <h1>Tını ve Spektrogram</h1>
+    <p class="lede">15. atölyede tınıyı iki ayrı resimle görmüştük: <b>tayf</b> zamanı dondurur, <b>zarf</b> frekansı dondurur. Gerçek bir çalgıda ikisi aynı anda değişir. Bu atölyede o iki resmi tek bir yüzeyde birleştiriyoruz — <b>spektrogram</b> — ve tınının geri kalan üç sırrını açıyoruz: <b>tayf zarfı</b>, <b>formantlar</b> ve <b>başlangıç geçicisi</b>.</p>
+  </div>
+  <div class="themebar" role="group" aria-label="Tema seçimi">
+    <button type="button" data-t="light" aria-pressed="false">Açık</button>
+    <button type="button" data-t="dark" aria-pressed="false">Koyu</button>
+    <button type="button" data-t="proj" aria-pressed="false">Projeksiyon</button>
+  </div>
+</header>
+
+<!-- ============ 01 ============ -->
+<section id="s1">
+  <h2><span class="num">01</span> Neden buna ihtiyacımız var?</h2>
+  <p class="kicker">Doğru harmonikleri doğru oranda topla, üstüne doğru zarfı geçir — ve ortaya çıkan ses hâlâ <i>sentetik</i> duyulsun. Eksik olan ne?</p>
+
+  <div class="hook">
+    <figure class="canvas-wrap">
+      <div class="canvas-inner"><canvas id="cWhy" aria-label="Tayfı sabit kalan ses ile tayfı zamanla değişen sesin karşılaştırması"></canvas></div>
+      <div class="ctrls">
+        <div class="pillrow">
+          <button type="button" class="pill" data-wy="0" aria-pressed="true">Tayfı sabit</button>
+          <button type="button" class="pill" data-wy="1">Tayfı değişen</button>
+        </div>
+        <div class="btnrow" style="flex:1 1 100%">
+          <button type="button" class="btn pri" id="whPlay">Bu sesi çal</button>
+          <button type="button" class="btn" id="whBoth">İkisini arka arkaya çal</button>
+        </div>
+      </div>
+      <div class="readout r3">
+        <div><span>Başlangıçta parlaklık</span><b id="wyB0">3,1 × f₀</b></div>
+        <div><span>Sonda parlaklık</span><b id="wyB1">3,1 × f₀</b></div>
+        <div><span>Kulağa</span><b id="wyJ">sentetik</b></div>
+      </div>
+      <figcaption>Her yatay çizgi bir harmonik; soldan sağa zaman akıyor, renk koyulaştıkça o harmonik daha güçlü. Solda bütün çizgiler aynı anda sönüyor; sağda <b>tizler önce</b> ölüyor — tek fark bu, ama kulak ikincisini "gerçek" sayıyor.</figcaption>
+    </figure>
+
+    <div class="cols">
+      <div class="qcol">
+        <h3>Tayf tek bir an değildir</h3>
+        <p>15. atölyedeki çubuk grafiği, sesin <b>bir anındaki</b> fotoğrafıydı. Gerçek çalgıda o fotoğraf sürekli değişir: piyanoda tizler saniyeler içinde ölürken temel uzun süre durur. Tınıyı yapan şey o <b>değişim</b>.</p>
+      </div>
+      <div class="qcol">
+        <h3>Zarf tek bir eğri değildir</h3>
+        <p>Yine 15. atölyede tek bir genlik zarfı çizmiştik. Aslında <b>her harmoniğin kendi zarfı</b> var. Spektrogram, bu zarfların hepsini yan yana gösteren bir haritadır.</p>
+      </div>
+      <div class="qcol">
+        <h3>Üstelik her şey harmonik değil</h3>
+        <p>Yayın cızırtısı, nefesin hışırtısı, mızrabın tıkırtısı — sesin ilk birkaç milisaniyesinde <b>gürültü</b> vardır ve çalgıyı tanımamızı sağlayan asıl ipucu çoğu zaman odur.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 02 ============ -->
+<section id="s2">
+  <h2><span class="num">02</span> Bilmemiz gereken kavramlar</h2>
+  <p style="max-width:62ch; color:var(--ink-2)">Altı kavram. İlk üçü tayfın şekliyle, sonraki üçü zamanla ilgili.</p>
+  <div class="cards">
+    <div class="card">
+      <h3>Tayf zarfı</h3>
+      <p>Harmonik çubuklarının <b>tepelerinden geçen eğri</b>. Tek tek çubuklar değil, bu eğrinin eğimi belirler sesin parlak mı mat mı olduğunu.</p>
+      <div class="bridge"><b>Ölçü</b> dB / oktav. Testere dişi ≈ −6 dB/oktav.</div>
+    </div>
+    <div class="card">
+      <h3>Spektrogram</h3>
+      <p>Yatayda <b>zaman</b>, dikeyde <b>frekans</b>, renkte <b>şiddet</b>. Tayf onun dikey bir dilimi, zarf ise yatay bir şeridin toplamıdır.</p>
+      <div class="bridge"><b>15. atölye</b> Oradaki iki sahne, bu yüzeyin iki ayrı kesiti.</div>
+    </div>
+    <div class="card">
+      <h3>Formant</h3>
+      <p>Perde değişse bile <b>yerinde duran</b> tayf tepesi. Kaynak değil, gövdenin rezonansıdır: keman kutusu, ağız boşluğu, hoparlör kabini.</p>
+      <div class="bridge"><b>Konuşmada</b> Ünlüleri birbirinden ayıran şey formantlardır.</div>
+    </div>
+    <div class="card">
+      <h3>Başlangıç geçicisi</h3>
+      <p>Sesin ilk birkaç on milisaniyesi. Geniş bantlı <b>gürültü</b> ve harmonik olmayan bileşenler içerir; kesersen çalgıyı tanımak birden zorlaşır.</p>
+      <div class="bridge"><b>Spektrogramda</b> Sol kenardaki dikey şerit.</div>
+    </div>
+    <div class="card">
+      <h3>Harmonik olmayan bileşen</h3>
+      <p>Frekansı temelin tam katı olmayan bileşen. Zil, tam tam ve davulda baskındır; bu yüzden onların net bir perdesi yoktur.</p>
+      <div class="bridge"><b>Spektrogramda</b> Eşit aralıklı olmayan çizgiler.</div>
+    </div>
+    <div class="card">
+      <h3>Faz</h3>
+      <p>Bileşenlerin birbirine göre zamanlaması. Değiştirince <b>dalga şekli tanınmaz</b> hâle gelir ama ses neredeyse aynı kalır. Tını dalga şekli değildir.</p>
+      <div class="bridge"><b>Ama</b> Tepe faktörünü değiştirir — 16. atölyedeki başağrısı.</div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 03 ============ -->
+<section id="s3">
+  <h2><span class="num">03</span> Atölye: tayf zarfı ve eğimi</h2>
+  <p style="max-width:70ch; color:var(--ink-2)">Harmoniklerin genliklerini tek tek vermek yerine üzerlerinden geçen <b>eğriyi</b> verelim. Yatay eksen logaritmik frekans, dikey eksen desibel olduğunda bu eğri düz bir <b>doğru</b> olur ve eğimi <b>dB/oktav</b> cinsinden okunur. Testere dişi −6, kare −6 (ama yalnız tek harmonikler), üçgen −12.</p>
+
+  <div class="lab">
+    <div>
+      <figure class="canvas-wrap">
+        <div class="canvas-inner"><canvas id="cSlp" aria-label="Harmonik çubukları ve üzerlerinden geçen tayf zarfı doğrusu"></canvas></div>
+        <div class="legend">
+          <span><i style="background:var(--cos)"></i>harmonik çubukları</span>
+          <span><i style="background:var(--sin)"></i>tayf zarfı</span>
+          <span><i style="background:var(--arc)"></i>ağırlık merkezi</span>
+        </div>
+        <div class="ctrls">
+          <div class="pillrow">
+            <button type="button" class="pill" data-sl="duz">Düz · 0 dB/okt</button>
+            <button type="button" class="pill" data-sl="testere" aria-pressed="true">Testere · −6</button>
+            <button type="button" class="pill" data-sl="kare">Kare · −6 tek</button>
+            <button type="button" class="pill" data-sl="ucgen">Üçgen · −12 tek</button>
+            <button type="button" class="pill" data-sl="mat">Çok mat · −18</button>
+          </div>
+          <div class="ctrl" style="flex:1 1 260px">
+            <label for="slSl"><span>Zarf eğimi</span><b class="lit" id="slSlV">−6,0 dB/okt</b></label>
+            <input type="range" id="slSl" min="-20" max="2" step="0.5" value="-6">
+          </div>
+          <div class="ctrl" style="flex:1 1 200px">
+            <label for="slN"><span>Harmonik sayısı</span><b class="lit" id="slNV">16</b></label>
+            <input type="range" id="slN" min="4" max="24" step="1" value="16">
+          </div>
+          <div class="btnrow" style="flex:1 1 100%">
+            <button type="button" class="btn" id="slOdd" aria-pressed="false">Yalnız tek harmonikler</button>
+            <button type="button" class="btn pri" id="slPlay">Bu tınıyı duy</button>
+          </div>
+        </div>
+        <div class="readout r3">
+          <div><span>Zarf eğimi</span><b id="qSlope">−6,0 dB/okt</b></div>
+          <div><span>Parlaklık · ağırlık merkezi</span><b id="qBright">3,10 × f₀</b></div>
+          <div><span>En üst duyulur harmonik</span><b id="qTop">16 · 3520 Hz</b></div>
+          <div><span>2. harmonik düzeyi</span><b id="qH2">−6,0 dB</b></div>
+          <div><span>8. harmonik düzeyi</span><b id="qH8">−18,1 dB</b></div>
+          <div><span>Karşılık gelen dalga</span><b id="qWave">testere dişi</b></div>
+        </div>
+      </figure>
+      <p class="note" style="margin:10px 0 0">Eğimi dikleştirmek, tizleri kısmakla aynı şey: ses matlaşır, ağırlık merkezi aşağı iner. Bir ekolayzerde "hava" ya da "parlaklık" bandını açtığında yaptığın şey tam olarak bu doğruyu yatırmaktır. <b>Kare ile testere aynı eğime sahip</b> — aradaki bütün fark, karede çift harmoniklerin hiç olmamasıdır.</p>
+      <div class="tablebox">
+        <table id="tblS">
+          <caption class="sr-only">Dalga biçimlerinin tayf zarfı eğimleri</caption>
+          <thead><tr><th>Dalga</th><th>Eğim</th><th>Harmonikler</th><th>Karakter</th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+      <p class="note">Bir satıra tıkla: o zarf yüklenir.</p>
+    </div>
+
+    <div>
+      <aside class="steps">
+        <h3>Ders adımları</h3>
+        <div class="stepnav">
+          <button type="button" class="btn" id="saPrev" aria-label="Önceki adım">‹</button>
+          <button type="button" class="btn" id="saNext" aria-label="Sonraki adım">›</button>
+          <span class="count" id="saCount">1 / 6</span>
+        </div>
+        <ol class="steplist" id="saList"></ol>
+        <p class="note" id="saText"></p>
+      </aside>
+
+      <div class="cmpbox" style="margin-top:16px">
+        <h3>Eğim ne demek</h3>
+        <div class="cmpscroll">
+          <table class="cmp">
+            <tbody>
+              <tr><td class="lbl">1. harmonik · f₀</td><td class="v" id="eH1"></td></tr>
+              <tr><td class="lbl">2. harmonik · bir oktav üstü</td><td class="v" id="eH2"></td></tr>
+              <tr><td class="lbl">4. harmonik · iki oktav üstü</td><td class="v" id="eH4"></td></tr>
+              <tr class="key"><td class="lbl">Her oktavda düşüş</td><td class="v" id="eSl"></td></tr>
+              <tr><td class="lbl">Genlik oranı olarak</td><td class="v" id="eRat"></td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="note" style="padding:0 14px 12px; margin:0" id="eNote"></p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 04 ============ -->
+<section id="s4">
+  <h2><span class="num">04</span> Atölye: spektrogram — iki resmi birleştirmek</h2>
+  <p style="max-width:70ch; color:var(--ink-2)">Yatayda zaman, dikeyde frekans, renkte şiddet. Sağdaki küçük panel imlecin bulunduğu andaki <b>tayf</b>, alttaki şerit ise sesin <b>zarfı</b>. Yani 15. atölyedeki iki sahne, bu haritanın iki ayrı kesitinden ibaret. İmleci sürükle.</p>
+
+  <div class="lab">
+    <div>
+      <figure class="canvas-wrap">
+        <div class="canvas-inner"><canvas id="cSpc" aria-label="Zaman frekans haritası, yanında anlık tayf ve altında genlik zarfı"></canvas></div>
+        <div class="legend">
+          <span><i style="background:var(--cos)"></i>zayıf bileşen</span>
+          <span><i style="background:var(--sin)"></i>güçlü bileşen</span>
+          <span><i style="background:var(--arc)"></i>zaman imleci</span>
+        </div>
+        <div class="dragnote">Haritanın üstünde <b>sürükle</b> · ya da aşağıdaki kaydıracı kullan</div>
+        <div class="ctrls">
+          <div class="pillrow">
+            <button type="button" class="pill" data-in="piyano" aria-pressed="true">Piyano</button>
+            <button type="button" class="pill" data-in="org">Org</button>
+            <button type="button" class="pill" data-in="yayli">Yaylı · vibratolu</button>
+            <button type="button" class="pill" data-in="trompet">Trompet</button>
+            <button type="button" class="pill" data-in="zil">Zil · harmonik değil</button>
+          </div>
+          <div class="ctrl" style="flex:1 1 100%">
+            <label for="spT"><span>Zaman imleci</span><b class="lit" id="spTV">0,20 s</b></label>
+            <input type="range" id="spT" min="0" max="100" step="0.5" value="12.5">
+          </div>
+          <div class="btnrow" style="flex:1 1 100%">
+            <button type="button" class="btn pri" id="spPlay">Bu sesi çal</button>
+            <button type="button" class="btn" id="spHold">İmleçteki anı çal</button>
+          </div>
+        </div>
+        <div class="readout r3">
+          <div><span>Ses</span><b id="qIns">Piyano</b></div>
+          <div><span>İmleç anı</span><b id="qTime">0,20 s</b></div>
+          <div><span>O andaki parlaklık</span><b id="qBr">3,4 × f₀</b></div>
+          <div><span>O andaki düzey</span><b id="qLvl">−6,2 dB</b></div>
+          <div><span>Bileşenler eşit aralıklı mı</span><b id="qHarm">evet · harmonik</b></div>
+          <div><span>Başlangıç gürültüsü</span><b id="qNz">güçlü</b></div>
+        </div>
+      </figure>
+      <p class="note" style="margin:10px 0 0">Piyanoda üst çizgiler alttakilerden çok daha hızlı soluyor: parlaklık zamanla düşüyor. Orgda bütün çizgiler baştan sona aynı koyulukta — bu yüzden org "mekanik" duyulur. Yaylıda çizgiler <b>dalgalanıyor</b>: vibrato, frekansın periyodik değişimi. Zilde çizgiler eşit aralıklı <b>değil</b>, bu yüzden net bir perde duymuyorsun.</p>
+    </div>
+
+    <div>
+      <aside class="steps">
+        <h3>Ders adımları</h3>
+        <div class="stepnav">
+          <button type="button" class="btn" id="paPrev" aria-label="Önceki adım">‹</button>
+          <button type="button" class="btn" id="paNext" aria-label="Sonraki adım">›</button>
+          <span class="count" id="paCount">1 / 6</span>
+        </div>
+        <ol class="steplist" id="paList"></ol>
+        <p class="note" id="paText"></p>
+      </aside>
+
+      <div class="cmpbox" style="margin-top:16px">
+        <h3>Bu sesin kimliği</h3>
+        <div class="cmpscroll">
+          <table class="cmp">
+            <tbody>
+              <tr><td class="lbl">Atak süresi</td><td class="v" id="iAtk"></td></tr>
+              <tr><td class="lbl">Temel frekans</td><td class="v" id="iF0"></td></tr>
+              <tr><td class="lbl">Bileşen sayısı</td><td class="v" id="iNp"></td></tr>
+              <tr class="key"><td class="lbl">Parlaklık · baştan sona</td><td class="v" id="iBr"></td></tr>
+              <tr><td class="lbl">Spektrogramda görüneni</td><td class="v" id="iSig"></td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="note" style="padding:0 14px 12px; margin:0" id="iNote"></p>
+      </div>
+      <p class="note" style="margin-top:12px">Spektrogram gerçek bir <b>Fourier çözümlemesi</b>: ses örnek örnek sentezleniyor, 512 örneklik pencerelerle analiz ediliyor ve çıkan genlikler renge çevriliyor. Çaldığın ses, haritada gördüğün sesin ta kendisi.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 05 ============ -->
+<section id="s5">
+  <h2><span class="num">05</span> Formantlar: perde değişir, tepeler yerinde kalır</h2>
+  <p style="max-width:70ch; color:var(--ink-2)">Kaynak titreşir, <b>gövde</b> ise belli frekansları yükseltir. Gövdenin bu sabit tepelerine <b>formant</b> denir. Temel frekansı değiştir: çubuklar sağa sola kayıyor ama turuncu eğri <b>hiç kımıldamıyor</b> — ve duyduğun ünlü de değişmiyor. Kemanın her perdede keman gibi duymasının sebebi de aynı.</p>
+
+  <div class="lab">
+    <div>
+      <figure class="canvas-wrap">
+        <div class="canvas-inner"><canvas id="cFrm" aria-label="Harmonik çubukları ve sabit formant eğrisi"></canvas></div>
+        <div class="legend">
+          <span><i style="background:var(--cos)"></i>kaynağın harmonikleri</span>
+          <span><i style="background:var(--sin)"></i>formant eğrisi · gövde</span>
+          <span><i style="background:var(--arc)"></i>formant tepeleri</span>
+        </div>
+        <div class="ctrls">
+          <div class="pillrow">
+            <button type="button" class="pill" data-vw="a" aria-pressed="true">a</button>
+            <button type="button" class="pill" data-vw="e">e</button>
+            <button type="button" class="pill" data-vw="i">i</button>
+            <button type="button" class="pill" data-vw="o">o</button>
+            <button type="button" class="pill" data-vw="u">u</button>
+            <button type="button" class="pill" data-vw="ü">ü</button>
+            <button type="button" class="pill" data-vw="keman">Keman gövdesi</button>
+          </div>
+          <div class="ctrl" style="flex:1 1 100%">
+            <label for="fmF0"><span>Temel frekans <i class="lit">f₀</i></span><b class="lit" id="fmF0V">110 Hz</b></label>
+            <input type="range" id="fmF0" min="80" max="330" step="1" value="110">
+          </div>
+          <div class="btnrow" style="flex:1 1 100%">
+            <button type="button" class="btn pri" id="fmPlay">Bu sesi çal</button>
+            <button type="button" class="btn" id="fmScale">Perdeyi gezdirerek çal</button>
+          </div>
+        </div>
+        <div class="readout r3">
+          <div><span>Ses</span><b id="qVow">a</b></div>
+          <div><span>Temel frekans</span><b id="qF0v">110 Hz</b></div>
+          <div><span>1. formant <i class="lit">F₁</i></span><b id="qFm1">750 Hz</b></div>
+          <div><span>2. formant <i class="lit">F₂</i></span><b id="qFm2">1200 Hz</b></div>
+          <div><span>3. formant <i class="lit">F₃</i></span><b id="qFm3">2600 Hz</b></div>
+          <div><span>F₁ hangi harmoniğe denk</span><b id="qFmK">7. harmonik</b></div>
+        </div>
+      </figure>
+      <p class="note" style="margin:10px 0 0">"Perdeyi gezdirerek çal"a bas: aynı ünlü baştan sona korunuyor, yalnızca notası değişiyor. Bunun tersi de doğru — f₀'ı sabit tutup formantları kaydırırsan nota aynı kalır, <b>kelime</b> değişir. Şarkı söylerken tam olarak bunu yaparsın: ses telleri perdeyi, ağız boşluğu ünlüyü taşır.</p>
+      <div class="tablebox">
+        <table id="tblF">
+          <caption class="sr-only">Türkçe ünlülerin formant frekansları</caption>
+          <thead><tr><th>Ses</th><th><i class="lit">F₁</i></th><th><i class="lit">F₂</i></th><th><i class="lit">F₃</i></th><th>Ayırt edici özelliği</th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+      <p class="note">Bir satıra tıkla: o ses yüklenir. Değerler yetişkin bir erkek sesi için yaklaşık ortalamalardır; kadın ve çocuk seslerinde hepsi yukarı kayar.</p>
+    </div>
+
+    <div>
+      <div class="cmpbox">
+        <h3>Kaynak ve gövde ayrı şeyler</h3>
+        <div class="cmpscroll">
+          <table class="cmp">
+            <thead><tr><th>Büyüklük</th><th class="a">Kaynak</th><th class="b">Gövde</th></tr></thead>
+            <tbody>
+              <tr><td class="lbl">Ne belirler</td><td class="v">perde</td><td class="v">tını / ünlü</td></tr>
+              <tr><td class="lbl">İnsanda</td><td class="v">ses telleri</td><td class="v">ağız · boğaz</td></tr>
+              <tr><td class="lbl">Kemanda</td><td class="v">tel + yay</td><td class="v">ahşap kutu</td></tr>
+              <tr class="key"><td class="lbl">f₀ değişince</td><td class="v">kayar</td><td class="v">sabit kalır</td></tr>
+              <tr><td class="lbl">Grafikte</td><td class="v">çubuklar</td><td class="v">eğri</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="note" style="padding:0 14px 12px; margin:0" id="fNote"></p>
+      </div>
+      <p class="note" style="margin-top:12px">Bu ayrım ses sentezinin temelidir ve adı <b>kaynak–süzgeç modeli</b>dir: önce zengin harmonikli bir kaynak üret, sonra sabit tepeli bir süzgeçten geçir. Vokoder, otomatik ses tanıma ve konuşma sentezi hep bunun üzerine kuruludur.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 06 ============ -->
+<section id="s6">
+  <h2><span class="num">06</span> Başlangıç geçicisi: ilk kırk milisaniye</h2>
+  <p style="max-width:70ch; color:var(--ink-2)">Bir notanın ilk anında harmonikler daha kurulmamıştır; onun yerine geniş bantlı bir <b>gürültü</b> vardır — yayın tele tutunması, dudakların açılması, mızrabın tele çarpması. Spektrogramda sol kenardaki dikey şerit budur. Şeridi kıs ya da tamamen kes; aynı ses ne kadar tanınmaz hâle geliyor, kulağınla dene.</p>
+
+  <div class="hook">
+    <figure class="canvas-wrap">
+      <div class="canvas-inner"><canvas id="cTrn" aria-label="Sesin ilk anındaki gürültü geçicisi: dalga ve zaman frekans haritası"></canvas></div>
+      <div class="legend">
+        <span><i style="background:var(--sin)"></i>dalga</span>
+        <span><i style="background:var(--cos)"></i>zaman–frekans haritası</span>
+        <span><i style="background:var(--arc)"></i>geçici bölgesi</span>
+      </div>
+      <div class="ctrls">
+        <div class="ctrl" style="flex:1 1 240px">
+          <label for="trA"><span>Geçicinin gücü</span><b class="lit" id="trAV">%100</b></label>
+          <input type="range" id="trA" min="0" max="100" step="5" value="100">
+        </div>
+        <div class="ctrl" style="flex:1 1 240px">
+          <label for="trD"><span>Geçicinin süresi</span><b class="lit" id="trDV">30 ms</b></label>
+          <input type="range" id="trD" min="4" max="120" step="2" value="30">
+        </div>
+        <div class="btnrow" style="flex:1 1 100%">
+          <button type="button" class="btn pri" id="trPlay">Bu hâlini çal</button>
+          <button type="button" class="btn" id="trCmp">Geçicili ↔ geçicisiz</button>
+        </div>
+      </div>
+      <div class="readout r3">
+        <div><span>Geçici gücü</span><b id="qTrA">%100</b></div>
+        <div><span>Geçici süresi</span><b id="qTrD">30 ms</b></div>
+        <div><span>Sesin toplam süresine oranı</span><b id="qTrR">%1,9</b></div>
+        <div><span>Tepe faktörü</span><b id="qTrC">4,2</b></div>
+        <div><span>Geçicideki bant genişliği</span><b id="qTrB">geniş bant</b></div>
+        <div><span>Tanınabilirlik</span><b id="qTrN">yüksek</b></div>
+      </div>
+    </figure>
+
+    <div>
+      <div class="cmpbox">
+        <h3>Neden bu kadar önemli</h3>
+        <div class="cmpscroll">
+          <table class="cmp">
+            <tbody>
+              <tr><td class="lbl">Sesin toplam süresi</td><td class="v">1,60 s</td></tr>
+              <tr><td class="lbl">Geçicinin süresi</td><td class="v" id="tD2"></td></tr>
+              <tr class="key"><td class="lbl">Toplamın yüzde kaçı</td><td class="v" id="tR2"></td></tr>
+              <tr><td class="lbl">Taşıdığı enerji payı</td><td class="v" id="tE2"></td></tr>
+              <tr class="key"><td class="lbl">Tanımaya katkısı</td><td class="v">çok büyük</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="note" style="padding:0 14px 12px; margin:0" id="tNote"></p>
+      </div>
+      <p class="note" style="margin-top:0">Klasik deney şu: bir piyano, bir trompet ve bir kemanın <b>ilk 40 milisaniyesini kesip</b> sadece sürdürme kısmını dinlet. Tanıma oranı çöker — çünkü geriye kalan kısım üçünde de birbirine çok benzeyen bir harmonik yığınıdır. Örnekleyicilerde (sampler) geçicinin ayrı katman olarak saklanmasının sebebi budur.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 07 ============ -->
+<section id="s7">
+  <h2><span class="num">07</span> Faz deneyi: tını dalga şekli değildir</h2>
+  <p style="max-width:70ch; color:var(--ink-2)">Aynı harmonikler, aynı genlikler — yalnızca bileşenlerin birbirine göre <b>zamanlaması</b> değişik. Üç dalga şekli bambaşka görünüyor. Üçünü de dinle: kulak neredeyse hiçbir fark duymuyor. Kulağın duyduğu şey <b>tayf</b>, dalga şekli değil.</p>
+
+  <div class="hook">
+    <figure class="canvas-wrap">
+      <div class="canvas-inner"><canvas id="cPhs" aria-label="Aynı tayfın üç farklı faz seçimiyle bambaşka dalga şekilleri vermesi"></canvas></div>
+      <div class="legend">
+        <span><i style="background:var(--sin)"></i>dalga şekli</span>
+        <span><i style="background:var(--cos)"></i>genlik tayfı · üçünde de aynı</span>
+        <span><i style="background:var(--arc)"></i>seçili faz kümesi</span>
+      </div>
+      <div class="ctrls">
+        <div class="pillrow">
+          <button type="button" class="pill" data-ph="0" aria-pressed="true">Hepsi hizalı</button>
+          <button type="button" class="pill" data-ph="1">Rastgele faz</button>
+          <button type="button" class="pill" data-ph="2">Dengelenmiş</button>
+        </div>
+        <div class="btnrow" style="flex:1 1 100%">
+          <button type="button" class="btn pri" id="phPlay">Seçiliyi çal</button>
+          <button type="button" class="btn" id="phAll">Üçünü arka arkaya çal</button>
+        </div>
+      </div>
+      <div class="readout r3">
+        <div><span>Faz kümesi</span><b id="qPhN">hepsi hizalı</b></div>
+        <div><span>Tepe değeri</span><b id="qPhPk">2,72</b></div>
+        <div><span>RMS · üçünde de aynı</span><b id="qPhR">0,87</b></div>
+        <div><span>Tepe faktörü</span><b id="qPhC">3,11</b></div>
+        <div><span>Tayf</span><b id="qPhS">değişmedi</b></div>
+        <div><span>Duyulan tını</span><b id="qPhT">neredeyse aynı</b></div>
+      </div>
+    </figure>
+
+    <div>
+      <div class="cmpbox">
+        <h3>Faz neyi değiştirir, neyi değiştirmez</h3>
+        <div class="cmpscroll">
+          <table class="cmp">
+            <tbody>
+              <tr><td class="lbl">Genlik tayfı</td><td class="v">değişmez</td></tr>
+              <tr><td class="lbl">RMS ve enerji</td><td class="v">değişmez</td></tr>
+              <tr><td class="lbl">Duyulan tını</td><td class="v">neredeyse değişmez</td></tr>
+              <tr class="key"><td class="lbl">Dalga şekli</td><td class="v">tamamen değişir</td></tr>
+              <tr class="key"><td class="lbl">Tepe faktörü</td><td class="v" id="pC2"></td></tr>
+              <tr><td class="lbl">En yüksek / en düşük</td><td class="v" id="pC3"></td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="note" style="padding:0 14px 12px; margin:0">Kulağın faza büyük ölçüde duyarsız olmasına <b>Ohm'un akustik yasası</b> denir. "Büyük ölçüde", çünkü çok alçak frekanslarda ve kulaklıkta iki kulak arasındaki faz farkı gayet duyulur — yön bulmamızı sağlayan şey odur.</p>
+      </div>
+      <p class="note" style="margin-top:0">Ama faz stüdyoda önemsiz değildir: üç dalganın RMS'i birebir aynı olduğu hâlde tepe faktörü <b>iki katından fazla</b> değişiyor. Bileşenler hizalıyken hepsi aynı anda tepe yapıyor ve dalga sivri bir darbeye dönüşüyor; temel bileşeni ters çevirmek tepeyi en aşağı çekiyor. 16. atölyede gördüğün gibi hoparlörü ve dönüştürücüyü zorlayan şey tepedir. Mastering'de kullanılan faz düzeltme araçlarının amacı tam olarak tepe faktörünü düşürüp aynı RMS'te daha fazla başlık kazanmaktır.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 08 ============ -->
+<section id="s8">
+  <h2><span class="num">08</span> Kavramın dili</h2>
+  <p style="max-width:64ch; color:var(--ink-2)">Altı terim. Üçü frekansın, üçü zamanın dili.</p>
+
+  <div class="terms">
+    <div class="term">
+      <h3>Tayf zarfı</h3>
+      <div class="sym">spectral envelope · dB/oktav</div>
+      <p>Harmonik tepelerinden geçen eğri. Eğimi sesin parlaklığını belirler; testere dişinde −6 dB/oktav, üçgende −12.</p>
+      <div class="mus"><span>Müzikte</span> Ekolayzerin alçak/yüksek raf süzgeçleri doğrudan bu eğriyi eğer.</div>
+    </div>
+
+    <div class="term">
+      <h3>Spektrogram</h3>
+      <div class="sym">zaman × frekans × şiddet</div>
+      <p>Sesin zaman içindeki tayf haritası. Dikey dilimi anlık tayf, yatay şeridi bir harmoniğin zarfıdır.</p>
+      <div class="mus"><span>Müzikte</span> Melodyne, iZotope RX gibi araçların ekranında gördüğün şey budur.</div>
+    </div>
+
+    <div class="term">
+      <h3>Formant</h3>
+      <div class="sym">gövdenin sabit rezonansı</div>
+      <p>Perde değişirken yerinde kalan tayf tepesi. Ünlüleri ve çalgı kimliğini taşır. İnsan sesinde ilk iki formant ünlüyü belirlemeye yeter.</p>
+      <div class="mus"><span>Müzikte</span> Vokoder, talk box ve formant kaydırıcı eklentileri bunu oynatır.</div>
+      <div class="btnrow" style="margin-top:10px">
+        <button type="button" class="btn snd" data-snd="vow">a → i → u dinle</button>
+      </div>
+    </div>
+
+    <div class="term">
+      <h3>Başlangıç geçicisi</h3>
+      <div class="sym">attack transient · ilk 10–50 ms</div>
+      <p>Notanın açılışındaki geniş bantlı gürültü ve düzensiz bileşenler. Çalgıyı tanımanın en güçlü ipucu.</p>
+      <div class="mus"><span>Müzikte</span> Transient shaper, geçicinin gücünü ayrı ayarlar; sıkıştırıcının atak süresi de onu biçer.</div>
+      <div class="btnrow" style="margin-top:10px">
+        <button type="button" class="btn snd" data-snd="tr">Geçicili ↔ geçicisiz</button>
+      </div>
+    </div>
+
+    <div class="term">
+      <h3>Harmonik olmayan bileşen</h3>
+      <div class="sym">inharmonic partial</div>
+      <p>Frekansı f₀'ın tam katı olmayan bileşen. Zil, gong ve davulun perdesiz duyulmasının sebebi; piyanoda da hafifçe vardır ve akordu "gerdirir".</p>
+      <div class="mus"><span>Müzikte</span> Piyano akortçusu tizleri bilerek biraz tiz akort eder — adı esnetilmiş akort.</div>
+    </div>
+
+    <div class="term">
+      <h3>Faz</h3>
+      <div class="sym">bileşenlerin bağıl zamanlaması</div>
+      <p>Dalga şeklini tamamen değiştirir, genlik tayfını ve enerjiyi hiç değiştirmez. Kulak ona büyük ölçüde duyarsızdır.</p>
+      <div class="mus"><span>Müzikte</span> Tepe faktörünü değiştirdiği için mastering'de başlık kazanmanın yollarından biridir.</div>
+      <div class="btnrow" style="margin-top:10px">
+        <button type="button" class="btn snd" data-snd="ph">Üç fazı dinle</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 09 ============ -->
+<section id="s9">
+  <h2><span class="num">09</span> Şimdi sen dene</h2>
+  <div class="quizwrap">
+    <div id="quiz"></div>
+    <aside class="recap">
+      <h3>Aklında kalsın</h3>
+      <ol>
+        <li><b>Tayf zarfı</b>, harmonik tepelerinden geçen eğridir; eğimi dB/oktav olarak okunur ve parlaklığı belirler.</li>
+        <li><b>Spektrogram</b> zaman–frekans–şiddet haritasıdır. Anlık tayf onun dikey dilimi, zarf ise yatay şeridinin toplamıdır.</li>
+        <li><b>Formantlar</b> perde değişse de yerinde kalır. Kaynak perdeyi, gövde tınıyı ve ünlüyü taşır: <b>kaynak–süzgeç modeli</b>.</li>
+        <li><b>Başlangıç geçicisi</b> sesin binde birkaçı kadar sürer ama çalgıyı tanımanın en güçlü ipucudur.</li>
+        <li><b>Faz</b> dalga şeklini tamamen değiştirir, tınıyı neredeyse hiç değiştirmez — ama tepe faktörünü değiştirir.</li>
+      </ol>
+      <div class="score" id="score">Doğru: 0 / 12</div>
+    </aside>
+  </div>
+</section>
+
+<footer>
+  <p>Müzik Teknolojisi · Ses Fiziği I dersi 18. atölye — Tını ve Spektrogram. 15., 16. ve 17. atölyelerdeki kavramları varsayar. Spektrogram gerçek bir Fourier çözümlemesidir (512 örneklik Hann penceresi). Konu haritası için: UNSW Physclips – Sound (animations.physics.unsw.edu.au).</p>
+</footer>
+
+</div>
+
+<script>
+(function(){
+'use strict';
+var root=document.documentElement, TAU=Math.PI*2;
+var C={}, K={lw:1,fs:1,faint:.32,glow:0};
+var mqDark=window.matchMedia('(prefers-color-scheme: dark)');
+var mqSlow=window.matchMedia('(prefers-reduced-motion: reduce)');
+var CKEYS=['ground','panel','panel-2','ink','ink-2','ink-3','line','line-2','sin','cos','arc','brass','ok','no'];
+
+/* ---------------- tema ---------------- */
+function isProj(){ return root.getAttribute('data-mode')==='proj'; }
+function isDarkNow(){
+  if(isProj()) return false;
+  var t=root.getAttribute('data-theme');
+  if(t==='dark') return true;
+  if(t==='light') return false;
+  return mqDark.matches;
+}
+function readTheme(){
+  var cs=getComputedStyle(root);
+  for(var i=0;i<CKEYS.length;i++) C[CKEYS[i]]=cs.getPropertyValue('--'+CKEYS[i]).trim()||'#888';
+  var proj=isProj(), dark=isDarkNow();
+  K.glow = (dark && !proj) ? 0.7 : 0;
+  K.lw   = proj ? 1.5 : 1;
+  K.fs   = proj ? 1.24 : 1;
+  K.faint= proj ? 0.42 : (K.glow ? 0.34 : 0.32);
+}
+var tBtns=[].slice.call(document.querySelectorAll('.themebar button'));
+function syncTheme(){
+  var cur;
+  if(isProj()) cur='proj';
+  else if(root.getAttribute('data-theme')==='dark') cur='dark';
+  else if(root.getAttribute('data-theme')==='light') cur='light';
+  else cur = mqDark.matches ? 'dark' : 'light';
+  tBtns.forEach(function(b){ b.setAttribute('aria-pressed', b.dataset.t===cur?'true':'false'); });
+}
+function applyTheme(v,store){
+  if(v==='light'){ root.setAttribute('data-theme','light'); root.removeAttribute('data-mode'); }
+  else if(v==='dark'){ root.setAttribute('data-theme','dark'); root.removeAttribute('data-mode'); }
+  else if(v==='proj'){ root.setAttribute('data-theme','light'); root.setAttribute('data-mode','proj'); }
+  if(store){ try{ localStorage.setItem('mt-tema',v); }catch(e){} }
+  syncTheme();
+}
+tBtns.forEach(function(b){ b.addEventListener('click',function(){ applyTheme(b.dataset.t,true); }); });
+(function(){
+  var v=null; try{ v=localStorage.getItem('mt-tema'); }catch(e){}
+  if(v==='light'||v==='dark'||v==='proj') applyTheme(v,false); else syncTheme();
+})();
+
+/* ---------------- yardimcilar ---------------- */
+function nf(v,d){
+  d=(d===undefined)?2:d;
+  var r=Number(v.toFixed(d)); if(r===0) r=0;
+  return r.toFixed(d).replace('-','−').replace('.',',');
+}
+function deg(v,d){ return nf(v,d===undefined?0:d)+'°'; }
+function setFont(ctx,px,w,sans){
+  ctx.font=(w||500)+' '+Math.max(9,Math.round(px*K.fs))+'px '+(sans?'"IBM Plex Sans",system-ui,sans-serif':'"IBM Plex Mono",ui-monospace,monospace');
+}
+function gOn(ctx,col,amt){ if(K.glow){ ctx.shadowColor=col; ctx.shadowBlur=amt*K.glow; } }
+function gOff(ctx){ ctx.shadowBlur=0; ctx.shadowColor='transparent'; }
+function dash(ctx,a){ ctx.setLineDash(a?a.map(function(v){return v*K.lw;}):[]); }
+function line(ctx,x1,y1,x2,y2,col,w,d){
+  ctx.save(); ctx.strokeStyle=col; ctx.lineWidth=(w||1)*K.lw; dash(ctx,d);
+  ctx.beginPath(); ctx.moveTo(x1,y1); ctx.lineTo(x2,y2); ctx.stroke(); ctx.restore();
+}
+function dot(ctx,x,y,r,col,glow){
+  ctx.save(); ctx.fillStyle=col; if(glow) gOn(ctx,col,10);
+  ctx.beginPath(); ctx.arc(x,y,r*K.fs,0,TAU); ctx.fill(); gOff(ctx); ctx.restore();
+}
+function label(ctx,txt,x,y,col,px,align,bg){
+  var fs=px||11;
+  ctx.save(); setFont(ctx,fs,500,false);
+  ctx.textAlign=align||'left'; ctx.textBaseline='alphabetic';
+  if(bg){
+    var w=ctx.measureText(txt).width, h=fs*K.fs;
+    var lx=(align==='right')?x-w:((align==='center')?x-w/2:x);
+    ctx.fillStyle=alpha(C.panel,0.86);
+    ctx.fillRect(lx-3,y-h-1,w+6,h+5);
+  }
+  ctx.fillStyle=col; ctx.fillText(txt,x,y); ctx.restore();
+}
+function labelV(ctx,txt,x,y,col,px){
+  ctx.save(); setFont(ctx,px||11,500,false);
+  ctx.translate(x,y); ctx.rotate(Math.PI/2);
+  ctx.textAlign='center'; ctx.textBaseline='alphabetic';
+  ctx.fillStyle=col; ctx.fillText(txt,0,0); ctx.restore();
+}
+function textW(ctx,txt,px){ ctx.save(); setFont(ctx,px||11,500,false); var w=ctx.measureText(txt).width; ctx.restore(); return w; }
+function alpha(hex,a){
+  var h=hex.replace('#',''); if(h.length===3) h=h[0]+h[0]+h[1]+h[1]+h[2]+h[2];
+  var n=parseInt(h,16);
+  if(isNaN(n)) return hex;
+  return 'rgba('+((n>>16)&255)+','+((n>>8)&255)+','+(n&255)+','+a+')';
+}
+
+/* ---------------- sahne altyapisi ---------------- */
+var scenes=[];
+function makeScene(cv,painter){
+  var ctx=cv.getContext('2d'), s={cv:cv,ctx:ctx,W:0,H:0};
+  s.resize=function(){
+    var r=cv.getBoundingClientRect();
+    var w=Math.max(1,r.width), h=Math.max(1,r.height);
+    var dpr=Math.min(2,window.devicePixelRatio||1);
+    s.W=w; s.H=h; cv.width=Math.round(w*dpr); cv.height=Math.round(h*dpr);
+    ctx.setTransform(dpr,0,0,dpr,0,0);
+  };
+  s.draw=function(){ if(s.W<2) s.resize(); ctx.clearRect(0,0,s.W,s.H); painter(ctx,s.W,s.H); };
+  if(window.ResizeObserver) new ResizeObserver(function(){ s.resize(); s.draw(); }).observe(cv);
+  scenes.push(s); return s;
+}
+function markAll(){ WY.dirty=true; SL.dirty=true; SC.dirty=true; FM.dirty=true; TR.dirty=true; PH.dirty=true; }
+function redrawAll(){ readTheme(); scenes.forEach(function(s){ s.resize(); s.draw(); }); markAll(); }
+new MutationObserver(redrawAll).observe(root,{attributes:true,attributeFilter:['data-theme','data-mode']});
+if(mqDark.addEventListener) mqDark.addEventListener('change',function(){ redrawAll(); syncTheme(); });
+window.addEventListener('resize',function(){ markAll(); });
+
+/* ---------------- ses ---------------- */
+var AC=null;
+function ac(){
+  try{
+    if(!AC){ var Ctor=window.AudioContext||window.webkitAudioContext; if(!Ctor) return null; AC=new Ctor(); }
+    if(AC.state==='suspended') AC.resume();
+    return AC;
+  }catch(e){ return null; }
+}
+function playTones(specs,dur){
+  var c=ac(); if(!c) return;
+  try{
+    var t0=c.currentTime+0.06, master=c.createGain();
+    master.gain.setValueAtTime(0.0001,t0);
+    master.gain.linearRampToValueAtTime(1,t0+0.03);
+    master.gain.setValueAtTime(1,t0+dur-0.08);
+    master.gain.linearRampToValueAtTime(0.0001,t0+dur);
+    master.connect(c.destination);
+    specs.forEach(function(sp){
+      var o=c.createOscillator(); o.type='sine'; o.frequency.setValueAtTime(sp.f,t0);
+      var g=c.createGain(); g.gain.setValueAtTime(sp.g,t0);
+      o.connect(g); g.connect(master); o.start(t0); o.stop(t0+dur+0.06);
+    });
+    setTimeout(function(){ try{ master.disconnect(); }catch(e){} },(dur+0.4)*1000);
+  }catch(e){}
+}
+function playSeq(list,dur,gap){
+  var c=ac(); if(!c) return;
+  list.forEach(function(f,i){ setTimeout(function(){ playTones([{f:f,g:0.16}],dur); }, i*(dur+gap)*1000); });
+}
+function hatch(ctx,x0,x1,y,col,dir){
+  ctx.save(); ctx.strokeStyle=col; ctx.lineWidth=1*K.lw;
+  for(var x=x0+5;x<x1;x+=12){ ctx.beginPath(); ctx.moveTo(x,y); ctx.lineTo(x-5,y+5*(dir||1)); ctx.stroke(); }
+  ctx.restore();
+}
+
+/* ---------------- dalga bicimi sesi ---------------- */
+function gauss(){
+  var u=0,v=0;
+  while(u===0) u=Math.random();
+  while(v===0) v=Math.random();
+  return Math.sqrt(-2*Math.log(u))*Math.cos(TAU*v);
+}
+function playPeriodic(arr,f,amp,dur,noiseRms){
+  var c=ac(); if(!c) return;
+  try{
+    var sr=c.sampleRate, per=Math.max(8,Math.round(sr/f)), n=Math.max(per,Math.round(sr*dur));
+    var buf=c.createBuffer(1,n,sr), d=buf.getChannelData(0), i;
+    if(noiseRms){
+      for(i=0;i<n;i++){ var x=gauss()*noiseRms; if(x>1)x=1; if(x<-1)x=-1; d[i]=x*amp; }
+    } else {
+      var L=arr.length;
+      for(i=0;i<n;i++) d[i]=arr[Math.floor((i%per)/per*L)%L]*amp;
+    }
+    var src=c.createBufferSource(); src.buffer=buf;
+    var g=c.createGain(), t0=c.currentTime+0.05;
+    g.gain.setValueAtTime(0.0001,t0);
+    g.gain.linearRampToValueAtTime(1,t0+0.02);
+    g.gain.setValueAtTime(1,Math.max(t0+0.03,t0+dur-0.05));
+    g.gain.linearRampToValueAtTime(0.0001,t0+dur);
+    src.connect(g); g.connect(c.destination);
+    src.start(t0); src.stop(t0+dur+0.05);
+    setTimeout(function(){ try{ g.disconnect(); }catch(e){} },(dur+0.5)*1000);
+  }catch(e){}
+}
+function playMuffled(f,cut,g0,dur,delay){
+  var c=ac(); if(!c) return;
+  try{
+    var t0=c.currentTime+0.05+(delay||0);
+    var o=c.createOscillator(); o.type='sawtooth'; o.frequency.setValueAtTime(f,t0);
+    var lp=c.createBiquadFilter(); lp.type='lowpass';
+    lp.frequency.setValueAtTime(cut,t0); lp.Q.setValueAtTime(0.7,t0);
+    var g=c.createGain();
+    g.gain.setValueAtTime(0.0001,t0);
+    g.gain.linearRampToValueAtTime(g0,t0+0.03);
+    g.gain.setValueAtTime(g0,t0+dur-0.08);
+    g.gain.linearRampToValueAtTime(0.0001,t0+dur);
+    o.connect(lp); lp.connect(g); g.connect(c.destination);
+    o.start(t0); o.stop(t0+dur+0.05);
+    setTimeout(function(){ try{ g.disconnect(); }catch(e){} },(dur+(delay||0)+0.6)*1000);
+  }catch(e){}
+}
+
+/* ---------------- ham sinyal calma ---------------- */
+function playSig(sig,sr,g){
+  var c=ac(); if(!c||!sig||!sig.length) return;
+  try{
+    var buf=c.createBuffer(1,sig.length,sr), d=buf.getChannelData(0), i;
+    for(i=0;i<sig.length;i++) d[i]=sig[i];
+    var src=c.createBufferSource(); src.buffer=buf;
+    var gn=c.createGain(), t0=c.currentTime+0.04;
+    gn.gain.setValueAtTime(g===undefined?0.28:g,t0);
+    src.connect(gn); gn.connect(c.destination);
+    src.start(t0);
+    setTimeout(function(){ try{ gn.disconnect(); }catch(e){} },(sig.length/sr+0.7)*1000);
+  }catch(e){}
+}
+function gauss(){
+  var u=0,v=0;
+  while(u===0) u=Math.random();
+  while(v===0) v=Math.random();
+  return Math.sqrt(-2*Math.log(u))*Math.cos(TAU*v);
+}
+
+
+/* ---------------- ortak ---------------- */
+function axLab(ctx,txt,x,y,px0,px1,col,px){
+  var w=textW(ctx,txt,px||9), al='center', tx=x;
+  if(tx+w/2>px1){ al='right'; tx=px1; }
+  else if(tx-w/2<px0){ al='left'; tx=px0; }
+  label(ctx,txt,tx,y,col,px||9,al);
+}
+function $(id){ return document.getElementById(id); }
+function setTxt(id,v){ var e=$(id); if(e) e.textContent=v; }
+function sdb(v,d){ return (v>0.049?'+':'')+nf(v,d===undefined?1:d)+' dB'; }
+function nfR(x){
+  if(!isFinite(x)) return '—';
+  if(x>=100) return nf(x,0);
+  if(x>=10) return nf(x,1);
+  return nf(x,2);
+}
+function pressGroup(list,match){ list.forEach(function(b){ b.setAttribute('aria-pressed',match(b)?'true':'false'); }); }
+function makeSteps(ids,steps){
+  var list=$(ids.list), txt=$(ids.text), cnt=$(ids.count), cur=0;
+  steps.forEach(function(s,i){
+    var li=document.createElement('li'), b=document.createElement('button');
+    b.type='button'; b.innerHTML='<span class="k">'+(i+1)+'</span>'+s.t;
+    b.addEventListener('click',function(){ set(i,true); });
+    li.appendChild(b); list.appendChild(li);
+  });
+  function set(i,run){
+    cur=(i+steps.length)%steps.length;
+    [].slice.call(list.querySelectorAll('button')).forEach(function(b,j){ b.setAttribute('aria-current', j===cur?'true':'false'); });
+    txt.textContent=steps[cur].d; cnt.textContent=(cur+1)+' / '+steps.length;
+    if(run && steps[cur].apply) steps[cur].apply();
+  }
+  $(ids.prev).addEventListener('click',function(){ set(cur-1,true); });
+  $(ids.next).addEventListener('click',function(){ set(cur+1,true); });
+  set(0,false);
+  return { set:set };
+}
+function rgbOf(h){
+  h=h.replace('#',''); if(h.length===3) h=h[0]+h[0]+h[1]+h[1]+h[2]+h[2];
+  var n=parseInt(h,16); return [(n>>16)&255,(n>>8)&255,n&255];
+}
+function mixRgb(a,b,t){ return [a[0]+(b[0]-a[0])*t, a[1]+(b[1]-a[1])*t, a[2]+(b[2]-a[2])*t]; }
+
+/* ---------------- FFT ve spektrogram ---------------- */
+var SR=16000, SDUR=1.6, NSMP=Math.round(SR*SDUR);
+var NFFT=512, HOP=128, NBIN=NFFT/2, DF=SR/NFFT;
+var FSHOW=4500, NSHOW=Math.round(FSHOW/DF);
+var DBFLOOR=-56;
+function fft(re,im){
+  var n=re.length, i, j, bit, t, len, ang, wr, wi, i2, k, cr, ci, ur, ui, vr, vi, ncr;
+  for(i=1,j=0;i<n;i++){
+    bit=n>>1;
+    for(;j&bit;bit>>=1) j^=bit;
+    j^=bit;
+    if(i<j){ t=re[i];re[i]=re[j];re[j]=t; t=im[i];im[i]=im[j];im[j]=t; }
+  }
+  for(len=2;len<=n;len<<=1){
+    ang=-TAU/len; wr=Math.cos(ang); wi=Math.sin(ang);
+    for(i2=0;i2<n;i2+=len){
+      cr=1; ci=0;
+      for(k=0;k<len/2;k++){
+        ur=re[i2+k]; ui=im[i2+k];
+        vr=re[i2+k+len/2]*cr-im[i2+k+len/2]*ci;
+        vi=re[i2+k+len/2]*ci+im[i2+k+len/2]*cr;
+        re[i2+k]=ur+vr; im[i2+k]=ui+vi;
+        re[i2+k+len/2]=ur-vr; im[i2+k+len/2]=ui-vi;
+        ncr=cr*wr-ci*wi; ci=cr*wi+ci*wr; cr=ncr;
+      }
+    }
+  }
+}
+var HANN=null;
+function hannWin(){
+  if(HANN) return HANN;
+  HANN=new Float64Array(NFFT);
+  for(var i=0;i<NFFT;i++) HANN[i]=0.5-0.5*Math.cos(TAU*i/NFFT);
+  return HANN;
+}
+/* sinyalden zaman-frekans matrisi (dB, tavan 0) */
+function spectro(sig,n0,n1){
+  var a=n0||0, b=(n1===undefined?sig.length:n1);
+  var nF=Math.max(1,Math.floor((b-a-NFFT)/HOP)+1);
+  var w=hannWin(), out=new Float32Array(nF*NSHOW);
+  var re=new Float64Array(NFFT), im=new Float64Array(NFFT);
+  var f, i, mx=1e-12, v;
+  for(f=0;f<nF;f++){
+    for(i=0;i<NFFT;i++){ re[i]=sig[a+f*HOP+i]*w[i]; im[i]=0; }
+    fft(re,im);
+    for(i=0;i<NSHOW;i++){
+      v=Math.sqrt(re[i]*re[i]+im[i]*im[i]);
+      out[f*NSHOW+i]=v;
+      if(v>mx) mx=v;
+    }
+  }
+  for(i=0;i<out.length;i++){
+    v=20*Math.log(out[i]/mx+1e-12)/Math.LN10;
+    out[i]=v<DBFLOOR?DBFLOOR:v;
+  }
+  return { d:out, nF:nF, nB:NSHOW };
+}
+/* dB matrisini olceklenebilir bir goruntuye cevir */
+function specImage(S,pal){
+  var cv=document.createElement('canvas');
+  cv.width=S.nF; cv.height=S.nB;
+  var c=cv.getContext('2d'), img=c.createImageData(S.nF,S.nB), d=img.data;
+  var f, b, v, p, i;
+  for(f=0;f<S.nF;f++) for(b=0;b<S.nB;b++){
+    v=(S.d[f*S.nB+b]-DBFLOOR)/(-DBFLOOR);
+    if(v<0) v=0; if(v>1) v=1;
+    p=pal[Math.round(v*(pal.length-1))];
+    i=((S.nB-1-b)*S.nF+f)*4;
+    d[i]=p[0]; d[i+1]=p[1]; d[i+2]=p[2]; d[i+3]=255;
+  }
+  c.putImageData(img,0,0);
+  return cv;
+}
+function specPal(){
+  var bg=rgbOf(C.panel), c1=rgbOf(C.cos), c2=rgbOf(C.sin), out=[], i, t, m;
+  for(i=0;i<=64;i++){
+    t=Math.pow(i/64,0.70);
+    m = t<0.42 ? mixRgb(bg,c1,t/0.42) : mixRgb(c1,c2,(t-0.42)/0.58);
+    out.push([Math.round(m[0]),Math.round(m[1]),Math.round(m[2])]);
+  }
+  return out;
+}
+
+/* ---------------- sentez ---------------- */
+function mkParts(f0,nh,slope,d0,dk,odd){
+  var p=[], k;
+  for(k=1;k<=nh;k++){
+    if(odd && k%2===0) continue;
+    p.push({ f:f0*k, a:Math.pow(k,-slope), d:d0+dk*k, on:0 });
+  }
+  return p;
+}
+var ZILR=[1,2.76,5.40,8.93,13.34];
+function mkZil(f0){
+  var p=[], i;
+  for(i=0;i<ZILR.length;i++) p.push({ f:f0*ZILR[i], a:Math.pow(i+1,-0.7), d:0.9+0.5*i, on:0 });
+  return p;
+}
+var INS={
+  piyano:{ n:'Piyano', f0:220, atk:0.004, nz:0.42, nzD:0.016,
+    parts:mkParts(220,16,1.05,1.4,0.55,false),
+    sig:'tizler pesten çok daha hızlı sönüyor', harm:true },
+  org:{ n:'Org', f0:220, atk:0.03, nz:0.03, nzD:0.012,
+    parts:mkParts(220,10,1.1,0,0,false),
+    sig:'bütün çizgiler baştan sona aynı koyulukta', harm:true },
+  yayli:{ n:'Yaylı', f0:220, atk:0.13, nz:0.10, nzD:0.055, vib:0.009, vibR:5.5,
+    parts:mkParts(220,16,1.0,0.12,0.02,false),
+    sig:'çizgiler vibratoyla dalgalanıyor', harm:true },
+  trompet:{ n:'Trompet', f0:220, atk:0.05, nz:0.28, nzD:0.032, ramp:true,
+    parts:mkParts(220,18,0.72,0.08,0.015,false),
+    sig:'tizler sonradan giriyor, ses açılıyor', harm:true },
+  zil:{ n:'Zil', f0:300, atk:0.002, nz:0.62, nzD:0.10,
+    parts:mkZil(300),
+    sig:'çizgiler eşit aralıklı değil', harm:false }
+};
+var SIGC={};
+function synth(key){
+  if(SIGC[key]) return SIGC[key];
+  var S=INS[key], out=new Float32Array(NSMP), i, k, P, ph, t, a, f, on, mx=0;
+  for(k=0;k<S.parts.length;k++){
+    P=S.parts[k]; ph=0;
+    on = S.ramp ? Math.min(0.16,0.011*k) : 0;
+    for(i=0;i<NSMP;i++){
+      t=i/SR;
+      f=P.f*(S.vib?(1+S.vib*Math.sin(TAU*S.vibR*t)):1);
+      ph+=TAU*f/SR;
+      if(t<on) continue;
+      a=P.a*Math.exp(-P.d*t);
+      if(on>0){ a*=Math.min(1,(t-on)/0.045); }
+      out[i]+=a*Math.sin(ph);
+    }
+  }
+  for(i=0;i<NSMP;i++){
+    t=i/SR;
+    a=Math.min(1,t/S.atk);
+    if(t>SDUR-0.13) a*=Math.max(0,(SDUR-t)/0.13);
+    out[i]*=a;
+    if(S.nz>0) out[i]+=S.nz*gauss()*0.35*Math.exp(-t/S.nzD);
+  }
+  for(i=0;i<NSMP;i++) if(Math.abs(out[i])>mx) mx=Math.abs(out[i]);
+  if(mx>0) for(i=0;i<NSMP;i++) out[i]*=0.92/mx;
+  SIGC[key]=out; return out;
+}
+var SPCC={};
+function specOf(key){
+  if(!SPCC[key]) SPCC[key]=spectro(synth(key));
+  return SPCC[key];
+}
+
+/* ================= 01 : tayfi sabit vs degisen ================= */
+var WY={i:0, dirty:true};
+var WYNH=8, WYF0=220;
+function wyAmp(mode,k,t){
+  var base=Math.pow(k,-1.0);
+  var d = mode ? (1.1+0.95*k) : 3.0;
+  return base*Math.exp(-d*t);
+}
+function wyBright(mode,t){
+  var n=0, dd=0, k, a;
+  for(k=1;k<=WYNH;k++){ a=wyAmp(mode,k,t); n+=k*a; dd+=a; }
+  return dd>1e-9?n/dd:1;
+}
+function wySig(mode){
+  var n=Math.round(SR*1.1), out=new Float32Array(n), k, i, ph, t, mx=0;
+  for(k=1;k<=WYNH;k++){
+    ph=0;
+    for(i=0;i<n;i++){ t=i/SR; ph+=TAU*WYF0*k/SR; out[i]+=wyAmp(mode,k,t)*Math.sin(ph); }
+  }
+  for(i=0;i<n;i++){ t=i/SR; out[i]*=Math.min(1,t/0.005); }
+  for(i=0;i<n;i++) if(Math.abs(out[i])>mx) mx=Math.abs(out[i]);
+  if(mx>0) for(i=0;i<n;i++) out[i]*=0.9/mx;
+  return out;
+}
+var whyScene=makeScene(document.getElementById('cWhy'),function(ctx,W,H){
+  var pad=14, px0=pad+34, px1=W-pad-10, i, k, j;
+  var top=pad+22, bot=H-pad-26;
+  var rows=WYNH, rh=(bot-top)/rows;
+  var mode=WY.i;
+  label(ctx,'harmonik no',px0,top-8,alpha(C['ink-3'],0.95),10,'left');
+  label(ctx,'zaman →',px1,bot+18,alpha(C['ink-3'],0.95),10,'right');
+  var cos=rgbOf(C.cos), sin=rgbOf(C.sin), bg=rgbOf(C.panel);
+  for(k=1;k<=rows;k++){
+    var y0=bot-k*rh, y1=y0+rh-1.5;
+    label(ctx,String(k),px0-7,y0+rh*0.62,alpha(C['ink-3'],0.95),9,'right');
+    for(j=0;j<64;j++){
+      var t=1.0*j/64, xx=px0+(px1-px0)*j/64, w=(px1-px0)/64+1;
+      var a=wyAmp(mode,k,t)/Math.pow(k,-1.0);
+      var v=Math.max(0,Math.min(1,(20*Math.log(a+1e-6)/Math.LN10+40)/40));
+      var m = v<0.55 ? mixRgb(bg,cos,v/0.55) : mixRgb(cos,sin,(v-0.55)/0.45);
+      ctx.fillStyle='rgb('+Math.round(m[0])+','+Math.round(m[1])+','+Math.round(m[2])+')';
+      ctx.fillRect(xx,y0,w,y1-y0);
+    }
+  }
+  ctx.save(); ctx.strokeStyle=alpha(C['ink-3'],0.45); ctx.lineWidth=1;
+  ctx.strokeRect(px0,top,px1-px0,bot-top); ctx.restore();
+  for(i=0;i<=4;i++){
+    var gx=px0+(px1-px0)*i/4;
+    line(ctx,gx,bot,gx,bot+4,alpha(C['ink-3'],0.5),1);
+    axLab(ctx,nf(i*0.25,2)+' s',gx,bot+18,px0-14,px1-52,alpha(C['ink-3'],0.95),9);
+  }
+  label(ctx, mode?'tizler önce ölüyor':'hepsi birlikte ölüyor', px0+6, top+14,
+        mode?C.sin:alpha(C['ink-3'],0.95), 11, 'left', true);
+});
+
+/* ================= 03 : tayf zarfi ================= */
+var SL={s:-6, n:16, odd:false, dirty:true};
+var SLF0=220;
+function slAmp(k){ return Math.pow(k,SL.s/6.0206); }
+function slList(){
+  var o=[], k;
+  for(k=1;k<=SL.n;k++){ if(SL.odd && k%2===0) continue; o.push({k:k,a:slAmp(k)}); }
+  return o;
+}
+function slBright(){
+  var L=slList(), n=0, d=0, i;
+  for(i=0;i<L.length;i++){ n+=L[i].k*L[i].a; d+=L[i].a; }
+  return d>1e-9?n/d:1;
+}
+var slpScene=makeScene(document.getElementById('cSlp'),function(ctx,W,H){
+  var pad=14, px0=pad+36, px1=W-pad-12, i;
+  var top=pad+26, bot=H-pad-30;
+  var kMax=26;
+  var xOf=function(k){ return px0+Math.log(k)/Math.log(kMax)*(px1-px0); };
+  var DBMIN=-60;
+  var yOf=function(db){ return top+(-db)/(-DBMIN)*(bot-top); };
+  var faint=alpha(C['ink-3'],K.faint);
+
+  for(i=0;i<=6;i++){
+    var gy=yOf(-i*10);
+    line(ctx,px0,gy,px1,gy,i===0?alpha(C['ink-3'],0.45):faint,1);
+    label(ctx,String(-i*10),px0-7,gy+3,alpha(C['ink-3'],0.95),9,'right');
+  }
+  [1,2,4,8,16].forEach(function(k){
+    var gx=xOf(k);
+    line(ctx,gx,top,gx,bot,faint,1);
+    axLab(ctx,String(k),gx,bot+16,px0-12,px1,alpha(C['ink-3'],0.95),9);
+  });
+  label(ctx,'harmonik sırası (oktavlar eşit aralıklı)',px1,bot+30,alpha(C['ink-3'],0.95),10,'right');
+  label(ctx,'dB',px0-7,top-8,alpha(C['ink-3'],0.95),10,'right');
+
+  /* zarf dogrusu */
+  ctx.save(); ctx.strokeStyle=C.sin; ctx.lineWidth=2.6*K.lw; gOn(ctx,C.sin,9);
+  ctx.beginPath();
+  var dbEnd=SL.s*Math.log(kMax)/Math.LN2;
+  ctx.moveTo(xOf(1),yOf(0));
+  ctx.lineTo(xOf(kMax),yOf(Math.max(DBMIN,dbEnd)));
+  ctx.stroke(); gOff(ctx); ctx.restore();
+
+  /* cubuklar — genislik en sik araliktan turetilir ki ust harmonikler ust uste binmesin */
+  var L=slList(), gapMin=1e9;
+  for(i=1;i<L.length;i++) gapMin=Math.min(gapMin,xOf(L[i].k)-xOf(L[i-1].k));
+  if(!isFinite(gapMin)) gapMin=20;
+  var bw=Math.max(3,Math.min(16,gapMin*0.62));
+  for(i=0;i<L.length;i++){
+    var db=20*Math.log(L[i].a)/Math.LN10;
+    if(db<DBMIN) continue;
+    var x=xOf(L[i].k), y=yOf(db), bx=Math.max(px0,Math.min(px1-bw,x-bw/2));
+    ctx.save(); ctx.fillStyle=alpha(C.cos,0.9); if(K.glow) gOn(ctx,C.cos,7);
+    ctx.fillRect(bx,y,bw,bot-y); gOff(ctx); ctx.restore();
+  }
+  line(ctx,px0,bot,px1,bot,alpha(C['ink-3'],0.55),1.2);
+  /* egim etiketi panelin ust sag kosesinde: cubuklarin hic ugramadigi yer */
+  label(ctx,'tayf zarfı · '+nf(SL.s,1)+' dB/oktav',px1,top-8,C.sin,11,'right',true);
+
+  /* agirlik merkezi */
+  var b=slBright(), xb=xOf(b);
+  line(ctx,xb,top,xb,bot,alpha(C.arc,0.8),1.8,[5,4]);
+  label(ctx,'parlaklık '+nf(b,2)+' × f₀',xb+(xb>px1-110?-8:8),top+12,C.arc,11,xb>px1-110?'right':'left',true);
+});
+
+/* ================= 04 : spektrogram ================= */
+var SC={k:'piyano', t:0.20, dirty:true};
+var IMGC={};
+function specImg(key){
+  var sg=C.panel+C.cos+C.sin;
+  if(!IMGC[key] || IMGC[key].sg!==sg) IMGC[key]={ sg:sg, cv:specImage(specOf(key),specPal()) };
+  return IMGC[key].cv;
+}
+function scFrame(){
+  var S=specOf(SC.k);
+  return Math.max(0,Math.min(S.nF-1,Math.round((SC.t*SR-NFFT/2)/HOP)));
+}
+function scSlice(){
+  var S=specOf(SC.k), f=scFrame(), o=new Float32Array(S.nB), i;
+  for(i=0;i<S.nB;i++) o[i]=S.d[f*S.nB+i];
+  return o;
+}
+function scEnv(){
+  var S=specOf(SC.k), o=new Float32Array(S.nF), f, i, s, mx=1e-12;
+  for(f=0;f<S.nF;f++){
+    s=0;
+    for(i=0;i<S.nB;i++) s+=Math.pow(10,S.d[f*S.nB+i]/10);
+    o[f]=s; if(s>mx) mx=s;
+  }
+  for(f=0;f<S.nF;f++) o[f]=Math.max(0,(10*Math.log(o[f]/mx)/Math.LN10+50)/50);
+  return o;
+}
+function scBright(){
+  var sl=scSlice(), n=0, d=0, i, a;
+  for(i=1;i<sl.length;i++){
+    if(sl[i]<-42) continue;
+    a=Math.pow(10,sl[i]/20);
+    n+=i*DF*a; d+=a;
+  }
+  return d>1e-9 ? (n/d)/INS[SC.k].f0 : 0;
+}
+function scLevel(){
+  var e=scEnv(), f=scFrame();
+  return (e[f]-1)*50;
+}
+var spcScene=makeScene(document.getElementById('cSpc'),function(ctx,W,H){
+  var pad=14, RW=Math.max(60,Math.min(92,W*0.17)), BH=48;
+  var px0=pad+34, px1=W-pad-8-RW-9;
+  var top=pad+22, bot=H-pad-26-BH-10;
+  var rx0=px1+9, rx1=W-pad-8;
+  var by0=bot+10, by1=bot+10+BH;
+  spcScene.map={px0:px0,px1:px1,top:top,bot:bot};
+  var faint=alpha(C['ink-3'],K.faint), i;
+  var xOf=function(t){ return px0+t/SDUR*(px1-px0); };
+  var yOf=function(f){ return bot-f/FSHOW*(bot-top); };
+
+  ctx.save();
+  ctx.imageSmoothingEnabled=true;
+  ctx.drawImage(specImg(SC.k),px0,top,px1-px0,bot-top);
+  ctx.restore();
+  ctx.save(); ctx.strokeStyle=alpha(C['ink-3'],0.5); ctx.lineWidth=1;
+  ctx.strokeRect(px0,top,px1-px0,bot-top); ctx.restore();
+
+  for(i=1000;i<=4000;i+=1000){
+    line(ctx,px0,yOf(i),px0+5,yOf(i),alpha(C['ink-3'],0.6),1);
+    label(ctx,(i/1000)+'k',px0-7,yOf(i)+3,alpha(C['ink-3'],0.95),9,'right');
+  }
+  label(ctx,'Hz',px0-7,top-8,alpha(C['ink-3'],0.95),10,'right');
+  for(i=0;i<=4;i++){
+    var gx=xOf(SDUR*i/4);
+    line(ctx,gx,bot,gx,bot+4,alpha(C['ink-3'],0.5),1);
+    axLab(ctx,nf(SDUR*i/4,1)+' s',gx,by1+16,px0-14,px1,alpha(C['ink-3'],0.95),9);
+  }
+
+  /* sag panel : o andaki tayf */
+  var sl=scSlice();
+  ctx.save(); ctx.fillStyle=alpha(C.sin,K.glow?0.30:0.20);
+  ctx.beginPath(); ctx.moveTo(rx0,bot);
+  for(i=0;i<sl.length;i++){
+    var v=Math.max(0,(sl[i]-DBFLOOR)/(-DBFLOOR));
+    ctx.lineTo(rx0+v*(rx1-rx0), yOf(i*DF));
+  }
+  ctx.lineTo(rx0,top); ctx.closePath(); ctx.fill(); ctx.restore();
+  ctx.save(); ctx.strokeStyle=C.sin; ctx.lineWidth=1.8*K.lw; ctx.lineJoin='round';
+  ctx.beginPath();
+  for(i=0;i<sl.length;i++){
+    var v2=Math.max(0,(sl[i]-DBFLOOR)/(-DBFLOOR));
+    if(i===0) ctx.moveTo(rx0+v2*(rx1-rx0),yOf(0)); else ctx.lineTo(rx0+v2*(rx1-rx0),yOf(i*DF));
+  }
+  ctx.stroke(); ctx.restore();
+  line(ctx,rx0,top,rx0,bot,alpha(C['ink-3'],0.5),1);
+  label(ctx,'tayf',rx0+2,top-8,alpha(C.sin,0.95),10,'left');
+
+  /* alt panel : zarf */
+  var en=scEnv();
+  ctx.save(); ctx.fillStyle=alpha(C.sin,K.glow?0.32:0.22);
+  ctx.beginPath(); ctx.moveTo(px0,by1);
+  for(i=0;i<en.length;i++) ctx.lineTo(px0+(px1-px0)*i/(en.length-1), by1-en[i]*(by1-by0));
+  ctx.lineTo(px1,by1); ctx.closePath(); ctx.fill(); ctx.restore();
+  ctx.save(); ctx.strokeStyle=C.sin; ctx.lineWidth=1.8*K.lw; ctx.lineJoin='round';
+  ctx.beginPath();
+  for(i=0;i<en.length;i++){
+    var xx=px0+(px1-px0)*i/(en.length-1), yy=by1-en[i]*(by1-by0);
+    if(i===0) ctx.moveTo(xx,yy); else ctx.lineTo(xx,yy);
+  }
+  ctx.stroke(); ctx.restore();
+  line(ctx,px0,by1,px1,by1,alpha(C['ink-3'],0.5),1);
+  label(ctx,'zarf',px0+4,by0+10,alpha(C.sin,0.95),10,'left',true);
+
+  /* imlec */
+  var cx=xOf(SC.t);
+  line(ctx,cx,top-4,cx,by1+4,alpha(C.arc,0.9),1.8,[5,4]);
+  label(ctx,nf(SC.t,2)+' s',Math.min(px1,cx+7),top+12,C.arc,11,(cx>px1-56)?'right':'left',true);
+});
+
+/* ================= 05 : formantlar ================= */
+var VOW={
+  'a':{ F:[750,1200,2600], B:[80,95,130], w:'F₁ yüksek, F₂ düşük — ağız geniş açık' },
+  'e':{ F:[520,1900,2600], B:[70,105,130], w:'F₂ yukarı fırlar — dil öne gelir' },
+  'i':{ F:[300,2300,3000], B:[60,115,150], w:'F₁ en düşük, F₂ en yüksek — en uç ünlü' },
+  'o':{ F:[500,900,2500],  B:[70,95,130], w:'F₁ ve F₂ birbirine yakın ve pes' },
+  'u':{ F:[350,800,2400],  B:[60,95,130], w:'ikisi de çok pes — dudaklar yuvarlak' },
+  'ü':{ F:[300,1750,2200], B:[60,105,130], w:'i gibi ön, u gibi yuvarlak' },
+  'keman':{ F:[280,470,2800], B:[45,70,420], w:'gövde rezonansları — ünlü değil, çalgı kimliği' }
+};
+var VORD=['a','e','i','o','u','ü','keman'];
+var FM={ v:'a', f0:110, dirty:true };
+function fmH(f){
+  var V=VOW[FM.v], p=1, i, r, q;
+  for(i=0;i<3;i++){
+    r=f/V.F[i]; q=V.F[i]/V.B[i];
+    p*=1/Math.sqrt((1-r*r)*(1-r*r)+(r/q)*(r/q));
+  }
+  return p;
+}
+function fmAmps(f0){
+  var o=[], k=1, f, a, mx=1e-12;
+  while(k*f0<4200){
+    f=k*f0; a=Math.pow(k,-1.0)*fmH(f);
+    o.push({k:k,f:f,a:a}); if(a>mx) mx=a; k++;
+  }
+  for(k=0;k<o.length;k++) o[k].a/=mx;
+  return o;
+}
+function fmSig(sweep){
+  var dur=sweep?1.7:1.1, n=Math.round(SR*dur), out=new Float32Array(n), i, j, t, f0, A, ph=[], mx=0;
+  var L0=fmAmps(FM.f0);
+  for(j=0;j<L0.length;j++) ph.push(0);
+  for(i=0;i<n;i++){
+    t=i/SR;
+    f0 = sweep ? FM.f0*Math.pow(2,(t/dur)) : FM.f0*(1+0.004*Math.sin(TAU*5*t));
+    for(j=0;j<L0.length;j++){
+      var k=L0[j].k, f=k*f0;
+      ph[j]+=TAU*f/SR;
+      A = sweep ? Math.pow(k,-1.0)*fmH(f) : L0[j].a;
+      if(f<7800) out[i]+=A*Math.sin(ph[j]);
+    }
+  }
+  for(i=0;i<n;i++){ t=i/SR; out[i]*=Math.min(1,t/0.03)*(t>dur-0.12?Math.max(0,(dur-t)/0.12):1); }
+  for(i=0;i<n;i++) if(Math.abs(out[i])>mx) mx=Math.abs(out[i]);
+  if(mx>0) for(i=0;i<n;i++) out[i]*=0.9/mx;
+  return out;
+}
+var frmScene=makeScene(document.getElementById('cFrm'),function(ctx,W,H){
+  var pad=14, px0=pad+36, px1=W-pad-12, i;
+  var top=pad+26, bot=H-pad-30, FMAX=4000;
+  var xOf=function(f){ return px0+f/FMAX*(px1-px0); };
+  var yOf=function(db){ return top+(-db)/50*(bot-top); };
+  var faint=alpha(C['ink-3'],K.faint);
+
+  for(i=0;i<=5;i++){
+    var gy=yOf(-i*10);
+    line(ctx,px0,gy,px1,gy,i===0?alpha(C['ink-3'],0.45):faint,1);
+    label(ctx,String(-i*10),px0-7,gy+3,alpha(C['ink-3'],0.95),9,'right');
+  }
+  for(i=1000;i<=4000;i+=1000){
+    line(ctx,xOf(i),top,xOf(i),bot,faint,1);
+    axLab(ctx,(i/1000)+' kHz',xOf(i),bot+16,px0-14,px1,alpha(C['ink-3'],0.95),9);
+  }
+  label(ctx,'frekans',px1,bot+30,alpha(C['ink-3'],0.95),10,'right');
+  label(ctx,'dB',px0-7,top-8,alpha(C['ink-3'],0.95),10,'right');
+
+  /* formant egrisi */
+  var mx=1e-12, j, vals=[];
+  for(j=0;j<=200;j++){ var f=FMAX*j/200+1, h=fmH(f); vals.push(h); if(h>mx) mx=h; }
+  ctx.save(); ctx.strokeStyle=C.sin; ctx.lineWidth=2.6*K.lw; ctx.lineJoin='round'; gOn(ctx,C.sin,9);
+  ctx.beginPath();
+  var pen=false;
+  for(j=0;j<=200;j++){
+    var db=20*Math.log(vals[j]/mx)/Math.LN10;
+    var xx=xOf(j===0?1:FMAX*j/200), yy=yOf(Math.max(-50,db));
+    if(db>-50){ if(pen) ctx.lineTo(xx,yy); else ctx.moveTo(xx,yy); pen=true; }
+    else { if(pen) ctx.lineTo(xx,yy); pen=false; }   /* tabana in ve kalemi kaldır */
+  }
+  ctx.stroke(); gOff(ctx); ctx.restore();
+
+  /* harmonik cubuklari */
+  var L=fmAmps(FM.f0), bw=Math.max(2.5,(px1-px0)/L.length*0.34);
+  for(i=0;i<L.length;i++){
+    var d2=20*Math.log(L[i].a)/Math.LN10;
+    if(d2<-50) continue;
+    var x=xOf(L[i].f), y=yOf(d2);
+    ctx.save(); ctx.fillStyle=alpha(C.cos,0.85); if(K.glow) gOn(ctx,C.cos,6);
+    ctx.fillRect(x-bw/2,y,bw,bot-y); gOff(ctx); ctx.restore();
+  }
+  line(ctx,px0,bot,px1,bot,alpha(C['ink-3'],0.55),1.2);
+
+  /* formant tepeleri */
+  var V=VOW[FM.v];
+  for(i=0;i<3;i++){
+    if(V.F[i]>FMAX) continue;
+    var fx=xOf(V.F[i]);
+    line(ctx,fx,top,fx,bot,alpha(C.arc,0.7),1.5,[4,4]);
+    label(ctx,'F'+(i+1),fx+4,top+12,C.arc,10,'left',true);
+  }
+  label(ctx, FM.v==='keman'?'keman gövdesi':('“'+FM.v+'”'), px0+6, top+12, alpha(C.sin,0.95),12,'left',true);
+});
+
+/* ================= 06 : baslangic gecicisi ================= */
+var TR={ a:1.0, d:0.030, dirty:true };
+var TRF0=220, TRWIN=0.35;
+function trSig(withT){
+  var out=new Float32Array(NSMP), k, i, ph, t, a, mx=0;
+  for(k=1;k<=12;k++){
+    ph=0;
+    for(i=0;i<NSMP;i++){ t=i/SR; ph+=TAU*TRF0*k/SR; out[i]+=Math.pow(k,-1.0)*Math.exp(-(1.1+0.28*k)*t)*Math.sin(ph); }
+  }
+  for(i=0;i<NSMP;i++){
+    t=i/SR;
+    out[i]*=Math.min(1,t/0.006);
+    if(withT && TR.a>0) out[i]+=TR.a*0.75*gauss()*0.35*Math.exp(-t/(TR.d/2.2));
+  }
+  for(i=0;i<NSMP;i++) if(Math.abs(out[i])>mx) mx=Math.abs(out[i]);
+  if(mx>0) for(i=0;i<NSMP;i++) out[i]*=0.9/mx;
+  return out;
+}
+function trStats(){
+  var s=trSig(true), n=Math.round(TR.d*SR), i, e1=0, e2=0, mx=0, rms;
+  for(i=0;i<NSMP;i++){ e2+=s[i]*s[i]; if(i<n) e1+=s[i]*s[i]; if(Math.abs(s[i])>mx) mx=Math.abs(s[i]); }
+  rms=Math.sqrt(e2/NSMP);
+  return { sig:s, peak:mx, rms:rms, crest:mx/rms, eshare:e1/e2 };
+}
+var trnScene=makeScene(document.getElementById('cTrn'),function(ctx,W,H){
+  var pad=14, px0=pad+30, px1=W-pad-12, i;
+  var top=pad+20, bot=H-pad-28, gap=16;
+  var hA=(bot-top-gap)*0.42, aTop=top, aBot=top+hA;
+  var bTop=aBot+gap, bBot=bot;
+  var st=trStats(), sig=st.sig;
+  var nW=Math.round(TRWIN*SR);
+  var xOf=function(t){ return px0+t/TRWIN*(px1-px0); };
+  var cyA=(aTop+aBot)/2, ampA=(aBot-aTop)/2-3;
+
+  /* gecici bolgesi */
+  ctx.save(); ctx.fillStyle=alpha(C.arc,K.glow?0.20:0.12);
+  ctx.fillRect(px0,aTop,Math.max(1,xOf(TR.d)-px0),bBot-aTop); ctx.restore();
+
+  /* dalga */
+  line(ctx,px0,cyA,px1,cyA,alpha(C['ink-3'],0.4),1);
+  ctx.save(); ctx.strokeStyle=C.sin; ctx.lineWidth=1.5*K.lw; ctx.lineJoin='round'; gOn(ctx,C.sin,7);
+  ctx.beginPath();
+  var np=Math.round(px1-px0);
+  for(i=0;i<=np;i++){
+    var j=Math.round(i/np*(nW-1)), yy=cyA-sig[j]*ampA;
+    if(i===0) ctx.moveTo(px0+i,yy); else ctx.lineTo(px0+i,yy);
+  }
+  ctx.stroke(); gOff(ctx); ctx.restore();
+  label(ctx,'dalga · yakınlaştırılmış ilk '+nf(TRWIN*1000,0)+' ms',px1-4,aTop+11,alpha(C.sin,0.95),10,'right',true);
+
+  /* mini spektrogram */
+  var S=spectro(sig,0,nW);
+  var cv=specImage(S,specPal());
+  ctx.save(); ctx.imageSmoothingEnabled=true;
+  ctx.drawImage(cv,px0,bTop,px1-px0,bBot-bTop); ctx.restore();
+  ctx.save(); ctx.strokeStyle=alpha(C['ink-3'],0.5); ctx.lineWidth=1;
+  ctx.strokeRect(px0,bTop,px1-px0,bBot-bTop); ctx.restore();
+  for(i=1000;i<=4000;i+=1000){
+    var fy=bBot-i/FSHOW*(bBot-bTop);
+    label(ctx,(i/1000)+'k',px0-6,fy+3,alpha(C['ink-3'],0.95),9,'right');
+  }
+  label(ctx,'zaman–frekans haritası',px1-4,bTop+11,alpha(C.cos,0.95),10,'right',true);
+  line(ctx,xOf(TR.d),aTop,xOf(TR.d),bBot,alpha(C.arc,0.85),1.6,[4,4]);
+  label(ctx,nf(TR.d*1000,0)+' ms',Math.min(px1,xOf(TR.d)+6),bTop-5,C.arc,10,'left',true);
+  for(i=0;i<=3;i++){
+    var gx=px0+(px1-px0)*i/3;
+    line(ctx,gx,bBot,gx,bBot+4,alpha(C['ink-3'],0.5),1);
+    axLab(ctx,nf(TRWIN*1000*i/3,0)+' ms',gx,bBot+18,px0-10,px1,alpha(C['ink-3'],0.95),9);
+  }
+});
+
+/* ================= 07 : faz deneyi ================= */
+var PHN=8, PHSET=[null,null,null], PH={i:0, dirty:true};
+function phPhases(i){
+  if(PHSET[i]) return PHSET[i];
+  var p=[], k, seed=7;
+  for(k=1;k<=PHN;k++){
+    if(i===0) p.push(Math.PI/2);                 /* hepsi hizalı: hepsi aynı anda tepe yapar */
+    else if(i===2) p.push(k===1?Math.PI:0);      /* dengelenmiş: temel ters çevrilmiş, tepe en düşük */
+    else { seed=(seed*1103515245+12345)&0x7fffffff; p.push(TAU*(seed/0x7fffffff)); }
+  }
+  PHSET[i]=p; return p;
+}
+function phWave(i,n){
+  var p=phPhases(i), o=new Float64Array(n), j, k;
+  for(j=0;j<n;j++){
+    var th=TAU*j/n;
+    for(k=1;k<=PHN;k++) o[j]+=Math.sin(k*th+p[k-1])/k;
+  }
+  return o;
+}
+function phStats(i){
+  var w=phWave(i,2048), j, mx=0, s2=0;
+  for(j=0;j<2048;j++){ if(Math.abs(w[j])>mx) mx=Math.abs(w[j]); s2+=w[j]*w[j]; }
+  var rms=Math.sqrt(s2/2048);
+  return { peak:mx, rms:rms, crest:mx/rms };
+}
+function phSig(i){
+  var n=Math.round(SR*0.8), o=new Float32Array(n), p=phPhases(i), j, k, mx=0, t;
+  for(j=0;j<n;j++){
+    var th=TAU*220*j/SR;
+    for(k=1;k<=PHN;k++) o[j]+=Math.sin(k*th+p[k-1])/k;
+  }
+  for(j=0;j<n;j++){ t=j/SR; o[j]*=Math.min(1,t/0.02)*(t>0.7?Math.max(0,(0.8-t)/0.1):1); }
+  for(j=0;j<n;j++) if(Math.abs(o[j])>mx) mx=Math.abs(o[j]);
+  if(mx>0) for(j=0;j<n;j++) o[j]*=0.85/mx;
+  return o;
+}
+var PHNAME=['hepsi hizalı','rastgele','dengelenmiş'];
+var phsScene=makeScene(document.getElementById('cPhs'),function(ctx,W,H){
+  var pad=14, px0=pad+30, px1=W-pad-12, i, j;
+  var top=pad+18, bot=H-pad-26;
+  var sh=70, gp=8, wh=(bot-top-sh-gp*3)/3;
+  var mxAll=0;
+  for(i=0;i<3;i++) mxAll=Math.max(mxAll,phStats(i).peak);
+
+  for(i=0;i<3;i++){
+    var y0=top+i*(wh+gp), cy=y0+wh/2, amp=wh/2-4;
+    var sel=(i===PH.i);
+    line(ctx,px0,cy,px1,cy,alpha(C['ink-3'],0.35),1);
+    var w=phWave(i,512);
+    ctx.save();
+    ctx.strokeStyle=sel?C.sin:alpha(C['ink-3'],0.55);
+    ctx.lineWidth=(sel?2.3:1.2)*K.lw; ctx.lineJoin='round';
+    if(sel) gOn(ctx,C.sin,8);
+    ctx.beginPath();
+    var np=Math.round(px1-px0);
+    for(j=0;j<=np;j++){
+      var idx=Math.round(j/np*1023)%512, yy=cy-w[idx]/mxAll*amp;
+      if(j===0) ctx.moveTo(px0+j,yy); else ctx.lineTo(px0+j,yy);
+    }
+    ctx.stroke(); gOff(ctx); ctx.restore();
+    label(ctx,PHNAME[i],px0+4,y0+11,sel?C.arc:alpha(C['ink-3'],0.95),10,'left',true);
+    label(ctx,'tepe fak. '+nf(phStats(i).crest,2),px1-2,y0+11,sel?C.arc:alpha(C['ink-3'],0.9),10,'right',true);
+    if(sel){ ctx.save(); ctx.strokeStyle=alpha(C.arc,0.55); ctx.lineWidth=1.4*K.lw;
+      ctx.strokeRect(px0-3,y0-2,px1-px0+6,wh+4); ctx.restore(); }
+  }
+
+  /* ortak tayf */
+  var sy0=top+3*(wh+gp), sy1=sy0+sh-16;
+  label(ctx,'genlik tayfı — üç dalgada da birebir aynı',px0+4,sy0+10,alpha(C.cos,0.95),10,'left');
+  var bw=(px1-px0)/(PHN*2);
+  for(i=1;i<=PHN;i++){
+    var x=px0+(px1-px0)*(i-0.5)/PHN, h=(1/i)*(sy1-sy0-14);
+    ctx.save(); ctx.fillStyle=alpha(C.cos,0.9); if(K.glow) gOn(ctx,C.cos,6);
+    ctx.fillRect(x-bw/2,sy1-h,bw,h); gOff(ctx); ctx.restore();
+    label(ctx,String(i),x,sy1+14,alpha(C['ink-3'],0.95),9,'center');
+  }
+  line(ctx,px0,sy1,px1,sy1,alpha(C['ink-3'],0.55),1.2);
+  label(ctx,'harmonik no',px1,sy0+10,alpha(C['ink-3'],0.95),9,'right');
+});
+
+/* ================= 01 kontrolleri ================= */
+var wyPills=[].slice.call(document.querySelectorAll('.pill[data-wy]'));
+function wySet(i){
+  WY.i=i; WY.dirty=true;
+  pressGroup(wyPills,function(b){ return +b.dataset.wy===i; });
+  setTxt('wyB0',nf(wyBright(i,0),2)+' × f₀');
+  setTxt('wyB1',nf(wyBright(i,0.8),2)+' × f₀');
+  setTxt('wyJ', i? 'gerçekçi' : 'sentetik');
+}
+wyPills.forEach(function(b){ b.addEventListener('click',function(){ wySet(+b.dataset.wy); }); });
+$('whPlay').addEventListener('click',function(){ playSig(wySig(WY.i),SR,0.3); });
+$('whBoth').addEventListener('click',function(){
+  playSig(wySig(0),SR,0.3);
+  setTimeout(function(){ playSig(wySig(1),SR,0.3); },1350);
+});
+
+/* ================= 03 kontrolleri ================= */
+var slPills=[].slice.call(document.querySelectorAll('.pill[data-sl]'));
+var slSl=$('slSl'), slN=$('slN');
+var SLPRE={ duz:{s:0,odd:false}, testere:{s:-6,odd:false}, kare:{s:-6,odd:true},
+            ucgen:{s:-12,odd:true}, mat:{s:-18,odd:false} };
+var SLROWS=[
+  {k:'duz',    n:'Düz',      s:'0 dB/okt',   h:'tümü',  w:'Bütün harmonikler eşit — darbeye ve gürültüye yakın, çok parlak.'},
+  {k:'testere',n:'Testere',  s:'−6 dB/okt',  h:'tümü',  w:'Klasik sentez dalgası. Yaylı çalgının yay hareketi de buna yakındır.'},
+  {k:'kare',   n:'Kare',     s:'−6 dB/okt',  h:'yalnız tek', w:'Aynı eğim ama çift harmonikler yok: "içi boş" klarnet rengi.'},
+  {k:'ucgen',  n:'Üçgen',    s:'−12 dB/okt', h:'yalnız tek', w:'Hızlı düşüş, çok az tiz. Flüte ve saf sinüse yakın yumuşaklık.'},
+  {k:'mat',    n:'Çok mat',  s:'−18 dB/okt', h:'tümü',  w:'Battaniye altından duyuluyormuş gibi; tizler tamamen kesilmiş.'}
+];
+function slWaveName(){
+  var s=SL.s, o=SL.odd;
+  if(Math.abs(s)<1.2) return 'düz tayf · darbeye yakın';
+  if(Math.abs(s+6)<1.2) return o?'kare dalga':'testere dişi';
+  if(Math.abs(s+12)<1.5) return o?'üçgen dalga':'yumuşak testere';
+  if(s<-15) return 'çok mat';
+  return o?'tek harmonikli':'genel tayf';
+}
+function slSig(){
+  var n=Math.round(SR*1.0), out=new Float32Array(n), L=slList(), i, j, ph=[], t, mx=0;
+  for(j=0;j<L.length;j++) ph.push(0);
+  for(i=0;i<n;i++){
+    for(j=0;j<L.length;j++){
+      var f=SLF0*L[j].k;
+      ph[j]+=TAU*f/SR;
+      if(f<7600) out[i]+=L[j].a*Math.sin(ph[j]);
+    }
+  }
+  for(i=0;i<n;i++){ t=i/SR; out[i]*=Math.min(1,t/0.02)*(t>0.85?Math.max(0,(1.0-t)/0.15):1); }
+  for(i=0;i<n;i++) if(Math.abs(out[i])>mx) mx=Math.abs(out[i]);
+  if(mx>0) for(i=0;i<n;i++) out[i]*=0.85/mx;
+  return out;
+}
+function slUpd(){
+  var L=slList(), b=slBright(), i, kTop=1;
+  for(i=0;i<L.length;i++) if(20*Math.log(L[i].a)/Math.LN10>-45) kTop=L[i].k;
+  setTxt('slSlV',nf(SL.s,1)+' dB/okt');
+  setTxt('slNV',String(SL.n));
+  setTxt('qSlope',nf(SL.s,1)+' dB/okt');
+  setTxt('qBright',nf(b,2)+' × f₀');
+  setTxt('qTop',kTop+' · '+nf(kTop*SLF0,0)+' Hz');
+  setTxt('qH2',SL.odd?'yok · çift harmonik':sdb(20*Math.log(slAmp(2))/Math.LN10));
+  setTxt('qH8',SL.odd?'yok · çift harmonik':sdb(20*Math.log(slAmp(8))/Math.LN10));
+  setTxt('qWave',slWaveName());
+  setTxt('eH1','0,0 dB · referans');
+  setTxt('eH2',sdb(20*Math.log(slAmp(2))/Math.LN10));
+  setTxt('eH4',sdb(20*Math.log(slAmp(4))/Math.LN10));
+  setTxt('eSl',nf(SL.s,1)+' dB');
+  setTxt('eRat','genlik × '+nf(Math.pow(10,SL.s/20),3));
+  var note;
+  if(Math.abs(SL.s)<0.6) note='Eğim sıfır: bütün harmonikler aynı genlikte. Böyle bir tayf müzikte nadirdir; darbe ve beyaz gürültü buna yakındır.';
+  else if(SL.odd) note='Yalnız tek harmonikler var. Eğim aynı kalsa bile çift harmoniklerin yokluğu sese o "içi boş" klarnet karakterini veriyor.';
+  else note='Her oktavda '+nf(-SL.s,1)+' dB düşüş, yani genlik her seferinde '+nf(Math.pow(10,SL.s/20),3)+' ile çarpılıyor. Ağırlık merkezi '+nf(b,2)+' × f₀.';
+  setTxt('eNote',note);
+  $('slOdd').setAttribute('aria-pressed',SL.odd?'true':'false');
+  pressGroup(slPills,function(x){
+    var P=SLPRE[x.dataset.sl];
+    return Math.abs(P.s-SL.s)<0.3 && P.odd===SL.odd;
+  });
+  [].slice.call(document.querySelectorAll('#tblS tbody tr')).forEach(function(tr){
+    var P=SLPRE[tr.dataset.k];
+    tr.setAttribute('aria-selected',(Math.abs(P.s-SL.s)<0.3 && P.odd===SL.odd)?'true':'false');
+  });
+  SL.dirty=true;
+}
+function slSet(k){ var P=SLPRE[k]; SL.s=P.s; SL.odd=P.odd; slSl.value=P.s; slUpd(); }
+slPills.forEach(function(b){ b.addEventListener('click',function(){ slSet(b.dataset.sl); }); });
+slSl.addEventListener('input',function(){ SL.s=+slSl.value; slUpd(); });
+slN.addEventListener('input',function(){ SL.n=+slN.value; slUpd(); });
+$('slOdd').addEventListener('click',function(){ SL.odd=!SL.odd; slUpd(); });
+$('slPlay').addEventListener('click',function(){ playSig(slSig(),SR,0.3); });
+(function(){
+  var tb=document.querySelector('#tblS tbody');
+  SLROWS.forEach(function(r){
+    var tr=document.createElement('tr'); tr.dataset.k=r.k;
+    tr.innerHTML='<td>'+r.n+'</td><td class="num">'+r.s+'</td><td>'+r.h+'</td><td>'+r.w+'</td>';
+    tr.addEventListener('click',function(){ slSet(r.k); });
+    tb.appendChild(tr);
+  });
+})();
+makeSteps({list:'saList',text:'saText',count:'saCount',prev:'saPrev',next:'saNext'},[
+  {t:'Testere dişiyle başla', d:'Eğim −6 dB/oktav. Harmonik çubuklarının tepeleri turuncu doğrunun üstüne tam oturuyor: 2. harmonik −6 dB, 4. harmonik −12 dB, 8. harmonik −18 dB. Her oktav aynı miktarda düşüyor.', apply:function(){ slSet('testere'); }},
+  {t:'Eğimi sıfıra getir', d:'Bütün harmonikler eşit genlikte. Ağırlık merkezi fırlıyor, ses kavurucu derecede parlak — neredeyse gürültü. Müzikte bu kadar düz bir tayf hemen hemen yoktur.', apply:function(){ slSet('duz'); }},
+  {t:'Çok mata indir', d:'−18 dB/oktav: 8. harmonik −54 dB’de, yani pratikte yok. Ses boğuklaşıyor. Ekolayzerde tizleri kısmak tam olarak bu doğruyu dikleştirmektir.', apply:function(){ slSet('mat'); }},
+  {t:'Kareye geç · eğim aynı', d:'Eğim yine −6 dB/oktav ama çift harmonikler kayboldu. Eğim aynı, karakter bambaşka: "içi boş", klarnet gibi. Demek ki parlaklığı eğim, rengi ise hangi harmoniklerin var olduğu belirliyor.', apply:function(){ slSet('kare'); }},
+  {t:'Üçgeni dene', d:'−12 dB/oktav ve yalnız tek harmonikler. Tiz neredeyse hiç yok; sinüse en yakın kompozit dalga budur. Flütün yumuşaklığı buradan gelir.', apply:function(){ slSet('ucgen'); }},
+  {t:'Harmonik sayısını kıs', d:'Testereye dön ve harmonik sayısını 4’e indir. Eğim değişmedi ama üst uç kesildi — bu bir alçak geçiren süzgeçtir. Parlaklık düşüyor, ses yumuşuyor.', apply:function(){ slSet('testere'); SL.n=4; slN.value=4; slUpd(); }}
+]);
+
+/* ================= 04 kontrolleri ================= */
+var scPills=[].slice.call(document.querySelectorAll('.pill[data-in]'));
+var spT=$('spT');
+function scUpd(fromDrag){
+  var S=INS[SC.k];
+  setTxt('spTV',nf(SC.t,2)+' s');
+  setTxt('qIns',S.n);
+  setTxt('qTime',nf(SC.t,2)+' s');
+  setTxt('qBr',nf(scBright(),2)+' × f₀');
+  setTxt('qLvl',nf(scLevel(),1)+' dB');
+  setTxt('qHarm',S.harm?'evet · harmonik':'hayır · harmonik değil');
+  setTxt('qNz',S.nz>0.25?'güçlü':(S.nz>0.07?'orta':'çok az'));
+  setTxt('iAtk',nf(S.atk*1000,0)+' ms');
+  setTxt('iF0',nf(S.f0,0)+' Hz'+(S.harm?'':' · temel sayılmaz'));
+  setTxt('iNp',S.parts.length+' bileşen');
+  var t0=SC.t, b0, b1, keep=SC.t;
+  SC.t=0.10; b0=scBright(); SC.t=1.10; b1=scBright(); SC.t=keep;
+  setTxt('iBr',nf(b0,2)+' → '+nf(b1,2)+' × f₀');
+  setTxt('iSig',S.sig);
+  var note;
+  if(SC.k==='piyano') note='Üst çizgiler alt çizgilerden çok daha hızlı soluyor. Parlaklık '+nf(b0,2)+'’den '+nf(b1,2)+'’e iniyor: piyanonun sesi zamanla matlaşır.';
+  else if(SC.k==='org') note='Bütün çizgiler baştan sona aynı. Parlaklık neredeyse hiç değişmiyor — bu yüzden org "mekanik" ve değişmez duyulur.';
+  else if(SC.k==='yayli') note='Çizgiler yukarı aşağı dalgalanıyor: bu vibrato, yani frekansın saniyede 5,5 kez küçük bir aralıkta gidip gelmesi. Tiz çizgilerde dalga daha belirgin çünkü sapma frekansla orantılı.';
+  else if(SC.k==='trompet') note='Sol kenarda tizler hemen yok, sonradan giriyorlar. Nefesli çalgıların "açılma" hissi bu gecikmeli tiz girişinden gelir.';
+  else note='Çizgiler eşit aralıklı değil: 1 · 2,76 · 5,40 · 8,93 · 13,34. Ortak bir tekrar süresi olmadığı için kulak net bir perde bulamıyor.';
+  setTxt('iNote',note);
+  if(!fromDrag) spT.value=SC.t/SDUR*100;
+  pressGroup(scPills,function(b){ return b.dataset.in===SC.k; });
+  SC.dirty=true;
+}
+function scSet(k){ SC.k=k; scUpd(false); }
+scPills.forEach(function(b){ b.addEventListener('click',function(){ scSet(b.dataset.in); }); });
+spT.addEventListener('input',function(){ SC.t=(+spT.value)/100*SDUR; scUpd(true); });
+$('spPlay').addEventListener('click',function(){ playSig(synth(SC.k),SR,0.32); });
+$('spHold').addEventListener('click',function(){
+  var s=synth(SC.k), a=Math.round(SC.t*SR), n=Math.round(0.42*SR), o=new Float32Array(n), i;
+  for(i=0;i<n;i++){
+    var j=a+i; o[i]=(j<NSMP?s[j]:0);
+    o[i]*=Math.min(1,i/400)*Math.min(1,(n-i)/1200);
+  }
+  playSig(o,SR,0.34);
+});
+(function(){
+  var cv=document.getElementById('cSpc'), drag=false;
+  function pick(e){
+    var m=spcScene.map; if(!m) return;
+    var r=cv.getBoundingClientRect();
+    var t=Math.max(0,Math.min(1,(e.clientX-r.left-m.px0)/(m.px1-m.px0)));
+    SC.t=t*SDUR; scUpd(false);
+  }
+  cv.addEventListener('pointerdown',function(e){ drag=true; try{cv.setPointerCapture(e.pointerId);}catch(x){} pick(e); e.preventDefault(); });
+  cv.addEventListener('pointermove',function(e){ if(drag){ pick(e); e.preventDefault(); } });
+  cv.addEventListener('pointerup',function(e){ drag=false; try{cv.releasePointerCapture(e.pointerId);}catch(x){} });
+  cv.addEventListener('pointercancel',function(){ drag=false; });
+})();
+makeSteps({list:'paList',text:'paText',count:'paCount',prev:'paPrev',next:'paNext'},[
+  {t:'Piyano · tizler önce ölür', d:'İmleci 0,1 s’ye getir, sonra 1,1 s’ye kaydır. Üst çizgiler kaybolurken alttakiler duruyor: sağdaki tayf paneli kısalıyor, parlaklık düşüyor. Tınının zamanla değişmesi tam olarak bu.', apply:function(){ scSet('piyano'); SC.t=0.10; scUpd(false); }},
+  {t:'Org · hiç değişmeyen tayf', d:'Bütün çizgiler baştan sona aynı koyulukta; imleci nereye götürürsen götür sağdaki tayf paneli değişmiyor. 15. atölyedeki "tek bir tayf" resmi yalnızca böyle sesler için doğru.', apply:function(){ scSet('org'); SC.t=0.60; scUpd(false); }},
+  {t:'Yaylı · dalgalanan çizgiler', d:'Çizgiler yukarı aşağı kıvrılıyor: vibrato. Sapma frekansla orantılı olduğu için üst harmoniklerde dalga daha geniş görünüyor. Zarf panelinde ise düz bir sürdürme var.', apply:function(){ scSet('yayli'); SC.t=0.80; scUpd(false); }},
+  {t:'Trompet · sonradan açılan tizler', d:'Sol kenarda üst çizgiler yok; 100–200 ms içinde teker teker giriyorlar. Nefesli çalgıların notaya "yaslanma" hissi bu gecikmeli tiz girişidir.', apply:function(){ scSet('trompet'); SC.t=0.06; scUpd(false); }},
+  {t:'Zil · harmonik olmayan', d:'Çizgiler eşit aralıklı değil. Ortak bir tekrar süresi olmadığı için kulak net bir perde kuramıyor — "vurmalı" diyor. Sol kenardaki geniş dikey şerit ise çarpma gürültüsü.', apply:function(){ scSet('zil'); SC.t=0.04; scUpd(false); }},
+  {t:'İki kesiti karşılaştır', d:'Piyanoya dön ve imleci 0,03 s ile 1,2 s arasında gezdir. Sağdaki panel 15. atölyenin tayf sahnesi, alttaki şerit ise zarf sahnesi. İkisi de bu tek haritanın kesitinden ibaret.', apply:function(){ scSet('piyano'); SC.t=0.03; scUpd(false); }}
+]);
+
+/* ================= 05 kontrolleri ================= */
+var fmPills=[].slice.call(document.querySelectorAll('.pill[data-vw]'));
+var fmF0=$('fmF0');
+function fmUpd(){
+  var V=VOW[FM.v];
+  setTxt('fmF0V',nf(FM.f0,0)+' Hz');
+  setTxt('qVow',FM.v==='keman'?'keman gövdesi':FM.v);
+  setTxt('qF0v',nf(FM.f0,0)+' Hz');
+  setTxt('qFm1',nf(V.F[0],0)+' Hz');
+  setTxt('qFm2',nf(V.F[1],0)+' Hz');
+  setTxt('qFm3',nf(V.F[2],0)+' Hz');
+  setTxt('qFmK',nf(V.F[0]/FM.f0,0)+'. harmonik');
+  setTxt('fNote','F₁ = '+nf(V.F[0],0)+' Hz şu anda '+nf(V.F[0]/FM.f0,0)+'. harmoniğe denk geliyor. f₀’ı değiştirdiğinde bu numara değişir ama tepenin frekansı değişmez — '+V.w+'.');
+  pressGroup(fmPills,function(b){ return b.dataset.vw===FM.v; });
+  [].slice.call(document.querySelectorAll('#tblF tbody tr')).forEach(function(tr){
+    tr.setAttribute('aria-selected', tr.dataset.v===FM.v?'true':'false');
+  });
+  FM.dirty=true;
+}
+function fmSet(v){ FM.v=v; fmUpd(); }
+fmPills.forEach(function(b){ b.addEventListener('click',function(){ fmSet(b.dataset.vw); }); });
+fmF0.addEventListener('input',function(){ FM.f0=+fmF0.value; fmUpd(); });
+$('fmPlay').addEventListener('click',function(){ playSig(fmSig(false),SR,0.3); });
+$('fmScale').addEventListener('click',function(){ playSig(fmSig(true),SR,0.3); });
+(function(){
+  var tb=document.querySelector('#tblF tbody');
+  VORD.forEach(function(v){
+    var V=VOW[v], tr=document.createElement('tr'); tr.dataset.v=v;
+    tr.innerHTML='<td>'+(v==='keman'?'Keman gövdesi':('“'+v+'”'))+'</td>'+
+      '<td class="num">'+nf(V.F[0],0)+'</td><td class="num">'+nf(V.F[1],0)+'</td>'+
+      '<td class="num">'+nf(V.F[2],0)+'</td><td>'+V.w+'</td>';
+    tr.addEventListener('click',function(){ fmSet(v); });
+    tb.appendChild(tr);
+  });
+})();
+
+/* ================= 06 kontrolleri ================= */
+var trA=$('trA'), trD=$('trD');
+function trUpd(){
+  var st=trStats();
+  setTxt('trAV','%'+nf(TR.a*100,0));
+  setTxt('trDV',nf(TR.d*1000,0)+' ms');
+  setTxt('qTrA','%'+nf(TR.a*100,0));
+  setTxt('qTrD',nf(TR.d*1000,0)+' ms');
+  setTxt('qTrR','%'+nf(TR.d/SDUR*100,1));
+  setTxt('qTrC',nf(st.crest,2));
+  setTxt('qTrB',TR.a>0.05?'geniş bant · 0–4 kHz':'yok');
+  setTxt('qTrN',TR.a>0.6?'yüksek':(TR.a>0.25?'orta':'düşük'));
+  setTxt('tD2',nf(TR.d*1000,0)+' ms');
+  setTxt('tR2','%'+nf(TR.d/SDUR*100,1));
+  setTxt('tE2','%'+nf(st.eshare*100,1));
+  var note;
+  if(TR.a<0.05) note='Geçici tamamen kapalı. Geriye kalan, saf bir harmonik yığını — temiz ama kimliksiz. "Hangi çalgı?" sorusuna cevap vermek çok zor.';
+  else if(TR.a<0.4) note='Geçici zayıf. Ses hâlâ yumuşak giriyor; örnekleyicide atağı fazla kısılmış bir çalgı gibi.';
+  else note='Sesin yalnızca %'+nf(TR.d/SDUR*100,1)+'’i olan bu bölge, toplam enerjinin %'+nf(st.eshare*100,1)+'’ini taşıyor ama tanımanın büyük kısmını o yapıyor.';
+  setTxt('tNote',note);
+  TR.dirty=true;
+}
+trA.addEventListener('input',function(){ TR.a=(+trA.value)/100; trUpd(); });
+trD.addEventListener('input',function(){ TR.d=(+trD.value)/1000; trUpd(); });
+$('trPlay').addEventListener('click',function(){ playSig(trSig(true),SR,0.3); });
+$('trCmp').addEventListener('click',function(){
+  playSig(trSig(true),SR,0.3);
+  setTimeout(function(){ playSig(trSig(false),SR,0.3); },1850);
+});
+
+/* ================= 07 kontrolleri ================= */
+var phPills=[].slice.call(document.querySelectorAll('.pill[data-ph]'));
+function phUpd(){
+  var st=phStats(PH.i);
+  setTxt('qPhN',PHNAME[PH.i]);
+  setTxt('qPhPk',nf(st.peak,2));
+  setTxt('qPhR',nf(st.rms,2));
+  setTxt('qPhC',nf(st.crest,2));
+  setTxt('qPhS','değişmedi');
+  setTxt('qPhT','neredeyse aynı');
+  var c0=phStats(0).crest, c1=phStats(1).crest, c2=phStats(2).crest;
+  var cmx=Math.max(c0,c1,c2), cmn=Math.min(c0,c1,c2);
+  setTxt('pC2',nf(c0,2)+' · '+nf(c1,2)+' · '+nf(c2,2));
+  setTxt('pC3',nf(cmx/cmn,2)+' kat');
+  pressGroup(phPills,function(b){ return +b.dataset.ph===PH.i; });
+  PH.dirty=true;
+}
+phPills.forEach(function(b){ b.addEventListener('click',function(){ PH.i=+b.dataset.ph; phUpd(); }); });
+$('phPlay').addEventListener('click',function(){ playSig(phSig(PH.i),SR,0.3); });
+$('phAll').addEventListener('click',function(){
+  playSig(phSig(0),SR,0.3);
+  setTimeout(function(){ playSig(phSig(1),SR,0.3); },1000);
+  setTimeout(function(){ playSig(phSig(2),SR,0.3); },2000);
+});
+
+/* ================= 08 ses dugmeleri ================= */
+[].slice.call(document.querySelectorAll('.snd')).forEach(function(b){
+  b.addEventListener('click',function(){
+    var s=b.dataset.snd, keep=FM.v;
+    if(s==='vow'){
+      ['a','i','u'].forEach(function(v,i){
+        setTimeout(function(){ FM.v=v; playSig(fmSig(false),SR,0.3); if(i===2) setTimeout(function(){ FM.v=keep; },900); },i*1250);
+      });
+    } else if(s==='tr'){
+      playSig(trSig(true),SR,0.3);
+      setTimeout(function(){ playSig(trSig(false),SR,0.3); },1850);
+    } else if(s==='ph'){
+      playSig(phSig(0),SR,0.3);
+      setTimeout(function(){ playSig(phSig(1),SR,0.3); },1000);
+      setTimeout(function(){ playSig(phSig(2),SR,0.3); },2000);
+    }
+  });
+});
+
+/* ================= 09 : quiz ================= */
+var QS=[
+{q:'Spektrogramda <b>dikey</b> bir dilim neyi gösterir?',
+ o:['O andaki tayfı — hangi frekansların ne kadar güçlü olduğunu','Sesin toplam süresini','Bir harmoniğin zarfını','Dalga şeklini'],a:0,
+ f:'Dikey eksen frekans olduğu için tek bir zaman anındaki dilim, o anın <b>tayfı</b>dır. 15. atölyedeki çubuk grafiği tam olarak budur.'},
+{q:'Peki <b>yatay</b> bir çizgi?',
+ o:['Tek bir bileşenin genliğinin zamanla nasıl değiştiğini — yani zarfını','Bütün sesin tayfını','Perdeyi','Faz bilgisini'],a:0,
+ f:'Yatay eksen zaman olduğu için sabit bir frekanstaki şerit, o bileşenin <b>kendi zarfı</b>dır. Her harmoniğin ayrı bir zarfı vardır; 15. atölyede hepsine tek bir zarf uygulamıştık.'},
+{q:'Tayf zarfının eğimi <b>−6 dB/oktav</b> olan ve bütün harmonikleri içeren dalga hangisidir?',
+ o:['Testere dişi','Kare','Üçgen','Sinüs'],a:0,
+ f:'Testerede genlikler 1, 1/2, 1/3 … diye gider; her oktav (k’nın iki katı) genliği yarıya, yani <b>−6 dB</b>’ye indirir. Kare de −6 dB/oktavdır ama yalnızca tek harmoniklere sahiptir.'},
+{q:'Zarf eğimini −6’dan −18 dB/oktava dikleştirirsen ses nasıl değişir?',
+ o:['Matlaşır; tayf ağırlık merkezi aşağı iner','Parlaklaşır','Perdesi düşer','Gürlüğü iki katına çıkar'],a:0,
+ f:'Eğimi dikleştirmek tizleri kısmaktır. Ekolayzerde yüksek raf süzgecini kısmakla aynı işlem; perde hiç değişmez, yalnızca renk değişir.'},
+{q:'Formant nedir?',
+ o:['Perde değişse bile yerinde kalan, gövdenin rezonansından doğan tayf tepesi','Temel frekansın bir katı','Bir çeşit zarf','Kulağın en duyarlı olduğu frekans'],a:0,
+ f:'Formant kaynağa değil <b>gövdeye</b> aittir: ağız boşluğu, keman kutusu, hoparlör kabini. Kaynak perdeyi taşır, gövde tınıyı.'},
+{q:'Bir ünlüyü söylerken perdeni yükseltirsen formantlara ne olur?',
+ o:['Yerinde kalırlar; ünlü aynı duyulur, yalnızca nota değişir','Onlar da yükselir','Kaybolurlar','İkiye katlanırlar'],a:0,
+ f:'Tam olarak bu yüzden şarkı söylerken kelimeler anlaşılır kalır: ses telleri perdeyi, ağız boşluğu ünlüyü taşır. İkisi birbirinden bağımsızdır — buna <b>kaynak–süzgeç modeli</b> denir.'},
+{q:'Başlangıç geçicisi neden bu kadar önemlidir?',
+ o:['Geniş bantlı gürültü ve düzensiz bileşenler içerir; çalgıyı tanımanın en güçlü ipucudur','Sesin enerjisinin çoğunu taşır','Perdeyi belirler','Gürlüğü belirler'],a:0,
+ f:'Sesin yalnızca binde birkaçı kadar sürer ve toplam enerjinin küçük bir kısmını taşır — ama kesersen piyano, trompet ve keman birbirine benzemeye başlar.'},
+{q:'Bir çalgı sesinin ilk 40 milisaniyesini kesersen ne olur?',
+ o:['Tanımak belirgin biçimde zorlaşır, geriye kalan kısım çalgılar arasında çok benzerdir','Perde değişir','Ses tamamen kaybolur','Tayf tamamen değişir'],a:0,
+ f:'Klasik psikoakustik deney budur. Örnekleyicilerde geçicinin ayrı bir katman olarak saklanmasının ve "transient shaper" eklentilerinin sebebi de aynı.'},
+{q:'Aynı harmonikleri aynı genliklerde tutup yalnız <b>fazlarını</b> değiştirirsen ne değişir?',
+ o:['Dalga şekli tamamen değişir ama duyulan tını neredeyse aynı kalır','Perde değişir','Gürlük iki katına çıkar','Tayf değişir'],a:0,
+ f:'Kulağın faza büyük ölçüde duyarsız olmasına <b>Ohm’un akustik yasası</b> denir. Tını dalga şekli değil, <b>tayf</b> tarafından taşınır.'},
+{q:'Faz değişikliği stüdyoda yine de neyi etkiler?',
+ o:['Tepe faktörünü — aynı RMS’te tepe değeri belirgin biçimde değişir','RMS değerini','Toplam enerjiyi','Perdeyi'],a:0,
+ f:'Genlik tayfı ve RMS aynı kalırken tepe değeri değişir. Mastering’de faz düzeltme araçlarının amacı tepe faktörünü düşürüp aynı gürlükte daha fazla başlık kazanmaktır — 16. atölyedeki tepe/RMS ayrımı.'},
+{q:'Zilin net bir perdesi olmamasının sebebi nedir?',
+ o:['Bileşenleri temelin tam katları değil; ortak bir tekrar süresi yok','Çok kısa sürmesi','Çok yüksek olması','Tek bir frekans içermesi'],a:0,
+ f:'Spektrogramda çizgiler <b>eşit aralıklı değil</b> (1 · 2,76 · 5,40 …). Ortak bir tekrar süresi oluşmadığı için kulak bir perde kuramaz ve sesi "vurmalı" diye sınıflar.'},
+{q:'Piyano sesinde parlaklık zaman içinde nasıl değişir?',
+ o:['Düşer — tiz harmonikler pes olanlardan çok daha hızlı söner','Artar','Sabit kalır','Önce artar sonra sabitlenir'],a:0,
+ f:'Spektrogramda üst çizgiler alttakilerden çok önce kayboluyor. Bu yüzden piyanonun sesi vuruştan hemen sonra parlak, birkaç saniye sonra yumuşaktır.'}
+];
+function shuffle(a){ for(var i=a.length-1;i>0;i--){ var j=Math.floor(Math.random()*(i+1)); var t=a[i]; a[i]=a[j]; a[j]=t; } return a; }
+var quiz=$('quiz'), scoreEl=$('score'), correct=0, answered=0;
+QS.forEach(function(item,i){
+  var idx=shuffle(item.o.map(function(_,k){return k;}));
+  var d=document.createElement('div'); d.className='q';
+  d.innerHTML='<div class="qh">Soru '+(i+1)+'</div><p class="qt">'+item.q+'</p>';
+  var op=document.createElement('div'); op.className='opts';
+  var fb=document.createElement('div'); fb.className='fb'; fb.style.display='none';
+  idx.forEach(function(k){
+    var b=document.createElement('button'); b.type='button'; b.textContent=item.o[k];
+    b.addEventListener('click',function(){
+      if(fb.style.display!=='none') return;
+      var good=(k===item.a);
+      [].slice.call(op.children).forEach(function(x,n){ x.disabled=true; if(idx[n]===item.a) x.classList.add('ok'); });
+      if(!good) b.classList.add('no');
+      fb.className='fb '+(good?'good':'bad');
+      fb.innerHTML='<b>'+(good?'Doğru':'Tekrar bak')+'</b> — '+item.f;
+      fb.style.display='';
+      answered++; if(good) correct++;
+      scoreEl.textContent='Doğru: '+correct+' / '+QS.length+(answered===QS.length?'  · tamamlandı':'');
+    });
+    op.appendChild(b);
+  });
+  d.appendChild(op); d.appendChild(fb); quiz.appendChild(d);
+});
+scoreEl.textContent='Doğru: 0 / '+QS.length;
+
+/* ================= baslangic + dongu ================= */
+readTheme();
+scenes.forEach(function(s){ s.resize(); });
+wySet(0);
+SL.s=+slSl.value; SL.n=+slN.value; slUpd();
+SC.t=(+spT.value)/100*SDUR; scUpd(false);
+FM.f0=+fmF0.value; fmUpd();
+TR.a=(+trA.value)/100; TR.d=(+trD.value)/1000; trUpd();
+phUpd();
+
+function frame(){
+  if(WY.dirty){ whyScene.draw(); WY.dirty=false; }
+  if(SL.dirty){ slpScene.draw(); SL.dirty=false; }
+  if(SC.dirty){ spcScene.draw(); SC.dirty=false; }
+  if(FM.dirty){ frmScene.draw(); FM.dirty=false; }
+  if(TR.dirty){ trnScene.draw(); TR.dirty=false; }
+  if(PH.dirty){ phsScene.draw(); PH.dirty=false; }
+  requestAnimationFrame(frame);
+}
+requestAnimationFrame(frame);
+})();
+</script>
+
+</body></html>

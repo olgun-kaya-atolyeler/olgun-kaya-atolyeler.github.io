@@ -1,0 +1,605 @@
+<!doctype html><html lang="tr"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<style>:root{color-scheme:light}html{-webkit-text-size-adjust:100%}body{margin:0;font:14px system-ui,-apple-system,"Segoe UI",sans-serif;background:#faf9f7}img{max-width:100%}[hidden]{display:none!important}</style>
+<title>Ses Fiziği I</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&family=Newsreader:ital,opsz,wght@1,6..72,400&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ground:#E5ECF3; --panel:#FFFFFF; --panel-2:#F1F6FA;
+  --ink:#0B1620; --ink-2:#3F5265; --ink-3:#697E92;
+  --line:#C7D4E0; --line-2:#DEE7EF;
+  --sin:#A8600A; --cos:#0F5F80; --arc:#A81E6E; --brass:#4A7A12;
+  --on-sin:#FFFFFF; --ok:#1E6B45; --no:#A8203C;
+  --radius:2px; --track:.02em; --fs:15px;
+  --h-why:288px; --h-chl:568px; --h-drm:524px;
+  --font-display:"Chakra Petch",system-ui,sans-serif;
+  --font-body:"IBM Plex Sans",system-ui,sans-serif;
+  --font-mono:"IBM Plex Mono",ui-monospace,monospace;
+  --font-quote:"Newsreader",Georgia,serif;
+  color-scheme:light;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --ground:#070F17; --panel:#0E1720; --panel-2:#13202C;
+    --ink:#E7F2FB; --ink-2:#9FB6C9; --ink-3:#6B8296;
+    --line:#213240; --line-2:#182533;
+    --sin:#FFB01F; --cos:#4FD3FF; --arc:#FF6AC1; --brass:#A8FF60;
+    --on-sin:#0A1017; --ok:#3EE59B; --no:#FF5F86;
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --ground:#070F17; --panel:#0E1720; --panel-2:#13202C;
+  --ink:#E7F2FB; --ink-2:#9FB6C9; --ink-3:#6B8296;
+  --line:#213240; --line-2:#182533;
+  --sin:#FFB01F; --cos:#4FD3FF; --arc:#FF6AC1; --brass:#A8FF60;
+  --on-sin:#0A1017; --ok:#3EE59B; --no:#FF5F86;
+  color-scheme:dark;
+}
+:root[data-mode="proj"]{
+  --ground:#F3F8FC; --panel:#FFFFFF; --panel-2:#EDF4F9;
+  --ink:#040B12; --ink-2:#2A3A49; --ink-3:#546678;
+  --line:#ADBFCE; --line-2:#D2DEE9;
+  --sin:#8A4D00; --cos:#084A66; --arc:#8A1258; --brass:#3A6208;
+  --on-sin:#FFFFFF; --ok:#155338; --no:#8A1730;
+  --fs:17px; --h-why:334px; --h-chl:652px; --h-drm:604px;
+  color-scheme:light;
+}
+
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+body{
+  margin:0; background:var(--ground); color:var(--ink);
+  font-family:var(--font-body); font-size:var(--fs); line-height:1.55;
+  -webkit-text-size-adjust:100%;
+}
+.wrap{max-width:1180px; margin:0 auto; padding-inline:20px; padding-block:22px 64px}
+
+/* ---------- ust ---------- */
+.top{display:flex; gap:20px; align-items:flex-start; justify-content:space-between; flex-wrap:wrap;
+  border-bottom:2px solid var(--line); padding-bottom:16px; margin-bottom:26px}
+.eyebrow{font-family:var(--font-mono); font-size:.72em; letter-spacing:.12em; text-transform:uppercase;
+  color:var(--brass); font-weight:600}
+h1{font-family:var(--font-display); font-weight:700; letter-spacing:var(--track);
+  font-size:clamp(2rem,6vw,3.1rem); line-height:1.02; margin:.16em 0 .1em; text-transform:uppercase}
+.lede{margin:0; color:var(--ink-2); max-width:46ch}
+.themebar{display:flex; gap:0; border:1px solid var(--line); border-radius:var(--radius); overflow:hidden; flex-shrink:0}
+.themebar button{
+  font-family:var(--font-mono); font-size:.76em; letter-spacing:.06em; text-transform:uppercase;
+  background:var(--panel); color:var(--ink-2); border:0; border-left:1px solid var(--line);
+  padding:9px 13px; cursor:pointer}
+.themebar button:first-child{border-left:0}
+.themebar button[aria-pressed="true"]{background:var(--sin); color:var(--on-sin); font-weight:600}
+
+/* ---------- bolumler ---------- */
+section{margin-block:52px; scroll-margin-top:18px}
+h2{font-family:var(--font-display); font-weight:600; letter-spacing:var(--track); text-transform:uppercase;
+  font-size:clamp(1.15rem,3.1vw,1.6rem); margin:0 0 14px; display:flex; align-items:baseline; gap:12px;
+  border-bottom:1px solid var(--line); padding-bottom:10px}
+h2 .num{font-family:var(--font-mono); color:var(--brass); font-size:.82em; font-weight:600}
+h3{font-family:var(--font-display); font-weight:600; letter-spacing:var(--track);
+  font-size:1.02em; margin:0 0 6px; text-transform:uppercase}
+p{margin:0 0 .8em}
+.kicker{font-family:var(--font-quote); font-style:italic; font-size:1.28em; line-height:1.4;
+  color:var(--ink-2); max-width:38ch; margin:0 0 18px; border-left:3px solid var(--arc); padding-left:14px}
+
+/* ---------- panel / canvas ---------- */
+.panel{background:var(--panel); border:1px solid var(--line); border-radius:var(--radius)}
+.canvas-wrap{margin:0; background:var(--panel); border:1px solid var(--line); border-radius:var(--radius); overflow:hidden}
+.canvas-inner{min-width:0}
+.lab>div,.quizwrap>div,.hook>*,.lab>aside{min-width:0}
+.lit{text-transform:none;font-style:normal;font-weight:inherit}
+.sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+canvas{display:block; width:100%; touch-action:none}
+#cWhy{height:var(--h-why)}
+#cChl{height:var(--h-chl)}
+#cDrm{height:var(--h-drm)}
+figcaption{font-size:.82em; color:var(--ink-3); padding:8px 12px; border-top:1px solid var(--line-2);
+  background:var(--panel-2)}
+
+/* ---------- s1 duzen ---------- */
+.hook{display:grid; grid-template-columns:minmax(0,1.05fr) minmax(0,1fr); gap:20px; align-items:start}
+.cols{display:grid; grid-template-columns:1fr; gap:14px}
+.qcol h3{color:var(--ink)}
+.qcol p{font-size:.94em; color:var(--ink-2); margin:0}
+
+/* ---------- kontroller ---------- */
+.ctrls{display:flex; flex-wrap:wrap; gap:14px 18px; align-items:flex-end;
+  padding:12px; background:var(--panel-2); border-top:1px solid var(--line-2)}
+.ctrl{display:flex; flex-direction:column; gap:3px; min-width:150px; flex:1 1 150px}
+.ctrl label{font-family:var(--font-mono); font-size:.72em; letter-spacing:.07em; text-transform:uppercase;
+  color:var(--ink-3); display:flex; justify-content:space-between; gap:8px}
+.ctrl label b{font-weight:600; color:var(--ink); font-variant-numeric:tabular-nums}
+input[type=range]{-webkit-appearance:none; appearance:none; width:100%; height:22px; background:transparent; margin:0; cursor:pointer}
+input[type=range]::-webkit-slider-runnable-track{height:3px; background:var(--line); border-radius:0}
+input[type=range]::-moz-range-track{height:3px; background:var(--line)}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none; width:16px; height:16px; border-radius:50%;
+  background:var(--arc); border:2px solid var(--panel); margin-top:-7px}
+input[type=range]::-moz-range-thumb{width:16px; height:16px; border-radius:50%; background:var(--arc); border:2px solid var(--panel)}
+.btn{font-family:var(--font-mono); font-size:.78em; letter-spacing:.06em; text-transform:uppercase;
+  background:var(--panel); color:var(--ink); border:1px solid var(--line); border-radius:var(--radius);
+  padding:8px 12px; cursor:pointer; white-space:nowrap}
+.btn:hover{border-color:var(--ink-3)}
+.btn.pri{background:var(--sin); color:var(--on-sin); border-color:var(--sin); font-weight:600}
+.btn[aria-pressed="true"]{background:var(--cos); color:var(--panel); border-color:var(--cos)}
+:root[data-theme="dark"] .btn[aria-pressed="true"]{color:#07131B}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]):not([data-mode="proj"]) .btn[aria-pressed="true"]{color:#07131B}
+}
+.btnrow{display:flex; gap:8px; flex-wrap:wrap; align-items:center}
+
+/* ---------- okumalar ---------- */
+.readout{display:grid; grid-template-columns:repeat(auto-fit,minmax(112px,1fr)); gap:1px;
+  background:var(--line-2); border-top:1px solid var(--line-2)}
+.readout.r3{grid-template-columns:repeat(3,minmax(0,1fr))}
+.readout div{background:var(--panel); padding:8px 11px; min-width:0}
+.readout span{display:block; font-family:var(--font-mono); font-size:.68em; letter-spacing:.07em;
+  text-transform:uppercase; color:var(--ink-3)}
+.readout b{font-family:var(--font-mono); font-size:1.08em; font-weight:600; font-variant-numeric:tabular-nums}
+
+/* ---------- kart izgarasi ---------- */
+.cards{display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:14px}
+.card{background:var(--panel); border:1px solid var(--line); border-top:3px solid var(--cos);
+  border-radius:var(--radius); padding:14px 15px}
+.card:nth-child(3n+1){border-top-color:var(--sin)}
+.card:nth-child(3n+3){border-top-color:var(--arc)}
+.card p{font-size:.92em; color:var(--ink-2); margin:0}
+.card .bridge{margin-top:9px; padding-top:9px; border-top:1px dashed var(--line);
+  font-size:.86em; color:var(--ink-3)}
+.card .bridge b{color:var(--brass); font-family:var(--font-mono); font-size:.9em;
+  letter-spacing:.05em; text-transform:uppercase}
+
+/* ---------- atolye duzeni ---------- */
+.lab{display:grid; grid-template-columns:minmax(0,560px) minmax(0,1fr); gap:18px; align-items:start}
+.steps{background:var(--panel); border:1px solid var(--line); border-radius:var(--radius); padding:13px 14px}
+.steps h3{margin-bottom:9px}
+.stepnav{display:flex; gap:6px; align-items:center; margin-bottom:10px}
+.stepnav .count{font-family:var(--font-mono); font-size:.78em; color:var(--ink-3); margin-left:auto}
+.steplist{list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:5px}
+.steplist button{width:100%; text-align:left; font:inherit; font-size:.9em; background:transparent;
+  color:var(--ink-2); border:1px solid transparent; border-left:2px solid var(--line);
+  padding:7px 10px; cursor:pointer; border-radius:0}
+.steplist button:hover{background:var(--panel-2)}
+.steplist button[aria-current="true"]{border-left-color:var(--arc); background:var(--panel-2); color:var(--ink)}
+.steplist .k{font-family:var(--font-mono); font-size:.82em; color:var(--brass); margin-right:6px}
+
+table{width:100%; border-collapse:collapse; font-size:.88em}
+.tablebox{overflow-x:auto; max-width:100%; background:var(--panel); border:1px solid var(--line); border-radius:var(--radius); margin-top:16px}
+th,td{padding:7px 11px; text-align:right; border-bottom:1px solid var(--line-2); white-space:nowrap}
+th:first-child,td:first-child{text-align:left}
+th:last-child,td:last-child{text-align:left; white-space:normal; min-width:170px}
+thead th{font-family:var(--font-mono); font-size:.76em; letter-spacing:.06em; text-transform:uppercase;
+  color:var(--ink-3); font-weight:600; background:var(--panel-2)}
+tbody tr{cursor:pointer}
+tbody tr:hover{background:var(--panel-2)}
+tbody tr[aria-selected="true"]{background:var(--panel-2); box-shadow:inset 3px 0 0 var(--arc)}
+td.num{font-family:var(--font-mono); font-variant-numeric:tabular-nums}
+
+/* ---------- terimler ---------- */
+.terms{display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:14px}
+.term{background:var(--panel); border:1px solid var(--line); border-radius:var(--radius); padding:14px 15px}
+.term .sym{font-family:var(--font-mono); font-size:.74em; letter-spacing:.08em; color:var(--ink-3)}
+.term p{font-size:.92em; color:var(--ink-2); margin:.35em 0 0}
+.mus{margin-top:10px; border-left:3px solid var(--brass); padding:6px 0 6px 10px; font-size:.9em}
+.mus span{font-family:var(--font-mono); font-size:.72em; letter-spacing:.08em; text-transform:uppercase;
+  color:var(--brass); font-weight:600; display:block}
+
+/* ---------- quiz ---------- */
+.quizwrap{display:grid; grid-template-columns:minmax(0,1fr) 300px; gap:18px; align-items:start}
+.q{background:var(--panel); border:1px solid var(--line); border-radius:var(--radius); padding:14px 15px; margin-bottom:12px}
+.q .qh{font-family:var(--font-mono); font-size:.74em; letter-spacing:.08em; color:var(--brass); font-weight:600}
+.q p.qt{margin:.3em 0 .7em; font-weight:500}
+.opts{display:flex; flex-direction:column; gap:6px}
+.opts button{font:inherit; font-size:.93em; text-align:left; background:var(--panel-2); color:var(--ink);
+  border:1px solid var(--line); border-radius:var(--radius); padding:9px 12px; cursor:pointer}
+.opts button:hover{border-color:var(--ink-3)}
+.opts button.ok{border-color:var(--ok); box-shadow:inset 3px 0 0 var(--ok)}
+.opts button.no{border-color:var(--no); box-shadow:inset 3px 0 0 var(--no)}
+.opts button[disabled]{cursor:default}
+.fb{margin-top:9px; font-size:.9em; color:var(--ink-2); border-top:1px dashed var(--line); padding-top:8px}
+.fb b{font-family:var(--font-mono); font-size:.82em; letter-spacing:.06em; text-transform:uppercase}
+.fb.good b{color:var(--ok)} .fb.bad b{color:var(--no)}
+.recap{background:var(--panel); border:1px solid var(--line); border-top:3px solid var(--brass);
+  border-radius:var(--radius); padding:14px 15px; position:sticky; top:14px}
+.recap ol{margin:0; padding-left:1.15em; display:flex; flex-direction:column; gap:9px}
+.recap li{font-size:.91em; color:var(--ink-2)}
+.recap li b{color:var(--ink)}
+.score{font-family:var(--font-mono); font-size:.8em; color:var(--ink-3); margin-top:12px;
+  padding-top:10px; border-top:1px solid var(--line-2)}
+
+.note{font-size:.86em; color:var(--ink-3); margin-top:10px}
+.legend{display:flex; flex-wrap:wrap; gap:6px 16px; padding:10px 12px; background:var(--panel-2);
+  border-top:1px solid var(--line-2); font-family:var(--font-mono); font-size:.74em; letter-spacing:.04em}
+.legend i{display:inline-block; width:15px; height:3px; vertical-align:middle; margin-right:6px}
+footer{margin-top:56px; padding-top:16px; border-top:1px solid var(--line); font-size:.84em; color:var(--ink-3)}
+footer a{color:var(--ink-2)}
+
+@media (max-width:980px){
+  .lab{grid-template-columns:1fr}
+  .quizwrap{grid-template-columns:1fr}
+  .recap{position:static}
+  .cards,.terms{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@media (max-width:760px){
+  :root{--h-why:300px; --h-chl:586px; --h-drm:540px}
+  :root[data-mode="proj"]{--h-why:348px; --h-chl:674px; --h-drm:622px}
+  .wrap{padding-inline:16px}
+  .hook{grid-template-columns:1fr}
+  .cards,.terms{grid-template-columns:1fr}
+  .ctrl{flex:1 1 100%}
+  .btn{padding:9px 14px}
+  .opts button{padding:12px 14px}
+  input[type=range]{height:30px}
+  input[type=range]::-webkit-slider-thumb{width:22px; height:22px; margin-top:-10px}
+  input[type=range]::-moz-range-thumb{width:22px; height:22px}
+  .canvas-inner{min-width:0}
+}
+@media (max-width:480px){
+  :root{--h-why:326px; --h-chl:600px; --h-drm:556px}
+  :root[data-mode="proj"]{--h-why:376px; --h-chl:690px; --h-drm:640px}
+}
+@media (prefers-reduced-motion:reduce){*{animation:none!important; transition:none!important}}
+
+/* ---------- karsilastirma / hesap tablosu ---------- */
+.cmpbox{background:var(--panel); border:1px solid var(--line); border-radius:var(--radius); margin-bottom:16px}
+.cmpbox h3{padding:13px 14px 8px; margin:0}
+.cmpscroll{overflow-x:auto; max-width:100%}
+.cmp{width:100%; border-collapse:collapse; font-size:.9em}
+.cmp th,.cmp td{padding:6px 12px; border-bottom:1px solid var(--line-2); text-align:right; white-space:nowrap}
+.cmp th:first-child,.cmp td:first-child{text-align:left; white-space:normal; color:var(--ink-2)}
+.cmp thead th{font-family:var(--font-mono); font-size:.76em; letter-spacing:.06em; text-transform:uppercase;
+  font-weight:600; background:var(--panel-2)}
+.cmp thead th.a{color:var(--sin)} .cmp thead th.b{color:var(--cos)}
+.cmp td.v{font-family:var(--font-mono); font-variant-numeric:tabular-nums; font-weight:600}
+.cmp tr.key td{background:var(--panel-2)}
+.cmp tr.key td:first-child{color:var(--ink); font-weight:600}
+.cmp tbody tr:last-child td{border-bottom:0}
+@media (max-width:760px){
+  .cmp th,.cmp td{white-space:normal; padding:6px 9px; overflow-wrap:anywhere}
+  .cmp td.lbl{width:46%}
+}
+
+/* ---------- olcum haplari ---------- */
+.cmp td.lbl{width:56%}
+.pillrow{display:flex; gap:7px; flex-wrap:wrap; flex:1 1 100%}
+.pill{font-family:var(--font-mono); font-size:.74em; letter-spacing:.05em; text-transform:uppercase;
+  background:var(--panel); color:var(--ink-2); border:1px solid var(--line); border-radius:var(--radius);
+  padding:8px 11px; cursor:pointer}
+.pill[aria-pressed="true"]{background:var(--arc); color:#fff; border-color:var(--arc); font-weight:600}
+
+/* ---------- kontrol gruplari ---------- */
+.grp{flex:1 1 100%; display:flex; flex-wrap:wrap; gap:12px 16px; border-left:3px solid var(--line);
+  padding-left:11px; margin-bottom:2px}
+.grp.ga{border-left-color:var(--sin)} .grp.gb{border-left-color:var(--cos)}
+.grp .tag{flex:1 1 100%; font-family:var(--font-mono); font-size:.72em; letter-spacing:.09em;
+  text-transform:uppercase; font-weight:600; margin:0}
+.grp.ga .tag{color:var(--sin)} .grp.gb .tag{color:var(--cos)}
+.sw{display:inline-block; width:11px; height:11px; border-radius:50%; vertical-align:-1px; margin-right:6px}
+#tbl2 td:last-child,#tbl2 th:last-child{text-align:right; min-width:0}
+#tbl2 td,#tbl2 th{padding:6px 9px}
+#tbl2 td:nth-child(n+2){font-family:var(--font-mono); font-variant-numeric:tabular-nums}
+
+/* ---------- pasif kontrol ---------- */
+.ctrl.off{opacity:.42}
+.grp.off{opacity:.42}
+.grp.off .tag{color:var(--ink-3)}
+.ctrl.off label{color:var(--ink-3)}
+input[type=range]:disabled{cursor:default}
+.warn{background:var(--panel-2); border:1px solid var(--line); border-left:3px solid var(--arc);
+  border-radius:var(--radius); padding:11px 13px; font-size:.9em; color:var(--ink-2); margin:0 0 16px}
+.warn b{color:var(--ink)}
+
+/* ---------- surukleme ipucu ---------- */
+.dragnote{font-family:var(--font-mono); font-size:.72em; letter-spacing:.06em; text-transform:uppercase;
+  color:var(--ink-3); padding:8px 12px; border-top:1px solid var(--line-2); background:var(--panel-2)}
+.dragnote b{color:var(--arc)}
+
+/* ---------- icindekiler ---------- */
+.hero{border-bottom:2px solid var(--line); padding-bottom:18px; margin-bottom:8px}
+.stats{display:grid; grid-template-columns:repeat(auto-fit,minmax(140px,1fr)); gap:1px;
+  background:var(--line-2); border:1px solid var(--line-2); border-radius:var(--radius); margin:20px 0 4px}
+.stats div{background:var(--panel); padding:10px 13px}
+.stats span{display:block; font-family:var(--font-mono); font-size:.68em; letter-spacing:.07em;
+  text-transform:uppercase; color:var(--ink-3)}
+.stats b{font-family:var(--font-mono); font-size:1.15em; font-weight:600}
+.grp-head{display:flex; align-items:baseline; gap:12px; flex-wrap:wrap; margin-bottom:4px}
+.grp-head .rom{font-family:var(--font-mono); color:var(--brass); font-weight:600; font-size:.92em}
+.grp-note{font-size:.9em; color:var(--ink-2); max-width:70ch; margin:0 0 14px}
+.tgrid{display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:14px}
+a.tcard{display:flex; flex-direction:column; gap:7px; text-decoration:none; color:inherit;
+  background:var(--panel); border:1px solid var(--line); border-top:3px solid var(--cos);
+  border-radius:var(--radius); padding:13px 15px 14px}
+a.tcard:nth-child(3n+1){border-top-color:var(--sin)}
+a.tcard:nth-child(3n+3){border-top-color:var(--arc)}
+a.tcard:hover{border-color:var(--ink-3); background:var(--panel-2)}
+a.tcard:focus-visible{outline:2px solid var(--arc); outline-offset:2px}
+.tcard .no{font-family:var(--font-mono); font-size:.72em; letter-spacing:.09em; color:var(--brass); font-weight:600}
+.tcard h3{margin:0; font-size:1em}
+.tcard p{font-size:.9em; color:var(--ink-2); margin:0; flex:1}
+.tcard .go{font-family:var(--font-mono); font-size:.72em; letter-spacing:.07em; text-transform:uppercase;
+  color:var(--cos); margin-top:2px}
+a.tcard:hover .go{color:var(--arc)}
+.howto{display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:14px}
+.howto div{background:var(--panel); border:1px solid var(--line); border-left:3px solid var(--brass);
+  border-radius:var(--radius); padding:12px 14px}
+.howto h3{font-size:.95em}
+.howto p{font-size:.9em; color:var(--ink-2); margin:0}
+.nextbox{background:var(--panel); border:1px solid var(--line); border-top:3px solid var(--arc);
+  border-radius:var(--radius); padding:15px 17px; margin-top:26px}
+.nextbox p{margin:0; color:var(--ink-2); max-width:76ch}
+@media (max-width:980px){ .tgrid,.howto{grid-template-columns:repeat(2,minmax(0,1fr))} }
+@media (max-width:760px){ .tgrid,.howto{grid-template-columns:1fr} }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+
+<header class="top hero">
+  <div class="brand">
+    <div class="eyebrow">Müzik Teknolojisi · Ders İçeriği</div>
+    <h1>Ses Fiziği I</h1>
+    <p class="lede">Yirmi üç etkileşimli atölye. Matematik altyapısı gerektirmez: her kavram önce bir müzik olgusuyla, sonra elle oynanabilen bir resimle kurulur. Formül yerine hareket, tanım yerine ihtiyaç.</p>
+  </div>
+  <div class="themebar" role="group" aria-label="Tema seçimi">
+    <button type="button" data-t="light" aria-pressed="false">Açık</button>
+    <button type="button" data-t="dark" aria-pressed="false">Koyu</button>
+    <button type="button" data-t="proj" aria-pressed="false">Projeksiyon</button>
+  </div>
+</header>
+
+<div class="stats">
+  <div><span>Atölye</span><b>23</b></div>
+  <div><span>Bölüm</span><b>6</b></div>
+  <div><span>Başlangıç</span><b>Titreşim</b></div>
+  <div><span>Bitiş</span><b>Chladni</b></div>
+  <div><span>Konu haritası</span><b>UNSW Physclips</b></div>
+</div>
+
+<section id="g1">
+  <h2><span class="num">01</span> Titreşim</h2>
+  <div class="grp-head"><span class="rom">1.–3. ATÖLYE</span></div>
+  <p class="grp-note">Her sesin altındaki ileri–geri hareket ve onu yöneten iki büyüklük.</p>
+  <div class="tgrid">
+    <a class="tcard" href="01-osilasyonlar.html">
+      <div class="no">1. ATÖLYE</div>
+      <h3>Osilasyonlar</h3>
+      <p>Genlik, periyot, frekans ve faz. Dönen bir nokta ile titreşen bir kütlenin aynı şey olduğu yer.</p>
+      <div class="go">Atölyeyi aç →</div>
+    </a>
+    <a class="tcard" href="02-yaykutle.html">
+      <div class="no">2. ATÖLYE</div>
+      <h3>Yay, Kütle ve Frekans</h3>
+      <p>Titreşimin hızını belirleyen iki sayı: yayın sertliği ve kütlenin ağırlığı. Genlik listede yok.</p>
+      <div class="go">Atölyeyi aç →</div>
+    </a>
+    <a class="tcard" href="03-sonum.html">
+      <div class="no">3. ATÖLYE</div>
+      <h3>Sönüm ve Rezonans</h3>
+      <p>Bir ses neden söner, çalgı neden bazı notalarda birden canlanır. İki soru, tek ayar düğmesi.</p>
+      <div class="go">Atölyeyi aç →</div>
+    </a>
+  </div>
+</section>
+
+<section id="g2">
+  <h2><span class="num">02</span> Dalga</h2>
+  <div class="grp-head"><span class="rom">4.–8. ATÖLYE</span></div>
+  <p class="grp-note">Titreşim yola çıkıyor: yansıma, üst üste binme ve dalganın denklemi.</p>
+  <div class="tgrid">
+    <a class="tcard" href="04-dalgalar.html">
+      <div class="no">4. ATÖLYE</div>
+      <h3>İlerleyen Dalgalar</h3>
+      <p>Desen ilerler, madde yerinde kalır. Bir dalganın birbirine karışan iki ayrı resmini ayırmak.</p>
+      <div class="go">Atölyeyi aç →</div>
+    </a>
+    <a class="tcard" href="05-yansima.html">
+      <div class="no">5. ATÖLYE</div>
+      <h3>Teldeki Yansımalar</h3>
+      <p>Dalga telin ucuna vardığında ne olur? Sabit uç ile serbest uç, aynı hikâyenin iki ucu.</p>
+      <div class="go">Atölyeyi aç →</div>
+    </a>
+    <a class="tcard" href="06-ustuste.html">
+      <div class="no">6. ATÖLYE</div>
+      <h3>Üst Üste Binme</h3>
+      <p>İki dalga aynı yerdeyse yer değiştirmeleri toplanır. Girişimin tamamı bu tek cümleden çıkar.</p>
+      <div class="go">Atölyeyi aç →</div>
+    </a>
+    <a class="tcard" href="07-olcum.html">
+      <div class="no">7. ATÖLYE</div>
+      <h3>Dalga Boyu ve Periyot</h3>
+      <p>Biri cetvelle, diğeri kronometreyle ölçülür. Aralarındaki bağ ses hızının ta kendisidir.</p>
+      <div class="go">Atölyeyi aç →</div>
+    </a>
+    <a class="tcard" href="08-denklem.html">
+      <div class="no">8. ATÖLYE</div>
+      <h3>İlerleyen Dalganın Denklemi</h3>
+      <p>Bir şekli kaydırmak, kaydırmayı zamana bağlamak. İlerleyen dalganın denklemi bundan ibaret.</p>
+      <div class="go">Atölyeyi aç →</div>
+    </a>
+  </div>
+</section>
+
+<section id="g3">
+  <h2><span class="num">03</span> Sesin yayılması</h2>
+  <div class="grp-head"><span class="rom">9.–14. ATÖLYE</span></div>
+  <p class="grp-note">Havadaki gerçek ses: enerji, mesafe, basınç, engeller, hız ve hareket.</p>
+  <div class="tgrid">
+    <a class="tcard" href="09-enerji.html">
+      <div class="no">9. ATÖLYE</div>
+      <h3>Dalgada Enerji ve Şiddet</h3>
+      <p>Dalga madde değil enerji taşır. Cevap iki karede: genliğin karesi ve frekansın karesi.</p>
+      <div class="go">Atölyeyi aç →</div>
+    </a>
+    <a class="tcard" href="10-mesafe.html">
+      <div class="no">10. ATÖLYE</div>
+      <h3>Şiddet Mesafeyle Nasıl Azalır</h3>
+      <p>Kayıp değil, yayılma. Aynı güç gittikçe büyüyen bir yüzeye dağılınca şiddet düşer.</p>
+      <div class="go">Atölyeyi aç →</div>
+    </a>
+    <a class="tcard" href="11-ses.html">
+      <div class="no">11. ATÖLYE</div>
+      <h3>Ses Dalgası</h3>
+      <p>Havada boyuna dalga. Kulağın hissettiği şey parçacıkların yeri değil, basınçtır.</p>
+      <div class="go">Atölyeyi aç →</div>
+    </a>
+    <a class="tcard" href="12-kirinim.html">
+      <div class="no">12. ATÖLYE</div>
+      <h3>Kırınım: Sesin Köşeyi Dönmesi</h3>
+      <p>Sesin köşeyi dönmesi. Ne kadar yayılacağını dalga boyunun açıklığa oranı belirler.</p>
+      <div class="go">Atölyeyi aç →</div>
+    </a>
+    <a class="tcard" href="13-seshizi.html">
+      <div class="no">13. ATÖLYE</div>
+      <h3>Ses Hızı</h3>
+      <p>343 m/s’yi kendimiz ölçüyoruz — bir alkışla ve iki mikrofonla. Neye bağlı, neye değil.</p>
+      <div class="go">Atölyeyi aç →</div>
+    </a>
+    <a class="tcard" href="14-doppler.html">
+      <div class="no">14. ATÖLYE</div>
+      <h3>Doppler Etkisi</h3>
+      <p>Siren hiç değişmedi; değişen, dalga cephelerinin sana ulaşma sıklığı. Ses duvarı ve Mach konisi.</p>
+      <div class="go">Atölyeyi aç →</div>
+    </a>
+  </div>
+</section>
+
+<section id="g4">
+  <h2><span class="num">04</span> Kulak ve ölçü</h2>
+  <div class="grp-head"><span class="rom">15.–18. ATÖLYE</span></div>
+  <p class="grp-note">Ölçülen ile duyulanın ayrıldığı yer: perde, empedans, desibel ve tını.</p>
+  <div class="tgrid">
+    <a class="tcard" href="15-frekans.html">
+      <div class="no">15. ATÖLYE</div>
+      <h3>Frekans ve Perde</h3>
+      <p>Kulak frekansı toplayıp çıkararak değil, çarpıp bölerek okur. Perde ile frekans aynı şey değil.</p>
+      <div class="go">Atölyeyi aç →</div>
+    </a>
+    <a class="tcard" href="16-empedans.html">
+      <div class="no">16. ATÖLYE</div>
+      <h3>Akustik Empedans ve Şiddet</h3>
+      <p>RMS, empedans, şiddet. Bir dalgayı tek bir sayıya indirmenin beş adımı.</p>
+      <div class="go">Atölyeyi aç →</div>
+    </a>
+    <a class="tcard" href="17-desibel.html">
+      <div class="no">17. ATÖLYE</div>
+      <h3>Desibel ve Duyma Duyarlılığı</h3>
+      <p>Önce oranın logaritması, sonra asıl zor soru: ölçü aletiyle kulak nerede ayrılıyor.</p>
+      <div class="go">Atölyeyi aç →</div>
+    </a>
+    <a class="tcard" href="18-tini.html">
+      <div class="no">18. ATÖLYE</div>
+      <h3>Tını ve Spektrogram</h3>
+      <p>Tayf zamanı dondurur, zarf frekansı. Spektrogram ikisini tek bir yüzeyde birleştirir.</p>
+      <div class="go">Atölyeyi aç →</div>
+    </a>
+  </div>
+</section>
+
+<section id="g5">
+  <h2><span class="num">05</span> Müziğin matematiği</h2>
+  <div class="grp-head"><span class="rom">19.–21. ATÖLYE</span></div>
+  <p class="grp-note">İki notanın ilişkisi: vuru, uyum, aralık ve akort sistemleri.</p>
+  <div class="tgrid">
+    <a class="tcard" href="19-girisim.html">
+      <div class="no">19. ATÖLYE</div>
+      <h3>Girişim ve Vuru</h3>
+      <p>Faz farkını yol üretirse odada sabit sessiz noktalar, frekans üretirse vuru çıkar.</p>
+      <div class="go">Atölyeyi aç →</div>
+    </a>
+    <a class="tcard" href="20-aralik.html">
+      <div class="no">20. ATÖLYE</div>
+      <h3>Aralıklar ve Uyum</h3>
+      <p>Aralık bir fark değil, orandır. Uyum harmoniklerin çakışmasından doğar — ve tınıdan.</p>
+      <div class="go">Atölyeyi aç →</div>
+    </a>
+    <a class="tcard" href="21-akort.html">
+      <div class="no">21. ATÖLYE</div>
+      <h3>Akort Sistemleri</h3>
+      <p>12 temiz beşli 7 oktav etmiyor. Akort, bu 23,5 sentlik hatayı nereye saklayacağına karar vermektir.</p>
+      <div class="go">Atölyeyi aç →</div>
+    </a>
+  </div>
+</section>
+
+<section id="g6">
+  <h2><span class="num">06</span> Duran dalgalar</h2>
+  <div class="grp-head"><span class="rom">22.–23. ATÖLYE</span></div>
+  <p class="grp-note">Sınırlı bir ortamda hangi desenler ayakta kalır — ve neden bazı çalgıların perdesi yoktur.</p>
+  <div class="tgrid">
+    <a class="tcard" href="22-duran.html">
+      <div class="no">22. ATÖLYE</div>
+      <h3>Duran Dalgalar: Tel ve Boru</h3>
+      <p>Uçlara sığan dalga boyları harmonik diziyi imal eder. Kapalı uç çift katları siler.</p>
+      <div class="go">Atölyeyi aç →</div>
+    </a>
+    <a class="tcard" href="23-ikiboyut.html">
+      <div class="no">23. ATÖLYE</div>
+      <h3>İki Boyutta Duran Dalgalar</h3>
+      <p>Düğüm artık bir çizgi, modlar tam sayı katı değil. Davulun ve zilin perdesizliği buradan.</p>
+      <div class="go">Atölyeyi aç →</div>
+    </a>
+  </div>
+</section>
+
+<section id="nasil">
+  <h2><span class="num">07</span> Nasıl kullanılır</h2>
+  <div class="howto">
+    <div>
+      <h3>Üç tema</h3>
+      <p>Her atölyenin sağ üstünde <b>Açık · Koyu · Projeksiyon</b> düğmeleri var. Projeksiyon modu yazıyı büyütür, çizgileri kalınlaştırır ve kontrastı artırır — sınıfta bunu seç. Seçim tarayıcıda hatırlanır.</p>
+    </div>
+    <div>
+      <h3>Ders adımları</h3>
+      <p>Atölye bölümlerindeki <b>Ders adımları</b> paneli sıralı bir anlatım verir; her adıma tıklamak aracı o duruma getirir. Anlatımı baştan sona bu panelden yürütebilirsin.</p>
+    </div>
+    <div>
+      <h3>Ses ve telefon</h3>
+      <p>Ses hiçbir zaman kendiliğinden çalmaz; her ses bir düğmenin arkasındadır. Sayfalar telefonda da çalışır — dar ekranda düzen dikeye geçer, dokunma hedefleri büyür.</p>
+    </div>
+  </div>
+
+  <div class="nextbox">
+    <p><b>Ses Fiziği I burada kapanıyor.</b> Bu ders titreşimden başlayıp sınırlı bir ortamda hangi desenlerin ayakta kaldığına kadar geldi: harmonik dizinin nereden doğduğunu, neden bazı aralıkların uyumlu duyulduğunu ve neden davulun belirli bir perdesi olmadığını artık tek bir zincirle açıklayabiliyoruz. <b>Ses Fiziği II</b> buradan devam edecek ve kendi 1. atölyesiyle başlayacak.</p>
+  </div>
+</section>
+
+<footer>
+  <p>Müzik Teknolojisi · Ses Fiziği I — 23 atölyelik ders içeriği. Atölyeler özel yetenek sınavıyla gelmiş, matematik ve fizik altyapısı olmayan lisans öğrencileri için hazırlandı; hem projeksiyonla ders anlatımı hem öğrencinin kendi başına çalışması için tasarlandı. Konu sırası UNSW Physclips (newt.phys.unsw.edu.au · animations.physics.unsw.edu.au) izlenerek kuruldu.</p>
+</footer>
+
+</div>
+
+<script>
+(function(){
+'use strict';
+var root=document.documentElement;
+var mqDark=window.matchMedia('(prefers-color-scheme: dark)');
+var tBtns=[].slice.call(document.querySelectorAll('.themebar button'));
+function syncTheme(){
+  var cur;
+  if(root.getAttribute('data-mode')==='proj') cur='proj';
+  else if(root.getAttribute('data-theme')==='dark') cur='dark';
+  else if(root.getAttribute('data-theme')==='light') cur='light';
+  else cur = mqDark.matches ? 'dark' : 'light';
+  tBtns.forEach(function(b){ b.setAttribute('aria-pressed', b.dataset.t===cur?'true':'false'); });
+}
+function applyTheme(v,store){
+  if(v==='light'){ root.setAttribute('data-theme','light'); root.removeAttribute('data-mode'); }
+  else if(v==='dark'){ root.setAttribute('data-theme','dark'); root.removeAttribute('data-mode'); }
+  else if(v==='proj'){ root.setAttribute('data-theme','light'); root.setAttribute('data-mode','proj'); }
+  if(store){ try{ localStorage.setItem('mt-tema',v); }catch(e){} }
+  syncTheme();
+}
+tBtns.forEach(function(b){ b.addEventListener('click',function(){ applyTheme(b.dataset.t,true); }); });
+(function(){
+  var v=null; try{ v=localStorage.getItem('mt-tema'); }catch(e){}
+  if(v==='light'||v==='dark'||v==='proj') applyTheme(v,false); else syncTheme();
+})();
+if(mqDark.addEventListener) mqDark.addEventListener('change',syncTheme);
+})();
+</script>
+
+</body></html>

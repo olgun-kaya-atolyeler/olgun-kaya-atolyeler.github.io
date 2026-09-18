@@ -1,0 +1,1384 @@
+<!doctype html><html lang="tr"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<style>:root{color-scheme:light}html{-webkit-text-size-adjust:100%}body{margin:0;font:14px system-ui,-apple-system,"Segoe UI",sans-serif;background:#faf9f7}img{max-width:100%}[hidden]{display:none!important}</style>
+<title>Ses Hızı</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&family=Newsreader:ital,opsz,wght@1,6..72,400&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ground:#E5ECF3; --panel:#FFFFFF; --panel-2:#F1F6FA;
+  --ink:#0B1620; --ink-2:#3F5265; --ink-3:#697E92;
+  --line:#C7D4E0; --line-2:#DEE7EF;
+  --sin:#A8600A; --cos:#0F5F80; --arc:#A81E6E; --brass:#4A7A12;
+  --on-sin:#FFFFFF; --ok:#1E6B45; --no:#A8203C;
+  --radius:2px; --track:.02em; --fs:15px;
+  --h-clap:235px; --h-meas:425px; --h-temp:355px;
+  --font-display:"Chakra Petch",system-ui,sans-serif;
+  --font-body:"IBM Plex Sans",system-ui,sans-serif;
+  --font-mono:"IBM Plex Mono",ui-monospace,monospace;
+  --font-quote:"Newsreader",Georgia,serif;
+  color-scheme:light;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --ground:#070F17; --panel:#0E1720; --panel-2:#13202C;
+    --ink:#E7F2FB; --ink-2:#9FB6C9; --ink-3:#6B8296;
+    --line:#213240; --line-2:#182533;
+    --sin:#FFB01F; --cos:#4FD3FF; --arc:#FF6AC1; --brass:#A8FF60;
+    --on-sin:#0A1017; --ok:#3EE59B; --no:#FF5F86;
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --ground:#070F17; --panel:#0E1720; --panel-2:#13202C;
+  --ink:#E7F2FB; --ink-2:#9FB6C9; --ink-3:#6B8296;
+  --line:#213240; --line-2:#182533;
+  --sin:#FFB01F; --cos:#4FD3FF; --arc:#FF6AC1; --brass:#A8FF60;
+  --on-sin:#0A1017; --ok:#3EE59B; --no:#FF5F86;
+  color-scheme:dark;
+}
+:root[data-mode="proj"]{
+  --ground:#F3F8FC; --panel:#FFFFFF; --panel-2:#EDF4F9;
+  --ink:#040B12; --ink-2:#2A3A49; --ink-3:#546678;
+  --line:#ADBFCE; --line-2:#D2DEE9;
+  --sin:#8A4D00; --cos:#084A66; --arc:#8A1258; --brass:#3A6208;
+  --on-sin:#FFFFFF; --ok:#155338; --no:#8A1730;
+  --fs:17px; --h-clap:275px; --h-meas:495px; --h-temp:415px;
+  color-scheme:light;
+}
+
+*{box-sizing:border-box}
+body{
+  margin:0; background:var(--ground); color:var(--ink);
+  font-family:var(--font-body); font-size:var(--fs); line-height:1.55;
+  -webkit-text-size-adjust:100%;
+}
+.wrap{max-width:1180px; margin:0 auto; padding-inline:20px; padding-block:22px 64px}
+
+/* ---------- ust ---------- */
+.top{display:flex; gap:20px; align-items:flex-start; justify-content:space-between; flex-wrap:wrap;
+  border-bottom:2px solid var(--line); padding-bottom:16px; margin-bottom:26px}
+.eyebrow{font-family:var(--font-mono); font-size:.72em; letter-spacing:.12em; text-transform:uppercase;
+  color:var(--brass); font-weight:600}
+h1{font-family:var(--font-display); font-weight:700; letter-spacing:var(--track);
+  font-size:clamp(2rem,6vw,3.1rem); line-height:1.02; margin:.16em 0 .1em; text-transform:uppercase}
+.lede{margin:0; color:var(--ink-2); max-width:46ch}
+.themebar{display:flex; gap:0; border:1px solid var(--line); border-radius:var(--radius); overflow:hidden; flex-shrink:0}
+.themebar button{
+  font-family:var(--font-mono); font-size:.76em; letter-spacing:.06em; text-transform:uppercase;
+  background:var(--panel); color:var(--ink-2); border:0; border-left:1px solid var(--line);
+  padding:9px 13px; cursor:pointer}
+.themebar button:first-child{border-left:0}
+.themebar button[aria-pressed="true"]{background:var(--sin); color:var(--on-sin); font-weight:600}
+
+/* ---------- bolumler ---------- */
+section{margin-block:52px; scroll-margin-top:18px}
+h2{font-family:var(--font-display); font-weight:600; letter-spacing:var(--track); text-transform:uppercase;
+  font-size:clamp(1.15rem,3.1vw,1.6rem); margin:0 0 14px; display:flex; align-items:baseline; gap:12px;
+  border-bottom:1px solid var(--line); padding-bottom:10px}
+h2 .num{font-family:var(--font-mono); color:var(--brass); font-size:.82em; font-weight:600}
+h3{font-family:var(--font-display); font-weight:600; letter-spacing:var(--track);
+  font-size:1.02em; margin:0 0 6px; text-transform:uppercase}
+p{margin:0 0 .8em}
+.kicker{font-family:var(--font-quote); font-style:italic; font-size:1.28em; line-height:1.4;
+  color:var(--ink-2); max-width:38ch; margin:0 0 18px; border-left:3px solid var(--arc); padding-left:14px}
+
+/* ---------- panel / canvas ---------- */
+.panel{background:var(--panel); border:1px solid var(--line); border-radius:var(--radius)}
+.canvas-wrap{margin:0; background:var(--panel); border:1px solid var(--line); border-radius:var(--radius); overflow:hidden}
+.canvas-inner{min-width:0}
+.lab>div,.quizwrap>div,.hook>*,.lab>aside{min-width:0}
+.lit{text-transform:none;font-style:normal;font-weight:inherit}
+.sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+canvas{display:block; width:100%; touch-action:none}
+#cClap{height:var(--h-clap)}
+#cMeas{height:var(--h-meas)}
+#cTemp{height:var(--h-temp)}
+figcaption{font-size:.82em; color:var(--ink-3); padding:8px 12px; border-top:1px solid var(--line-2);
+  background:var(--panel-2)}
+
+/* ---------- s1 duzen ---------- */
+.hook{display:grid; grid-template-columns:minmax(0,1.05fr) minmax(0,1fr); gap:20px; align-items:start}
+.cols{display:grid; grid-template-columns:1fr; gap:14px}
+.qcol h3{color:var(--ink)}
+.qcol p{font-size:.94em; color:var(--ink-2); margin:0}
+
+/* ---------- kontroller ---------- */
+.ctrls{display:flex; flex-wrap:wrap; gap:14px 18px; align-items:flex-end;
+  padding:12px; background:var(--panel-2); border-top:1px solid var(--line-2)}
+.ctrl{display:flex; flex-direction:column; gap:3px; min-width:150px; flex:1 1 150px}
+.ctrl label{font-family:var(--font-mono); font-size:.72em; letter-spacing:.07em; text-transform:uppercase;
+  color:var(--ink-3); display:flex; justify-content:space-between; gap:8px}
+.ctrl label b{font-weight:600; color:var(--ink); font-variant-numeric:tabular-nums}
+input[type=range]{-webkit-appearance:none; appearance:none; width:100%; height:22px; background:transparent; margin:0; cursor:pointer}
+input[type=range]::-webkit-slider-runnable-track{height:3px; background:var(--line); border-radius:0}
+input[type=range]::-moz-range-track{height:3px; background:var(--line)}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none; width:16px; height:16px; border-radius:50%;
+  background:var(--arc); border:2px solid var(--panel); margin-top:-7px}
+input[type=range]::-moz-range-thumb{width:16px; height:16px; border-radius:50%; background:var(--arc); border:2px solid var(--panel)}
+.btn{font-family:var(--font-mono); font-size:.78em; letter-spacing:.06em; text-transform:uppercase;
+  background:var(--panel); color:var(--ink); border:1px solid var(--line); border-radius:var(--radius);
+  padding:8px 12px; cursor:pointer; white-space:nowrap}
+.btn:hover{border-color:var(--ink-3)}
+.btn.pri{background:var(--sin); color:var(--on-sin); border-color:var(--sin); font-weight:600}
+.btn[aria-pressed="true"]{background:var(--cos); color:var(--panel); border-color:var(--cos)}
+:root[data-theme="dark"] .btn[aria-pressed="true"]{color:#07131B}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]):not([data-mode="proj"]) .btn[aria-pressed="true"]{color:#07131B}
+}
+.btnrow{display:flex; gap:8px; flex-wrap:wrap; align-items:center}
+
+/* ---------- okumalar ---------- */
+.readout{display:grid; grid-template-columns:repeat(auto-fit,minmax(112px,1fr)); gap:1px;
+  background:var(--line-2); border-top:1px solid var(--line-2)}
+.readout.r3{grid-template-columns:repeat(3,minmax(0,1fr))}
+.readout div{background:var(--panel); padding:8px 11px; min-width:0}
+.readout span{display:block; font-family:var(--font-mono); font-size:.68em; letter-spacing:.07em;
+  text-transform:uppercase; color:var(--ink-3)}
+.readout b{font-family:var(--font-mono); font-size:1.08em; font-weight:600; font-variant-numeric:tabular-nums}
+
+/* ---------- kart izgarasi ---------- */
+.cards{display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:14px}
+.card{background:var(--panel); border:1px solid var(--line); border-top:3px solid var(--cos);
+  border-radius:var(--radius); padding:14px 15px}
+.card:nth-child(3n+1){border-top-color:var(--sin)}
+.card:nth-child(3n+3){border-top-color:var(--arc)}
+.card p{font-size:.92em; color:var(--ink-2); margin:0}
+.card .bridge{margin-top:9px; padding-top:9px; border-top:1px dashed var(--line);
+  font-size:.86em; color:var(--ink-3)}
+.card .bridge b{color:var(--brass); font-family:var(--font-mono); font-size:.9em;
+  letter-spacing:.05em; text-transform:uppercase}
+
+/* ---------- atolye duzeni ---------- */
+.lab{display:grid; grid-template-columns:minmax(0,560px) minmax(0,1fr); gap:18px; align-items:start}
+.steps{background:var(--panel); border:1px solid var(--line); border-radius:var(--radius); padding:13px 14px}
+.steps h3{margin-bottom:9px}
+.stepnav{display:flex; gap:6px; align-items:center; margin-bottom:10px}
+.stepnav .count{font-family:var(--font-mono); font-size:.78em; color:var(--ink-3); margin-left:auto}
+.steplist{list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:5px}
+.steplist button{width:100%; text-align:left; font:inherit; font-size:.9em; background:transparent;
+  color:var(--ink-2); border:1px solid transparent; border-left:2px solid var(--line);
+  padding:7px 10px; cursor:pointer; border-radius:0}
+.steplist button:hover{background:var(--panel-2)}
+.steplist button[aria-current="true"]{border-left-color:var(--arc); background:var(--panel-2); color:var(--ink)}
+.steplist .k{font-family:var(--font-mono); font-size:.82em; color:var(--brass); margin-right:6px}
+
+table{width:100%; border-collapse:collapse; font-size:.88em}
+.tablebox{overflow-x:auto; max-width:100%; background:var(--panel); border:1px solid var(--line); border-radius:var(--radius); margin-top:16px}
+th,td{padding:7px 11px; text-align:right; border-bottom:1px solid var(--line-2); white-space:nowrap}
+th:first-child,td:first-child{text-align:left}
+th:last-child,td:last-child{text-align:left; white-space:normal; min-width:170px}
+thead th{font-family:var(--font-mono); font-size:.76em; letter-spacing:.06em; text-transform:uppercase;
+  color:var(--ink-3); font-weight:600; background:var(--panel-2)}
+tbody tr{cursor:pointer}
+tbody tr:hover{background:var(--panel-2)}
+tbody tr[aria-selected="true"]{background:var(--panel-2); box-shadow:inset 3px 0 0 var(--arc)}
+td.num{font-family:var(--font-mono); font-variant-numeric:tabular-nums}
+
+/* ---------- terimler ---------- */
+.terms{display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:14px}
+.term{background:var(--panel); border:1px solid var(--line); border-radius:var(--radius); padding:14px 15px}
+.term .sym{font-family:var(--font-mono); font-size:.74em; letter-spacing:.08em; color:var(--ink-3)}
+.term p{font-size:.92em; color:var(--ink-2); margin:.35em 0 0}
+.mus{margin-top:10px; border-left:3px solid var(--brass); padding:6px 0 6px 10px; font-size:.9em}
+.mus span{font-family:var(--font-mono); font-size:.72em; letter-spacing:.08em; text-transform:uppercase;
+  color:var(--brass); font-weight:600; display:block}
+
+/* ---------- quiz ---------- */
+.quizwrap{display:grid; grid-template-columns:minmax(0,1fr) 300px; gap:18px; align-items:start}
+.q{background:var(--panel); border:1px solid var(--line); border-radius:var(--radius); padding:14px 15px; margin-bottom:12px}
+.q .qh{font-family:var(--font-mono); font-size:.74em; letter-spacing:.08em; color:var(--brass); font-weight:600}
+.q p.qt{margin:.3em 0 .7em; font-weight:500}
+.opts{display:flex; flex-direction:column; gap:6px}
+.opts button{font:inherit; font-size:.93em; text-align:left; background:var(--panel-2); color:var(--ink);
+  border:1px solid var(--line); border-radius:var(--radius); padding:9px 12px; cursor:pointer}
+.opts button:hover{border-color:var(--ink-3)}
+.opts button.ok{border-color:var(--ok); box-shadow:inset 3px 0 0 var(--ok)}
+.opts button.no{border-color:var(--no); box-shadow:inset 3px 0 0 var(--no)}
+.opts button[disabled]{cursor:default}
+.fb{margin-top:9px; font-size:.9em; color:var(--ink-2); border-top:1px dashed var(--line); padding-top:8px}
+.fb b{font-family:var(--font-mono); font-size:.82em; letter-spacing:.06em; text-transform:uppercase}
+.fb.good b{color:var(--ok)} .fb.bad b{color:var(--no)}
+.recap{background:var(--panel); border:1px solid var(--line); border-top:3px solid var(--brass);
+  border-radius:var(--radius); padding:14px 15px; position:sticky; top:14px}
+.recap ol{margin:0; padding-left:1.15em; display:flex; flex-direction:column; gap:9px}
+.recap li{font-size:.91em; color:var(--ink-2)}
+.recap li b{color:var(--ink)}
+.score{font-family:var(--font-mono); font-size:.8em; color:var(--ink-3); margin-top:12px;
+  padding-top:10px; border-top:1px solid var(--line-2)}
+
+.note{font-size:.86em; color:var(--ink-3); margin-top:10px}
+.legend{display:flex; flex-wrap:wrap; gap:6px 16px; padding:10px 12px; background:var(--panel-2);
+  border-top:1px solid var(--line-2); font-family:var(--font-mono); font-size:.74em; letter-spacing:.04em}
+.legend i{display:inline-block; width:15px; height:3px; vertical-align:middle; margin-right:6px}
+footer{margin-top:56px; padding-top:16px; border-top:1px solid var(--line); font-size:.84em; color:var(--ink-3)}
+footer a{color:var(--ink-2)}
+
+@media (max-width:980px){
+  .lab{grid-template-columns:1fr}
+  .quizwrap{grid-template-columns:1fr}
+  .recap{position:static}
+  .cards,.terms{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@media (max-width:760px){
+  :root{--h-clap:245px; --h-meas:435px; --h-temp:365px}
+  :root[data-mode="proj"]{--h-clap:285px; --h-meas:505px; --h-temp:425px}
+  .wrap{padding-inline:16px}
+  .hook{grid-template-columns:1fr}
+  .cards,.terms{grid-template-columns:1fr}
+  .ctrl{flex:1 1 100%}
+  .btn{padding:9px 14px}
+  .opts button{padding:12px 14px}
+  input[type=range]{height:30px}
+  input[type=range]::-webkit-slider-thumb{width:22px; height:22px; margin-top:-10px}
+  input[type=range]::-moz-range-thumb{width:22px; height:22px}
+  .canvas-inner{min-width:0}
+}
+@media (max-width:480px){
+  :root{--h-clap:225px; --h-meas:400px; --h-temp:330px}
+  :root[data-mode="proj"]{--h-clap:265px; --h-meas:465px; --h-temp:385px}
+}
+@media (prefers-reduced-motion:reduce){*{animation:none!important; transition:none!important}}
+
+/* ---------- karsilastirma / hesap tablosu ---------- */
+.cmpbox{background:var(--panel); border:1px solid var(--line); border-radius:var(--radius); margin-bottom:16px}
+.cmpbox h3{padding:13px 14px 8px; margin:0}
+.cmpscroll{overflow-x:auto; max-width:100%}
+.cmp{width:100%; border-collapse:collapse; font-size:.9em}
+.cmp th,.cmp td{padding:6px 12px; border-bottom:1px solid var(--line-2); text-align:right; white-space:nowrap}
+.cmp th:first-child,.cmp td:first-child{text-align:left; white-space:normal; color:var(--ink-2)}
+.cmp thead th{font-family:var(--font-mono); font-size:.76em; letter-spacing:.06em; text-transform:uppercase;
+  font-weight:600; background:var(--panel-2)}
+.cmp thead th.a{color:var(--sin)} .cmp thead th.b{color:var(--cos)}
+.cmp td.v{font-family:var(--font-mono); font-variant-numeric:tabular-nums; font-weight:600}
+.cmp tr.key td{background:var(--panel-2)}
+.cmp tr.key td:first-child{color:var(--ink); font-weight:600}
+.cmp tbody tr:last-child td{border-bottom:0}
+
+/* ---------- olcum haplari ---------- */
+.cmp td.lbl{width:56%}
+.pillrow{display:flex; gap:7px; flex-wrap:wrap; flex:1 1 100%}
+.pill{font-family:var(--font-mono); font-size:.74em; letter-spacing:.05em; text-transform:uppercase;
+  background:var(--panel); color:var(--ink-2); border:1px solid var(--line); border-radius:var(--radius);
+  padding:8px 11px; cursor:pointer}
+.pill[aria-pressed="true"]{background:var(--arc); color:#fff; border-color:var(--arc); font-weight:600}
+
+/* ---------- kontrol gruplari ---------- */
+.grp{flex:1 1 100%; display:flex; flex-wrap:wrap; gap:12px 16px; border-left:3px solid var(--line);
+  padding-left:11px; margin-bottom:2px}
+.grp.ga{border-left-color:var(--sin)} .grp.gb{border-left-color:var(--cos)}
+.grp .tag{flex:1 1 100%; font-family:var(--font-mono); font-size:.72em; letter-spacing:.09em;
+  text-transform:uppercase; font-weight:600; margin:0}
+.grp.ga .tag{color:var(--sin)} .grp.gb .tag{color:var(--cos)}
+.sw{display:inline-block; width:11px; height:11px; border-radius:50%; vertical-align:-1px; margin-right:6px}
+#tbl2 td:last-child,#tbl2 th:last-child{text-align:right; min-width:0}
+#tbl2 td,#tbl2 th{padding:6px 9px}
+#tbl2 td:nth-child(n+2){font-family:var(--font-mono); font-variant-numeric:tabular-nums}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+
+<header class="top">
+  <div class="brand">
+    <div class="eyebrow">Müzik Teknolojisi · Ses Fiziği I · 13. Atölye</div>
+    <h1>Ses Hızı</h1>
+    <p class="lede">343 m/s sayısını şimdiye kadar hep verilmiş kabul ettik. Bu atölyede onu <b>kendimiz ölçeceğiz</b> — hem bir alkışla hem iki mikrofonla. Sonra da neye bağlı olduğunu göreceğiz: sıcaklığa evet, basınca hayır, frekansa asla.</p>
+  </div>
+  <div class="themebar" role="group" aria-label="Tema seçimi">
+    <button type="button" data-t="light" aria-pressed="false">Açık</button>
+    <button type="button" data-t="dark" aria-pressed="false">Koyu</button>
+    <button type="button" data-t="proj" aria-pressed="false">Projeksiyon</button>
+  </div>
+</header>
+
+<!-- ============ 01 ============ -->
+<section id="s1">
+  <h2><span class="num">01</span> Neden buna ihtiyacımız var?</h2>
+  <p class="kicker">Bir duvara doğru el çırp, yankının dönmesini bekle. Geçen süreyi ve duvara olan uzaklığı biliyorsan ses hızını bulmuşsun demektir. Fazlası gerekmiyor.</p>
+
+  <div class="hook">
+    <figure class="canvas-wrap">
+      <div class="canvas-inner"><canvas id="cClap" aria-label="Bir duvara doğru çırpılan elin sesinin gidip geri dönmesi ve geçen sürenin ölçülmesi"></canvas></div>
+      <div class="ctrls">
+        <div class="btnrow" style="flex:1 1 100%">
+          <button type="button" class="btn pri" id="clGo">El çırp</button>
+          <button type="button" class="btn" id="clReset">Başa al</button>
+        </div>
+      </div>
+      <figcaption>Ses duvara gidip geri döndü: <b>iki kat</b> yol aldı. O yüzden hız, mesafenin iki katının süreye bölümüdür — <b>v = 2d / t</b>.</figcaption>
+    </figure>
+
+    <div class="cols">
+      <div class="qcol">
+        <h3>Neden 343 diye ezberlemiyoruz?</h3>
+        <p>Çünkü sabit değil. Sıcaklık 10 derece değişince ses hızı yaklaşık <b>6 m/s</b> değişir — bu da üflemeli bir çalgının akordunu <b>30 sent</b> kaydırmaya yeter.</p>
+      </div>
+      <div class="qcol">
+        <h3>Neye bağlı, neye değil?</h3>
+        <p>Ortamın <b>sertliğine</b> ve <b>yoğunluğuna</b> bağlı. Sıcaklıkla değişir. Ama havanın <b>basıncıyla</b> değişmez ve <b>frekansla</b> hiç değişmez — bas da tiz de aynı anda ulaşır.</p>
+      </div>
+      <div class="qcol">
+        <h3>Ölçmenin iki yolu</h3>
+        <p>Alkış–yankı yöntemi kronometre ister ve kabadır. İki mikrofonla ölçmek ise bir ses kartının örnekleme çözünürlüğü kadar hassastır — <b>binde bir</b> hata payıyla.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 02 ============ -->
+<section id="s2">
+  <h2><span class="num">02</span> Bilmemiz gereken kavramlar</h2>
+  <p style="max-width:62ch; color:var(--ink-2)">Altı kavram. Üçü hızın neye bağlı olduğu, üçü nasıl ölçüldüğü.</p>
+  <div class="cards">
+    <div class="card">
+      <h3>Sertlik ve yoğunluk</h3>
+      <p>Ses hızı ortamın iki özelliğinden çıkar: <b>v = √(sertlik / yoğunluk)</b>. Ortam ne kadar sertse dalga o kadar hızlı, ne kadar ağırsa o kadar yavaş ilerler.</p>
+      <div class="bridge"><b>Havada</b> v = √(γ·P / ρ) ≈ 343 m/s.</div>
+    </div>
+    <div class="card">
+      <h3>Sıcaklık</h3>
+      <p>Isınan havada parçacıklar daha hızlı hareket eder ve bilgiyi daha çabuk aktarır. Pratik bağıntı: <b>v ≈ 331 + 0,6 · T</b> (T °C cinsinden).</p>
+      <div class="bridge"><b>Örnek</b> 0 °C'de 331, 20 °C'de 343, 35 °C'de 352 m/s.</div>
+    </div>
+    <div class="card">
+      <h3>Basınç etkilemez</h3>
+      <p>Şaşırtıcı ama doğru: sıcaklık sabitken havanın basıncı artsa bile ses hızı <b>değişmez</b>. Çünkü basınç artarken yoğunluk da aynı oranda artar, oranları sabit kalır.</p>
+      <div class="bridge"><b>Sonuç</b> Dağda ve deniz seviyesinde hız aynı (sıcaklık aynıysa).</div>
+    </div>
+    <div class="card">
+      <h3>Frekanstan bağımsız</h3>
+      <p>Bas da tiz de <b>aynı</b> hızla ilerler. Öyle olmasaydı uzaktaki bir orkestranın akorları dağılmış olarak ulaşırdı.</p>
+      <div class="bridge"><b>Adı</b> Dispersiyonsuz ortam.</div>
+    </div>
+    <div class="card">
+      <h3>Yankı yöntemi</h3>
+      <p>Bir duvara doğru el çırp, yankıyı bekle: <b>v = 2d / t</b>. Ucuz ve öğreticidir ama kronometre hatası büyük olur — mesafeyi uzun tutmak şart.</p>
+      <div class="bridge"><b>İpucu</b> 100 m'de t ≈ 0,58 s.</div>
+    </div>
+    <div class="card">
+      <h3>İki mikrofon yöntemi</h3>
+      <p>Aynı sesi araları <i class="lit">Δx</i> olan iki mikrofonla kaydet, aradaki gecikmeyi ölç: <b>v = Δx / Δt</b>. 48 kHz'te tek örnek 21 µs — çok hassas.</p>
+      <div class="bridge"><b>4. atölye</b> Mikrofon gecikmesini orada görmüştük.</div>
+    </div>
+    <div class="card" style="grid-column:1/-1">
+      <h3>Kaynak · mikrofon · duvar</h3>
+      <p>Tek mikrofon yeter. Kaynakla mikrofonu <i class="lit">s</i> kadar ayır, yanlarına <i class="lit">L</i> uzaklıkta bir duvar koy. Mikrofona <b>iki</b> ses ulaşır: doğrudan gelen ve duvardan yansıyan. Yansıyan yolu ayna kaynakla buluruz: <b>√(s² + 4L²)</b>. Aradaki gecikme yalnızca yol farkına aittir, yani <b>v = (√(s² + 4L²) − s) / Δt</b>.</p>
+      <div class="bridge"><b>5. atölye</b> Ayna kaynak fikrini yansımayı anlatırken kurmuştuk.</div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 03 ============ -->
+<section id="s3">
+  <h2><span class="num">03</span> Atölye: ses hızını ölç</h2>
+  <p style="max-width:70ch; color:var(--ink-2)">Üç yöntem, aynı sonuç — ama çok farklı hassasiyetle. Yöntemi seç, mesafeleri değiştir, <b>Ölç</b>'e bas ve hesabı adım adım takip et. Sağdaki kutuda ölçüm hatasının neye bağlı olduğunu da göreceksin.</p>
+
+  <div class="lab">
+    <div>
+      <figure class="canvas-wrap">
+        <div class="canvas-inner"><canvas id="cMeas" aria-label="Yankı, iki mikrofon ve duvardan yansıma yöntemleriyle ses hızı ölçümü"></canvas></div>
+        <div class="legend">
+          <span><i style="background:var(--sin)"></i>ses darbesi</span>
+          <span><i style="background:var(--cos)"></i>duvar ve mikrofonlar</span>
+          <span><i style="background:var(--arc)"></i>yansıyan yol ve ölçülen süre</span>
+        </div>
+        <div class="ctrls">
+          <div class="pillrow">
+            <button type="button" class="pill" data-m="echo" aria-pressed="true">Yankı yöntemi</button>
+            <button type="button" class="pill" data-m="mic">İki mikrofon</button>
+            <button type="button" class="pill" data-m="wall">Kaynak · mikrofon · duvar</button>
+          </div>
+          <div class="btnrow" style="flex:1 1 100%">
+            <button type="button" class="btn pri" id="meGo">Ölç</button>
+            <button type="button" class="btn" id="meReset">Başa al</button>
+          </div>
+          <div class="ctrl" style="flex:1 1 280px">
+            <label for="meD"><span id="meDLab">Duvara uzaklık <i class="lit">d</i></span><b id="meDV">50 m</b></label>
+            <input type="range" id="meD" min="10" max="150" step="1" value="50">
+          </div>
+          <div class="ctrl" id="meLBox" style="flex:1 1 250px" hidden>
+            <label for="meL"><span>Duvara uzaklık <i class="lit">L</i></span><b id="meLV">3,0 m</b></label>
+            <input type="range" id="meL" min="1" max="12" step="0.5" value="3">
+          </div>
+        </div>
+        <div class="readout r3">
+          <div><span id="lbD">Mesafe</span><b id="rD">50 m</b></div>
+          <div><span>Ölçülen süre</span><b id="rT">0,000 s</b></div>
+          <div><span id="lbY">Alınan yol</span><b id="rY">100 m</b></div>
+          <div><span>Hesaplanan hız</span><b id="rV">— m/s</b></div>
+          <div><span>Ölçüm belirsizliği</span><b id="rE">±0,05 s</b></div>
+          <div><span>Hız hatası</span><b id="rP">—</b></div>
+        </div>
+      </figure>
+      <p class="note" style="margin:10px 0 0">Aynı kronometre hatası, kısa mesafede büyük bir yüzde hatası demektir. Bu yüzden yankı yöntemiyle ölçüm yapacaksan <b>uzak</b> bir duvar seç. Mikrofonlu iki yöntemde hatayı belirleyen şey ses kartının örnekleme hızıdır; orada dikkat edilecek şey iki darbenin kayıtta <b>ayrılabilir</b> kadar uzak düşmesidir.</p>
+    </div>
+
+    <div>
+      <aside class="steps">
+        <h3>Ders adımları</h3>
+        <div class="stepnav">
+          <button type="button" class="btn" id="stPrev" aria-label="Önceki adım">‹</button>
+          <button type="button" class="btn" id="stNext" aria-label="Sonraki adım">›</button>
+          <span class="count" id="stCount">1 / 7</span>
+        </div>
+        <ol class="steplist" id="stList"></ol>
+        <p class="note" id="stText"></p>
+      </aside>
+
+      <div class="cmpbox">
+        <h3>Hesap adım adım</h3>
+        <div class="cmpscroll">
+          <table class="cmp">
+            <tbody>
+              <tr><td class="lbl" id="cl1">Duvara uzaklık d</td><td class="v" id="vD"></td></tr>
+              <tr id="rowL" hidden><td class="lbl">Duvara uzaklık L</td><td class="v" id="vL"></td></tr>
+              <tr><td class="lbl" id="cl2">Sesin aldığı yol</td><td class="v" id="vY"></td></tr>
+              <tr id="rowDF" hidden><td class="lbl">Yol farkı</td><td class="v" id="vDF"></td></tr>
+              <tr><td class="lbl" id="cl3">Ölçülen süre t</td><td class="v" id="vT"></td></tr>
+              <tr class="key"><td class="lbl" id="cl4">Hız = yol / süre</td><td class="v" id="vV"></td></tr>
+              <tr><td class="lbl">Süre belirsizliği</td><td class="v" id="vE"></td></tr>
+              <tr class="key"><td class="lbl">Hızdaki hata payı</td><td class="v" id="vP"></td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="note" style="padding:0 14px 12px; margin:0" id="sNote"></p>
+      </div>
+
+      <div class="tablebox" style="margin-top:0">
+        <table id="tbl">
+          <caption class="sr-only">Mesafeye göre süre ve hata payı</caption>
+          <thead><tr><th>Mesafe</th><th>Süre</th><th>Hata payı</th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+      <p class="note">Yankı yöntemi içindir. Bir satıra tıkla: o mesafe seçilir.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 04 ============ -->
+<section id="s4">
+  <h2><span class="num">04</span> Sıcaklık akordu kaydırır</h2>
+  <p style="max-width:70ch; color:var(--ink-2)">Üflemeli bir çalgının perdesini boru uzunluğu <b>ve</b> içindeki ses hızı birlikte belirler. Salon ısındığında boru aynı kalır ama ses hızı artar — çalgı tizleşir. Yaylı çalgılarda böyle bir şey olmaz; işte orkestranın ısındıkça dağılmasının sebebi.</p>
+
+  <div class="hook">
+    <figure class="canvas-wrap">
+      <div class="canvas-inner"><canvas id="cTemp" aria-label="Ses hızının sıcaklıkla değişimi ve üflemeli çalgıdaki akort kayması"></canvas></div>
+      <div class="legend">
+        <span><i style="background:var(--sin)"></i>ses hızı eğrisi</span>
+        <span><i style="background:var(--cos)"></i>referans sıcaklık</span>
+        <span><i style="background:var(--arc)"></i>akort kayması</span>
+      </div>
+      <div class="ctrls">
+        <div class="pillrow">
+          <button type="button" class="pill" data-t="0">0 °C · dışarısı</button>
+          <button type="button" class="pill" data-t="20" aria-pressed="true">20 °C · oda</button>
+          <button type="button" class="pill" data-t="32">32 °C · dolu salon</button>
+        </div>
+        <div class="ctrl" style="flex:1 1 250px">
+          <label for="tpT"><span>Sıcaklık</span><b id="tpTV">20 °C</b></label>
+          <input type="range" id="tpT" min="-10" max="40" step="0.5" value="20">
+        </div>
+        <div class="ctrl" style="flex:1 1 230px">
+          <label for="tpR"><span>Akort yapılan sıcaklık</span><b id="tpRV">20 °C</b></label>
+          <input type="range" id="tpR" min="10" max="30" step="0.5" value="20">
+        </div>
+      </div>
+      <div class="readout r3">
+        <div><span>Sıcaklık</span><b id="qT">20 °C</b></div>
+        <div><span>Ses hızı</span><b id="qV">343,2 m/s</b></div>
+        <div><span>Referansa göre</span><b id="qDV">0,0 m/s</b></div>
+        <div><span>Akort kayması</span><b id="qC">0 sent</b></div>
+        <div><span>Duyulur mu</span><b id="qH">fark edilmez</b></div>
+        <div><span>440 Hz'in <i class="lit">λ</i>'sı</span><b id="qL">78,0 cm</b></div>
+      </div>
+    </figure>
+
+    <div>
+      <div class="cmpbox">
+        <h3>Akort kayması nasıl çıkıyor</h3>
+        <div class="cmpscroll">
+          <table class="cmp">
+            <tbody>
+              <tr><td class="lbl">Akort sıcaklığı</td><td class="v" id="eR"></td></tr>
+              <tr><td class="lbl">Şu anki sıcaklık</td><td class="v" id="eT"></td></tr>
+              <tr><td class="lbl">Hız oranı</td><td class="v" id="eO"></td></tr>
+              <tr class="key"><td class="lbl">Perde oranı = hız oranı</td><td class="v" id="eF"></td></tr>
+              <tr><td class="lbl">Sent = 1200·log₂(oran)</td><td class="v" id="eC"></td></tr>
+              <tr class="key"><td class="lbl">Yaylı çalgı ne yapar</td><td class="v">kaymaz — akort bozulur</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="note" style="padding:0 14px 12px; margin:0" id="eNote"></p>
+      </div>
+
+      <div class="tablebox" style="margin-top:0">
+        <table id="tbl2">
+          <caption class="sr-only">Farklı ortamlarda ses hızı</caption>
+          <thead><tr><th>Ortam</th><th><i class="lit">v</i> (m/s)</th><th>440 Hz'in <i class="lit">λ</i>'sı</th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+      <p class="note">Katılar hem daha sert hem daha yoğundur; sertlik farkı çok daha büyük olduğu için ses onlarda çok daha hızlı ilerler.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 05 ============ -->
+<section id="s5">
+  <h2><span class="num">05</span> Kavramın dili</h2>
+  <p style="max-width:64ch; color:var(--ink-2)">Altı terim. Üçü fizik, üçü sahnedeki karşılığı.</p>
+
+  <div class="terms">
+    <div class="term">
+      <h3>Ses hızı</h3>
+      <div class="sym"><i class="lit">v</i> = √(sertlik / yoğunluk)</div>
+      <p>Sıkışma deseninin ilerleme hızı. Ortamın özelliğidir; kaynağın ne kadar gürültülü olduğuyla ilgisi yoktur.</p>
+      <div class="mus"><span>Müzikte</span> Havada 20 °C'de 343 m/s; her şeyin başlangıç noktası.</div>
+    </div>
+
+    <div class="term">
+      <h3>Sıcaklık bağıntısı</h3>
+      <div class="sym"><i class="lit">v</i> ≈ 331 + 0,6 · <i class="lit">T</i></div>
+      <p>Her 1 °C için yaklaşık 0,6 m/s. Mutlak sıcaklığın kareköküyle artar; bu basit doğru, oda sıcaklıkları için çok iyi bir yaklaşımdır.</p>
+      <div class="mus"><span>Müzikte</span> Salon 10 °C ısınırsa üflemeliler ~30 sent tizleşir.</div>
+    </div>
+
+    <div class="term">
+      <h3>Dispersiyonsuzluk</h3>
+      <div class="sym">bütün frekanslar aynı hızda</div>
+      <p>Havada ses hızı frekanstan bağımsızdır. Bu yüzden uzaktan gelen müzik <b>bozulmaz</b>, sadece zayıflar ve tizleri soğurulur.</p>
+      <div class="mus"><span>Müzikte</span> 100 m öteden gelen akor hâlâ akordur.</div>
+    </div>
+
+    <div class="term">
+      <h3>Yankı yöntemi</h3>
+      <div class="sym"><i class="lit">v</i> = 2<i class="lit">d</i> / <i class="lit">t</i></div>
+      <p>Sesin gidip geldiği için yol iki katıdır. Kaba ama kendi başına yapılabilecek bir ölçüm; mesafe uzadıkça hassaslaşır.</p>
+      <div class="mus"><span>Müzikte</span> Aynı hesap, bir salonun yankı gecikmesini tahmin etmek için de kullanılır.</div>
+    </div>
+
+    <div class="term">
+      <h3>Gecikme ve mesafe</h3>
+      <div class="sym">1 m ≈ 2,9 ms</div>
+      <p>Ses her metre için yaklaşık 3 milisaniye gecikir. Sahne düzeninde, monitörlerde ve mikrofon yerleşiminde doğrudan işe yarayan bir kural.</p>
+      <div class="mus"><span>Müzikte</span> 10 m uzaktaki hoparlör 29 ms geç duyulur.</div>
+      <div class="btnrow" style="margin-top:10px">
+        <button type="button" class="btn snd" data-snd="del">10 m gecikmeyi dinle</button>
+      </div>
+    </div>
+
+    <div class="term">
+      <h3>Sent</h3>
+      <div class="sym">1 yarım ton = 100 sent</div>
+      <p>Perde farkının logaritmik ölçüsü. İyi bir kulak <b>5 sentlik</b> farkı ayırt eder; 20 sent artık açıkça "akortsuz" duyulur.</p>
+      <div class="mus"><span>Müzikte</span> Sıcaklıkla gelen 30 sentlik kayma orkestrada duyulur bir sorundur.</div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 06 ============ -->
+<section id="s6">
+  <h2><span class="num">06</span> Şimdi sen dene</h2>
+  <div class="quizwrap">
+    <div id="quiz"></div>
+    <aside class="recap">
+      <h3>Aklında kalsın</h3>
+      <ol>
+        <li>Yankı yöntemi: <b>v = 2d / t</b> — ses gidip geldiği için yol <b>iki katı</b>dır.</li>
+        <li>Kaynak–mikrofon–duvar: <b>v = (√(s² + 4L²) − s) / Δt</b> — iki yol arasındaki <b>fark</b>.</li>
+        <li>Ses hızı ortamın <b>sertlik / yoğunluk</b> oranından gelir.</li>
+        <li>Sıcaklıkla artar: <b>v ≈ 331 + 0,6·T</b>. Basınçtan ve frekanstan <b>bağımsız</b>dır.</li>
+        <li>Salon ısınınca üflemeliler tizleşir, yaylılar kaymaz — akort dağılır.</li>
+      </ol>
+      <div class="score" id="score">Doğru: 0 / 8</div>
+    </aside>
+  </div>
+</section>
+
+<footer>
+  <p>Müzik Teknolojisi · Ses Fiziği I dersi 13. atölye — Ses Hızı. 4., 5., 7. ve 11. atölyelerdeki kavramları varsayar. Konu haritası için: UNSW Physclips – Sound (animations.physics.unsw.edu.au).</p>
+</footer>
+
+</div>
+
+<script>
+(function(){
+'use strict';
+var root=document.documentElement, TAU=Math.PI*2;
+var C={}, K={lw:1,fs:1,faint:.32,glow:0};
+var mqDark=window.matchMedia('(prefers-color-scheme: dark)');
+var mqSlow=window.matchMedia('(prefers-reduced-motion: reduce)');
+var CKEYS=['ground','panel','panel-2','ink','ink-2','ink-3','line','line-2','sin','cos','arc','brass','ok','no'];
+
+/* ---------------- tema ---------------- */
+function isProj(){ return root.getAttribute('data-mode')==='proj'; }
+function isDarkNow(){
+  if(isProj()) return false;
+  var t=root.getAttribute('data-theme');
+  if(t==='dark') return true;
+  if(t==='light') return false;
+  return mqDark.matches;
+}
+function readTheme(){
+  var cs=getComputedStyle(root);
+  for(var i=0;i<CKEYS.length;i++) C[CKEYS[i]]=cs.getPropertyValue('--'+CKEYS[i]).trim()||'#888';
+  var proj=isProj(), dark=isDarkNow();
+  K.glow = (dark && !proj) ? 0.7 : 0;
+  K.lw   = proj ? 1.5 : 1;
+  K.fs   = proj ? 1.24 : 1;
+  K.faint= proj ? 0.42 : (K.glow ? 0.34 : 0.32);
+}
+var tBtns=[].slice.call(document.querySelectorAll('.themebar button'));
+function syncTheme(){
+  var cur;
+  if(isProj()) cur='proj';
+  else if(root.getAttribute('data-theme')==='dark') cur='dark';
+  else if(root.getAttribute('data-theme')==='light') cur='light';
+  else cur = mqDark.matches ? 'dark' : 'light';
+  tBtns.forEach(function(b){ b.setAttribute('aria-pressed', b.dataset.t===cur?'true':'false'); });
+}
+function applyTheme(v,store){
+  if(v==='light'){ root.setAttribute('data-theme','light'); root.removeAttribute('data-mode'); }
+  else if(v==='dark'){ root.setAttribute('data-theme','dark'); root.removeAttribute('data-mode'); }
+  else if(v==='proj'){ root.setAttribute('data-theme','light'); root.setAttribute('data-mode','proj'); }
+  if(store){ try{ localStorage.setItem('mt-tema',v); }catch(e){} }
+  syncTheme();
+}
+tBtns.forEach(function(b){ b.addEventListener('click',function(){ applyTheme(b.dataset.t,true); }); });
+(function(){
+  var v=null; try{ v=localStorage.getItem('mt-tema'); }catch(e){}
+  if(v==='light'||v==='dark'||v==='proj') applyTheme(v,false); else syncTheme();
+})();
+
+/* ---------------- yardimcilar ---------------- */
+function nf(v,d){
+  d=(d===undefined)?2:d;
+  var r=Number(v.toFixed(d)); if(r===0) r=0;
+  return r.toFixed(d).replace('-','−').replace('.',',');
+}
+function deg(v,d){ return nf(v,d===undefined?0:d)+'°'; }
+function setFont(ctx,px,w,sans){
+  ctx.font=(w||500)+' '+Math.max(9,Math.round(px*K.fs))+'px '+(sans?'"IBM Plex Sans",system-ui,sans-serif':'"IBM Plex Mono",ui-monospace,monospace');
+}
+function gOn(ctx,col,amt){ if(K.glow){ ctx.shadowColor=col; ctx.shadowBlur=amt*K.glow; } }
+function gOff(ctx){ ctx.shadowBlur=0; ctx.shadowColor='transparent'; }
+function dash(ctx,a){ ctx.setLineDash(a?a.map(function(v){return v*K.lw;}):[]); }
+function line(ctx,x1,y1,x2,y2,col,w,d){
+  ctx.save(); ctx.strokeStyle=col; ctx.lineWidth=(w||1)*K.lw; dash(ctx,d);
+  ctx.beginPath(); ctx.moveTo(x1,y1); ctx.lineTo(x2,y2); ctx.stroke(); ctx.restore();
+}
+function dot(ctx,x,y,r,col,glow){
+  ctx.save(); ctx.fillStyle=col; if(glow) gOn(ctx,col,10);
+  ctx.beginPath(); ctx.arc(x,y,r*K.fs,0,TAU); ctx.fill(); gOff(ctx); ctx.restore();
+}
+function label(ctx,txt,x,y,col,px,align,bg){
+  var fs=px||11;
+  ctx.save(); setFont(ctx,fs,500,false);
+  ctx.textAlign=align||'left'; ctx.textBaseline='alphabetic';
+  if(bg){
+    var w=ctx.measureText(txt).width, h=fs*K.fs;
+    var lx=(align==='right')?x-w:((align==='center')?x-w/2:x);
+    ctx.fillStyle=alpha(C.panel,0.86);
+    ctx.fillRect(lx-3,y-h-1,w+6,h+5);
+  }
+  ctx.fillStyle=col; ctx.fillText(txt,x,y); ctx.restore();
+}
+function labelV(ctx,txt,x,y,col,px){
+  ctx.save(); setFont(ctx,px||11,500,false);
+  ctx.translate(x,y); ctx.rotate(Math.PI/2);
+  ctx.textAlign='center'; ctx.textBaseline='alphabetic';
+  ctx.fillStyle=col; ctx.fillText(txt,0,0); ctx.restore();
+}
+function textW(ctx,txt,px){ ctx.save(); setFont(ctx,px||11,500,false); var w=ctx.measureText(txt).width; ctx.restore(); return w; }
+function alpha(hex,a){
+  var h=hex.replace('#',''); if(h.length===3) h=h[0]+h[0]+h[1]+h[1]+h[2]+h[2];
+  var n=parseInt(h,16);
+  if(isNaN(n)) return hex;
+  return 'rgba('+((n>>16)&255)+','+((n>>8)&255)+','+(n&255)+','+a+')';
+}
+
+/* ---------------- sahne altyapisi ---------------- */
+var scenes=[];
+function makeScene(cv,painter){
+  var ctx=cv.getContext('2d'), s={cv:cv,ctx:ctx,W:0,H:0};
+  s.resize=function(){
+    var r=cv.getBoundingClientRect();
+    var w=Math.max(1,r.width), h=Math.max(1,r.height);
+    var dpr=Math.min(2,window.devicePixelRatio||1);
+    s.W=w; s.H=h; cv.width=Math.round(w*dpr); cv.height=Math.round(h*dpr);
+    ctx.setTransform(dpr,0,0,dpr,0,0);
+  };
+  s.draw=function(){ if(s.W<2) s.resize(); ctx.clearRect(0,0,s.W,s.H); painter(ctx,s.W,s.H); };
+  if(window.ResizeObserver) new ResizeObserver(function(){ s.resize(); s.draw(); }).observe(cv);
+  scenes.push(s); return s;
+}
+function markAll(){ CL.dirty=true; ME.dirty=true; TP.dirty=true; }
+function redrawAll(){ readTheme(); scenes.forEach(function(s){ s.resize(); s.draw(); }); markAll(); }
+new MutationObserver(redrawAll).observe(root,{attributes:true,attributeFilter:['data-theme','data-mode']});
+if(mqDark.addEventListener) mqDark.addEventListener('change',function(){ redrawAll(); syncTheme(); });
+window.addEventListener('resize',function(){ markAll(); });
+
+/* ---------------- ses ---------------- */
+var AC=null;
+function ac(){
+  try{
+    if(!AC){ var Ctor=window.AudioContext||window.webkitAudioContext; if(!Ctor) return null; AC=new Ctor(); }
+    if(AC.state==='suspended') AC.resume();
+    return AC;
+  }catch(e){ return null; }
+}
+function playTones(specs,dur){
+  var c=ac(); if(!c) return;
+  try{
+    var t0=c.currentTime+0.06, master=c.createGain();
+    master.gain.setValueAtTime(0.0001,t0);
+    master.gain.linearRampToValueAtTime(1,t0+0.03);
+    master.gain.setValueAtTime(1,t0+dur-0.08);
+    master.gain.linearRampToValueAtTime(0.0001,t0+dur);
+    master.connect(c.destination);
+    specs.forEach(function(sp){
+      var o=c.createOscillator(); o.type='sine'; o.frequency.setValueAtTime(sp.f,t0);
+      var g=c.createGain(); g.gain.setValueAtTime(sp.g,t0);
+      o.connect(g); g.connect(master); o.start(t0); o.stop(t0+dur+0.06);
+    });
+    setTimeout(function(){ try{ master.disconnect(); }catch(e){} },(dur+0.4)*1000);
+  }catch(e){}
+}
+function playSeq(list,dur,gap){
+  var c=ac(); if(!c) return;
+  list.forEach(function(f,i){ setTimeout(function(){ playTones([{f:f,g:0.16}],dur); }, i*(dur+gap)*1000); });
+}
+function hatch(ctx,x0,x1,y,col,dir){
+  ctx.save(); ctx.strokeStyle=col; ctx.lineWidth=1*K.lw;
+  for(var x=x0+5;x<x1;x+=12){ ctx.beginPath(); ctx.moveTo(x,y); ctx.lineTo(x-5,y+5*(dir||1)); ctx.stroke(); }
+  ctx.restore();
+}
+
+
+
+
+
+/* ---------------- ortak ---------------- */
+function vOfT(T){ return 331.3*Math.sqrt(1+T/273.15); }
+var V20=vOfT(20);
+
+function arrowH(ctx,x1,x2,y,col,lw){
+  ctx.save(); ctx.strokeStyle=col; ctx.lineWidth=(lw||1.7)*K.lw; ctx.lineCap='round';
+  ctx.beginPath(); ctx.moveTo(x1,y); ctx.lineTo(x2,y); ctx.stroke();
+  var d=(x2>x1)?1:-1, h=5;
+  ctx.beginPath(); ctx.moveTo(x1,y); ctx.lineTo(x1+d*7,y-h); ctx.moveTo(x1,y); ctx.lineTo(x1+d*7,y+h);
+  ctx.moveTo(x2,y); ctx.lineTo(x2-d*7,y-h); ctx.moveTo(x2,y); ctx.lineTo(x2-d*7,y+h);
+  ctx.stroke(); ctx.restore();
+}
+function arrow1(ctx,x1,y1,x2,y2,col,lw){
+  ctx.save(); ctx.strokeStyle=col; ctx.lineWidth=(lw||2)*K.lw; ctx.lineCap='round';
+  ctx.beginPath(); ctx.moveTo(x1,y1); ctx.lineTo(x2,y2); ctx.stroke();
+  var a=Math.atan2(y2-y1,x2-x1), h=6.5;
+  ctx.beginPath(); ctx.moveTo(x2,y2); ctx.lineTo(x2-h*Math.cos(a-0.45),y2-h*Math.sin(a-0.45));
+  ctx.moveTo(x2,y2); ctx.lineTo(x2-h*Math.cos(a+0.45),y2-h*Math.sin(a+0.45));
+  ctx.stroke(); ctx.restore();
+}
+function axLab(ctx,txt,x,y,px0,px1,col,px){
+  var w=textW(ctx,txt,px||9), al='center', tx=x;
+  if(tx+w/2>px1){ al='right'; tx=px1; }
+  else if(tx-w/2<px0){ al='left'; tx=px0; }
+  label(ctx,txt,tx,y,col,px||9,al);
+}
+function person(ctx,x,yBase,h,col,bold){
+  ctx.save(); ctx.strokeStyle=col; ctx.fillStyle=col; ctx.lineWidth=(bold?2.4:1.8)*K.lw; ctx.lineCap='round';
+  ctx.beginPath(); ctx.arc(x,yBase-h,h*0.26,0,TAU); ctx.fill();
+  ctx.beginPath(); ctx.moveTo(x,yBase-h+h*0.26); ctx.lineTo(x,yBase-h*0.3); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(x,yBase-h*0.3); ctx.lineTo(x-h*0.2,yBase); ctx.moveTo(x,yBase-h*0.3); ctx.lineTo(x+h*0.2,yBase); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(x,yBase-h*0.68); ctx.lineTo(x+h*0.3,yBase-h*0.52); ctx.stroke();
+  ctx.restore();
+}
+function mic(ctx,x,yBase,h,col,bold){
+  ctx.save(); ctx.strokeStyle=col; ctx.fillStyle=alpha(col,0.2); ctx.lineWidth=(bold?2.4:1.8)*K.lw;
+  ctx.beginPath(); ctx.moveTo(x,yBase); ctx.lineTo(x,yBase-h*0.55); ctx.stroke();
+  ctx.beginPath(); ctx.ellipse(x,yBase-h*0.72,h*0.2,h*0.28,0,0,TAU); ctx.fill(); ctx.stroke();
+  ctx.restore();
+}
+function pulseArc(ctx,x,yTop,yBot,col,a){
+  ctx.save(); ctx.strokeStyle=alpha(col,a); ctx.lineWidth=3.2*K.lw; ctx.lineCap='round'; gOn(ctx,col,10);
+  ctx.beginPath(); ctx.moveTo(x,yTop); ctx.quadraticCurveTo(x+7,(yTop+yBot)/2,x,yBot); ctx.stroke(); gOff(ctx); ctx.restore();
+}
+
+function srcTop(ctx,x,y,r,col){
+  ctx.save(); ctx.fillStyle=col; ctx.strokeStyle=col; ctx.lineWidth=1.5*K.lw;
+  ctx.beginPath(); ctx.arc(x,y,r*0.42,0,TAU); ctx.fill();
+  for(var i=1;i<=2;i++){ ctx.globalAlpha=0.5/i; ctx.beginPath(); ctx.arc(x,y,r*(0.42+i*0.45),0,TAU); ctx.stroke(); }
+  ctx.restore();
+}
+function micTop(ctx,x,y,r,col){
+  ctx.save(); ctx.strokeStyle=col; ctx.fillStyle=alpha(col,0.22); ctx.lineWidth=2.2*K.lw;
+  ctx.beginPath(); ctx.arc(x,y,r*0.62,0,TAU); ctx.fill(); ctx.stroke();
+  ctx.fillStyle=col; ctx.beginPath(); ctx.arc(x,y,r*0.22,0,TAU); ctx.fill();
+  ctx.restore();
+}
+function arrowV(ctx,x,y1,y2,col,lw){
+  ctx.save(); ctx.strokeStyle=col; ctx.lineWidth=(lw||1.7)*K.lw; ctx.lineCap='round';
+  ctx.beginPath(); ctx.moveTo(x,y1); ctx.lineTo(x,y2); ctx.stroke();
+  var d=(y2>y1)?1:-1, h=5;
+  ctx.beginPath(); ctx.moveTo(x,y1); ctx.lineTo(x-h,y1+d*7); ctx.moveTo(x,y1); ctx.lineTo(x+h,y1+d*7);
+  ctx.moveTo(x,y2); ctx.lineTo(x-h,y2-d*7); ctx.moveTo(x,y2); ctx.lineTo(x+h,y2-d*7);
+  ctx.stroke(); ctx.restore();
+}
+
+/* ================= 01 : alkis ve yanki ================= */
+var CL={t:0, playing:false, dirty:true};
+var CLD=60, CLSLOW=0.30;
+function clTotal(){ return 2*CLD/V20; }
+var clapScene=makeScene(document.getElementById('cClap'),function(ctx,W,H){
+  var pad=12, px0=pad+34, px1=W-pad-26;
+  var yG=H-pad-44, yTop=pad+40;
+  var faint=alpha(C['ink-3'],K.faint);
+  var X=function(x){ return px0+(x/CLD)*(px1-px0); };
+
+  line(ctx,px0-20,yG,px1+10,yG,alpha(C['ink-3'],0.5),1.6);
+  person(ctx,px0-6,yG,30,C.sin,true);
+  ctx.save(); ctx.fillStyle=alpha(C.cos,0.85); ctx.fillRect(px1,yTop-6,10,yG-yTop+6); ctx.restore();
+  label(ctx,'duvar',px1+5,yTop-12,C.cos,11,'center');
+  arrowH(ctx,px0,px1,yG+16,alpha(C['ink-3'],0.6),1.4);
+  label(ctx,'d = '+nf(CLD,0)+' m',(px0+px1)/2,yG+31,alpha(C['ink-3'],0.95),11,'center',true);
+
+  var T=clTotal(), t=Math.min(CL.t,T), half=T/2;
+  var xp=(t<half)?(V20*t):(2*CLD-V20*t);
+  if(CL.t>0&&CL.t<T) pulseArc(ctx,X(Math.max(0,Math.min(CLD,xp))),yTop+4,yG-6,C.sin,t<half?0.95:0.7);
+  if(CL.t>0&&CL.t<T&&t>=half) label(ctx,'dönüyor',X(Math.max(0,Math.min(CLD,xp)))-8,yTop-4,alpha(C.sin,0.9),10,'right');
+
+  /* kronometre */
+  var done=CL.t>=T;
+  label(ctx,'kronometre',px0-28,pad+14,alpha(C['ink-3'],0.95),10,'left');
+  label(ctx,nf(t,3)+' s',px0-28,pad+34,done?C.arc:C.sin,20,'left');
+  if(done){
+    label(ctx,'yankı geldi',px0+96,pad+34,C.arc,12,'left');
+    label(ctx,'v = 2 × '+nf(CLD,0)+' / '+nf(T,3)+' = '+nf(2*CLD/T,0)+' m/s',px1,pad+34,C.arc,13,'right');
+  }
+});
+
+/* ================= 03 : olcum atolyesi ================= */
+var ME={mode:'echo', d:50, dx:10, s:2, L:3, t:0, playing:false, dirty:true};
+function mePathR(){ return Math.sqrt(ME.s*ME.s+4*ME.L*ME.L); }
+function meFark(){ return mePathR()-ME.s; }
+function meTotal(){ return ME.mode==='echo' ? 2*ME.d/V20 : (ME.mode==='mic' ? (ME.dx*1.3)/V20 : (mePathR()*1.10)/V20); }
+function meSlow(){ return ME.mode==='echo' ? 0.30 : (ME.mode==='mic' ? 0.022 : 0.018); }
+function meDT(){ return ME.mode==='echo' ? 2*ME.d/V20 : (ME.mode==='mic' ? ME.dx/V20 : meFark()/V20); }
+function meT1(){ return ME.mode==='wall' ? ME.s/V20 : 0; }
+function meT2(){ return meT1()+meDT(); }
+function meErr(){ return ME.mode==='echo' ? 0.05 : 1/48000; }
+var measScene=makeScene(document.getElementById('cMeas'),function(ctx,W,H){
+  var pad=12, px0=pad+30, px1=W-pad-24;
+  var faint=alpha(C['ink-3'],K.faint);
+  var tAx=H-pad-26, tTop=tAx-84;
+  var yG=tTop-58, sTop=pad+26;
+  var T=meTotal(), t=Math.min(ME.t,T);
+
+  if(ME.mode==='echo'){
+    var X=function(x){ return px0+(x/ME.d)*(px1-px0); };
+    line(ctx,px0-18,yG,px1+12,yG,alpha(C['ink-3'],0.5),1.6);
+    person(ctx,px0-6,yG,28,C.sin,true);
+    ctx.save(); ctx.fillStyle=alpha(C.cos,0.85); ctx.fillRect(px1,sTop-2,10,yG-sTop+2); ctx.restore();
+    label(ctx,'duvar',px1+5,sTop-8,C.cos,11,'center');
+    arrowH(ctx,px0,px1,yG+18,alpha(C['ink-3'],0.6),1.4);
+    label(ctx,'d = '+nf(ME.d,0)+' m',(px0+px1)/2,yG+33,alpha(C['ink-3'],0.95),11,'center',true);
+    var half=T/2, xp=(t<half)?(V20*t):(2*ME.d-V20*t);
+    if(ME.t>0&&ME.t<T) pulseArc(ctx,X(Math.max(0,Math.min(ME.d,xp))),sTop+2,yG-6,C.sin,t<half?0.95:0.7);
+    else if(ME.t>=T) label(ctx,'yankı geldi',px0+6,sTop+14,C.arc,12,'left',true);
+  } else if(ME.mode==='mic'){
+    var span=ME.dx*1.3;
+    var X2=function(x){ return px0+(x/span)*(px1-px0); };
+    line(ctx,px0-18,yG,px1+12,yG,alpha(C['ink-3'],0.5),1.6);
+    mic(ctx,X2(0),yG,40,C.cos,true); mic(ctx,X2(ME.dx),yG,40,C.cos,true);
+    label(ctx,'A',X2(0),yG+16,C.cos,12,'center');
+    label(ctx,'B',X2(ME.dx),yG+16,C.cos,12,'center');
+    arrowH(ctx,X2(0),X2(ME.dx),yG+32,alpha(C['ink-3'],0.6),1.4);
+    label(ctx,'Δx = '+nf(ME.dx,1)+' m',(X2(0)+X2(ME.dx))/2,yG+47,alpha(C['ink-3'],0.95),11,'center',true);
+    arrow1(ctx,px0-24,sTop+16,px0-6,sTop+16,alpha(C.sin,0.8),1.8);
+    label(ctx,'ses soldan geliyor',px0-24,sTop+8,alpha(C.sin,0.95),10,'left');
+    var xp2=V20*t;
+    if(ME.t>0&&xp2<=span&&ME.t<T) pulseArc(ctx,X2(xp2),sTop+2,yG-8,C.sin,0.95);
+    else if(ME.t>=T) label(ctx,'iki mikrofon da kaydetti',px0+6,sTop+14,C.arc,12,'left',true);
+  }
+  if(ME.mode==='wall'){
+    var s=ME.s, L=ME.L, pr=mePathR();
+    var availW=px1-px0-56, availH=yG-sTop-30;
+    var ppm=Math.min(availW/Math.max(s,0.9), availH/(L*1.16));
+    var wpx=s*ppm, lpx=L*ppm;
+    var lift=Math.max(0,(availH/1.16-lpx))*0.5;
+    var bx=(px0+px1)/2-wpx/2, byS=yG-lift, wy=byS-lpx;
+    var mx=bx+wpx, rx=bx+wpx/2;
+
+    /* duvar */
+    ctx.save(); ctx.fillStyle=alpha(C.cos,0.85); ctx.fillRect(px0-6,wy-8,(px1-px0)+12,8); ctx.restore();
+    hatch(ctx,px0-6,px1+6,wy-8,alpha(C.cos,0.45),-1);
+    label(ctx,'duvar',px0+2,wy-15,C.cos,11,'left');
+
+    /* genisleyen cepheler (gercek + ayna kaynak) */
+    var Rr=V20*t*ppm;
+    if(ME.t>0){
+      ctx.save(); ctx.beginPath(); ctx.rect(px0-8,wy,(px1-px0)+16,byS+16-wy); ctx.clip();
+      ctx.lineWidth=1.5*K.lw; dash(ctx,[4,4]);
+      ctx.strokeStyle=alpha(C.sin,0.38);
+      ctx.beginPath(); ctx.arc(bx,byS,Rr,0,TAU); ctx.stroke();
+      if(V20*t>L){ ctx.strokeStyle=alpha(C.arc,0.38); ctx.beginPath(); ctx.arc(bx,byS-2*lpx,Rr,0,TAU); ctx.stroke(); }
+      dash(ctx); ctx.restore();
+    }
+
+    /* yollar */
+    line(ctx,bx,byS,mx,byS,alpha(C.sin,0.9),2.2);
+    ctx.save(); ctx.strokeStyle=alpha(C.arc,0.9); ctx.lineWidth=2.2*K.lw; ctx.lineJoin='round'; ctx.lineCap='round';
+    ctx.beginPath(); ctx.moveTo(bx,byS); ctx.lineTo(rx,wy); ctx.lineTo(mx,byS); ctx.stroke(); ctx.restore();
+    dot(ctx,rx,wy,3.2,C.arc,true);
+
+    /* olculer */
+    arrowH(ctx,bx,mx,byS+27,alpha(C['ink-3'],0.6),1.4);
+    label(ctx,'s = '+nf(s,1)+' m',(bx+mx)/2,byS+42,alpha(C['ink-3'],0.95),11,'center',true);
+    var lx=px0+16, kw=textW(ctx,'kaynak',11), mw=textW(ctx,'mikrofon',11);
+    /* yansiyan yol 24 px yukarida ne kadar yana kaymis: etiket ustune sigar mi */
+    var yanUp=lpx>0?24*(wpx/2)/lpx:1e9, ust=(yanUp>kw/2+10);
+    var klx=Math.max(lx+14+kw/2, ust?bx:(bx-24-kw/2));
+    var conEnd=ust?(bx-20):(klx-kw/2-8);
+    if(conEnd>lx+6) line(ctx,lx,byS,conEnd,byS,alpha(C['ink-3'],0.35),1,[4,4]);
+    arrowV(ctx,lx,byS,wy,alpha(C['ink-3'],0.6),1.4);
+    labelV(ctx,'L = '+nf(L,1)+' m',lx-4,(byS+wy)/2,alpha(C['ink-3'],0.95),11);
+
+    /* kaynak - mikrofon */
+    srcTop(ctx,bx,byS,13,C.sin);
+    micTop(ctx,mx,byS,13,C.cos);
+    label(ctx,'kaynak',klx,ust?byS-24:byS+4,C.sin,11,'center',true);
+    label(ctx,'mikrofon',ust?Math.min(px1-mw/2,mx):Math.min(px1-mw/2,mx+24+mw/2),ust?byS-24:byS+4,C.cos,11,'center',true);
+
+    /* etiketler : yollarin uzerine */
+    label(ctx,'doğrudan',(bx+mx)/2,byS+14,alpha(C.sin,0.95),10,'center',true);
+    if(ust) label(ctx,'yansıyan',rx,wy+15,alpha(C.arc,0.95),10,'center',true);
+    else label(ctx,'yansıyan',bx+0.55*(rx-bx),byS+0.55*(wy-byS),alpha(C.arc,0.95),10,'center',true);
+
+    /* ilerleyen darbeler */
+    var dTr=V20*t;
+    if(ME.t>0){
+      if(dTr<s) dot(ctx,bx+dTr*ppm,byS,4.4,C.sin,true);
+      if(dTr<pr){
+        var half=pr/2, u;
+        if(dTr<half){ u=dTr/half; dot(ctx,bx+(rx-bx)*u,byS+(wy-byS)*u,4.4,C.arc,true); }
+        else { u=(dTr-half)/half; dot(ctx,rx+(mx-rx)*u,wy+(byS-wy)*u,4.4,C.arc,true); }
+      }
+    }
+    if(ME.t>=meT2()-1e-9) label(ctx,'yol farkı = '+nf(meFark(),2)+' m',px1-2,sTop+10,C.arc,12,'right',true);
+  }
+
+  /* zaman ekseni */
+  var TW=T*1.12;
+  var XT=function(tt){ return px0+(tt/TW)*(px1-px0); };
+  line(ctx,px0,tAx,px1,tAx,alpha(C['ink-3'],0.55),1.2);
+  var unit=(ME.mode==='echo')?1:1000, usuf=(ME.mode==='echo')?' s':' ms';
+  var wall=(ME.mode==='wall');
+  var steps=5;
+  for(var i=0;i<=steps;i++){
+    var tt=TW*i/steps;
+    line(ctx,XT(tt),tAx,XT(tt),tAx+5,alpha(C['ink-3'],0.5),1);
+    axLab(ctx,nf(tt*unit,ME.mode==='echo'?2:1)+(i===steps?usuf:''),XT(tt),tAx+17,px0,px1,alpha(C['ink-3'],0.95),9);
+  }
+  /* olay isaretleri */
+  var dt=meDT(), t1=meT1(), t2=meT2();
+  ctx.save(); ctx.strokeStyle=alpha(wall?C.sin:C.cos,0.55); ctx.lineWidth=1.4*K.lw; dash(ctx,[5,4]);
+  ctx.beginPath(); ctx.moveTo(XT(t1),tTop); ctx.lineTo(XT(t1),tAx); ctx.stroke(); ctx.restore();
+  ctx.save(); ctx.strokeStyle=alpha(wall?C.arc:C.cos,0.55); ctx.lineWidth=1.4*K.lw; dash(ctx,[5,4]);
+  ctx.beginPath(); ctx.moveTo(XT(t2),tTop); ctx.lineTo(XT(t2),tAx); ctx.stroke(); ctx.restore();
+  var e1=ME.mode==='echo'?'alkış':(ME.mode==='mic'?'A mikrofonu':'doğrudan ses');
+  var e2=ME.mode==='echo'?'yankı':(ME.mode==='mic'?'B mikrofonu':'yansıyan ses');
+  if(wall){
+    ctx.save();
+    label(ctx,e1,Math.max(px0+textW(ctx,e1,10)/2,Math.min(px1-textW(ctx,e1,10)/2,XT(t1))),tTop+42,C.sin,10,'center',true);
+    label(ctx,e2,Math.max(px0+textW(ctx,e2,10)/2,Math.min(px1-textW(ctx,e2,10)/2,XT(t2))),tTop+60,C.arc,10,'center',true);
+    ctx.restore();
+  } else {
+    axLab(ctx,e1,XT(t1)+4+textW(ctx,e1,10)/2,tTop-2,px0,px1,C.cos,10);
+    axLab(ctx,e2,XT(t2)+4+textW(ctx,e2,10)/2,tTop-2,px0,px1,C.cos,10);
+  }
+  if(ME.t>=t2-1e-9){
+    arrowH(ctx,XT(t1),XT(t2),tTop+22,C.arc,1.9);
+    label(ctx,(ME.mode==='echo'?'t = '+nf(dt,3)+' s':'Δt = '+nf(dt*1000,2)+' ms'),(XT(t1)+XT(t2))/2,tTop+15,C.arc,12,'center',true);
+  }
+  /* imlec */
+  if(ME.t>0){
+    line(ctx,XT(t),tTop-6,XT(t),tAx+4,alpha(C.sin,0.85),1.8);
+    label(ctx,nf(t*unit,ME.mode==='echo'?3:2)+usuf,XT(t)+5,tAx-6,alpha(C.sin,0.95),11,'left',true);
+  }
+});
+
+/* ================= 04 : sicaklik ================= */
+var TP={T:20, ref:20, dirty:true};
+function tpCent(){ return 1200*Math.log(vOfT(TP.T)/vOfT(TP.ref))/Math.LN2; }
+var tempScene=makeScene(document.getElementById('cTemp'),function(ctx,W,H){
+  var pad=12;
+  var mW=Math.max(84,Math.min(130,W*0.24));
+  var px0=pad+36, px1=W-pad-mW-26;
+  var gTop=pad+20, gAx=H-pad-28;
+  var TMIN=-10, TMAX=40, VMIN=322, VMAX=356;
+  var X=function(T){ return px0+((T-TMIN)/(TMAX-TMIN))*(px1-px0); };
+  var Y=function(v){ return gAx-((v-VMIN)/(VMAX-VMIN))*(gAx-gTop); };
+  var faint=alpha(C['ink-3'],K.faint);
+
+  var v;
+  for(v=325;v<=355;v+=5){
+    line(ctx,px0,Y(v),px1,Y(v),alpha(C['ink-3'],K.faint*0.85),1,[3,5]);
+    label(ctx,nf(v,0),px0-6,Y(v)+4,alpha(C['ink-3'],0.95),9,'right');
+  }
+  label(ctx,'m/s',px0-6,gTop+4,alpha(C['ink-3'],0.95),9,'right');
+  line(ctx,px0,gAx,px1,gAx,alpha(C['ink-3'],0.55),1.2);
+  for(var T=TMIN;T<=TMAX;T+=10){
+    line(ctx,X(T),gAx,X(T),gAx+5,alpha(C['ink-3'],0.5),1);
+    axLab(ctx,nf(T,0)+(T===TMAX?' °C':''),X(T),gAx+17,px0,px1,alpha(C['ink-3'],0.95),9);
+  }
+
+  ctx.save(); ctx.strokeStyle=C.sin; ctx.lineWidth=2.9*K.lw; gOn(ctx,C.sin,11);
+  ctx.beginPath();
+  for(var p=px0;p<=px1;p+=1){
+    var TT=TMIN+((p-px0)/(px1-px0))*(TMAX-TMIN);
+    var yy=Y(vOfT(TT));
+    if(p===px0) ctx.moveTo(p,yy); else ctx.lineTo(p,yy);
+  }
+  ctx.stroke(); gOff(ctx); ctx.restore();
+
+  /* referans */
+  line(ctx,X(TP.ref),gTop,X(TP.ref),gAx,alpha(C.cos,0.6),1.6,[5,4]);
+  dot(ctx,X(TP.ref),Y(vOfT(TP.ref)),4,C.cos,false);
+  label(ctx,'akort '+nf(TP.ref,0)+'°',X(TP.ref),gTop+2,C.cos,10,'center',true);
+
+  /* su anki */
+  var xc=X(TP.T), yc=Y(vOfT(TP.T));
+  line(ctx,xc,gTop,xc,gAx,alpha(C.arc,0.55),1.6,[6,4]);
+  line(ctx,px0,yc,xc,yc,alpha(C.arc,0.35),1.2,[4,4]);
+  dot(ctx,xc,yc,5,C.arc,true);
+  label(ctx,nf(vOfT(TP.T),1)+' m/s',xc+9,yc-7,C.arc,12,'left',true);
+
+  /* sent olcegi */
+  var mx=W-pad-mW/2-8, mTop=pad+26, mBot=H-pad-30, mcy=(mTop+mBot)/2;
+  var CMAX=60;
+  var YC=function(c){ return mcy-(c/CMAX)*((mBot-mTop)/2); };
+  ctx.save(); ctx.fillStyle=alpha(C.cos,0.14);
+  ctx.fillRect(mx-20,YC(5),40,YC(-5)-YC(5)); ctx.restore();
+  line(ctx,mx,mTop,mx,mBot,alpha(C['ink-3'],0.5),1.2);
+  [-50,-25,0,25,50].forEach(function(c){
+    line(ctx,mx-6,YC(c),mx+6,YC(c),alpha(C['ink-3'],0.5),1);
+    label(ctx,(c>0?'+':'')+nf(c,0),mx-9,YC(c)+4,alpha(C['ink-3'],0.95),9,'right');
+  });
+  label(ctx,'sent',mx,mTop-8,alpha(C['ink-3'],0.95),10,'center');
+  label(ctx,'tiz',mx+22,mTop+14,alpha(C['ink-3'],0.9),9,'left');
+  label(ctx,'pes',mx+22,mBot-6,alpha(C['ink-3'],0.9),9,'left');
+  var cv=Math.max(-CMAX,Math.min(CMAX,tpCent()));
+  ctx.save(); ctx.fillStyle=alpha(C.arc,0.9); if(K.glow) gOn(ctx,C.arc,9);
+  var y1=YC(0), y2=YC(cv);
+  ctx.fillRect(mx-9,Math.min(y1,y2),18,Math.max(2,Math.abs(y2-y1))); gOff(ctx); ctx.restore();
+  label(ctx,(cv>0?'+':'')+nf(tpCent(),0)+' sent',mx,mBot+16,C.arc,12,'center');
+});
+
+/* ================= 01 kontrolleri ================= */
+var clGo=document.getElementById('clGo'), clReset=document.getElementById('clReset');
+clGo.addEventListener('click',function(){ CL.t=0; CL.playing=true; CL.dirty=true; });
+clReset.addEventListener('click',function(){ CL.t=0; CL.playing=false; CL.dirty=true; });
+
+/* ================= 03 kontrolleri ================= */
+var me={d:document.getElementById('meD'), dV:document.getElementById('meDV'), dLab:document.getElementById('meDLab'),
+        L:document.getElementById('meL'), lV:document.getElementById('meLV'), lBox:document.getElementById('meLBox'),
+        go:document.getElementById('meGo'), reset:document.getElementById('meReset')};
+var R3={d:document.getElementById('rD'),t:document.getElementById('rT'),y:document.getElementById('rY'),
+        v:document.getElementById('rV'),e:document.getElementById('rE'),p:document.getElementById('rP')};
+var L3={d:document.getElementById('lbD')};
+var V3={d:document.getElementById('vD'),y:document.getElementById('vY'),t:document.getElementById('vT'),
+        v:document.getElementById('vV'),e:document.getElementById('vE'),p:document.getElementById('vP'),
+        L:document.getElementById('vL'),df:document.getElementById('vDF')};
+var ROWL=document.getElementById('rowL'), ROWDF=document.getElementById('rowDF');
+var CL3={a:document.getElementById('cl1'),b:document.getElementById('cl2'),
+         c:document.getElementById('cl3'),d:document.getElementById('cl4')};
+var LBY=document.getElementById('lbY');
+var sNote=document.getElementById('sNote');
+var mePills=[].slice.call(document.querySelectorAll('.pill[data-m]'));
+
+function meDone(){ return ME.t>=meT2()-1e-9; }
+function meRead(){
+  var echo=ME.mode==='echo', wall=ME.mode==='wall';
+  var dt=meDT(), err=meErr(), done=meDone();
+  var dist = echo?ME.d : (wall?ME.s:ME.dx);
+  var path = echo?2*ME.d : (wall?meFark():ME.dx);
+  var vHes = path/dt;
+
+  me.dLab.innerHTML = echo?'Duvara uzaklık <i class="lit">d</i>' : (wall?'Kaynak–mikrofon arası <i class="lit">s</i>':'Mikrofonlar arası <i class="lit">Δx</i>');
+  me.dV.textContent = nf(dist, echo?0:1)+' m';
+  me.lBox.hidden = !wall;
+  me.lV.textContent = nf(ME.L,1)+' m';
+  if(ROWL) ROWL.hidden=!wall;
+  if(ROWDF) ROWDF.hidden=!wall;
+
+  L3.d.textContent = echo?'Duvara uzaklık' : (wall?'Kaynak–mikrofon':'Mikrofonlar arası');
+  if(LBY) LBY.textContent = wall?'Yol farkı':'Alınan yol';
+  CL3.a.textContent = echo?'Duvara uzaklık d' : (wall?'Kaynak–mikrofon arası s':'Mikrofonlar arası Δx');
+  CL3.b.textContent = wall?'Yansıyan yol √(s² + 4L²)':'Sesin aldığı yol';
+  CL3.c.textContent = wall?'Ölçülen gecikme Δt':'Ölçülen süre t';
+  CL3.d.textContent = wall?'Hız = yol farkı / Δt':'Hız = yol / süre';
+
+  R3.d.textContent = nf(dist, echo?0:1)+' m';
+  R3.t.textContent = done?(echo?nf(dt,3)+' s':nf(dt*1000,2)+' ms'):'—';
+  R3.y.textContent = nf(path, echo?0:(wall?2:1))+' m';
+  R3.v.textContent = done?nf(vHes,0)+' m/s':'— m/s';
+  R3.e.textContent = echo?'±0,05 s':'±21 µs';
+  R3.p.textContent = done?'±'+nf(100*err/dt,1)+' %':'—';
+
+  V3.d.textContent = nf(dist, echo?0:1)+' m';
+  if(V3.L) V3.L.textContent = nf(ME.L,1)+' m';
+  V3.y.textContent = echo ? ('2 × '+nf(ME.d,0)+' = '+nf(path,0)+' m')
+                     : (wall ? ('√('+nf(ME.s,1)+'² + 4·'+nf(ME.L,1)+'²) = '+nf(mePathR(),2)+' m')
+                             : (nf(path,1)+' m (tek yön)'));
+  if(V3.df) V3.df.textContent = nf(mePathR(),2)+' − '+nf(ME.s,1)+' = '+nf(meFark(),2)+' m';
+  V3.t.textContent = done?(echo?nf(dt,3)+' s':nf(dt*1000,3)+' ms = '+nf(dt,5)+' s'):'ölçüm bekleniyor';
+  V3.v.textContent = done?(nf(path, echo?0:(wall?2:1))+' / '+nf(dt,5)+' = '+nf(vHes,0)+' m/s'):'—';
+  V3.e.textContent = echo?'kronometre ±0,05 s':'48 kHz\'te tek örnek = 21 µs';
+  V3.p.textContent = done?('±'+nf(100*err/dt,2)+' % → ±'+nf(err/dt*vHes,1)+' m/s'):'—';
+
+  sNote.textContent = echo
+    ? (100*err/dt>20
+      ? 'Mesafe çok kısa: süre o kadar küçük ki kronometre hatası sonucu neredeyse anlamsız kılıyor. Duvarı uzaklaştır.'
+      : (100*err/dt>9
+        ? 'Kabul edilebilir ama hâlâ kaba. Daha uzak bir duvar, aynı kronometreyle daha iyi sonuç verir.'
+        : 'İyi bir ölçüm: süre yeterince uzun olduğu için kronometre hatası oransal olarak küçüldü.'))
+    : (wall
+      ? (meFark()<0.5
+        ? 'Yol farkı çok küçük: iki ses neredeyse üst üste biniyor, kayıtta ayırt etmek zorlaşır. Duvarı uzaklaştır ya da mikrofonu kaynağa yaklaştır.'
+        : (100*err/dt>0.5
+          ? 'Ölçülebilir ama fark hâlâ dar. L büyüdükçe yol farkı ve dolayısıyla Δt büyür, hata oranı düşer.'
+          : 'İyi kurulum: yol farkı büyük, iki darbe kayıtta net ayrılıyor ve hata payı binde birler düzeyinde.'))
+      : 'Ses kartı zamanı örnek örnek sayar; 48 kHz\'te bir örnek 21 mikrosaniyedir. Bu yüzden iki mikrofonla ölçüm, kronometreli yankı yönteminden yüzlerce kat hassastır.');
+
+  mePills.forEach(function(b){ b.setAttribute('aria-pressed', b.dataset.m===ME.mode?'true':'false'); });
+  [].slice.call(document.querySelectorAll('#tbl tbody tr')).forEach(function(tr){
+    tr.setAttribute('aria-selected', (echo&&Math.abs(parseFloat(tr.dataset.d)-ME.d)<0.5)?'true':'false');
+  });
+  ME.dirty=true;
+}
+function meSetMode(m){
+  ME.mode=m; ME.t=0; ME.playing=false; me.go.textContent='Ölç';
+  if(m==='echo'){ me.d.min=10; me.d.max=150; me.d.step=1; me.d.value=ME.d; }
+  else if(m==='mic'){ me.d.min=0.5; me.d.max=20; me.d.step=0.5; me.d.value=ME.dx; }
+  else { me.d.min=1; me.d.max=8; me.d.step=0.5; me.d.value=ME.s; me.L.value=ME.L; }
+  meRead();
+}
+me.d.addEventListener('input',function(){
+  var v=parseFloat(me.d.value);
+  if(ME.mode==='echo') ME.d=v; else if(ME.mode==='mic') ME.dx=v; else ME.s=v;
+  ME.t=0; ME.playing=false; me.go.textContent='Ölç'; meRead();
+});
+me.L.addEventListener('input',function(){
+  ME.L=parseFloat(me.L.value);
+  ME.t=0; ME.playing=false; me.go.textContent='Ölç'; meRead();
+});
+me.go.addEventListener('click',function(){ ME.t=0; ME.playing=true; me.go.textContent='Ölçülüyor…'; meRead(); });
+me.reset.addEventListener('click',function(){ ME.t=0; ME.playing=false; me.go.textContent='Ölç'; meRead(); });
+mePills.forEach(function(b){ b.addEventListener('click',function(){ meSetMode(b.dataset.m); }); });
+
+var TROWS=[10,50,100,150].map(function(d){
+  var t=2*d/V20; return {d:d, t:nf(t,3)+' s', e:'±'+nf(100*0.05/t,0)+' %'};
+});
+var tb=document.querySelector('#tbl tbody');
+TROWS.forEach(function(r){
+  var tr=document.createElement('tr'); tr.dataset.d=r.d;
+  tr.innerHTML='<td class="num">'+r.d+' m</td><td class="num">'+r.t+'</td><td>'+r.e+'</td>';
+  tr.addEventListener('click',function(){ if(ME.mode!=='echo') meSetMode('echo'); ME.d=r.d; me.d.value=r.d; ME.t=0; ME.playing=false; me.go.textContent='Ölç'; meRead(); });
+  tb.appendChild(tr);
+});
+
+var STEPS=[
+  {t:'Alkışı gönder',n:'<b>Ölç</b> düğmesine bas. Ses duvara doğru gidiyor; kronometre çalışıyor. Alttaki zaman ekseninde imleci takip et.',
+   go:function(){ meSetMode('echo'); ME.d=50; me.d.value=50; ME.t=0; ME.playing=true; me.go.textContent='Ölçülüyor…'; meRead(); }},
+  {t:'Yol iki katı',n:'Yankı geldiğinde ses <b>gidip gelmiş</b>tir: aldığı yol 2d. En sık yapılan hata burada yolu tek yön sanmaktır — o zaman hız iki katı çıkar.',
+   go:function(){ meSetMode('echo'); ME.d=50; me.d.value=50; meRead(); }},
+  {t:'Kısa mesafe = büyük hata',n:'Duvarı 10 metreye çek. Süre 0,058 saniyeye düşüyor; elle tutulan bir kronometrenin ±0,05 s hatası bu sürenin neredeyse tamamı kadar. Ölçüm işe yaramaz hâle geliyor.',
+   go:function(){ meSetMode('echo'); ME.d=10; me.d.value=10; ME.t=0; ME.playing=true; me.go.textContent='Ölçülüyor…'; meRead(); }},
+  {t:'Uzak duvar seç',n:'150 metrede süre 0,87 saniye. Aynı kronometre hatası artık yalnızca %6 — ölçüm anlamlı hâle geldi. <b>Deney tasarımı</b> dediğimiz şey tam olarak budur.',
+   go:function(){ meSetMode('echo'); ME.d=150; me.d.value=150; ME.t=0; ME.playing=true; me.go.textContent='Ölçülüyor…'; meRead(); }},
+  {t:'İki mikrofonla ölç',n:'Şimdi yönteme geç. Ses A mikrofonundan B mikrofonuna geçerken arada bir gecikme oluşuyor ve bunu ses kartı <b>örnek hassasiyetiyle</b> ölçüyor. Hata payı binde birin altına iniyor.',
+   go:function(){ meSetMode('mic'); ME.dx=10; me.d.value=10; ME.t=0; ME.playing=true; me.go.textContent='Ölçülüyor…'; meRead(); }},
+  {t:'Tek mikrofon, bir de duvar',n:'Kaynakla mikrofonu ayır, yanlarına bir duvar koy. Mikrofona <b>iki</b> ses ulaşır: önce doğrudan gelen, sonra duvardan yansıyan. Kayıtta iki darbe arasındaki <i class="lit">Δt</i>, iki yol arasındaki <b>farkın</b> süresidir. Yansıyan yolu <b>5. atölyedeki ayna kaynak</b> ile bulduk: √(s² + 4L²).',
+   go:function(){ meSetMode('wall'); ME.s=2; ME.L=3; me.d.value=2; me.L.value=3; ME.t=0; ME.playing=true; me.go.textContent='Ölçülüyor…'; meRead(); }},
+  {t:'Duvarı yaklaştır, fark erisin',n:'L\'yi 1 metreye indir. Yansıyan yol doğrudan yola çok yaklaşır, <i class="lit">Δt</i> küçülür ve iki darbe kayıtta neredeyse üst üste biner. Aynı ölçüm hatası şimdi çok daha büyük bir yüzde demek — yine <b>deney tasarımı</b> meselesi.',
+   go:function(){ meSetMode('wall'); ME.s=6; ME.L=1; me.d.value=6; me.L.value=1; ME.t=0; ME.playing=true; me.go.textContent='Ölçülüyor…'; meRead(); }}
+];
+var stIdx=0, stList=document.getElementById('stList'), stText=document.getElementById('stText'), stCount=document.getElementById('stCount');
+STEPS.forEach(function(s,i){
+  var li=document.createElement('li'), b=document.createElement('button'); b.type='button';
+  b.innerHTML='<span class="k">'+(i+1)+'</span>'+s.t;
+  b.addEventListener('click',function(){ setStep(i,true); });
+  li.appendChild(b); stList.appendChild(li);
+});
+function setStep(i,run){
+  stIdx=Math.max(0,Math.min(STEPS.length-1,i));
+  [].slice.call(stList.querySelectorAll('button')).forEach(function(b,k){ b.setAttribute('aria-current',k===stIdx?'true':'false'); });
+  stText.innerHTML=STEPS[stIdx].n; stCount.textContent=(stIdx+1)+' / '+STEPS.length;
+  if(run&&STEPS[stIdx].go) STEPS[stIdx].go();
+}
+document.getElementById('stPrev').addEventListener('click',function(){ setStep(stIdx-1,true); });
+document.getElementById('stNext').addEventListener('click',function(){ setStep(stIdx+1,true); });
+
+/* ================= 04 kontrolleri ================= */
+var tp={T:document.getElementById('tpT'), r:document.getElementById('tpR'),
+        TV:document.getElementById('tpTV'), rV:document.getElementById('tpRV')};
+var Q4={t:document.getElementById('qT'),v:document.getElementById('qV'),d:document.getElementById('qDV'),
+        c:document.getElementById('qC'),h:document.getElementById('qH'),l:document.getElementById('qL')};
+var E4={r:document.getElementById('eR'),t:document.getElementById('eT'),o:document.getElementById('eO'),
+        f:document.getElementById('eF'),c:document.getElementById('eC')};
+var eNote=document.getElementById('eNote');
+var tpPills=[].slice.call(document.querySelectorAll('.pill[data-t]'));
+function tpRead(){
+  var v=vOfT(TP.T), vr=vOfT(TP.ref), cent=tpCent(), ac=Math.abs(cent);
+  tp.TV.textContent=nf(TP.T,TP.T%1?1:0)+' °C'; tp.rV.textContent=nf(TP.ref,TP.ref%1?1:0)+' °C';
+  tp.T.value=TP.T; tp.r.value=TP.ref;
+  Q4.t.textContent=nf(TP.T,TP.T%1?1:0)+' °C';
+  Q4.v.textContent=nf(v,1)+' m/s';
+  Q4.d.textContent=(v-vr>=0?'+':'−')+nf(Math.abs(v-vr),1)+' m/s';
+  Q4.c.textContent=(cent>=0?'+':'−')+nf(ac,0)+' sent';
+  Q4.h.textContent=ac<5?'fark edilmez':(ac<12?'hassas kulak duyar':(ac<25?'belirgin':'açıkça akortsuz'));
+  Q4.l.textContent=nf(v/440*100,1)+' cm';
+  E4.r.textContent=nf(TP.ref,TP.ref%1?1:0)+' °C → '+nf(vr,1)+' m/s';
+  E4.t.textContent=nf(TP.T,TP.T%1?1:0)+' °C → '+nf(v,1)+' m/s';
+  E4.o.textContent=nf(v,1)+' / '+nf(vr,1)+' = '+nf(v/vr,4);
+  E4.f.textContent=nf(v/vr,4)+' × 440 = '+nf(440*v/vr,1)+' Hz';
+  E4.c.textContent='1200 · log₂('+nf(v/vr,4)+') = '+(cent>=0?'+':'−')+nf(ac,1)+' sent';
+  eNote.textContent=(ac<5)
+    ? 'Sıcaklık akort yapılan değere yakın; kayma duyulmayacak kadar küçük.'
+    : (cent>0
+      ? 'Salon ısındı: üflemeli çalgılar '+nf(ac,0)+' sent tizleşti. Yaylı çalgılar aynı kaldığı için orkestra artık uyumsuz — bu yüzden konser öncesi salonun ısınması beklenir.'
+      : 'Salon soğudu: üflemeli çalgılar '+nf(ac,0)+' sent pesleşti. Yaylılar kaymadığı için akort yeniden yapılmalı.');
+  tpPills.forEach(function(b){ b.setAttribute('aria-pressed', Math.abs(parseFloat(b.dataset.t)-TP.T)<0.26?'true':'false'); });
+  TP.dirty=true;
+}
+tp.T.addEventListener('input',function(){ TP.T=parseFloat(tp.T.value); tpRead(); });
+tp.r.addEventListener('input',function(){ TP.ref=parseFloat(tp.r.value); tpRead(); });
+tpPills.forEach(function(b){ b.addEventListener('click',function(){ TP.T=parseFloat(b.dataset.t); tpRead(); }); });
+
+var MROWS=[
+  {n:'Hava (0 °C)', v:331},
+  {n:'Hava (20 °C)', v:343},
+  {n:'Hava (35 °C)', v:352},
+  {n:'Su', v:1480},
+  {n:'Ahşap (lif boyunca)', v:3500},
+  {n:'Çelik', v:5000}
+];
+var tb2=document.querySelector('#tbl2 tbody');
+MROWS.forEach(function(r){
+  var lam=r.v/440;
+  var tr=document.createElement('tr');
+  tr.innerHTML='<td>'+r.n+'</td><td class="num">'+nf(r.v,0)+'</td><td class="num">'+(lam<1?nf(lam*100,0)+' cm':nf(lam,2)+' m')+'</td>';
+  tb2.appendChild(tr);
+});
+
+/* ================= sesler ================= */
+function clickAt(at,g){
+  var c=ac(); if(!c) return;
+  try{
+    var o=c.createOscillator(); o.type='square'; o.frequency.setValueAtTime(1150,at);
+    var gn=c.createGain();
+    gn.gain.setValueAtTime(0.0002,at);
+    gn.gain.exponentialRampToValueAtTime(g,at+0.002);
+    gn.gain.exponentialRampToValueAtTime(0.0002,at+0.055);
+    o.connect(gn); gn.connect(c.destination); o.start(at); o.stop(at+0.09);
+    setTimeout(function(){ try{ gn.disconnect(); }catch(e){} },600);
+  }catch(e){}
+}
+[].slice.call(document.querySelectorAll('.btn.snd')).forEach(function(b){
+  b.addEventListener('click',function(){
+    var c=ac(); if(!c) return;
+    var t=c.currentTime+0.12;
+    clickAt(t,0.22); clickAt(t+0.029,0.15);
+    clickAt(t+1.3,0.22); clickAt(t+1.3+0.291,0.15);
+  });
+});
+
+/* ================= 06 : quiz ================= */
+var QS=[
+{q:'Bir duvara el çırptın, yankı 0,6 saniye sonra geldi. Duvar 100 metre uzakta. Ses hızı nedir?',
+ o:['≈ 333 m/s','≈ 167 m/s','≈ 600 m/s','≈ 60 m/s'],a:0,
+ f:'Ses gidip geldiği için yol 200 m. v = 200 / 0,6 ≈ 333 m/s. Yolu 100 m sanmak en sık yapılan hatadır.'},
+{q:'Ses hızı ortamın hangi iki özelliğinden çıkar?',
+ o:['Sertlik ve yoğunluk','Sıcaklık ve basınç','Renk ve şeffaflık','Hacim ve kütle'],a:0,
+ f:'v = √(sertlik / yoğunluk). Ortam ne kadar sertse dalga o kadar hızlı, ne kadar ağırsa o kadar yavaş ilerler.'},
+{q:'Sıcaklık 20 °C\'den 30 °C\'ye çıkarsa havada ses hızı yaklaşık ne olur?',
+ o:['Yaklaşık 6 m/s artar','Yaklaşık 6 m/s azalır','Değişmez','İki katına çıkar'],a:0,
+ f:'v ≈ 331 + 0,6·T. Her derece için ~0,6 m/s; 10 derece için ~6 m/s. 343 → 349 m/s.'},
+{q:'Havanın basıncı artarsa (sıcaklık sabit) ses hızı ne olur?',
+ o:['Değişmez','Artar','Azalır','İki katına çıkar'],a:0,
+ f:'Basınç artarken yoğunluk da aynı oranda arttığı için P/ρ oranı sabit kalır. Bu yüzden dağda da deniz seviyesinde de hız aynıdır — belirleyen şey sıcaklıktır.'},
+{q:'Bas ve tiz sesler havada aynı hızda mı ilerler?',
+ o:['Evet, ses hızı frekanstan bağımsızdır','Hayır, bas daha hızlıdır','Hayır, tiz daha hızlıdır','Sadece açık havada aynıdır'],a:0,
+ f:'Hava dispersiyonsuz bir ortamdır. Öyle olmasaydı uzaktan gelen bir akorun notaları farklı anlarda ulaşır, müzik dağılırdı.'},
+{q:'Yankı yöntemiyle ölçümde neden uzak bir duvar seçilir?',
+ o:['Süre uzadıkça kronometre hatasının oranı küçülür','Ses uzakta daha hızlı gider','Yakında yankı oluşmaz','Uzakta hava daha sıcaktır'],a:0,
+ f:'Hata oranı = kronometre hatası / süre. 10 m\'de süre 0,058 s ve hata ~%86; 150 m\'de süre 0,87 s ve hata ~%6.'},
+{q:'Salon ısındığında bir flütün perdesi ne olur?',
+ o:['Tizleşir — boru aynı kalır ama içindeki ses hızı artar','Pesleşir','Değişmez','Önce tizleşir sonra pesleşir'],a:0,
+ f:'f = v / (2L). L sabit, v arttı → f arttı. Yaylı çalgılarda perdeyi tel belirlediği için böyle bir kayma olmaz; orkestra bu yüzden dağılır.'},
+{q:'Ses 10 metrelik bir mesafeyi kaç milisaniyede alır?',
+ o:['≈ 29 ms','≈ 3 ms','≈ 100 ms','≈ 343 ms'],a:0,
+ f:'t = 10 / 343 ≈ 0,029 s = 29 ms. Pratik kural: her metre yaklaşık 2,9 ms. Sahne düzeninde ve monitör gecikmesinde doğrudan kullanılır.'},
+{q:'Kaynak ve mikrofon aralarında s mesafesiyle, duvara L uzaklıkta duruyor. Mikrofona ulaşan yansıyan sesin yolu nedir?',
+ o:['√(s² + 4L²)','s + 2L','√(s² + L²)','2L − s'],a:0,
+ f:'Ayna kaynak duvarın öbür tarafında, 2L uzaklıktadır. Mikrofona olan uzaklığı da dik üçgenden √(s² + (2L)²) = √(s² + 4L²) olur.'},
+{q:'Kaynak–mikrofon–duvar kurulumunda ölçülen Δt neyin süresidir?',
+ o:['İki yol arasındaki farkın','Yansıyan yolun tamamının','Doğrudan yolun','Duvara gidiş süresinin'],a:0,
+ f:'Doğrudan ses önce, yansıyan ses sonra varır. Aradaki gecikme yalnızca <b>yol farkını</b> kat etmek için geçen süredir: v = (√(s² + 4L²) − s) / Δt.'}
+];
+function shuffle(a){ for(var i=a.length-1;i>0;i--){ var j=Math.floor(Math.random()*(i+1)); var t=a[i]; a[i]=a[j]; a[j]=t; } return a; }
+var quiz=document.getElementById('quiz'), scoreEl=document.getElementById('score'), correct=0, answered=0;
+QS.forEach(function(item,i){
+  var idx=shuffle(item.o.map(function(_,k){return k;}));
+  var d=document.createElement('div'); d.className='q';
+  var h=document.createElement('div'); h.className='qh'; h.textContent='SORU '+(i+1);
+  var pq=document.createElement('p'); pq.className='qt'; pq.textContent=item.q;
+  var box=document.createElement('div'); box.className='opts';
+  var fb=document.createElement('div'); fb.className='fb'; fb.hidden=true;
+  idx.forEach(function(k){
+    var b=document.createElement('button'); b.type='button'; b.textContent=item.o[k];
+    b.addEventListener('click',function(){
+      if(d.dataset.done) return;
+      d.dataset.done='1'; answered++;
+      var good=(k===item.a); if(good) correct++;
+      [].slice.call(box.children).forEach(function(bb,pos){ bb.disabled=true; if(idx[pos]===item.a) bb.classList.add('ok'); });
+      if(!good) b.classList.add('no');
+      fb.hidden=false; fb.className='fb '+(good?'good':'bad');
+      fb.innerHTML='<b>'+(good?'Doğru':'Tekrar bak')+'</b> — '+item.f;
+      scoreEl.textContent='Doğru: '+correct+' / '+QS.length+(answered===QS.length?'  · tamamlandı':'');
+    });
+    box.appendChild(b);
+  });
+  d.appendChild(h); d.appendChild(pq); d.appendChild(box); d.appendChild(fb);
+  quiz.appendChild(d);
+});
+scoreEl.textContent='Doğru: 0 / '+QS.length;
+
+/* ================= dongu ================= */
+readTheme();
+meSetMode('echo'); setStep(0,false); ME.t=0; ME.playing=false; me.go.textContent='Ölç'; meRead();
+tpRead();
+scenes.forEach(function(s){ s.resize(); s.draw(); });
+var last=0;
+function frame(ts){
+  if(!last) last=ts;
+  var dt=Math.min(0.05,(ts-last)/1000); last=ts;
+  if(CL.playing){ CL.t+=dt*CLSLOW; if(CL.t>=clTotal()){ CL.t=clTotal(); CL.playing=false; } CL.dirty=true; }
+  if(ME.playing){
+    ME.t+=dt*meSlow();
+    if(ME.t>=meTotal()){ ME.t=meTotal(); ME.playing=false; me.go.textContent='Ölç'; }
+    ME.dirty=true; meRead();
+  }
+  if(CL.dirty){ clapScene.draw(); CL.dirty=false; }
+  if(ME.dirty){ measScene.draw(); ME.dirty=false; }
+  if(TP.dirty){ tempScene.draw(); TP.dirty=false; }
+  requestAnimationFrame(frame);
+}
+requestAnimationFrame(frame);
+})();
+</script>
+
+</body></html>

@@ -1,0 +1,1343 @@
+<!doctype html><html lang="tr"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<style>:root{color-scheme:light}html{-webkit-text-size-adjust:100%}body{margin:0;font:14px system-ui,-apple-system,"Segoe UI",sans-serif;background:#faf9f7}img{max-width:100%}[hidden]{display:none!important}</style>
+<title>İlerleyen Dalganın Denklemi</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&family=Newsreader:ital,opsz,wght@1,6..72,400&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ground:#E5ECF3; --panel:#FFFFFF; --panel-2:#F1F6FA;
+  --ink:#0B1620; --ink-2:#3F5265; --ink-3:#697E92;
+  --line:#C7D4E0; --line-2:#DEE7EF;
+  --sin:#A8600A; --cos:#0F5F80; --arc:#A81E6E; --brass:#4A7A12;
+  --on-sin:#FFFFFF; --ok:#1E6B45; --no:#A8203C;
+  --radius:2px; --track:.02em; --fs:15px;
+  --h-puls:205px; --h-shift:360px; --h-time:310px; --h-sine:365px;
+  --font-display:"Chakra Petch",system-ui,sans-serif;
+  --font-body:"IBM Plex Sans",system-ui,sans-serif;
+  --font-mono:"IBM Plex Mono",ui-monospace,monospace;
+  --font-quote:"Newsreader",Georgia,serif;
+  color-scheme:light;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --ground:#070F17; --panel:#0E1720; --panel-2:#13202C;
+    --ink:#E7F2FB; --ink-2:#9FB6C9; --ink-3:#6B8296;
+    --line:#213240; --line-2:#182533;
+    --sin:#FFB01F; --cos:#4FD3FF; --arc:#FF6AC1; --brass:#A8FF60;
+    --on-sin:#0A1017; --ok:#3EE59B; --no:#FF5F86;
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --ground:#070F17; --panel:#0E1720; --panel-2:#13202C;
+  --ink:#E7F2FB; --ink-2:#9FB6C9; --ink-3:#6B8296;
+  --line:#213240; --line-2:#182533;
+  --sin:#FFB01F; --cos:#4FD3FF; --arc:#FF6AC1; --brass:#A8FF60;
+  --on-sin:#0A1017; --ok:#3EE59B; --no:#FF5F86;
+  color-scheme:dark;
+}
+:root[data-mode="proj"]{
+  --ground:#F3F8FC; --panel:#FFFFFF; --panel-2:#EDF4F9;
+  --ink:#040B12; --ink-2:#2A3A49; --ink-3:#546678;
+  --line:#ADBFCE; --line-2:#D2DEE9;
+  --sin:#8A4D00; --cos:#084A66; --arc:#8A1258; --brass:#3A6208;
+  --on-sin:#FFFFFF; --ok:#155338; --no:#8A1730;
+  --fs:17px; --h-puls:242px; --h-shift:425px; --h-time:365px; --h-sine:430px;
+  color-scheme:light;
+}
+
+*{box-sizing:border-box}
+body{
+  margin:0; background:var(--ground); color:var(--ink);
+  font-family:var(--font-body); font-size:var(--fs); line-height:1.55;
+  -webkit-text-size-adjust:100%;
+}
+.wrap{max-width:1180px; margin:0 auto; padding-inline:20px; padding-block:22px 64px}
+
+/* ---------- ust ---------- */
+.top{display:flex; gap:20px; align-items:flex-start; justify-content:space-between; flex-wrap:wrap;
+  border-bottom:2px solid var(--line); padding-bottom:16px; margin-bottom:26px}
+.eyebrow{font-family:var(--font-mono); font-size:.72em; letter-spacing:.12em; text-transform:uppercase;
+  color:var(--brass); font-weight:600}
+h1{font-family:var(--font-display); font-weight:700; letter-spacing:var(--track);
+  font-size:clamp(2rem,6vw,3.1rem); line-height:1.02; margin:.16em 0 .1em; text-transform:uppercase}
+.lede{margin:0; color:var(--ink-2); max-width:46ch}
+.themebar{display:flex; gap:0; border:1px solid var(--line); border-radius:var(--radius); overflow:hidden; flex-shrink:0}
+.themebar button{
+  font-family:var(--font-mono); font-size:.76em; letter-spacing:.06em; text-transform:uppercase;
+  background:var(--panel); color:var(--ink-2); border:0; border-left:1px solid var(--line);
+  padding:9px 13px; cursor:pointer}
+.themebar button:first-child{border-left:0}
+.themebar button[aria-pressed="true"]{background:var(--sin); color:var(--on-sin); font-weight:600}
+
+/* ---------- bolumler ---------- */
+section{margin-block:52px; scroll-margin-top:18px}
+h2{font-family:var(--font-display); font-weight:600; letter-spacing:var(--track); text-transform:uppercase;
+  font-size:clamp(1.15rem,3.1vw,1.6rem); margin:0 0 14px; display:flex; align-items:baseline; gap:12px;
+  border-bottom:1px solid var(--line); padding-bottom:10px}
+h2 .num{font-family:var(--font-mono); color:var(--brass); font-size:.82em; font-weight:600}
+h3{font-family:var(--font-display); font-weight:600; letter-spacing:var(--track);
+  font-size:1.02em; margin:0 0 6px; text-transform:uppercase}
+p{margin:0 0 .8em}
+.kicker{font-family:var(--font-quote); font-style:italic; font-size:1.28em; line-height:1.4;
+  color:var(--ink-2); max-width:38ch; margin:0 0 18px; border-left:3px solid var(--arc); padding-left:14px}
+
+/* ---------- panel / canvas ---------- */
+.panel{background:var(--panel); border:1px solid var(--line); border-radius:var(--radius)}
+.canvas-wrap{margin:0; background:var(--panel); border:1px solid var(--line); border-radius:var(--radius); overflow:hidden}
+.canvas-inner{min-width:0}
+.lab>div,.quizwrap>div,.hook>*,.lab>aside{min-width:0}
+.lit{text-transform:none;font-style:normal;font-weight:inherit}
+.sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+canvas{display:block; width:100%; touch-action:none}
+#cPuls{height:var(--h-puls)}
+#cShift{height:var(--h-shift)}
+#cTime{height:var(--h-time)}
+#cSine{height:var(--h-sine)}
+figcaption{font-size:.82em; color:var(--ink-3); padding:8px 12px; border-top:1px solid var(--line-2);
+  background:var(--panel-2)}
+
+/* ---------- s1 duzen ---------- */
+.hook{display:grid; grid-template-columns:minmax(0,1.05fr) minmax(0,1fr); gap:20px; align-items:start}
+.cols{display:grid; grid-template-columns:1fr; gap:14px}
+.qcol h3{color:var(--ink)}
+.qcol p{font-size:.94em; color:var(--ink-2); margin:0}
+
+/* ---------- kontroller ---------- */
+.ctrls{display:flex; flex-wrap:wrap; gap:14px 18px; align-items:flex-end;
+  padding:12px; background:var(--panel-2); border-top:1px solid var(--line-2)}
+.ctrl{display:flex; flex-direction:column; gap:3px; min-width:150px; flex:1 1 150px}
+.ctrl label{font-family:var(--font-mono); font-size:.72em; letter-spacing:.07em; text-transform:uppercase;
+  color:var(--ink-3); display:flex; justify-content:space-between; gap:8px}
+.ctrl label b{font-weight:600; color:var(--ink); font-variant-numeric:tabular-nums}
+input[type=range]{-webkit-appearance:none; appearance:none; width:100%; height:22px; background:transparent; margin:0; cursor:pointer}
+input[type=range]::-webkit-slider-runnable-track{height:3px; background:var(--line); border-radius:0}
+input[type=range]::-moz-range-track{height:3px; background:var(--line)}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none; width:16px; height:16px; border-radius:50%;
+  background:var(--arc); border:2px solid var(--panel); margin-top:-7px}
+input[type=range]::-moz-range-thumb{width:16px; height:16px; border-radius:50%; background:var(--arc); border:2px solid var(--panel)}
+.btn{font-family:var(--font-mono); font-size:.78em; letter-spacing:.06em; text-transform:uppercase;
+  background:var(--panel); color:var(--ink); border:1px solid var(--line); border-radius:var(--radius);
+  padding:8px 12px; cursor:pointer; white-space:nowrap}
+.btn:hover{border-color:var(--ink-3)}
+.btn.pri{background:var(--sin); color:var(--on-sin); border-color:var(--sin); font-weight:600}
+.btn[aria-pressed="true"]{background:var(--cos); color:var(--panel); border-color:var(--cos)}
+:root[data-theme="dark"] .btn[aria-pressed="true"]{color:#07131B}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]):not([data-mode="proj"]) .btn[aria-pressed="true"]{color:#07131B}
+}
+.btnrow{display:flex; gap:8px; flex-wrap:wrap; align-items:center}
+
+/* ---------- okumalar ---------- */
+.readout{display:grid; grid-template-columns:repeat(auto-fit,minmax(112px,1fr)); gap:1px;
+  background:var(--line-2); border-top:1px solid var(--line-2)}
+.readout.r3{grid-template-columns:repeat(3,minmax(0,1fr))}
+.readout div{background:var(--panel); padding:8px 11px; min-width:0}
+.readout span{display:block; font-family:var(--font-mono); font-size:.68em; letter-spacing:.07em;
+  text-transform:uppercase; color:var(--ink-3)}
+.readout b{font-family:var(--font-mono); font-size:1.08em; font-weight:600; font-variant-numeric:tabular-nums}
+
+/* ---------- kart izgarasi ---------- */
+.cards{display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:14px}
+.card{background:var(--panel); border:1px solid var(--line); border-top:3px solid var(--cos);
+  border-radius:var(--radius); padding:14px 15px}
+.card:nth-child(3n+1){border-top-color:var(--sin)}
+.card:nth-child(3n+3){border-top-color:var(--arc)}
+.card p{font-size:.92em; color:var(--ink-2); margin:0}
+.card .bridge{margin-top:9px; padding-top:9px; border-top:1px dashed var(--line);
+  font-size:.86em; color:var(--ink-3)}
+.card .bridge b{color:var(--brass); font-family:var(--font-mono); font-size:.9em;
+  letter-spacing:.05em; text-transform:uppercase}
+
+/* ---------- atolye duzeni ---------- */
+.lab{display:grid; grid-template-columns:minmax(0,560px) minmax(0,1fr); gap:18px; align-items:start}
+.steps{background:var(--panel); border:1px solid var(--line); border-radius:var(--radius); padding:13px 14px}
+.steps h3{margin-bottom:9px}
+.stepnav{display:flex; gap:6px; align-items:center; margin-bottom:10px}
+.stepnav .count{font-family:var(--font-mono); font-size:.78em; color:var(--ink-3); margin-left:auto}
+.steplist{list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:5px}
+.steplist button{width:100%; text-align:left; font:inherit; font-size:.9em; background:transparent;
+  color:var(--ink-2); border:1px solid transparent; border-left:2px solid var(--line);
+  padding:7px 10px; cursor:pointer; border-radius:0}
+.steplist button:hover{background:var(--panel-2)}
+.steplist button[aria-current="true"]{border-left-color:var(--arc); background:var(--panel-2); color:var(--ink)}
+.steplist .k{font-family:var(--font-mono); font-size:.82em; color:var(--brass); margin-right:6px}
+
+table{width:100%; border-collapse:collapse; font-size:.88em}
+.tablebox{overflow-x:auto; max-width:100%; background:var(--panel); border:1px solid var(--line); border-radius:var(--radius); margin-top:16px}
+th,td{padding:7px 11px; text-align:right; border-bottom:1px solid var(--line-2); white-space:nowrap}
+th:first-child,td:first-child{text-align:left}
+th:last-child,td:last-child{text-align:left; white-space:normal; min-width:170px}
+thead th{font-family:var(--font-mono); font-size:.76em; letter-spacing:.06em; text-transform:uppercase;
+  color:var(--ink-3); font-weight:600; background:var(--panel-2)}
+tbody tr{cursor:pointer}
+tbody tr:hover{background:var(--panel-2)}
+tbody tr[aria-selected="true"]{background:var(--panel-2); box-shadow:inset 3px 0 0 var(--arc)}
+td.num{font-family:var(--font-mono); font-variant-numeric:tabular-nums}
+
+/* ---------- terimler ---------- */
+.terms{display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:14px}
+.term{background:var(--panel); border:1px solid var(--line); border-radius:var(--radius); padding:14px 15px}
+.term .sym{font-family:var(--font-mono); font-size:.74em; letter-spacing:.08em; color:var(--ink-3)}
+.term p{font-size:.92em; color:var(--ink-2); margin:.35em 0 0}
+.mus{margin-top:10px; border-left:3px solid var(--brass); padding:6px 0 6px 10px; font-size:.9em}
+.mus span{font-family:var(--font-mono); font-size:.72em; letter-spacing:.08em; text-transform:uppercase;
+  color:var(--brass); font-weight:600; display:block}
+
+/* ---------- quiz ---------- */
+.quizwrap{display:grid; grid-template-columns:minmax(0,1fr) 300px; gap:18px; align-items:start}
+.q{background:var(--panel); border:1px solid var(--line); border-radius:var(--radius); padding:14px 15px; margin-bottom:12px}
+.q .qh{font-family:var(--font-mono); font-size:.74em; letter-spacing:.08em; color:var(--brass); font-weight:600}
+.q p.qt{margin:.3em 0 .7em; font-weight:500}
+.opts{display:flex; flex-direction:column; gap:6px}
+.opts button{font:inherit; font-size:.93em; text-align:left; background:var(--panel-2); color:var(--ink);
+  border:1px solid var(--line); border-radius:var(--radius); padding:9px 12px; cursor:pointer}
+.opts button:hover{border-color:var(--ink-3)}
+.opts button.ok{border-color:var(--ok); box-shadow:inset 3px 0 0 var(--ok)}
+.opts button.no{border-color:var(--no); box-shadow:inset 3px 0 0 var(--no)}
+.opts button[disabled]{cursor:default}
+.fb{margin-top:9px; font-size:.9em; color:var(--ink-2); border-top:1px dashed var(--line); padding-top:8px}
+.fb b{font-family:var(--font-mono); font-size:.82em; letter-spacing:.06em; text-transform:uppercase}
+.fb.good b{color:var(--ok)} .fb.bad b{color:var(--no)}
+.recap{background:var(--panel); border:1px solid var(--line); border-top:3px solid var(--brass);
+  border-radius:var(--radius); padding:14px 15px; position:sticky; top:14px}
+.recap ol{margin:0; padding-left:1.15em; display:flex; flex-direction:column; gap:9px}
+.recap li{font-size:.91em; color:var(--ink-2)}
+.recap li b{color:var(--ink)}
+.score{font-family:var(--font-mono); font-size:.8em; color:var(--ink-3); margin-top:12px;
+  padding-top:10px; border-top:1px solid var(--line-2)}
+
+.note{font-size:.86em; color:var(--ink-3); margin-top:10px}
+.legend{display:flex; flex-wrap:wrap; gap:6px 16px; padding:10px 12px; background:var(--panel-2);
+  border-top:1px solid var(--line-2); font-family:var(--font-mono); font-size:.74em; letter-spacing:.04em}
+.legend i{display:inline-block; width:15px; height:3px; vertical-align:middle; margin-right:6px}
+footer{margin-top:56px; padding-top:16px; border-top:1px solid var(--line); font-size:.84em; color:var(--ink-3)}
+footer a{color:var(--ink-2)}
+
+@media (max-width:980px){
+  .lab{grid-template-columns:1fr}
+  .quizwrap{grid-template-columns:1fr}
+  .recap{position:static}
+  .cards,.terms{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@media (max-width:760px){
+  :root{--h-puls:215px; --h-shift:370px; --h-time:320px; --h-sine:375px}
+  :root[data-mode="proj"]{--h-puls:250px; --h-shift:435px; --h-time:375px; --h-sine:440px}
+  .wrap{padding-inline:16px}
+  .hook{grid-template-columns:1fr}
+  .cards,.terms{grid-template-columns:1fr}
+  .ctrl{flex:1 1 100%}
+  .btn{padding:9px 14px}
+  .opts button{padding:12px 14px}
+  input[type=range]{height:30px}
+  input[type=range]::-webkit-slider-thumb{width:22px; height:22px; margin-top:-10px}
+  input[type=range]::-moz-range-thumb{width:22px; height:22px}
+  .canvas-inner{min-width:0}
+}
+@media (max-width:480px){
+  :root{--h-sine:258px; --h-shift:330px; --h-time:290px}
+  :root[data-mode="proj"]{--h-sine:300px; --h-shift:385px; --h-time:340px}
+}
+@media (prefers-reduced-motion:reduce){*{animation:none!important; transition:none!important}}
+
+/* ---------- karsilastirma / hesap tablosu ---------- */
+.cmpbox{background:var(--panel); border:1px solid var(--line); border-radius:var(--radius); margin-bottom:16px}
+.cmpbox h3{padding:13px 14px 8px; margin:0}
+.cmpscroll{overflow-x:auto; max-width:100%}
+.cmp{width:100%; border-collapse:collapse; font-size:.9em}
+.cmp th,.cmp td{padding:6px 12px; border-bottom:1px solid var(--line-2); text-align:right; white-space:nowrap}
+.cmp th:first-child,.cmp td:first-child{text-align:left; white-space:normal; color:var(--ink-2)}
+.cmp thead th{font-family:var(--font-mono); font-size:.76em; letter-spacing:.06em; text-transform:uppercase;
+  font-weight:600; background:var(--panel-2)}
+.cmp thead th.a{color:var(--sin)} .cmp thead th.b{color:var(--cos)}
+.cmp td.v{font-family:var(--font-mono); font-variant-numeric:tabular-nums; font-weight:600}
+.cmp tr.key td{background:var(--panel-2)}
+.cmp tr.key td:first-child{color:var(--ink); font-weight:600}
+.cmp tbody tr:last-child td{border-bottom:0}
+
+/* ---------- olcum haplari ---------- */
+.cmp td.lbl{width:56%}
+.pillrow{display:flex; gap:7px; flex-wrap:wrap; flex:1 1 100%}
+.pill{font-family:var(--font-mono); font-size:.74em; letter-spacing:.05em; text-transform:uppercase;
+  background:var(--panel); color:var(--ink-2); border:1px solid var(--line); border-radius:var(--radius);
+  padding:8px 11px; cursor:pointer}
+.pill[aria-pressed="true"]{background:var(--arc); color:#fff; border-color:var(--arc); font-weight:600}
+
+/* ---------- kontrol gruplari ---------- */
+.grp{flex:1 1 100%; display:flex; flex-wrap:wrap; gap:12px 16px; border-left:3px solid var(--line);
+  padding-left:11px; margin-bottom:2px}
+.grp.ga{border-left-color:var(--sin)} .grp.gb{border-left-color:var(--cos)}
+.grp .tag{flex:1 1 100%; font-family:var(--font-mono); font-size:.72em; letter-spacing:.09em;
+  text-transform:uppercase; font-weight:600; margin:0}
+.grp.ga .tag{color:var(--sin)} .grp.gb .tag{color:var(--cos)}
+.sw{display:inline-block; width:11px; height:11px; border-radius:50%; vertical-align:-1px; margin-right:6px}
+#tbl2 td:last-child,#tbl2 th:last-child{text-align:right; min-width:0}
+#tbl2 td,#tbl2 th{padding:6px 9px}
+#tbl2 td:nth-child(n+2){font-family:var(--font-mono); font-variant-numeric:tabular-nums}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+
+<header class="top">
+  <div class="brand">
+    <div class="eyebrow">Müzik Teknolojisi · Ses Fiziği I · 8. Atölye</div>
+    <h1>İlerleyen Dalganın Denklemi</h1>
+    <p class="lede">Şimdiye kadar dalgaya baktık; şimdi onu yazacağız. Aslında tek bir fikir var: bir şekli x ekseninde kaydırmak. Kaydırma miktarını zamana bağlarsak şekil ilerlemeye başlar — ve elimizde ilerleyen dalganın denklemi kalır.</p>
+  </div>
+  <div class="themebar" role="group" aria-label="Tema seçimi">
+    <button type="button" data-t="light" aria-pressed="false">Açık</button>
+    <button type="button" data-t="dark" aria-pressed="false">Koyu</button>
+    <button type="button" data-t="proj" aria-pressed="false">Projeksiyon</button>
+  </div>
+</header>
+
+<!-- ============ 01 ============ -->
+<section id="s1">
+  <h2><span class="num">01</span> Neden buna ihtiyacımız var?</h2>
+  <p class="kicker">Havada sağa doğru giden bir atma. Şekli hiç bozulmuyor, sadece yer değiştiriyor. Bu "yer değiştiren şekli" tek bir satırda nasıl yazarız?</p>
+
+  <div class="hook">
+    <figure class="canvas-wrap">
+      <div class="canvas-inner"><canvas id="cPuls" aria-label="Hava parçacıkları üzerinde sağa ilerleyen bir atma ve şeklinin bozulmadan taşınması"></canvas></div>
+      <div class="ctrls">
+        <div class="btnrow" style="flex:1 1 100%">
+          <button type="button" class="btn pri" id="puPlay">Oynat</button>
+          <button type="button" class="btn" id="puReset">Başa al</button>
+        </div>
+      </div>
+      <figcaption>Şeklin kendisi değişmiyor. Değişen tek şey <b>nerede olduğu</b>. Öyleyse denklemin de tek işi şekli doğru yere koymak olmalı.</figcaption>
+    </figure>
+
+    <div class="cols">
+      <div class="qcol">
+        <h3>Denklem ne işe yarar?</h3>
+        <p>Bir dalgayı yazabilirsen hesaplayabilirsin: iki mikrofon arasındaki farkı, odadaki gecikmeyi, filtrelerin fazını. Bütün sinyal işleme bu tek satırın üzerine kuruludur.</p>
+      </div>
+      <div class="qcol">
+        <h3>Aslında tek bir numara var</h3>
+        <p>Bir fonksiyonu sağa kaydırmak için <b>x yerine x − a</b> yazarsın. Hepsi bu. Sonra <b>a</b>'nın yerine <b>v·t</b> koyarsın ve şekil kendiliğinden ilerler.</p>
+      </div>
+      <div class="qcol">
+        <h3>Sinüs neden özel?</h3>
+        <p>Herhangi bir şekil taşınabilir; ama sinüs taşındığında hâlâ sinüstür. Bu yüzden dalgayı sinüsle yazarız — ve o zaman karşımıza <b>k</b> ile <b>ω</b> çıkar.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 02 ============ -->
+<section id="s2">
+  <h2><span class="num">02</span> Bilmemiz gereken kavramlar</h2>
+  <p style="max-width:62ch; color:var(--ink-2)">Altı kavram. İlk üçü saf geometri, son üçü onların dalgadaki karşılığı.</p>
+  <div class="cards">
+    <div class="card">
+      <h3>Fonksiyon: f(x)</h3>
+      <p>Her <i class="lit">x</i> konumu için bir yükseklik veren kural. Bizim durumumuzda: telin ya da havanın o noktadaki yer değiştirmesi. Şekil, bu kuralın resmidir.</p>
+      <div class="bridge"><b>Okunuşu</b> “f, x’in fonksiyonu”.</div>
+    </div>
+    <div class="card">
+      <h3>Öteleme: f(x − a)</h3>
+      <p>Aynı şekil, <b>a kadar sağa</b> taşınmış hâli. Eksi işareti ters geliyor ama mantığı basit: kalıbın tepesi <i class="lit">x − a = 0</i> olan yerde, yani <i class="lit">x = a</i>'da çıkar.</p>
+      <div class="bridge"><b>Tersi</b> f(x + a) şekli a kadar sola taşır.</div>
+    </div>
+    <div class="card">
+      <h3>Kaydırma miktarı: a = v·t</h3>
+      <p>Şekil sabit hızla gidiyorsa <i class="lit">t</i> saniyede aldığı yol <i class="lit">v·t</i>'dir. Bunu ötelemenin içine koyarsak <b>f(x − v·t)</b> olur: zamanla kendiliğinden ilerleyen bir şekil.</p>
+      <div class="bridge"><b>Sola giden</b> f(x + v·t).</div>
+    </div>
+    <div class="card">
+      <h3>Dalga sayısı <i class="lit">k</i></h3>
+      <p>Şekil sinüs ise: <i class="lit">k = 2π / λ</i>. Anlamı, <b>bir metrede kaç radyan</b> ilerlediğimiz. Dalga boyu kısaldıkça k büyür.</p>
+      <div class="bridge"><b>Birim</b> radyan / metre.</div>
+    </div>
+    <div class="card">
+      <h3>Açısal hız <i class="lit">ω</i></h3>
+      <p>Tek bir parçacık bir çember üzerinde dönüyormuş gibi salınır. <i class="lit">ω = 2π f</i>: <b>bir saniyede kaç radyan</b>. Bir tam tur 2π radyandır, o yüzden saniyede f tur = 2πf radyan.</p>
+      <div class="bridge"><b>1. atölye</b> Çemberin gölgesi sinüstü; ω o çemberin dönme hızı.</div>
+    </div>
+    <div class="card">
+      <h3>Dalga fonksiyonu</h3>
+      <p><b>y = A · sin(k x − ω t)</b>. İçindeki her harfin bir ölçüsü var: A genlik, k dalga boyundan, ω frekanstan gelir. Hızları da bağlar: <b>v = ω / k</b>.</p>
+      <div class="bridge"><b>Kontrol</b> ω/k = (2πf)/(2π/λ) = λ·f = v.</div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 03 ============ -->
+<section id="s3">
+  <h2><span class="num">03</span> Atölye: bir şekli x ekseninde taşımak</h2>
+  <p style="max-width:70ch; color:var(--ink-2)">Zaman yok, hız yok — sadece geometri. Soluk eğri <b>kalıp</b>, yani f(x). Kalın eğri ise kalıbın kaydırılmış hâli. Kaydırma miktarını değiştir ve eksi işaretinin neden sağa taşıdığını kendi gözünle gör.</p>
+
+  <div class="lab">
+    <div>
+      <figure class="canvas-wrap">
+        <div class="canvas-inner"><canvas id="cShift" aria-label="Bir atma şeklinin kalıbı ve x ekseninde kaydırılmış hâli"></canvas></div>
+        <div class="legend">
+          <span><i style="background:var(--sin)"></i>taşınmış şekil</span>
+          <span><i style="background:var(--cos)"></i>kalıp f(x)</span>
+          <span><i style="background:var(--arc)"></i>kaydırma miktarı a</span>
+        </div>
+        <div class="ctrls">
+          <div class="pillrow">
+            <button type="button" class="pill" data-s="0">f(x) · kalıp</button>
+            <button type="button" class="pill" data-s="-1" aria-pressed="true">f(x − a) · sağa</button>
+            <button type="button" class="pill" data-s="1">f(x + a) · sola</button>
+          </div>
+          <div class="btnrow" style="flex:1 1 100%">
+            <button type="button" class="btn" id="shTpl" aria-pressed="true">Kalıbı göster</button>
+            <button type="button" class="btn" id="shPart" aria-pressed="true">Hava parçacıkları</button>
+          </div>
+          <div class="ctrl" style="flex:1 1 280px">
+            <label for="sa"><span>Kaydırma miktarı <i class="lit">a</i></span><b id="saV">0,60 m</b></label>
+            <input type="range" id="sa" min="0" max="1.2" step="0.01" value="0.6">
+          </div>
+        </div>
+        <div class="readout r3">
+          <div><span>Yazılış</span><b id="hF">f(x − a)</b></div>
+          <div><span>Kaydırma <i class="lit">a</i></span><b id="hA">0,60 m</b></div>
+          <div><span>Yön</span><b id="hD">sağa</b></div>
+          <div><span>Kalıbın tepesi</span><b id="hP0">0,90 m</b></div>
+          <div><span>Yeni tepe</span><b id="hP1">1,50 m</b></div>
+          <div><span>Şeklin kendisi</span><b id="hS">değişmedi</b></div>
+        </div>
+      </figure>
+      <p class="note" style="margin:10px 0 0">Şeklin genişliği, yüksekliği, eğimi — hiçbiri değişmiyor. Değişen tek şey, aynı resmin eksende nereye oturduğu. Öteleme yapan bir denklem, şekli <b>bozmaz</b>.</p>
+    </div>
+
+    <div>
+      <aside class="steps">
+        <h3>Ders adımları</h3>
+        <div class="stepnav">
+          <button type="button" class="btn" id="stPrev" aria-label="Önceki adım">‹</button>
+          <button type="button" class="btn" id="stNext" aria-label="Sonraki adım">›</button>
+          <span class="count" id="stCount">1 / 5</span>
+        </div>
+        <ol class="steplist" id="stList"></ol>
+        <p class="note" id="stText"></p>
+      </aside>
+
+      <div class="cmpbox">
+        <h3>Eksi işareti neden sağa taşır</h3>
+        <div class="cmpscroll">
+          <table class="cmp">
+            <tbody>
+              <tr><td class="lbl">Kalıbın tepesi burada</td><td class="v" id="vP0"></td></tr>
+              <tr><td class="lbl">Kaydırma miktarı a</td><td class="v" id="vA"></td></tr>
+              <tr><td class="lbl">Tepe çıkması için gereken şart</td><td class="v" id="vC"></td></tr>
+              <tr class="key"><td class="lbl">Bu şartı sağlayan x</td><td class="v" id="vX"></td></tr>
+              <tr><td class="lbl">Yeni tepenin yeri</td><td class="v" id="vP1"></td></tr>
+              <tr class="key"><td class="lbl">Kural</td><td class="v" id="vR"></td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="note" style="padding:0 14px 12px; margin:0" id="sNote"></p>
+      </div>
+
+      <div class="tablebox" style="margin-top:0">
+        <table id="tbl">
+          <caption class="sr-only">Yazılış, etkisi ve tepenin yeri</caption>
+          <thead><tr><th>Yazılış</th><th>Tepe</th><th>Ne yapar</th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+      <p class="note">Bir satıra tıkla: o yazılış ve kaydırma seçilir.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 04 ============ -->
+<section id="s4">
+  <h2><span class="num">04</span> Kaydırmayı zamana bağla: a = v·t</h2>
+  <p style="max-width:70ch; color:var(--ink-2)">Şimdi tek bir değişiklik yapıyoruz: sabit bir <i class="lit">a</i> yerine <b>v · t</b> yazıyoruz. Hız sabit olduğu için şekil her saniye aynı miktar ilerliyor. Denklem artık kendi kendine hareket ediyor: <b>y(x, t) = f(x − v·t)</b>.</p>
+
+  <div class="hook">
+    <figure class="canvas-wrap">
+      <div class="canvas-inner"><canvas id="cTime" aria-label="Atmanın t=0 kalıbı ve v çarpı t kadar ilerlemiş hâli"></canvas></div>
+      <div class="legend">
+        <span><i style="background:var(--sin)"></i>t anındaki şekil</span>
+        <span><i style="background:var(--cos)"></i>t = 0 kalıbı</span>
+        <span><i style="background:var(--arc)"></i>alınan yol v·t</span>
+      </div>
+      <div class="ctrls">
+        <div class="btnrow" style="flex:1 1 100%">
+          <button type="button" class="btn pri" id="tmPlay">Oynat</button>
+          <button type="button" class="btn" id="tmDir" aria-pressed="false">Sola giden: f(x + v·t)</button>
+        </div>
+        <div class="ctrl" style="flex:1 1 230px">
+          <label for="tmT"><span>Zaman <i class="lit">t</i></span><b id="tmTV">1,00 s</b></label>
+          <input type="range" id="tmT" min="0" max="2.4" step="0.01" value="1">
+        </div>
+        <div class="ctrl" style="flex:1 1 230px">
+          <label for="tmV"><span>Hız <i class="lit">v</i></span><b id="tmVV">0,60 m/s</b></label>
+          <input type="range" id="tmV" min="0.2" max="1" step="0.05" value="0.6">
+        </div>
+      </div>
+      <figcaption>Mor ok, kalıbın tepesinden şu anki tepeye olan mesafeyi gösteriyor. Bu mesafe her zaman tam olarak <b>v · t</b> kadar.</figcaption>
+    </figure>
+
+    <div>
+      <div class="cmpbox">
+        <h3>Hesap adım adım</h3>
+        <div class="cmpscroll">
+          <table class="cmp">
+            <tbody>
+              <tr><td class="lbl">Hız v</td><td class="v" id="eV"></td></tr>
+              <tr><td class="lbl">Geçen süre t</td><td class="v" id="eT"></td></tr>
+              <tr class="key"><td class="lbl">Alınan yol v · t</td><td class="v" id="eVT"></td></tr>
+              <tr><td class="lbl">Kalıbın tepesi</td><td class="v" id="eP0"></td></tr>
+              <tr class="key"><td class="lbl">Şu anki tepe</td><td class="v" id="eP1"></td></tr>
+              <tr><td class="lbl">Denklem</td><td class="v" id="eEq"></td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="note" style="padding:0 14px 12px; margin:0" id="eNote"></p>
+      </div>
+      <p class="note" style="margin-top:0">Hızı iki katına çıkar: aynı <i class="lit">t</i> anında tepe iki kat uzakta olur. Zamanı durdur: şekil de durur. Denklemdeki <b>v·t</b> çarpımı, "şeklin şu ana kadar aldığı yol"dan başka bir şey değil.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 05 ============ -->
+<section id="s5">
+  <h2><span class="num">05</span> Atölye: sinüs koyunca <i class="lit">k</i> ve <i class="lit">ω</i> çıkıyor</h2>
+  <p style="max-width:70ch; color:var(--ink-2)">Kalıbı atma yerine <b>sinüs</b> seçelim. Solda bir çember var: seçtiğin parçacık sanki o çemberin üzerinde dönüyor ve gölgesi salınımı veriyor (1. atölyedeki gibi). Çemberin dönme hızı <i class="lit">ω</i>, eksende bir metrede dönülen açı ise <i class="lit">k</i>.</p>
+
+  <div class="lab">
+    <div>
+      <figure class="canvas-wrap">
+        <div class="canvas-inner"><canvas id="cSine" aria-label="Dönen bir çember ve onun karşılığı olan sinüs dalgası; seçili parçacığın fazı"></canvas></div>
+        <div class="legend">
+          <span><i style="background:var(--sin)"></i>dalga y = A·sin(kx − ωt)</span>
+          <span><i style="background:var(--cos)"></i>çember ve dalga boyu</span>
+          <span><i style="background:var(--arc)"></i>seçili parçacık ve fazı</span>
+        </div>
+        <div class="ctrls">
+          <div class="btnrow" style="flex:1 1 100%">
+            <button type="button" class="btn pri" id="siPlay">Oynat</button>
+            <button type="button" class="btn" id="siReset">Başa al</button>
+            <button type="button" class="btn" id="siCirc" aria-pressed="true">Çember</button>
+          </div>
+          <div class="grp gb">
+            <p class="tag"><span class="sw" style="background:var(--cos)"></span>dalganın ölçüleri</p>
+            <div class="ctrl" style="flex:1 1 200px">
+              <label for="siLam"><span>Dalga boyu <i class="lit">λ</i></span><b id="siLamV">1,00 m</b></label>
+              <input type="range" id="siLam" min="0.5" max="1.5" step="0.05" value="1">
+            </div>
+            <div class="ctrl" style="flex:1 1 200px">
+              <label for="siF"><span>Frekans <i class="lit">f</i></span><b id="siFV">0,50 Hz</b></label>
+              <input type="range" id="siF" min="0.2" max="1" step="0.05" value="0.5">
+            </div>
+          </div>
+          <div class="ctrl" style="flex:1 1 220px">
+            <label for="siT"><span>Zaman <i class="lit">t</i></span><b id="siTV">0,00 s</b></label>
+            <input type="range" id="siT" min="0" max="4" step="0.01" value="0">
+          </div>
+          <div class="ctrl" style="flex:1 1 220px">
+            <label for="siX"><span>Seçili konum <i class="lit">x</i></span><b id="siXV">0,60 m</b></label>
+            <input type="range" id="siX" min="0" max="2.4" step="0.01" value="0.6">
+          </div>
+        </div>
+        <div class="readout r3">
+          <div><span>Dalga sayısı <i class="lit">k</i> = 2π/<i class="lit">λ</i></span><b id="qK">6,28</b></div>
+          <div><span>Açısal hız <i class="lit">ω</i> = 2π<i class="lit">f</i></span><b id="qW">3,14</b></div>
+          <div><span>Hız <i class="lit">v</i> = <i class="lit">ω</i>/<i class="lit">k</i></span><b id="qV">0,50 m/s</b></div>
+          <div><span>Faz = <i class="lit">k·x</i> − <i class="lit">ω·t</i></span><b id="qPh">3,77</b></div>
+          <div><span>Yer değiştirme <i class="lit">y</i></span><b id="qY">−0,59</b></div>
+          <div><span>Kontrol: <i class="lit">λ·f</i></span><b id="qC">0,50 m/s</b></div>
+        </div>
+      </figure>
+      <p class="note" style="margin:10px 0 0">Zamanı oynat: çemberdeki açı saniyede <i class="lit">ω</i> radyan değişiyor — <b>açısal hız</b> tam olarak bu. Seçili konumu kaydır: açı bu sefer her metrede <i class="lit">k</i> radyan değişiyor. Dalganın fazı bu ikisinin farkı: <b>k·x − ω·t</b>.</p>
+    </div>
+
+    <div>
+      <aside class="steps">
+        <h3>Türetme adımları</h3>
+        <div class="stepnav">
+          <button type="button" class="btn" id="siPrev" aria-label="Önceki adım">‹</button>
+          <button type="button" class="btn" id="siNext" aria-label="Sonraki adım">›</button>
+          <span class="count" id="siCount">1 / 6</span>
+        </div>
+        <ol class="steplist" id="siList"></ol>
+        <p class="note" id="siText"></p>
+      </aside>
+
+      <div class="cmpbox">
+        <h3>Denklemi kur</h3>
+        <div class="cmpscroll">
+          <table class="cmp">
+            <tbody>
+              <tr><td class="lbl">1 · Kalıp sinüs olsun</td><td class="v">f(x) = A·sin(k·x)</td></tr>
+              <tr><td class="lbl">2 · <i class="lit">k</i> = 2π / <i class="lit">λ</i></td><td class="v" id="wK"></td></tr>
+              <tr><td class="lbl">3 · Taşı: x yerine x − v·t</td><td class="v">A·sin(k(x − v·t))</td></tr>
+              <tr><td class="lbl">4 · Parantezi aç</td><td class="v">A·sin(k·x − k·v·t)</td></tr>
+              <tr><td class="lbl">5 · <i class="lit">k·v</i> çarpımına <i class="lit">ω</i> de</td><td class="v" id="wW"></td></tr>
+              <tr class="key"><td class="lbl">6 · Sonuç</td><td class="v">y = A·sin(k·x − ω·t)</td></tr>
+              <tr><td class="lbl">Kontrol: <i class="lit">ω</i> / <i class="lit">k</i></td><td class="v" id="wV"></td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="note" style="padding:0 14px 12px; margin:0">Aynı denklemi λ ve T ile de yazabilirsin: y = A·sin(2π(x/λ − t/T)). İkisi aynı şeydir; k ve ω sadece 2π'leri toplu hâlde taşır.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 06 ============ -->
+<section id="s6">
+  <h2><span class="num">06</span> Kavramın dili</h2>
+  <p style="max-width:64ch; color:var(--ink-2)">Altı terim. Üçü matematikten, üçü dalgadan geliyor — ama hepsi aynı denklemin içinde.</p>
+
+  <div class="terms">
+    <div class="term">
+      <h3>Öteleme</h3>
+      <div class="sym">f(x − a) · a kadar sağa</div>
+      <p>Bir fonksiyonun grafiğini bozmadan kaydırmak. Eksi sağa, artı sola taşır. Dalga denkleminin tamamı bu tek işlemin üzerine kuruludur.</p>
+      <div class="mus"><span>Müzikte</span> Bir sesi geciktirmek (delay) zaman ekseninde ötelemektir: g(t − τ).</div>
+    </div>
+
+    <div class="term">
+      <h3>Dalga sayısı</h3>
+      <div class="sym"><i class="lit">k</i> = 2π / <i class="lit">λ</i> · rad/m</div>
+      <p>Uzayda bir metre ilerlediğinde fazın kaç radyan değiştiği. Dalga boyu kısaldıkça k büyür: aynı mesafede daha çok tur atılır.</p>
+      <div class="mus"><span>Müzikte</span> İki mikrofon arasındaki d mesafesi, k·d kadar faz farkı demektir.</div>
+    </div>
+
+    <div class="term">
+      <h3>Açısal hız</h3>
+      <div class="sym"><i class="lit">ω</i> = 2π<i class="lit">f</i> = <i class="lit">k·v</i> · rad/s</div>
+      <p>Zamanda bir saniyede fazın kaç radyan değiştiği. Bir tam tur 2π radyan olduğundan, saniyede f tur atan bir salınımın açısal hızı 2πf'dir.</p>
+      <div class="mus"><span>Müzikte</span> Osilatör tasarımında frekans genellikle ω olarak tutulur; 440 Hz → ω ≈ 2765 rad/s.</div>
+      <div class="btnrow" style="margin-top:10px">
+        <button type="button" class="btn snd" data-snd="w">440 Hz dinle</button>
+      </div>
+    </div>
+
+    <div class="term">
+      <h3>Faz</h3>
+      <div class="sym"><i class="lit">k·x</i> − <i class="lit">ω·t</i> · radyan</div>
+      <p>Salınımın tur içindeki yeri. Konumdan gelen kısmı k·x, zamandan gelen kısmı ω·t. İkisinin farkı sabit kalırsa hep aynı noktadasın demektir — dalga tepesiyle birlikte yürümek budur.</p>
+      <div class="mus"><span>Müzikte</span> π radyan (180°) faz farkı = ters faz = iptal.</div>
+    </div>
+
+    <div class="term">
+      <h3>Faz hızı</h3>
+      <div class="sym"><i class="lit">v</i> = <i class="lit">ω</i> / <i class="lit">k</i> = <i class="lit">λ·f</i></div>
+      <p>Sabit fazın (örneğin bir tepenin) ilerleme hızı. Denklemin içinden doğrudan okunur; havada bu, ses hızıdır.</p>
+      <div class="mus"><span>Müzikte</span> Havada bütün frekanslar için aynı: 343 m/s. Bu yüzden akor bozulmadan ulaşır.</div>
+    </div>
+
+    <div class="term">
+      <h3>Dalga fonksiyonu</h3>
+      <div class="sym">y = A·sin(<i class="lit">k·x</i> − <i class="lit">ω·t</i>)</div>
+      <p>Hem konumu hem zamanı içeren tek satır. <i class="lit">t</i>'yi sabitlersen uzayda bir fotoğraf, <i class="lit">x</i>'i sabitlersen tek parçacığın zamandaki hareketi çıkar.</p>
+      <div class="mus"><span>Müzikte</span> Sola giden dalga için sadece işaret değişir: sin(k·x + ω·t).</div>
+      <div class="btnrow" style="margin-top:10px">
+        <button type="button" class="btn snd" data-snd="two">İki frekans arka arkaya</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 07 ============ -->
+<section id="s7">
+  <h2><span class="num">07</span> Şimdi sen dene</h2>
+  <div class="quizwrap">
+    <div id="quiz"></div>
+    <aside class="recap">
+      <h3>Aklında kalsın</h3>
+      <ol>
+        <li><b>f(x − a)</b> şekli <b>a kadar sağa</b> taşır; f(x + a) sola. Şekil bozulmaz.</li>
+        <li>Kaydırma miktarını <b>v·t</b> yaparsan şekil kendiliğinden ilerler: <b>f(x − v·t)</b>.</li>
+        <li>Kalıp sinüs ise: <b>y = A·sin(k(x − v·t)) = A·sin(k·x − ω·t)</b>.</li>
+        <li><b>k = 2π/λ</b> (metrede radyan), <b>ω = 2πf</b> (saniyede radyan).</li>
+        <li><b>v = ω/k = λ·f</b>. Denklemin içindeki hız budur.</li>
+      </ol>
+      <div class="score" id="score">Doğru: 0 / 8</div>
+    </aside>
+  </div>
+</section>
+
+<footer>
+  <p>Müzik Teknolojisi · Ses Fiziği I dersi 8. atölye — İlerleyen Dalganın Denklemi. 4. ve 7. atölyelerdeki (İlerleyen Dalgalar, Dalga Boyu ve Periyot) kavramları varsayar. Konu haritası için: UNSW Physclips – Travelling Waves (animations.physics.unsw.edu.au).</p>
+</footer>
+
+</div>
+<script>
+(function(){
+'use strict';
+var root=document.documentElement, TAU=Math.PI*2;
+var C={}, K={lw:1,fs:1,faint:.32,glow:0};
+var mqDark=window.matchMedia('(prefers-color-scheme: dark)');
+var mqSlow=window.matchMedia('(prefers-reduced-motion: reduce)');
+var CKEYS=['ground','panel','panel-2','ink','ink-2','ink-3','line','line-2','sin','cos','arc','brass','ok','no'];
+
+/* ---------------- tema ---------------- */
+function isProj(){ return root.getAttribute('data-mode')==='proj'; }
+function isDarkNow(){
+  if(isProj()) return false;
+  var t=root.getAttribute('data-theme');
+  if(t==='dark') return true;
+  if(t==='light') return false;
+  return mqDark.matches;
+}
+function readTheme(){
+  var cs=getComputedStyle(root);
+  for(var i=0;i<CKEYS.length;i++) C[CKEYS[i]]=cs.getPropertyValue('--'+CKEYS[i]).trim()||'#888';
+  var proj=isProj(), dark=isDarkNow();
+  K.glow = (dark && !proj) ? 0.7 : 0;
+  K.lw   = proj ? 1.5 : 1;
+  K.fs   = proj ? 1.24 : 1;
+  K.faint= proj ? 0.42 : (K.glow ? 0.34 : 0.32);
+}
+var tBtns=[].slice.call(document.querySelectorAll('.themebar button'));
+function syncTheme(){
+  var cur;
+  if(isProj()) cur='proj';
+  else if(root.getAttribute('data-theme')==='dark') cur='dark';
+  else if(root.getAttribute('data-theme')==='light') cur='light';
+  else cur = mqDark.matches ? 'dark' : 'light';
+  tBtns.forEach(function(b){ b.setAttribute('aria-pressed', b.dataset.t===cur?'true':'false'); });
+}
+function applyTheme(v,store){
+  if(v==='light'){ root.setAttribute('data-theme','light'); root.removeAttribute('data-mode'); }
+  else if(v==='dark'){ root.setAttribute('data-theme','dark'); root.removeAttribute('data-mode'); }
+  else if(v==='proj'){ root.setAttribute('data-theme','light'); root.setAttribute('data-mode','proj'); }
+  if(store){ try{ localStorage.setItem('mt-tema',v); }catch(e){} }
+  syncTheme();
+}
+tBtns.forEach(function(b){ b.addEventListener('click',function(){ applyTheme(b.dataset.t,true); }); });
+(function(){
+  var v=null; try{ v=localStorage.getItem('mt-tema'); }catch(e){}
+  if(v==='light'||v==='dark'||v==='proj') applyTheme(v,false); else syncTheme();
+})();
+
+/* ---------------- yardimcilar ---------------- */
+function nf(v,d){
+  d=(d===undefined)?2:d;
+  var r=Number(v.toFixed(d)); if(r===0) r=0;
+  return r.toFixed(d).replace('-','−').replace('.',',');
+}
+function deg(v,d){ return nf(v,d===undefined?0:d)+'°'; }
+function setFont(ctx,px,w,sans){
+  ctx.font=(w||500)+' '+Math.max(9,Math.round(px*K.fs))+'px '+(sans?'"IBM Plex Sans",system-ui,sans-serif':'"IBM Plex Mono",ui-monospace,monospace');
+}
+function gOn(ctx,col,amt){ if(K.glow){ ctx.shadowColor=col; ctx.shadowBlur=amt*K.glow; } }
+function gOff(ctx){ ctx.shadowBlur=0; ctx.shadowColor='transparent'; }
+function dash(ctx,a){ ctx.setLineDash(a?a.map(function(v){return v*K.lw;}):[]); }
+function line(ctx,x1,y1,x2,y2,col,w,d){
+  ctx.save(); ctx.strokeStyle=col; ctx.lineWidth=(w||1)*K.lw; dash(ctx,d);
+  ctx.beginPath(); ctx.moveTo(x1,y1); ctx.lineTo(x2,y2); ctx.stroke(); ctx.restore();
+}
+function dot(ctx,x,y,r,col,glow){
+  ctx.save(); ctx.fillStyle=col; if(glow) gOn(ctx,col,10);
+  ctx.beginPath(); ctx.arc(x,y,r*K.fs,0,TAU); ctx.fill(); gOff(ctx); ctx.restore();
+}
+function label(ctx,txt,x,y,col,px,align,bg){
+  var fs=px||11;
+  ctx.save(); setFont(ctx,fs,500,false);
+  ctx.textAlign=align||'left'; ctx.textBaseline='alphabetic';
+  if(bg){
+    var w=ctx.measureText(txt).width, h=fs*K.fs;
+    var lx=(align==='right')?x-w:((align==='center')?x-w/2:x);
+    ctx.fillStyle=alpha(C.panel,0.86);
+    ctx.fillRect(lx-3,y-h-1,w+6,h+5);
+  }
+  ctx.fillStyle=col; ctx.fillText(txt,x,y); ctx.restore();
+}
+function labelV(ctx,txt,x,y,col,px){
+  ctx.save(); setFont(ctx,px||11,500,false);
+  ctx.translate(x,y); ctx.rotate(Math.PI/2);
+  ctx.textAlign='center'; ctx.textBaseline='alphabetic';
+  ctx.fillStyle=col; ctx.fillText(txt,0,0); ctx.restore();
+}
+function textW(ctx,txt,px){ ctx.save(); setFont(ctx,px||11,500,false); var w=ctx.measureText(txt).width; ctx.restore(); return w; }
+function alpha(hex,a){
+  var h=hex.replace('#',''); if(h.length===3) h=h[0]+h[0]+h[1]+h[1]+h[2]+h[2];
+  var n=parseInt(h,16);
+  if(isNaN(n)) return hex;
+  return 'rgba('+((n>>16)&255)+','+((n>>8)&255)+','+(n&255)+','+a+')';
+}
+
+/* ---------------- sahne altyapisi ---------------- */
+var scenes=[];
+function makeScene(cv,painter){
+  var ctx=cv.getContext('2d'), s={cv:cv,ctx:ctx,W:0,H:0};
+  s.resize=function(){
+    var r=cv.getBoundingClientRect();
+    var w=Math.max(1,r.width), h=Math.max(1,r.height);
+    var dpr=Math.min(2,window.devicePixelRatio||1);
+    s.W=w; s.H=h; cv.width=Math.round(w*dpr); cv.height=Math.round(h*dpr);
+    ctx.setTransform(dpr,0,0,dpr,0,0);
+  };
+  s.draw=function(){ if(s.W<2) s.resize(); ctx.clearRect(0,0,s.W,s.H); painter(ctx,s.W,s.H); };
+  if(window.ResizeObserver) new ResizeObserver(function(){ s.resize(); s.draw(); }).observe(cv);
+  scenes.push(s); return s;
+}
+function markAll(){ PU.dirty=true; SH.dirty=true; TM.dirty=true; SI.dirty=true; }
+function redrawAll(){ readTheme(); scenes.forEach(function(s){ s.resize(); s.draw(); }); markAll(); }
+new MutationObserver(redrawAll).observe(root,{attributes:true,attributeFilter:['data-theme','data-mode']});
+if(mqDark.addEventListener) mqDark.addEventListener('change',function(){ redrawAll(); syncTheme(); });
+window.addEventListener('resize',function(){ markAll(); });
+
+/* ---------------- ses ---------------- */
+var AC=null;
+function ac(){
+  try{
+    if(!AC){ var Ctor=window.AudioContext||window.webkitAudioContext; if(!Ctor) return null; AC=new Ctor(); }
+    if(AC.state==='suspended') AC.resume();
+    return AC;
+  }catch(e){ return null; }
+}
+function playTones(specs,dur){
+  var c=ac(); if(!c) return;
+  try{
+    var t0=c.currentTime+0.06, master=c.createGain();
+    master.gain.setValueAtTime(0.0001,t0);
+    master.gain.linearRampToValueAtTime(1,t0+0.03);
+    master.gain.setValueAtTime(1,t0+dur-0.08);
+    master.gain.linearRampToValueAtTime(0.0001,t0+dur);
+    master.connect(c.destination);
+    specs.forEach(function(sp){
+      var o=c.createOscillator(); o.type='sine'; o.frequency.setValueAtTime(sp.f,t0);
+      var g=c.createGain(); g.gain.setValueAtTime(sp.g,t0);
+      o.connect(g); g.connect(master); o.start(t0); o.stop(t0+dur+0.06);
+    });
+    setTimeout(function(){ try{ master.disconnect(); }catch(e){} },(dur+0.4)*1000);
+  }catch(e){}
+}
+function playSeq(list,dur,gap){
+  var c=ac(); if(!c) return;
+  list.forEach(function(f,i){ setTimeout(function(){ playTones([{f:f,g:0.16}],dur); }, i*(dur+gap)*1000); });
+}
+function hatch(ctx,x0,x1,y,col,dir){
+  ctx.save(); ctx.strokeStyle=col; ctx.lineWidth=1*K.lw;
+  for(var x=x0+5;x<x1;x+=12){ ctx.beginPath(); ctx.moveTo(x,y); ctx.lineTo(x-5,y+5*(dir||1)); ctx.stroke(); }
+  ctx.restore();
+}
+
+
+
+
+/* ---------------- ortak ---------------- */
+var XW=3.0;      /* 01, 03, 04 gorus genisligi (m) */
+var XWS=2.4;     /* 05 gorus genisligi (m) */
+var X0=0.9;      /* kalibin tepe konumu (m) */
+var PW=0.20;     /* atma genisligi (m) */
+var APK=0.10;    /* parcacik yer degistirme genligi (m) */
+
+function pul(u){ var z=u/PW; return Math.exp(-z*z); }
+function arrowH(ctx,x1,x2,y,col,lw){
+  ctx.save(); ctx.strokeStyle=col; ctx.lineWidth=(lw||1.7)*K.lw; ctx.lineCap='round';
+  ctx.beginPath(); ctx.moveTo(x1,y); ctx.lineTo(x2,y); ctx.stroke();
+  var d=(x2>x1)?1:-1, h=5;
+  ctx.beginPath(); ctx.moveTo(x1,y); ctx.lineTo(x1+d*7,y-h); ctx.moveTo(x1,y); ctx.lineTo(x1+d*7,y+h);
+  ctx.moveTo(x2,y); ctx.lineTo(x2-d*7,y-h); ctx.moveTo(x2,y); ctx.lineTo(x2-d*7,y+h);
+  ctx.stroke(); ctx.restore();
+}
+function arrow1(ctx,x1,y1,x2,y2,col,lw){
+  ctx.save(); ctx.strokeStyle=col; ctx.lineWidth=(lw||2)*K.lw; ctx.lineCap='round';
+  ctx.beginPath(); ctx.moveTo(x1,y1); ctx.lineTo(x2,y2); ctx.stroke();
+  var a=Math.atan2(y2-y1,x2-x1), h=6.5;
+  ctx.beginPath(); ctx.moveTo(x2,y2); ctx.lineTo(x2-h*Math.cos(a-0.45),y2-h*Math.sin(a-0.45));
+  ctx.moveTo(x2,y2); ctx.lineTo(x2-h*Math.cos(a+0.45),y2-h*Math.sin(a+0.45));
+  ctx.stroke(); ctx.restore();
+}
+function axLab(ctx,txt,x,y,px0,px1,col,px){
+  var w=textW(ctx,txt,px||9), al='center', tx=x;
+  if(tx+w/2>px1){ al='right'; tx=px1; }
+  else if(tx-w/2<px0){ al='left'; tx=px0; }
+  label(ctx,txt,tx,y,col,px||9,al);
+}
+function rowY(yTop,yBot,rows,r,i){
+  var h=(yBot-yTop)/rows, base=yTop+h*(r+0.5);
+  var j=((i*37+r*17)%7)/7-0.5;
+  return base+j*h*0.42;
+}
+/* metre ekseni */
+function mAxis(ctx,y,px0,px1,span,step,big){
+  line(ctx,px0,y,px1,y,alpha(C['ink-3'],0.55),1.2);
+  var last=Math.floor(span/big)*big;
+  for(var t=0;t<=span+1e-6;t+=step){
+    var isb=Math.abs(t/big-Math.round(t/big))<1e-6;
+    var x=px0+(t/span)*(px1-px0);
+    line(ctx,x,y,x,y+(isb?6:3),alpha(C['ink-3'],0.55),1);
+    if(isb) axLab(ctx,nf(t,1)+(Math.abs(t-last)<1e-6?' m':''),x,y+17,px0,px1,alpha(C['ink-3'],0.95),9);
+  }
+}
+/* parcacik seridi : sfun(x) -> yer degistirme (m) */
+function strip(ctx,X,yTop,yBot,span,n,sfun){
+  for(var i=0;i<n;i++){
+    var e=(i+0.5)*span/n, xx=X(e+sfun(e));
+    for(var r=0;r<3;r++) dot(ctx,xx,rowY(yTop,yBot,3,r,i),2.1,alpha(C.ink,0.76),false);
+  }
+}
+
+/* ================= 01 : ilerleyen atma ================= */
+var PU={t:0, playing:false, dirty:true};
+var PUV=0.55;
+var pulScene=makeScene(document.getElementById('cPuls'),function(ctx,W,H){
+  var pad=12, px0=pad+8, px1=W-pad-8;
+  var X=function(x){ return px0+(x/XW)*(px1-px0); };
+  var yTop=pad+10, hP=Math.max(40,Math.min(66,(H-2*pad)*0.28)), yPb=yTop+hP;
+  var cy=H-pad-18, amp=Math.max(16,cy-16-yPb);
+  var sh=PUV*PU.t;
+  var faint=alpha(C['ink-3'],K.faint);
+
+  strip(ctx,X,yTop,yPb,XW,Math.round(XW*30),function(x){ return APK*pul(x-X0-sh); });
+
+  line(ctx,px0,cy,px1,cy,faint,1,[4,6]);
+  ctx.save(); ctx.strokeStyle=C.sin; ctx.lineWidth=2.6*K.lw; ctx.lineJoin='round'; gOn(ctx,C.sin,10);
+  ctx.beginPath();
+  for(var p=px0;p<=px1;p+=1){ var x=(p-px0)/(px1-px0)*XW, y=cy-amp*pul(x-X0-sh);
+    if(p===px0) ctx.moveTo(p,y); else ctx.lineTo(p,y); }
+  ctx.stroke(); gOff(ctx); ctx.restore();
+
+  var xp=X0+sh;
+  if(xp<XW-0.05){
+    line(ctx,X(xp),cy-amp-8,X(xp),cy+6,alpha(C.arc,0.7),1.4,[5,4]);
+    label(ctx,'tepe: '+nf(xp,2)+' m',X(xp),cy-amp-12,C.arc,11,'center',true);
+  }
+  arrow1(ctx,X(Math.min(xp+0.18,XW-0.5)),cy+amp*0.0+16,X(Math.min(xp+0.62,XW-0.06)),cy+16,C.sin,1.8);
+});
+
+/* ================= 03 : oteleme ================= */
+var SH={a:0.6, mode:'-1', tpl:true, part:true, dirty:true};
+function shOf(){ return SH.mode==='0'?0:(SH.mode==='-1'?SH.a:-SH.a); }
+var shiftScene=makeScene(document.getElementById('cShift'),function(ctx,W,H){
+  var pad=12, px0=pad+8, px1=W-pad-8;
+  var X=function(x){ return px0+(x/XW)*(px1-px0); };
+  var faint=alpha(C['ink-3'],K.faint), sh=shOf();
+  var yTop=pad+10, hP=SH.part?Math.max(40,Math.min(70,(H-2*pad)*0.19)):0;
+  var yPb=yTop+hP;
+  var yArr=H-pad-14, yAx=yArr-42;
+  var cy=yAx-16, amp=Math.max(20,(cy-10-yPb));
+
+  if(SH.part) strip(ctx,X,yTop,yPb,XW,Math.round(XW*30),function(x){ return APK*pul(x-X0-sh); });
+
+  line(ctx,px0,cy,px1,cy,faint,1,[4,6]);
+  /* kalip */
+  if(SH.tpl){
+    ctx.save(); ctx.strokeStyle=alpha(C.cos,0.85); ctx.lineWidth=1.8*K.lw; dash(ctx,[6,4]);
+    ctx.beginPath();
+    for(var p=px0;p<=px1;p+=1){ var x=(p-px0)/(px1-px0)*XW, y=cy-amp*pul(x-X0);
+      if(p===px0) ctx.moveTo(p,y); else ctx.lineTo(p,y); }
+    ctx.stroke(); ctx.restore();
+    label(ctx,'kalıp f(x)',X(X0),cy-amp-8,C.cos,11,'center',true);
+    dot(ctx,X(X0),cy-amp,3.6,C.cos,false);
+  }
+  /* tasinmis */
+  ctx.save(); ctx.strokeStyle=C.sin; ctx.lineWidth=2.9*K.lw; ctx.lineJoin='round'; gOn(ctx,C.sin,11);
+  ctx.beginPath();
+  for(var p2=px0;p2<=px1;p2+=1){ var x2=(p2-px0)/(px1-px0)*XW, y2=cy-amp*pul(x2-X0-sh);
+    if(p2===px0) ctx.moveTo(p2,y2); else ctx.lineTo(p2,y2); }
+  ctx.stroke(); gOff(ctx); ctx.restore();
+  var xp=X0+sh;
+  dot(ctx,X(xp),cy-amp,4.4,C.sin,true);
+
+  mAxis(ctx,yAx,px0,px1,XW,0.2,0.5);
+
+  /* kaydirma oku */
+  if(Math.abs(sh)>0.005){
+    line(ctx,X(X0),cy-amp,X(X0),yArr,alpha(C.arc,0.5),1.2,[4,4]);
+    line(ctx,X(xp),cy-amp,X(xp),yArr,alpha(C.arc,0.5),1.2,[4,4]);
+    arrowH(ctx,X(X0),X(xp),yArr,C.arc,1.9);
+    label(ctx,'a = '+nf(SH.a,2)+' m',(X(X0)+X(xp))/2,yArr-9,C.arc,11,'center',true);
+  } else {
+    label(ctx,'a = 0 — kalıp yerinde',X(X0),yArr-4,C.arc,11,'center',true);
+  }
+});
+
+/* ================= 04 : a = v t ================= */
+var TM={t:1.0, v:0.6, dir:-1, playing:false, dirty:true};
+function tmSh(){ return -TM.dir*TM.v*TM.t; }
+var timeScene=makeScene(document.getElementById('cTime'),function(ctx,W,H){
+  var pad=12, px0=pad+8, px1=W-pad-8;
+  var X=function(x){ return px0+(x/XW)*(px1-px0); };
+  var faint=alpha(C['ink-3'],K.faint), sh=tmSh();
+  var yTop=pad+10, hP=Math.max(38,Math.min(64,(H-2*pad)*0.20)), yPb=yTop+hP;
+  var yArr=H-pad-14, yAx=yArr-42;
+  var cy=yAx-16, amp=Math.max(18,(cy-10-yPb));
+
+  strip(ctx,X,yTop,yPb,XW,Math.round(XW*30),function(x){ return APK*pul(x-X0-sh); });
+
+  line(ctx,px0,cy,px1,cy,faint,1,[4,6]);
+  ctx.save(); ctx.strokeStyle=alpha(C.cos,0.8); ctx.lineWidth=1.8*K.lw; dash(ctx,[6,4]);
+  ctx.beginPath();
+  for(var p=px0;p<=px1;p+=1){ var x=(p-px0)/(px1-px0)*XW, y=cy-amp*pul(x-X0);
+    if(p===px0) ctx.moveTo(p,y); else ctx.lineTo(p,y); }
+  ctx.stroke(); ctx.restore();
+  label(ctx,'t = 0',X(X0),cy-amp-8,C.cos,10,'center',true);
+
+  ctx.save(); ctx.strokeStyle=C.sin; ctx.lineWidth=2.9*K.lw; ctx.lineJoin='round'; gOn(ctx,C.sin,11);
+  ctx.beginPath();
+  for(var p2=px0;p2<=px1;p2+=1){ var x2=(p2-px0)/(px1-px0)*XW, y2=cy-amp*pul(x2-X0-sh);
+    if(p2===px0) ctx.moveTo(p2,y2); else ctx.lineTo(p2,y2); }
+  ctx.stroke(); gOff(ctx); ctx.restore();
+  var xp=X0+sh;
+  if(xp>-0.1&&xp<XW+0.1) dot(ctx,X(xp),cy-amp,4.4,C.sin,true);
+
+  mAxis(ctx,yAx,px0,px1,XW,0.2,0.5);
+
+  if(Math.abs(sh)>0.005){
+    line(ctx,X(X0),cy-amp,X(X0),yArr,alpha(C.arc,0.5),1.2,[4,4]);
+    line(ctx,X(xp),cy-amp,X(xp),yArr,alpha(C.arc,0.5),1.2,[4,4]);
+    arrowH(ctx,X(X0),X(xp),yArr,C.arc,1.9);
+    label(ctx,'v·t = '+nf(Math.abs(sh),2)+' m',(X(X0)+X(xp))/2,yArr-9,C.arc,11,'center',true);
+  } else {
+    label(ctx,'t = 0 — henüz yol alınmadı',X(X0),yArr-4,C.arc,11,'center',true);
+  }
+});
+
+/* ================= 05 : sinus, k ve omega ================= */
+var SI={lam:1.0, f:0.5, t:0, x0:0.6, circ:true, playing:false, dirty:true};
+function kOf(){ return TAU/SI.lam; }
+function wOf(){ return TAU*SI.f; }
+function phOf(){ return kOf()*SI.x0-wOf()*SI.t; }
+var sineScene=makeScene(document.getElementById('cSine'),function(ctx,W,H){
+  var pad=12;
+  var cw=SI.circ?Math.min(150,W*0.28):0;
+  var px0=pad+cw+(SI.circ?30:34), px1=W-pad-10;
+  var X=function(x){ return px0+(x/XWS)*(px1-px0); };
+  var faint=alpha(C['ink-3'],K.faint);
+  var yLam=pad+14, yAx=H-pad-34;
+  var cy=(yLam+12+yAx-8)/2;
+  var Rv=Math.min(SI.circ?(cw/2-8):1e9,(yAx-8-(yLam+12))/2-6);
+  var R=Math.max(16,Rv), amp=R;
+  var ph=phOf(), y0=Math.sin(ph);
+
+  /* cember */
+  if(SI.circ){
+    var cxC=pad+cw/2;
+    ctx.save(); ctx.strokeStyle=alpha(C.cos,0.8); ctx.lineWidth=1.5*K.lw;
+    ctx.beginPath(); ctx.arc(cxC,cy,R,0,TAU); ctx.stroke(); ctx.restore();
+    line(ctx,cxC-R-6,cy,cxC+R+6,cy,faint,1,[4,6]);
+    /* aci yayi */
+    ctx.save(); ctx.strokeStyle=alpha(C.arc,0.8); ctx.lineWidth=2*K.lw;
+    ctx.beginPath(); ctx.arc(cxC,cy,R*0.32,0,-ph,ph>0);
+    ctx.stroke(); ctx.restore();
+    var pxp=cxC+R*Math.cos(ph), pyp=cy-R*Math.sin(ph);
+    line(ctx,cxC,cy,pxp,pyp,C.arc,1.8);
+    dot(ctx,pxp,pyp,4.6,C.arc,true);
+    /* donme yonu : saat yonu (t buyudukce faz azalir) */
+    ctx.save(); ctx.strokeStyle=alpha(C.arc,0.65); ctx.lineWidth=1.6*K.lw;
+    ctx.beginPath(); ctx.arc(cxC,cy,R*0.62,-2.5,-1.5,false); ctx.stroke();
+    var ea=-1.5, ex=cxC+R*0.62*Math.cos(ea), ey=cy+R*0.62*Math.sin(ea);
+    ctx.beginPath();
+    ctx.moveTo(ex,ey); ctx.lineTo(ex-7,ey-4); ctx.moveTo(ex,ey); ctx.lineTo(ex-7,ey+4);
+    ctx.stroke(); ctx.restore();
+    label(ctx,'ω',cxC+R*0.62*Math.cos(-2.0)-14,cy+R*0.62*Math.sin(-2.0)+4,C.arc,11,'right');
+    label(ctx,'faz',cxC,cy+R+16,C.arc,10,'center');
+    /* yatay baglanti */
+    line(ctx,pxp,pyp,X(SI.x0),cy-amp*y0,alpha(C.arc,0.4),1.2,[4,4]);
+  }
+
+  /* dalga */
+  line(ctx,px0,cy,px1,cy,faint,1,[4,6]);
+  ctx.save(); ctx.strokeStyle=C.sin; ctx.lineWidth=2.8*K.lw; ctx.lineJoin='round'; gOn(ctx,C.sin,11);
+  ctx.beginPath();
+  for(var p=px0;p<=px1;p+=1){ var x=(p-px0)/(px1-px0)*XWS, y=cy-amp*Math.sin(kOf()*x-wOf()*SI.t);
+    if(p===px0) ctx.moveTo(p,y); else ctx.lineTo(p,y); }
+  ctx.stroke(); gOff(ctx); ctx.restore();
+
+  /* lambda olcusu : ardisik iki tepe */
+  var tp=null, n;
+  for(n=-6;n<=12;n++){
+    var xt=(Math.PI/2+TAU*n+wOf()*SI.t)/kOf();
+    if(xt>0.02&&xt+SI.lam<XWS-0.02){ tp=xt; break; }
+  }
+  if(tp!==null){
+    line(ctx,X(tp),yLam+4,X(tp),cy-amp,alpha(C.cos,0.35),1,[3,4]);
+    line(ctx,X(tp+SI.lam),yLam+4,X(tp+SI.lam),cy-amp,alpha(C.cos,0.35),1,[3,4]);
+    arrowH(ctx,X(tp),X(tp+SI.lam),yLam+4,alpha(C.cos,0.9),1.6);
+    label(ctx,'λ = '+nf(SI.lam,2)+' m',(X(tp)+X(tp+SI.lam))/2,yLam,C.cos,11,'center',true);
+  }
+
+  /* secili konum */
+  var xs=X(SI.x0), ys=cy-amp*y0;
+  line(ctx,xs,cy-amp-4,xs,yAx,alpha(C.arc,0.6),1.4,[5,4]);
+  dot(ctx,xs,ys,4.6,C.arc,true);
+  label(ctx,'x = '+nf(SI.x0,2)+' m',xs,yAx+30,C.arc,10,'center');
+
+  mAxis(ctx,yAx,px0,px1,XWS,0.2,0.6);
+});
+
+/* ================= 01 kontrolleri ================= */
+var puPlay=document.getElementById('puPlay'), puReset=document.getElementById('puReset');
+puPlay.addEventListener('click',function(){ PU.playing=!PU.playing; puPlay.textContent=PU.playing?'Durdur':'Oynat'; });
+puReset.addEventListener('click',function(){ PU.playing=false; puPlay.textContent='Oynat'; PU.t=0; PU.dirty=true; });
+
+/* ================= 03 kontrolleri ================= */
+var sh={a:document.getElementById('sa'), aV:document.getElementById('saV'),
+        tpl:document.getElementById('shTpl'), part:document.getElementById('shPart')};
+var H3={f:document.getElementById('hF'),a:document.getElementById('hA'),d:document.getElementById('hD'),
+        p0:document.getElementById('hP0'),p1:document.getElementById('hP1'),s:document.getElementById('hS')};
+var V3={p0:document.getElementById('vP0'),a:document.getElementById('vA'),c:document.getElementById('vC'),
+        x:document.getElementById('vX'),p1:document.getElementById('vP1'),r:document.getElementById('vR')};
+var sNote=document.getElementById('sNote');
+var shPills=[].slice.call(document.querySelectorAll('.pill[data-s]'));
+
+function shRead(){
+  var s=shOf(), xp=X0+s;
+  var form=SH.mode==='0'?'f(x)':(SH.mode==='-1'?'f(x − a)':'f(x + a)');
+  var dir=SH.mode==='0'?'yok':(SH.mode==='-1'?'sağa':'sola');
+  sh.aV.textContent=nf(SH.a,2)+' m';
+  H3.f.textContent=form; H3.a.textContent=nf(SH.mode==='0'?0:SH.a,2)+' m'; H3.d.textContent=dir;
+  H3.p0.textContent=nf(X0,2)+' m'; H3.p1.textContent=nf(xp,2)+' m'; H3.s.textContent='değişmedi';
+  V3.p0.textContent='x = '+nf(X0,2)+' m';
+  V3.a.textContent=nf(SH.mode==='0'?0:SH.a,2)+' m';
+  if(SH.mode==='0'){
+    V3.c.textContent='x = '+nf(X0,2);
+    V3.x.textContent='x = '+nf(X0,2)+' m';
+    V3.p1.textContent=nf(X0,2)+' m';
+    V3.r.textContent='kaydırma yok';
+    sNote.textContent='Şu an ekranda sadece kalıp var. Kaydırma miktarını değiştirip yazılışı seç.';
+  } else if(SH.mode==='-1'){
+    V3.c.textContent='x − a = '+nf(X0,2);
+    V3.x.textContent='x = '+nf(X0,2)+' + '+nf(SH.a,2)+' = '+nf(xp,2)+' m';
+    V3.p1.textContent=nf(xp,2)+' m';
+    V3.r.textContent='f(x − a) → a kadar SAĞA';
+    sNote.textContent='Fonksiyonun içine giren sayı x − a. Tepe, bu sayının '+nf(X0,2)+' olduğu yerde çıkar; o da x = '+nf(X0,2)+' + '+nf(SH.a,2)+'. Eksi işareti şekli sağa taşıyor çünkü aynı değeri elde etmek için daha büyük bir x gerekiyor.';
+  } else {
+    V3.c.textContent='x + a = '+nf(X0,2);
+    V3.x.textContent='x = '+nf(X0,2)+' − '+nf(SH.a,2)+' = '+nf(xp,2)+' m';
+    V3.p1.textContent=nf(xp,2)+' m';
+    V3.r.textContent='f(x + a) → a kadar SOLA';
+    sNote.textContent='Bu sefer içeri giren sayı x + a. Aynı değeri daha küçük bir x ile elde ediyoruz, bu yüzden şekil sola kayıyor.';
+  }
+  shPills.forEach(function(b){ b.setAttribute('aria-pressed', b.dataset.s===SH.mode?'true':'false'); });
+  [].slice.call(document.querySelectorAll('#tbl tbody tr')).forEach(function(tr){
+    tr.setAttribute('aria-selected',(tr.dataset.s===SH.mode&&Math.abs(parseFloat(tr.dataset.a)-SH.a)<0.005)?'true':'false');
+  });
+  SH.dirty=true;
+}
+shPills.forEach(function(b){ b.addEventListener('click',function(){ SH.mode=b.dataset.s; shRead(); }); });
+sh.a.addEventListener('input',function(){ SH.a=parseFloat(sh.a.value); if(SH.mode==='0') SH.mode='-1'; shRead(); });
+sh.tpl.addEventListener('click',function(){ SH.tpl=!SH.tpl; sh.tpl.setAttribute('aria-pressed',SH.tpl?'true':'false'); SH.dirty=true; });
+sh.part.addEventListener('click',function(){ SH.part=!SH.part; sh.part.setAttribute('aria-pressed',SH.part?'true':'false'); SH.dirty=true; });
+
+var TROWS=[
+  {s:'0', a:0.6, w:'f(x)', p:'0,90 m', n:'kalıp — kaydırma yok'},
+  {s:'-1',a:0.6, w:'f(x − 0,60)', p:'1,50 m', n:'0,60 m sağa'},
+  {s:'1', a:0.6, w:'f(x + 0,60)', p:'0,30 m', n:'0,60 m sola'},
+  {s:'-1',a:1.2, w:'f(x − 1,20)', p:'2,10 m', n:'1,20 m sağa'}
+];
+var tb=document.querySelector('#tbl tbody');
+TROWS.forEach(function(r){
+  var tr=document.createElement('tr'); tr.dataset.s=r.s; tr.dataset.a=r.a;
+  tr.innerHTML='<td>'+r.w+'</td><td class="num">'+r.p+'</td><td>'+r.n+'</td>';
+  tr.addEventListener('click',function(){ SH.mode=r.s; SH.a=r.a; sh.a.value=r.a; shRead(); });
+  tb.appendChild(tr);
+});
+
+var STEPS=[
+  {t:'Kalıp: f(x)',n:'Elimizde bir şekil var ve tepesi <b>x = 0,90 m</b>’de. Bu şeklin kuralına f(x) diyoruz. Şimdilik hiçbir yere taşımadık.',
+   go:function(){ SH.mode='0'; shRead(); }},
+  {t:'x yerine x − a yaz',n:'Tek yaptığımız, fonksiyonun içindeki x’i <b>x − a</b> ile değiştirmek. Şekil bozulmadan <b>sağa</b> kaydı. Genişliği, yüksekliği aynı.',
+   go:function(){ SH.mode='-1'; SH.a=0.6; sh.a.value=0.6; shRead(); }},
+  {t:'Eksi neden sağa taşır?',n:'Tepe, fonksiyonun içine giren sayı 0,90 olduğunda çıkar. İçeri x − a giriyorsa, bunun 0,90 olması için <b>x = 0,90 + a</b> olmalı. Yani aynı yüksekliğe ulaşmak için <b>daha ileri</b> gitmen gerekiyor.',
+   go:function(){ SH.mode='-1'; shRead(); }},
+  {t:'f(x + a) sola taşır',n:'Artı işaretinde tam tersi olur: aynı değere <b>daha erken</b> ulaşırsın, şekil sola kayar. Denklemde göreceğin işaret, dalganın hangi yöne gittiğini söyler.',
+   go:function(){ SH.mode='1'; SH.a=0.6; sh.a.value=0.6; shRead(); }},
+  {t:'a’yı büyüt',n:'Kaydırma miktarı ne kadar büyükse şekil o kadar uzağa gider. Şimdi <b>a</b>’yı sabit bir sayı olmaktan çıkarıp zamana bağlayacağız — ve şekil ilerlemeye başlayacak.',
+   go:function(){ SH.mode='-1'; SH.a=1.2; sh.a.value=1.2; shRead(); }}
+];
+var stIdx=0, stList=document.getElementById('stList'), stText=document.getElementById('stText'), stCount=document.getElementById('stCount');
+STEPS.forEach(function(s,i){
+  var li=document.createElement('li'), b=document.createElement('button'); b.type='button';
+  b.innerHTML='<span class="k">'+(i+1)+'</span>'+s.t;
+  b.addEventListener('click',function(){ setStep(i,true); });
+  li.appendChild(b); stList.appendChild(li);
+});
+function setStep(i,run){
+  stIdx=Math.max(0,Math.min(STEPS.length-1,i));
+  [].slice.call(stList.querySelectorAll('button')).forEach(function(b,k){ b.setAttribute('aria-current',k===stIdx?'true':'false'); });
+  stText.innerHTML=STEPS[stIdx].n; stCount.textContent=(stIdx+1)+' / '+STEPS.length;
+  if(run&&STEPS[stIdx].go) STEPS[stIdx].go();
+}
+document.getElementById('stPrev').addEventListener('click',function(){ setStep(stIdx-1,true); });
+document.getElementById('stNext').addEventListener('click',function(){ setStep(stIdx+1,true); });
+
+/* ================= 04 kontrolleri ================= */
+var tm={play:document.getElementById('tmPlay'), dir:document.getElementById('tmDir'),
+        t:document.getElementById('tmT'), v:document.getElementById('tmV'),
+        tV:document.getElementById('tmTV'), vV:document.getElementById('tmVV')};
+var E4={v:document.getElementById('eV'),t:document.getElementById('eT'),vt:document.getElementById('eVT'),
+        p0:document.getElementById('eP0'),p1:document.getElementById('eP1'),eq:document.getElementById('eEq')};
+var eNote=document.getElementById('eNote');
+function tmRead(){
+  var s=tmSh(), xp=X0+s, d=TM.v*TM.t;
+  tm.tV.textContent=nf(TM.t,2)+' s'; tm.vV.textContent=nf(TM.v,2)+' m/s';
+  tm.t.value=TM.t;
+  E4.v.textContent=nf(TM.v,2)+' m/s';
+  E4.t.textContent=nf(TM.t,2)+' s';
+  E4.vt.textContent=nf(TM.v,2)+' × '+nf(TM.t,2)+' = '+nf(d,2)+' m';
+  E4.p0.textContent=nf(X0,2)+' m';
+  E4.p1.textContent=nf(X0,2)+(TM.dir===-1?' + ':' − ')+nf(d,2)+' = '+nf(xp,2)+' m';
+  E4.eq.textContent=TM.dir===-1?'y(x,t) = f(x − v·t)':'y(x,t) = f(x + v·t)';
+  eNote.textContent=TM.dir===-1
+    ? 'Sağa giden dalga: zaman ilerledikçe çıkarılan sayı büyüyor, şekil sağa kayıyor.'
+    : 'Sola giden dalga: tek fark işaret. Aynı şekil, ters yön.';
+  TM.dirty=true;
+}
+tm.play.addEventListener('click',function(){ TM.playing=!TM.playing; tm.play.textContent=TM.playing?'Durdur':'Oynat'; });
+tm.dir.addEventListener('click',function(){
+  TM.dir=-TM.dir;
+  tm.dir.setAttribute('aria-pressed',TM.dir===1?'true':'false');
+  tm.dir.textContent=TM.dir===1?'Sağa giden: f(x − v·t)':'Sola giden: f(x + v·t)';
+  tmRead();
+});
+tm.t.addEventListener('input',function(){ TM.t=parseFloat(tm.t.value); TM.playing=false; tm.play.textContent='Oynat'; tmRead(); });
+tm.v.addEventListener('input',function(){ TM.v=parseFloat(tm.v.value); tmRead(); });
+
+/* ================= 05 kontrolleri ================= */
+var si={play:document.getElementById('siPlay'), reset:document.getElementById('siReset'), circ:document.getElementById('siCirc'),
+        lam:document.getElementById('siLam'), f:document.getElementById('siF'), t:document.getElementById('siT'), x:document.getElementById('siX'),
+        lamV:document.getElementById('siLamV'), fV:document.getElementById('siFV'), tV:document.getElementById('siTV'), xV:document.getElementById('siXV')};
+var Q5={k:document.getElementById('qK'),w:document.getElementById('qW'),v:document.getElementById('qV'),
+        ph:document.getElementById('qPh'),y:document.getElementById('qY'),c:document.getElementById('qC')};
+var W5={k:document.getElementById('wK'),w:document.getElementById('wW'),v:document.getElementById('wV')};
+function siRead(){
+  var k=kOf(), w=wOf(), v=w/k, ph=phOf();
+  si.lamV.textContent=nf(SI.lam,2)+' m'; si.fV.textContent=nf(SI.f,2)+' Hz';
+  si.tV.textContent=nf(SI.t,2)+' s'; si.xV.textContent=nf(SI.x0,2)+' m';
+  si.t.value=SI.t;
+  Q5.k.textContent=nf(k,2); Q5.w.textContent=nf(w,2);
+  Q5.v.textContent=nf(v,2)+' m/s';
+  Q5.ph.textContent=nf(ph,2);
+  Q5.y.textContent=nf(Math.sin(ph),2);
+  Q5.c.textContent=nf(SI.lam*SI.f,2)+' m/s';
+  W5.k.textContent='2π / '+nf(SI.lam,2)+' = '+nf(k,2)+' rad/m';
+  W5.w.textContent='ω = k·v = 2π·'+nf(SI.f,2)+' = '+nf(w,2)+' rad/s';
+  W5.v.textContent=nf(w,2)+' / '+nf(k,2)+' = '+nf(v,2)+' m/s';
+  SI.dirty=true;
+}
+si.play.addEventListener('click',function(){ SI.playing=!SI.playing; si.play.textContent=SI.playing?'Durdur':'Oynat'; });
+si.reset.addEventListener('click',function(){ SI.playing=false; si.play.textContent='Oynat'; SI.t=0; siRead(); });
+si.circ.addEventListener('click',function(){ SI.circ=!SI.circ; si.circ.setAttribute('aria-pressed',SI.circ?'true':'false'); SI.dirty=true; });
+si.lam.addEventListener('input',function(){ SI.lam=parseFloat(si.lam.value); siRead(); });
+si.f.addEventListener('input',function(){ SI.f=parseFloat(si.f.value); siRead(); });
+si.t.addEventListener('input',function(){ SI.t=parseFloat(si.t.value); SI.playing=false; si.play.textContent='Oynat'; siRead(); });
+si.x.addEventListener('input',function(){ SI.x0=parseFloat(si.x.value); siRead(); });
+
+var SSTEPS=[
+  {t:'Kalıp sinüs olsun',n:'Atma yerine sinüs koyuyoruz: <b>f(x) = A·sin(k·x)</b>. Sinüsün güzelliği, taşındıktan sonra hâlâ sinüs olması.',
+   go:function(){ SI.playing=false; si.play.textContent='Oynat'; SI.t=0; siRead(); }},
+  {t:'k nedir?',n:'Sinüsün içine radyan girer. Bir tam tur 2π radyan ve bu bir dalga boyunda tamamlanır: <b>k = 2π / λ</b>. Yani k, <b>bir metrede kaç radyan</b> ilerlediğimiz. λ kaydırıcısını oynat: λ küçülünce k büyüyor.',
+   go:function(){ SI.lam=0.6; si.lam.value=0.6; siRead(); }},
+  {t:'Taşı: x → x − v·t',n:'03 ve 04’te öğrendiğimiz numara: <b>A·sin(k(x − v·t))</b>. Şekil artık zamanla sağa ilerliyor. Oynat düğmesine bas.',
+   go:function(){ SI.lam=1; si.lam.value=1; SI.playing=true; si.play.textContent='Durdur'; siRead(); }},
+  {t:'Parantezi aç',n:'Dağıtınca: <b>A·sin(k·x − k·v·t)</b>. Konumdan gelen bir terim, zamandan gelen bir terim. Yaptığımız tek şey çarpmayı dağıtmak.',
+   go:function(){ siRead(); }},
+  {t:'k·v çarpımına ω de',n:'Bu çarpım ne kadar sık geçiyorsa bir isim hak eder: <b>ω = k·v = (2π/λ)·(λ·f) = 2πf</b>. Anlamı, <b>bir saniyede kaç radyan</b> — çemberin dönme hızı, yani <b>açısal hız</b>. Frekansı değiştir ve soldaki çemberin dönüşünü izle.',
+   go:function(){ SI.f=0.8; si.f.value=0.8; SI.playing=true; si.play.textContent='Durdur'; siRead(); }},
+  {t:'Sonuç',n:'<b>y = A·sin(k·x − ω·t)</b>. Soldaki çemberde gördüğün açı tam olarak bu parantezin içi. Konumu kaydırırsan açı k kadar, zamanı ilerletirsen ω kadar değişir. Hız da denklemin içinde saklı: <b>v = ω / k</b>.',
+   go:function(){ SI.f=0.5; si.f.value=0.5; SI.lam=1; si.lam.value=1; siRead(); }}
+];
+var siIdx=0, siList=document.getElementById('siList'), siText=document.getElementById('siText'), siCount=document.getElementById('siCount');
+SSTEPS.forEach(function(s,i){
+  var li=document.createElement('li'), b=document.createElement('button'); b.type='button';
+  b.innerHTML='<span class="k">'+(i+1)+'</span>'+s.t;
+  b.addEventListener('click',function(){ setSStep(i,true); });
+  li.appendChild(b); siList.appendChild(li);
+});
+function setSStep(i,run){
+  siIdx=Math.max(0,Math.min(SSTEPS.length-1,i));
+  [].slice.call(siList.querySelectorAll('button')).forEach(function(b,k){ b.setAttribute('aria-current',k===siIdx?'true':'false'); });
+  siText.innerHTML=SSTEPS[siIdx].n; siCount.textContent=(siIdx+1)+' / '+SSTEPS.length;
+  if(run&&SSTEPS[siIdx].go) SSTEPS[siIdx].go();
+}
+document.getElementById('siPrev').addEventListener('click',function(){ setSStep(siIdx-1,true); });
+document.getElementById('siNext').addEventListener('click',function(){ setSStep(siIdx+1,true); });
+
+/* ================= sesler ================= */
+[].slice.call(document.querySelectorAll('.btn.snd')).forEach(function(b){
+  b.addEventListener('click',function(){
+    var k=b.dataset.snd;
+    if(k==='w') playTones([{f:440,g:0.2}],1.0);
+    else if(k==='two') playSeq([220,660],0.7,0.14);
+  });
+});
+
+/* ================= 07 : quiz ================= */
+var QS=[
+{q:'f(x − 3) grafiği, f(x) grafiğine göre nasıl durur?',
+ o:['3 birim sağa kaymış','3 birim sola kaymış','3 birim yukarı kaymış','Üç katı genişlemiş'],a:0,
+ f:'İçeri giren sayı x − 3. Kalıptaki bir değeri elde etmek için x’in 3 fazla olması gerekir, bu yüzden şekil <b>sağa</b> kayar. 03. bölümdeki kaydırıcıyla dene.'},
+{q:'Öteleme yapınca şeklin kendisine ne olur?',
+ o:['Hiçbir şey — genişliği ve yüksekliği aynı kalır','Genişler','Alçalır','Ters döner'],a:0,
+ f:'Öteleme sadece konumu değiştirir. Dalga bu yüzden şeklini bozmadan ilerleyebilir.'},
+{q:'Sabit hızla giden bir şekil için kaydırma miktarı nedir?',
+ o:['v · t','v / t','v + t','t / v'],a:0,
+ f:'Yol = hız × süre. Bunu ötelemenin içine koyunca y(x,t) = f(x − v·t) çıkar: zamanla kendiliğinden ilerleyen bir şekil.'},
+{q:'f(x + v·t) hangi yöne giden dalgayı anlatır?',
+ o:['Sola (−x yönüne)','Sağa (+x yönüne)','Hiçbir yere, durur','İkisine birden'],a:0,
+ f:'Artı işareti şekli sola taşır. Teldeki yansımada gelen ve giden dalgayı bu iki işaretle yazarız.'},
+{q:'Dalga sayısı k’nin tanımı nedir?',
+ o:['k = 2π / λ — bir metrede kaç radyan','k = 2π f','k = λ / 2π','k = v · λ'],a:0,
+ f:'Bir tam tur 2π radyan ve bu tam bir dalga boyunda tamamlanır. Dolayısıyla bir metreye düşen radyan 2π/λ’dır.'},
+{q:'Açısal hız ω neye eşittir?',
+ o:['2π f — bir saniyede kaç radyan','f / 2π','2π / f','λ f'],a:0,
+ f:'Saniyede f tam tur atılıyorsa ve bir tur 2π radyansa, saniyedeki radyan 2πf olur. Çemberin dönme hızı budur.'},
+{q:'A·sin(k(x − v·t)) ifadesindeki parantez açılırsa ne elde edilir?',
+ o:['A·sin(k·x − ω·t), çünkü k·v = ω','A·sin(k·x − v·t)','A·sin(k·x) − A·sin(ω·t)','A·sin(k·x + ω·t)'],a:0,
+ f:'k·v = (2π/λ)·(λ·f) = 2πf = ω. Bu yüzden ikinci terim doğrudan ω·t olur.'},
+{q:'λ = 2 m ve f = 3 Hz olan bir dalganın hızı nedir?',
+ o:['6 m/s','1,5 m/s','0,67 m/s','5 m/s'],a:0,
+ f:'v = ω/k = λ·f = 2 × 3 = 6 m/s. Dalga her saniye 3 dalga boyu, yani 6 metre ilerler.'}
+];
+function shuffle(a){ for(var i=a.length-1;i>0;i--){ var j=Math.floor(Math.random()*(i+1)); var t=a[i]; a[i]=a[j]; a[j]=t; } return a; }
+var quiz=document.getElementById('quiz'), scoreEl=document.getElementById('score'), correct=0, answered=0;
+QS.forEach(function(item,i){
+  var idx=shuffle(item.o.map(function(_,k){return k;}));
+  var d=document.createElement('div'); d.className='q';
+  var h=document.createElement('div'); h.className='qh'; h.textContent='SORU '+(i+1);
+  var pq=document.createElement('p'); pq.className='qt'; pq.textContent=item.q;
+  var box=document.createElement('div'); box.className='opts';
+  var fb=document.createElement('div'); fb.className='fb'; fb.hidden=true;
+  idx.forEach(function(k){
+    var b=document.createElement('button'); b.type='button'; b.textContent=item.o[k];
+    b.addEventListener('click',function(){
+      if(d.dataset.done) return;
+      d.dataset.done='1'; answered++;
+      var good=(k===item.a); if(good) correct++;
+      [].slice.call(box.children).forEach(function(bb,pos){ bb.disabled=true; if(idx[pos]===item.a) bb.classList.add('ok'); });
+      if(!good) b.classList.add('no');
+      fb.hidden=false; fb.className='fb '+(good?'good':'bad');
+      fb.innerHTML='<b>'+(good?'Doğru':'Tekrar bak')+'</b> — '+item.f;
+      scoreEl.textContent='Doğru: '+correct+' / '+QS.length+(answered===QS.length?'  · tamamlandı':'');
+    });
+    box.appendChild(b);
+  });
+  d.appendChild(h); d.appendChild(pq); d.appendChild(box); d.appendChild(fb);
+  quiz.appendChild(d);
+});
+scoreEl.textContent='Doğru: 0 / '+QS.length;
+
+/* ================= dongu ================= */
+readTheme();
+shRead(); setStep(0,false);
+tmRead();
+siRead(); setSStep(0,false);
+scenes.forEach(function(s){ s.resize(); s.draw(); });
+var last=0;
+function frame(ts){
+  if(!last) last=ts;
+  var dt=Math.min(0.05,(ts-last)/1000); last=ts;
+  if(PU.playing){ PU.t+=dt; if(X0+PUV*PU.t>XW+0.35) PU.t=0; }
+  if(TM.playing){ TM.t+=dt; if(TM.t>2.4) TM.t=0; tmRead(); }
+  if(SI.playing){ SI.t+=dt; if(SI.t>4) SI.t=0; siRead(); }
+  if(PU.playing||PU.dirty){ pulScene.draw(); PU.dirty=false; }
+  if(SH.dirty){ shiftScene.draw(); SH.dirty=false; }
+  if(TM.playing||TM.dirty){ timeScene.draw(); TM.dirty=false; }
+  if(SI.playing||SI.dirty){ sineScene.draw(); SI.dirty=false; }
+  requestAnimationFrame(frame);
+}
+requestAnimationFrame(frame);
+})();
+</script>
+
+</body></html>
