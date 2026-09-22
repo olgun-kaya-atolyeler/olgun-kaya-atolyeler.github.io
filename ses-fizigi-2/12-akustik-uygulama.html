@@ -1,0 +1,1843 @@
+<!doctype html><html lang="tr"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<style>:root{color-scheme:light}html{-webkit-text-size-adjust:100%}body{margin:0;font:14px system-ui,-apple-system,"Segoe UI",sans-serif;background:#faf9f7}img{max-width:100%}[hidden]{display:none!important}</style>
+<title>Soğurucu, Difüzör, Yalıtım: Üç Ayrı İş</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&family=Newsreader:ital,opsz,wght@1,6..72,400&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ground:#E5ECF3; --panel:#FFFFFF; --panel-2:#F1F6FA;
+  --ink:#0B1620; --ink-2:#3F5265; --ink-3:#697E92;
+  --line:#C7D4E0; --line-2:#DEE7EF;
+  --sin:#A8600A; --cos:#0F5F80; --arc:#A81E6E; --brass:#4A7A12;
+  --on-sin:#FFFFFF; --ok:#1E6B45; --no:#A8203C;
+  --radius:2px; --track:.02em; --fs:15px;
+  --h-uc:330px; --h-sog:398px; --h-dif:430px; --h-yal:382px;
+  --font-display:"Chakra Petch",system-ui,sans-serif;
+  --font-body:"IBM Plex Sans",system-ui,sans-serif;
+  --font-mono:"IBM Plex Mono",ui-monospace,monospace;
+  --font-quote:"Newsreader",Georgia,serif;
+  color-scheme:light;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --ground:#070F17; --panel:#0E1720; --panel-2:#13202C;
+    --ink:#E7F2FB; --ink-2:#9FB6C9; --ink-3:#6B8296;
+    --line:#213240; --line-2:#182533;
+    --sin:#FFB01F; --cos:#4FD3FF; --arc:#FF6AC1; --brass:#A8FF60;
+    --on-sin:#0A1017; --ok:#3EE59B; --no:#FF5F86;
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --ground:#070F17; --panel:#0E1720; --panel-2:#13202C;
+  --ink:#E7F2FB; --ink-2:#9FB6C9; --ink-3:#6B8296;
+  --line:#213240; --line-2:#182533;
+  --sin:#FFB01F; --cos:#4FD3FF; --arc:#FF6AC1; --brass:#A8FF60;
+  --on-sin:#0A1017; --ok:#3EE59B; --no:#FF5F86;
+  color-scheme:dark;
+}
+:root[data-mode="proj"]{
+  --ground:#F3F8FC; --panel:#FFFFFF; --panel-2:#EDF4F9;
+  --ink:#040B12; --ink-2:#2A3A49; --ink-3:#546678;
+  --line:#ADBFCE; --line-2:#D2DEE9;
+  --sin:#8A4D00; --cos:#084A66; --arc:#8A1258; --brass:#3A6208;
+  --on-sin:#FFFFFF; --ok:#155338; --no:#8A1730;
+  --fs:17px; --h-uc:380px; --h-sog:458px; --h-dif:494px; --h-yal:440px;
+  color-scheme:light;
+}
+
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+body{
+  margin:0; background:var(--ground); color:var(--ink);
+  font-family:var(--font-body); font-size:var(--fs); line-height:1.55;
+  -webkit-text-size-adjust:100%;
+}
+.wrap{max-width:1180px; margin:0 auto; padding-inline:20px; padding-block:22px 64px}
+
+/* ---------- ust ---------- */
+.top{display:flex; gap:20px; align-items:flex-start; justify-content:space-between; flex-wrap:wrap;
+  border-bottom:2px solid var(--line); padding-bottom:16px; margin-bottom:26px}
+.eyebrow{font-family:var(--font-mono); font-size:.72em; letter-spacing:.12em; text-transform:uppercase;
+  color:var(--brass); font-weight:600}
+h1{font-family:var(--font-display); font-weight:700; letter-spacing:var(--track);
+  font-size:clamp(2rem,6vw,3.1rem); line-height:1.02; margin:.16em 0 .1em; text-transform:uppercase}
+.lede{margin:0; color:var(--ink-2); max-width:46ch}
+.themebar{display:flex; gap:0; border:1px solid var(--line); border-radius:var(--radius); overflow:hidden; flex-shrink:0}
+.themebar button{
+  font-family:var(--font-mono); font-size:.76em; letter-spacing:.06em; text-transform:uppercase;
+  background:var(--panel); color:var(--ink-2); border:0; border-left:1px solid var(--line);
+  padding:9px 13px; cursor:pointer}
+.themebar button:first-child{border-left:0}
+.themebar button[aria-pressed="true"]{background:var(--sin); color:var(--on-sin); font-weight:600}
+
+/* ---------- bolumler ---------- */
+section{margin-block:52px; scroll-margin-top:18px}
+h2{font-family:var(--font-display); font-weight:600; letter-spacing:var(--track); text-transform:uppercase;
+  font-size:clamp(1.15rem,3.1vw,1.6rem); margin:0 0 14px; display:flex; align-items:baseline; gap:12px;
+  border-bottom:1px solid var(--line); padding-bottom:10px}
+h2 .num{font-family:var(--font-mono); color:var(--brass); font-size:.82em; font-weight:600}
+h3{font-family:var(--font-display); font-weight:600; letter-spacing:var(--track);
+  font-size:1.02em; margin:0 0 6px; text-transform:uppercase}
+p{margin:0 0 .8em}
+.kicker{font-family:var(--font-quote); font-style:italic; font-size:1.28em; line-height:1.4;
+  color:var(--ink-2); max-width:38ch; margin:0 0 18px; border-left:3px solid var(--arc); padding-left:14px}
+
+/* ---------- panel / canvas ---------- */
+.panel{background:var(--panel); border:1px solid var(--line); border-radius:var(--radius)}
+.canvas-wrap{margin:0; background:var(--panel); border:1px solid var(--line); border-radius:var(--radius); overflow:hidden}
+.canvas-inner{min-width:0}
+.lab>div,.quizwrap>div,.hook>*,.lab>aside{min-width:0}
+.lit{text-transform:none;font-style:normal;font-weight:inherit}
+.sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+canvas{display:block; width:100%; touch-action:none}
+#cUc{height:var(--h-uc)}
+#cSog{height:var(--h-sog)}
+#cDif{height:var(--h-dif)}
+#cYal{height:var(--h-yal)}
+figcaption{font-size:.82em; color:var(--ink-3); padding:8px 12px; border-top:1px solid var(--line-2);
+  background:var(--panel-2)}
+
+/* ---------- s1 duzen ---------- */
+.hook{display:grid; grid-template-columns:minmax(0,1.05fr) minmax(0,1fr); gap:20px; align-items:start}
+.cols{display:grid; grid-template-columns:1fr; gap:14px}
+.qcol h3{color:var(--ink)}
+.qcol p{font-size:.94em; color:var(--ink-2); margin:0}
+
+/* ---------- kontroller ---------- */
+.ctrls{display:flex; flex-wrap:wrap; gap:14px 18px; align-items:flex-end;
+  padding:12px; background:var(--panel-2); border-top:1px solid var(--line-2)}
+.ctrl{display:flex; flex-direction:column; gap:3px; min-width:150px; flex:1 1 150px}
+.ctrl label{font-family:var(--font-mono); font-size:.72em; letter-spacing:.07em; text-transform:uppercase;
+  color:var(--ink-3); display:flex; justify-content:space-between; gap:8px}
+.ctrl label b{font-weight:600; color:var(--ink); font-variant-numeric:tabular-nums}
+input[type=range]{-webkit-appearance:none; appearance:none; width:100%; height:22px; background:transparent; margin:0; cursor:pointer}
+input[type=range]::-webkit-slider-runnable-track{height:3px; background:var(--line); border-radius:0}
+input[type=range]::-moz-range-track{height:3px; background:var(--line)}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none; width:16px; height:16px; border-radius:50%;
+  background:var(--arc); border:2px solid var(--panel); margin-top:-7px}
+input[type=range]::-moz-range-thumb{width:16px; height:16px; border-radius:50%; background:var(--arc); border:2px solid var(--panel)}
+.btn{font-family:var(--font-mono); font-size:.78em; letter-spacing:.06em; text-transform:uppercase;
+  background:var(--panel); color:var(--ink); border:1px solid var(--line); border-radius:var(--radius);
+  padding:8px 12px; cursor:pointer; white-space:nowrap}
+.btn:hover{border-color:var(--ink-3)}
+.btn.pri{background:var(--sin); color:var(--on-sin); border-color:var(--sin); font-weight:600}
+.btn[aria-pressed="true"]{background:var(--cos); color:var(--panel); border-color:var(--cos)}
+:root[data-theme="dark"] .btn[aria-pressed="true"]{color:#07131B}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]):not([data-mode="proj"]) .btn[aria-pressed="true"]{color:#07131B}
+}
+.btnrow{display:flex; gap:8px; flex-wrap:wrap; align-items:center}
+
+/* ---------- okumalar ---------- */
+.readout{display:grid; grid-template-columns:repeat(auto-fit,minmax(112px,1fr)); gap:1px;
+  background:var(--line-2); border-top:1px solid var(--line-2)}
+.readout.r3{grid-template-columns:repeat(3,minmax(0,1fr))}
+.readout div{background:var(--panel); padding:8px 11px; min-width:0}
+.readout span{display:block; font-family:var(--font-mono); font-size:.68em; letter-spacing:.07em;
+  text-transform:uppercase; color:var(--ink-3)}
+.readout b{font-family:var(--font-mono); font-size:1.08em; font-weight:600; font-variant-numeric:tabular-nums}
+
+/* ---------- kart izgarasi ---------- */
+.cards{display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:14px}
+.card{background:var(--panel); border:1px solid var(--line); border-top:3px solid var(--cos);
+  border-radius:var(--radius); padding:14px 15px}
+.card:nth-child(3n+1){border-top-color:var(--sin)}
+.card:nth-child(3n+3){border-top-color:var(--arc)}
+.card p{font-size:.92em; color:var(--ink-2); margin:0}
+.card .bridge{margin-top:9px; padding-top:9px; border-top:1px dashed var(--line);
+  font-size:.86em; color:var(--ink-3)}
+.card .bridge b{color:var(--brass); font-family:var(--font-mono); font-size:.9em;
+  letter-spacing:.05em; text-transform:uppercase}
+
+/* ---------- atolye duzeni ---------- */
+.lab{display:grid; grid-template-columns:minmax(0,560px) minmax(0,1fr); gap:18px; align-items:start}
+.steps{background:var(--panel); border:1px solid var(--line); border-radius:var(--radius); padding:13px 14px}
+.steps h3{margin-bottom:9px}
+.stepnav{display:flex; gap:6px; align-items:center; margin-bottom:10px}
+.stepnav .count{font-family:var(--font-mono); font-size:.78em; color:var(--ink-3); margin-left:auto}
+.steplist{list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:5px}
+.steplist button{width:100%; text-align:left; font:inherit; font-size:.9em; background:transparent;
+  color:var(--ink-2); border:1px solid transparent; border-left:2px solid var(--line);
+  padding:7px 10px; cursor:pointer; border-radius:0}
+.steplist button:hover{background:var(--panel-2)}
+.steplist button[aria-current="true"]{border-left-color:var(--arc); background:var(--panel-2); color:var(--ink)}
+.steplist .k{font-family:var(--font-mono); font-size:.82em; color:var(--brass); margin-right:6px}
+
+table{width:100%; border-collapse:collapse; font-size:.88em}
+.tablebox{overflow-x:auto; max-width:100%; background:var(--panel); border:1px solid var(--line); border-radius:var(--radius); margin-top:16px}
+th,td{padding:7px 11px; text-align:right; border-bottom:1px solid var(--line-2); white-space:nowrap}
+th:first-child,td:first-child{text-align:left}
+th:last-child,td:last-child{text-align:left; white-space:normal; min-width:170px}
+thead th{font-family:var(--font-mono); font-size:.76em; letter-spacing:.06em; text-transform:uppercase;
+  color:var(--ink-3); font-weight:600; background:var(--panel-2)}
+tbody tr{cursor:pointer}
+tbody tr:hover{background:var(--panel-2)}
+tbody tr[aria-selected="true"]{background:var(--panel-2); box-shadow:inset 3px 0 0 var(--arc)}
+td.num{font-family:var(--font-mono); font-variant-numeric:tabular-nums}
+
+/* ---------- terimler ---------- */
+.terms{display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:14px}
+.term{background:var(--panel); border:1px solid var(--line); border-radius:var(--radius); padding:14px 15px}
+.term .sym{font-family:var(--font-mono); font-size:.74em; letter-spacing:.08em; color:var(--ink-3)}
+.term p{font-size:.92em; color:var(--ink-2); margin:.35em 0 0}
+.mus{margin-top:10px; border-left:3px solid var(--brass); padding:6px 0 6px 10px; font-size:.9em}
+.mus span{font-family:var(--font-mono); font-size:.72em; letter-spacing:.08em; text-transform:uppercase;
+  color:var(--brass); font-weight:600; display:block}
+
+/* ---------- quiz ---------- */
+.quizwrap{display:grid; grid-template-columns:minmax(0,1fr) 300px; gap:18px; align-items:start}
+.q{background:var(--panel); border:1px solid var(--line); border-radius:var(--radius); padding:14px 15px; margin-bottom:12px}
+.q .qh{font-family:var(--font-mono); font-size:.74em; letter-spacing:.08em; color:var(--brass); font-weight:600}
+.q p.qt{margin:.3em 0 .7em; font-weight:500}
+.opts{display:flex; flex-direction:column; gap:6px}
+.opts button{font:inherit; font-size:.93em; text-align:left; background:var(--panel-2); color:var(--ink);
+  border:1px solid var(--line); border-radius:var(--radius); padding:9px 12px; cursor:pointer}
+.opts button:hover{border-color:var(--ink-3)}
+.opts button.ok{border-color:var(--ok); box-shadow:inset 3px 0 0 var(--ok)}
+.opts button.no{border-color:var(--no); box-shadow:inset 3px 0 0 var(--no)}
+.opts button[disabled]{cursor:default}
+.fb{margin-top:9px; font-size:.9em; color:var(--ink-2); border-top:1px dashed var(--line); padding-top:8px}
+.fb b{font-family:var(--font-mono); font-size:.82em; letter-spacing:.06em; text-transform:uppercase}
+.fb.good b{color:var(--ok)} .fb.bad b{color:var(--no)}
+.recap{background:var(--panel); border:1px solid var(--line); border-top:3px solid var(--brass);
+  border-radius:var(--radius); padding:14px 15px; position:sticky; top:14px}
+.recap ol{margin:0; padding-left:1.15em; display:flex; flex-direction:column; gap:9px}
+.recap li{font-size:.91em; color:var(--ink-2)}
+.recap li b{color:var(--ink)}
+.score{font-family:var(--font-mono); font-size:.8em; color:var(--ink-3); margin-top:12px;
+  padding-top:10px; border-top:1px solid var(--line-2)}
+
+.note{font-size:.86em; color:var(--ink-3); margin-top:10px}
+.legend{display:flex; flex-wrap:wrap; gap:6px 16px; padding:10px 12px; background:var(--panel-2);
+  border-top:1px solid var(--line-2); font-family:var(--font-mono); font-size:.74em; letter-spacing:.04em}
+.legend i{display:inline-block; width:15px; height:3px; vertical-align:middle; margin-right:6px}
+footer{margin-top:56px; padding-top:16px; border-top:1px solid var(--line); font-size:.84em; color:var(--ink-3)}
+footer a{color:var(--ink-2)}
+
+@media (max-width:980px){
+  .lab{grid-template-columns:1fr}
+  .quizwrap{grid-template-columns:1fr}
+  .recap{position:static}
+  .cards,.terms{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@media (max-width:760px){
+  :root{--h-uc:348px; --h-sog:420px; --h-dif:454px; --h-yal:404px}
+  :root[data-mode="proj"]{--h-uc:400px; --h-sog:482px; --h-dif:520px; --h-yal:464px}
+  .wrap{padding-inline:16px}
+  .hook{grid-template-columns:1fr}
+  .cards,.terms{grid-template-columns:1fr}
+  .ctrl{flex:1 1 100%}
+  .btn{padding:9px 14px}
+  .opts button{padding:12px 14px}
+  input[type=range]{height:30px}
+  input[type=range]::-webkit-slider-thumb{width:22px; height:22px; margin-top:-10px}
+  input[type=range]::-moz-range-thumb{width:22px; height:22px}
+  .canvas-inner{min-width:0}
+}
+@media (max-width:480px){
+  :root{--h-uc:368px; --h-sog:444px; --h-dif:434px; --h-yal:426px}
+  :root[data-mode="proj"]{--h-uc:422px; --h-sog:510px; --h-dif:498px; --h-yal:490px}
+}
+@media (prefers-reduced-motion:reduce){*{animation:none!important; transition:none!important}}
+
+/* ---------- karsilastirma / hesap tablosu ---------- */
+.cmpbox{background:var(--panel); border:1px solid var(--line); border-radius:var(--radius); margin-bottom:16px}
+.cmpbox h3{padding:13px 14px 8px; margin:0}
+.cmpscroll{overflow-x:auto; max-width:100%}
+.cmp{width:100%; border-collapse:collapse; font-size:.9em}
+.cmp th,.cmp td{padding:6px 12px; border-bottom:1px solid var(--line-2); text-align:right; white-space:nowrap}
+.cmp th:first-child,.cmp td:first-child{text-align:left; white-space:normal; color:var(--ink-2)}
+.cmp thead th{font-family:var(--font-mono); font-size:.76em; letter-spacing:.06em; text-transform:uppercase;
+  font-weight:600; background:var(--panel-2)}
+.cmp thead th.a{color:var(--sin)} .cmp thead th.b{color:var(--cos)}
+.cmp td.v{font-family:var(--font-mono); font-variant-numeric:tabular-nums; font-weight:600}
+.cmp tr.key td{background:var(--panel-2)}
+.cmp tr.key td:first-child{color:var(--ink); font-weight:600}
+.cmp tbody tr:last-child td{border-bottom:0}
+@media (max-width:760px){
+  .cmp th,.cmp td{white-space:normal; padding:6px 9px; overflow-wrap:anywhere}
+  .cmp td.lbl{width:46%}
+}
+
+/* ---------- olcum haplari ---------- */
+.cmp td.lbl{width:56%}
+.pillrow{display:flex; gap:7px; flex-wrap:wrap; flex:1 1 100%}
+.pill{font-family:var(--font-mono); font-size:.74em; letter-spacing:.05em; text-transform:uppercase;
+  background:var(--panel); color:var(--ink-2); border:1px solid var(--line); border-radius:var(--radius);
+  padding:8px 11px; cursor:pointer}
+.pill[aria-pressed="true"]{background:var(--arc); color:#fff; border-color:var(--arc); font-weight:600}
+
+/* ---------- kontrol gruplari ---------- */
+.grp{flex:1 1 100%; display:flex; flex-wrap:wrap; gap:12px 16px; border-left:3px solid var(--line);
+  padding-left:11px; margin-bottom:2px}
+.grp.ga{border-left-color:var(--sin)} .grp.gb{border-left-color:var(--cos)}
+.grp .tag{flex:1 1 100%; font-family:var(--font-mono); font-size:.72em; letter-spacing:.09em;
+  text-transform:uppercase; font-weight:600; margin:0}
+.grp.ga .tag{color:var(--sin)} .grp.gb .tag{color:var(--cos)}
+.sw{display:inline-block; width:11px; height:11px; border-radius:50%; vertical-align:-1px; margin-right:6px}
+#tbl2 td:last-child,#tbl2 th:last-child{text-align:right; min-width:0}
+#tbl2 td,#tbl2 th{padding:6px 9px}
+#tbl2 td:nth-child(n+2){font-family:var(--font-mono); font-variant-numeric:tabular-nums}
+
+/* ---------- pasif kontrol ---------- */
+.ctrl.off{opacity:.42}
+.grp.off{opacity:.42}
+.grp.off .tag{color:var(--ink-3)}
+.ctrl.off label{color:var(--ink-3)}
+input[type=range]:disabled{cursor:default}
+.warn{background:var(--panel-2); border:1px solid var(--line); border-left:3px solid var(--arc);
+  border-radius:var(--radius); padding:11px 13px; font-size:.9em; color:var(--ink-2); margin:0 0 16px}
+.warn b{color:var(--ink)}
+
+/* ---------- surukleme ipucu ---------- */
+.dragnote{font-family:var(--font-mono); font-size:.72em; letter-spacing:.06em; text-transform:uppercase;
+  color:var(--ink-3); padding:8px 12px; border-top:1px solid var(--line-2); background:var(--panel-2)}
+.dragnote b{color:var(--arc)}
+/* --- bu atolyeye ozel --- */
+.mtx{display:grid; grid-template-columns:auto 1fr 1fr; gap:0; border:1px solid var(--line);
+  border-radius:var(--radius); overflow:hidden; margin:12px 0 0; background:var(--panel)}
+.mtx>div{padding:9px 11px; border-right:1px solid var(--line-2); border-bottom:1px solid var(--line-2)}
+.mtx>div:nth-child(3n){border-right:none}
+.mtx>div:nth-last-child(-n+3){border-bottom:none}
+.mtx .hd{font-family:var(--font-mono); font-size:.7em; letter-spacing:.08em; text-transform:uppercase;
+  color:var(--ink-3); background:var(--panel-2); font-weight:600}
+.mtx .rh{font-family:var(--font-mono); font-size:.7em; letter-spacing:.08em; text-transform:uppercase;
+  color:var(--ink-3); background:var(--panel-2); font-weight:600; white-space:nowrap}
+.mtx button{display:block; width:100%; text-align:left; background:none; border:none; cursor:pointer;
+  font:inherit; color:inherit; padding:0}
+.mtx button b{display:block; font-family:var(--font-display); font-weight:600; font-size:1.02em;
+  letter-spacing:var(--track); color:var(--ink)}
+.mtx button span{display:block; font-size:.82em; color:var(--ink-3); margin-top:2px}
+.mtx button[aria-pressed="true"] b{color:var(--arc)}
+.mtx button[aria-pressed="true"] span{color:var(--ink-2)}
+.mtx>div:has(button[aria-pressed="true"]){background:var(--panel-2); box-shadow:inset 3px 0 0 var(--arc)}
+.bigfig{font-family:var(--font-mono); font-variant-numeric:tabular-nums; font-weight:600}
+.vs{display:grid; grid-template-columns:1fr auto 1fr; align-items:center; gap:10px; margin-top:12px;
+  border:1px solid var(--line); border-radius:var(--radius); padding:11px 13px; background:var(--panel)}
+.vs .side{min-width:0}
+.vs .side em{display:block; font-family:var(--font-mono); font-size:.7em; letter-spacing:.08em;
+  text-transform:uppercase; font-style:normal; color:var(--ink-3); font-weight:600; margin-bottom:3px}
+.vs .side b{font-family:var(--font-mono); font-size:1.32em; font-weight:600; font-variant-numeric:tabular-nums}
+.vs .side small{display:block; font-size:.82em; color:var(--ink-3); margin-top:2px}
+.vs .mid{font-family:var(--font-mono); font-size:1.1em; color:var(--ink-3)}
+.vs .dn b{color:var(--cos)}
+.vs .up b{color:var(--sin)}
+.vs .net{grid-column:1/-1; border-top:1px solid var(--line-2); margin-top:9px; padding-top:9px;
+  font-size:.92em; color:var(--ink-2)}
+.vs .net b{font-family:var(--font-mono); color:var(--arc); font-weight:600}
+@media (max-width:560px){ .vs{grid-template-columns:1fr} .vs .mid{text-align:center} }
+/* --- unsuz tablosu : yer x bicim izgarasi --- */
+.ctab{display:grid; grid-template-columns:auto repeat(6,1fr); gap:0; margin:14px 0 0;
+  border:1px solid var(--line); border-radius:var(--radius); overflow:hidden; background:var(--panel)}
+.ctab>div{border-right:1px solid var(--line-2); border-bottom:1px solid var(--line-2);
+  min-height:38px; display:flex; align-items:center; justify-content:center; padding:4px 2px}
+.ctab>div:nth-child(7n){border-right:none}
+.ctab>div:nth-last-child(-n+7){border-bottom:none}
+.ctab .ch,.ctab .rh{font-family:var(--font-mono); font-size:.66em; letter-spacing:.05em;
+  text-transform:uppercase; color:var(--ink-3); background:var(--panel-2); font-weight:600;
+  line-height:1.2; text-align:center}
+.ctab .rh{justify-content:flex-start; padding-left:9px; text-align:left; white-space:nowrap}
+.ctab .nul{background:var(--panel-2); opacity:.35}
+.ctab button{width:100%; height:100%; min-height:34px; background:none; border:none; cursor:pointer;
+  font-family:var(--font-display); font-weight:600; font-size:1.02em; letter-spacing:.04em;
+  color:var(--ink); display:flex; align-items:center; justify-content:center; gap:5px}
+.ctab button i{font-style:normal}
+.ctab button .ots{color:var(--cos)}
+.ctab button .otl{color:var(--sin)}
+.ctab button:hover{background:var(--panel-2)}
+.ctab button[aria-pressed="true"]{background:var(--arc); }
+.ctab button[aria-pressed="true"] i{color:var(--on-sin)}
+@media (max-width:640px){
+  .ctab{grid-template-columns:auto repeat(6,1fr); font-size:.86em}
+  .ctab .rh{padding-left:5px; font-size:.60em}
+  .ctab>div{min-height:32px; padding:3px 1px}
+}
+.fistik{display:flex; flex-wrap:wrap; gap:6px; margin:12px 0 0}
+.fistik span{font-family:var(--font-display); font-weight:700; font-size:1.18em;
+  letter-spacing:.06em; padding:5px 11px; border-radius:var(--radius);
+  border:1px solid var(--line); color:var(--cos); background:var(--panel)}
+.fistik span.on{border-color:var(--arc); color:var(--arc); background:var(--panel-2)}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+
+<header class="top">
+  <div class="brand">
+    <div class="eyebrow">Müzik Teknolojisi · Ses Fiziği II · 12. Atölye</div>
+    <h1>Soğurucu, Difüzör, Yalıtım: Üç Ayrı İş</h1>
+    <p class="lede">Geçen atölyede odanın sese ne yaptığını gördük. Şimdi sıra <b>odaya biz ne yapıyoruz</b> sorusunda. Piyasada üç ayrı ürün ailesi var ve neredeyse herkes bunları birbirine karıştırıyor: <b>soğurucu</b>, <b>difüzör</b>, <b>yalıtım</b>. Bu atölyenin tek cümlesi: <b>üçü üç ayrı iş yapar ve biri ötekinin yerine geçmez.</b> En sık yapılan hatayı baştan söyleyelim: <b>duvara sünger yapıştırmak yalıtım değildir</b> — komşun seni duymaya devam eder.</p>
+  </div>
+  <div class="themebar" role="group" aria-label="Tema seçimi">
+    <button type="button" data-t="light" aria-pressed="false">Açık</button>
+    <button type="button" data-t="dark" aria-pressed="false">Koyu</button>
+    <button type="button" data-t="proj" aria-pressed="false">Projeksiyon</button>
+  </div>
+</header>
+
+<!-- ============ 01 ============ -->
+<section id="s1">
+  <h2><span class="num">01</span> Ses duvara çarpınca üç şey olabilir</h2>
+  <p class="kicker">Duvara gelen ses enerjisi üçe ayrılır: bir kısmı <b>yansır</b>, bir kısmı malzemenin içinde <b>ısıya dönüşür</b>, bir kısmı da öbür tarafa <b>geçer</b>. Üç ürün ailesi bu üç paydan farklı birini hedefler. Dört düğmeyi sırayla dene ve özellikle <b>"öbür tarafa geçen"</b> satırına dikkat et.</p>
+
+  <div class="hook">
+    <figure class="canvas-wrap">
+      <div class="canvas-inner"><canvas id="cUc" aria-label="Gelen sesin yansıyan, yutulan ve geçen paylara ayrılması"></canvas></div>
+      <div class="legend">
+        <span><i style="background:var(--arc)"></i>gelen ses</span>
+        <span><i style="background:var(--sin)"></i>yansıyan</span>
+        <span><i style="background:var(--cos)"></i>öbür tarafa geçen</span>
+      </div>
+      <div class="ctrls">
+        <div class="pillrow">
+          <button type="button" class="pill" data-tip="ciplak" aria-pressed="true">Çıplak duvar</button>
+          <button type="button" class="pill" data-tip="sog">Soğurucu</button>
+          <button type="button" class="pill" data-tip="dif">Difüzör</button>
+          <button type="button" class="pill" data-tip="yal">Yalıtım</button>
+        </div>
+        <div class="btnrow" style="flex:1 1 100%">
+          <button type="button" class="btn pri" id="uIci">Odanın içinde nasıl duyulur</button>
+          <button type="button" class="btn" id="uDis">Yan odadan nasıl duyulur</button>
+        </div>
+      </div>
+      <div class="readout r3">
+        <div><span>Yansıyan</span><b class="lit" id="uYan">%98</b></div>
+        <div><span>Isıya dönüşen</span><b class="lit" id="uYut">%2</b></div>
+        <div><span>Öbür tarafa geçen</span><b class="lit" id="uGec">30 dB kesiyor</b></div>
+        <div><span>Yansımanın biçimi</span><b id="uBic">ayna gibi · tek yön</b></div>
+        <div><span>Odanın İÇİNE etkisi</span><b id="uIc">yok</b></div>
+        <div><span>Odanın DIŞINA etkisi</span><b id="uDs">orta</b></div>
+      </div>
+      <figcaption>Soldan gelen ok ses enerjisini temsil ediyor; kalınlığı enerjinin büyüklüğü. Duvarda üçe ayrılıyor: geri dönen, içeride ısıya dönüşen ve karşı tarafa geçen. <b>Soğurucuyu seç ve "öbür tarafa geçen" satırına bak:</b> sayı <b>hiç değişmiyor</b> — çıplak duvarla tıpatıp aynı. Duvarın önüne emici koymak geçen payı etkilemez; o pay duvarın <b>ağırlığıyla</b> belirlenir. Soğurucu odanın <b>içini</b> düzeltir, <b>dışını</b> değil.</figcaption>
+    </figure>
+
+    <div class="cols">
+      <div class="qcol">
+        <h3>Soğurucu</h3>
+        <p>Ses enerjisini <b>ısıya</b> çevirir. Odanın <b>çınlamasını kısaltır</b>, yani 11. atölyedeki T60'ı düşürür. Yansıyan payı küçültür. Karşı tarafa geçen payla <b>hiç ilgilenmez</b>.</p>
+      </div>
+      <div class="qcol">
+        <h3>Difüzör</h3>
+        <p>Enerjiyi <b>yutmaz</b> — geri gönderir, ama tek bir yöne değil, <b>birçok yöne dağıtarak</b>. Çınlamayı kısaltmaz; odanın enerjisini korur ama yansımaları <b>ayna olmaktan çıkarır</b>.</p>
+      </div>
+      <div class="qcol">
+        <h3>Yalıtım</h3>
+        <p>Tek derdi <b>geçen pay</b>. Onu küçültmenin yolu <b>ağırlık</b> ve <b>sızdırmazlıktır</b>. Odanın içindeki çınlamaya hiçbir faydası yoktur — hatta ağır ve sert olduğu için genelde <b>artırır</b>.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 02 ============ -->
+<section id="s2">
+  <h2><span class="num">02</span> Bilmemiz gereken kavramlar</h2>
+  <p style="max-width:62ch; color:var(--ink-2)">Dört kavram. İkisi odanın içi, ikisi odanın dışı için.</p>
+  <div class="cards">
+    <div class="card">
+      <h3>Çeyrek dalga kuralı</h3>
+      <p>Gözenekli bir emici, havanın <b>hareketini</b> sürtünmeyle yavaşlatarak çalışır. Sert duvarın yüzeyinde hava hareketi <b>sıfırdır</b>; en hızlı olduğu yer duvardan <b>λ/4</b> uzaktadır. Emici ancak oraya ulaşabildiği kadar iş yapar.</p>
+      <div class="bridge"><b>Sayı</b> 5 cm emici ~1700 Hz'ten, 30 cm emici ~290 Hz'ten</div>
+    </div>
+    <div class="card">
+      <h3>Saçılma</h3>
+      <p>Düz bir duvar sesi <b>ayna gibi</b> yansıtır: tek bir güçlü yön. Şekilli bir yüzey aynı enerjiyi birçok yöne <b>dağıtır</b>. Yutulan enerji aynı, ama yansımanın karakteri tamamen farklı.</p>
+      <div class="bridge"><b>Ölçü</b> Düz duvarda en güçlü yön 1,00 · QRD'de 0,46</div>
+    </div>
+    <div class="card">
+      <h3>Kütle yasası</h3>
+      <p>Bir bölmenin ses geçirmezliği <b>ağırlığına</b> bağlıdır: <b>R = 20·log(m·f) − 47</b>. Kütleyi ikiye katlarsan <b>+6 dB</b>, frekansı ikiye katlarsan yine <b>+6 dB</b>.</p>
+      <div class="bridge"><b>Sonuç</b> Yalıtım peste her zaman daha zordur</div>
+    </div>
+    <div class="card">
+      <h3>En zayıf halka</h3>
+      <p>Yalıtımda zincir <b>en zayıf halkası kadar</b> güçlüdür. Küçük bir açıklık bütün duvarı işe yaramaz hâle getirir, çünkü enerji <b>oradan akar</b>.</p>
+      <div class="bridge"><b>Sayı</b> 50 dB'lik duvarın %1'i açık kalırsa 30 dB'ye düşer</div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 03 ============ -->
+<section id="s3">
+  <h2><span class="num">03</span> Atölye: soğurucu neden pes yutmuyor?</h2>
+  <p style="max-width:74ch; color:var(--ink-2)">Herkesin başına gelir: odaya sünger kaplarsın, tizler yumuşar ama pes hâlâ uğuldar. Sebebi malzemenin kalitesi değil, <b>geometri</b>. Gözenekli emici havanın hareketini yavaşlatarak çalışır ve hava sert duvarın yüzeyinde <b>hiç hareket etmez</b>; en hızlı olduğu yer duvardan <b>çeyrek dalga boyu</b> uzaktadır. 125 Hz'te çeyrek dalga <b>69 santimdir</b>. 5 santimlik bir sünger oraya yaklaşamaz bile.</p>
+
+  <div class="lab">
+    <div>
+      <figure class="canvas-wrap">
+        <div class="canvas-inner"><canvas id="cSog" aria-label="Emici kalınlığı ve arka boşluğa göre yutum eğrisi"></canvas></div>
+        <div class="legend">
+          <span><i style="background:var(--sin)"></i>emici malzeme</span>
+          <span><i style="background:var(--cos)"></i>havanın hareket hızı</span>
+          <span><i style="background:var(--arc)"></i>yutum eğrisi</span>
+        </div>
+        <div class="ctrls">
+          <div class="pillrow">
+            <button type="button" class="pill" data-emi="ince" aria-pressed="true">5 cm sünger</button>
+            <button type="button" class="pill" data-emi="kalin">10 cm taş yünü</button>
+            <button type="button" class="pill" data-emi="bosluk">5 cm + 20 cm boşluk</button>
+            <button type="button" class="pill" data-emi="tuzak">30 cm bas tuzağı</button>
+          </div>
+          <div class="grp ga">
+            <p class="tag"><span class="sw" style="background:var(--arc)"></span>DUVARDAN TOPLAM DERİNLİK</p>
+            <div class="ctrl" style="flex:1 1 230px">
+              <label for="gK"><span>Emici kalınlığı</span><b class="lit" id="gKV">5 cm</b></label>
+              <input type="range" id="gK" min="2" max="40" step="1" value="5">
+            </div>
+            <div class="ctrl" style="flex:1 1 230px">
+              <label for="gB"><span>Arka boşluk</span><b class="lit" id="gBV">0 cm</b></label>
+              <input type="range" id="gB" min="0" max="40" step="1" value="0">
+            </div>
+          </div>
+          <div class="btnrow" style="flex:1 1 100%">
+            <button type="button" class="btn pri" id="gCal">Yutulmadan önce / sonra</button>
+            <button type="button" class="btn" id="gBosluk">Boşluğu aç</button>
+          </div>
+        </div>
+        <div class="readout r3">
+          <div><span>Toplam derinlik</span><b class="lit" id="gD">5 cm</b></div>
+          <div><span>İş görmeye başladığı yer</span><b class="lit" id="gF">1715 Hz</b></div>
+          <div><span>125 Hz'te yutum</span><b class="lit" id="g125">0,04</b></div>
+          <div><span>500 Hz'te yutum</span><b class="lit" id="g500">0,15</b></div>
+          <div><span>2 kHz'te yutum</span><b class="lit" id="g2k">0,95</b></div>
+          <div><span>Ne işe yarar</span><b id="gNe">sadece tiz</b></div>
+        </div>
+        <figcaption>Üstteki kesit duvarı ve önündeki emiciyi ölçekli gösteriyor; kıvrımlı çizgi havanın hareket hızının duvardan uzaklaşınca nasıl arttığını çiziyor. Alttaki eğri yutum katsayısıdır. Kesikli dikey çizgi <b>çeyrek dalga frekansı</b>: eğrinin yükselmeye başladığı yer tam orasıdır ve toplam derinlik arttıkça sola kayar.</figcaption>
+      </figure>
+      <p class="note" style="margin:10px 0 0"><b>Şimdi asıl numarayı gör: "Boşluğu aç" düğmesine bas.</b> Malzemeyi hiç değiştirmiyoruz — aynı 5 santimlik sünger duruyor. Tek yaptığımız onu duvardan <b>20 santim öne almak</b>. 125 Hz'teki yutum <b>0,04'ten 0,48'e</b> çıkıyor, yani on kattan fazla. Sebep basit: emici artık havanın <b>daha hızlı hareket ettiği</b> bölgede duruyor. Akustikte "arka boşluk" en ucuz kalınlıktır — hava bedavadır.</p>
+      <p class="note" style="margin:8px 0 0"><b>Bunun pratik karşılığı şu:</b> paneli duvara sıkı sıkıya yapıştırmak, onu en işe yaramaz yere koymaktır. Aynı panel 10 cm askıyla asılırsa çok daha derinlere iner. Ve odanın <b>köşeleri</b>: köşe, üç duvarın buluştuğu yerdir ve 11. atölyede gördüğümüz bütün kipler için orası bir <b>karın noktasıdır</b>. Bas tuzakları bu yüzden köşelere konur — hem derinlik vardır hem de bütün kipler oradan geçer.</p>
+      <p class="note" style="margin:8px 0 0"><b>Gözenekli emici pes için pahalıdır.</b> 60 Hz'i ciddi biçimde yutmak isteseydin, çeyrek dalga <b>1,4 metre</b> olduğu için odanın içine bir metreyi aşan bir yapı koyman gerekirdi. Bu yüzden pes için bambaşka bir aile kullanılır: <b>rezonanslı emiciler</b>. Sağdaki kutuya bak — bunlar dar bir frekans bandında çalışır ama çok az yer kaplarlar. Ve 11. atölyedeki Sinan'ın kubbe testileri de tam olarak bu ailedendir.</p>
+    </div>
+
+    <div>
+      <aside class="steps">
+        <h3>Ders adımları</h3>
+        <div class="stepnav">
+          <button type="button" class="btn" id="stPrev" aria-label="Önceki adım">‹</button>
+          <button type="button" class="btn" id="stNext" aria-label="Sonraki adım">›</button>
+          <span class="count" id="stCount">1 / 5</span>
+        </div>
+        <ol class="steplist" id="stList"></ol>
+        <p class="note" id="stText"></p>
+      </aside>
+
+      <div class="cmpbox" style="margin-top:14px">
+        <h3>Çeyrek dalga · hangi derinlik hangi frekans</h3>
+        <div class="cmpscroll">
+          <table class="cmp" id="tblC">
+            <thead><tr><th>Derinlik</th><th>İş gördüğü yer</th></tr></thead>
+            <tbody></tbody>
+          </table>
+        </div>
+        <p class="note" style="padding:0 14px 12px; margin:0">Bir satıra tıkla. Tablo tek bir bölmeden çıkıyor: <b>f = 343 / (4 × derinlik)</b>. Pes frekanslar için gereken derinliğin ne kadar hızlı büyüdüğüne dikkat et — bu doğrusal değil, <b>ters orantılı</b> bir ilişki. Frekansı yarıya indirmek gereken derinliği <b>iki katına</b> çıkarır.</p>
+      </div>
+
+      <div class="cmpbox" style="margin-top:14px">
+        <h3>Rezonanslı emiciler · pes için az yerle</h3>
+        <div class="cmpscroll">
+          <table class="cmp">
+            <thead><tr><th>Yapı</th><th>Boşluk</th><th>Çalıştığı yer</th></tr></thead>
+            <tbody>
+              <tr><td class="lbl">3 mm sunta</td><td class="v lit">5 cm</td><td class="v lit">190 Hz</td></tr>
+              <tr class="key"><td class="lbl">6 mm kontrplak</td><td class="v lit">5 cm</td><td class="v lit">134 Hz</td></tr>
+              <tr><td class="lbl">6 mm kontrplak</td><td class="v lit">10 cm</td><td class="v lit">95 Hz</td></tr>
+              <tr class="key"><td class="lbl">12,5 mm alçıpan</td><td class="v lit">10 cm</td><td class="v lit">60 Hz</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="note" style="padding:0 14px 12px; margin:0">Esnek bir levha ile arkasındaki hava bir <b>kütle-yay</b> sistemi kurar ve belirli bir frekansta rezonansa girip enerji yutar: <b>f₀ = 60 / √(m·d)</b>, m levhanın kilogram/metrekaresi, d boşluğun metresi. Sadece 10 santimlik bir boşlukla <b>60 Hz</b>'e inilebiliyor — gözenekli emiciyle aynı frekans için 1,4 metre gerekirdi. Bedeli: <b>dar bantlı</b> çalışır, geniş bir bölgeyi yutmaz. <b>Dürüstlük notu:</b> formül rezonansın <b>yerini</b> verir; ne kadar yutacağını değil — o, levhanın sönümüne ve boşluğa konan malzemeye bağlıdır ve bu sayfada hesaplanmamıştır.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 04 ============ -->
+<section id="s4">
+  <h2><span class="num">04</span> Atölye: difüzör — yutmadan dağıtmak</h2>
+  <p style="max-width:74ch; color:var(--ink-2)">Bir odayı baştan başa emiciyle kaplarsan çınlamayı öldürürsün ve ses <b>cansız</b> olur. Bazen istenen şey enerjiyi yok etmek değil, onu <b>dağıtmaktır</b>: yansıma kalsın ama tek bir yönden gelen keskin bir ayna yansıması olmasın. Difüzörün işi budur. En bilinen tasarım Schroeder'in <b>ikinci derece kalıntı</b> difüzörüdür ve kuyu derinlikleri tek bir satır matematikten çıkar.</p>
+
+  <div class="lab">
+    <div>
+      <figure class="canvas-wrap">
+        <div class="canvas-inner"><canvas id="cDif" aria-label="Difüzörün kuyu derinlikleri ve saçılma deseni"></canvas></div>
+        <div class="legend">
+          <span><i style="background:var(--sin)"></i>kuyu derinlikleri</span>
+          <span><i style="background:var(--cos)"></i>düz duvarın saçılması</span>
+          <span><i style="background:var(--arc)"></i>difüzörün saçılması</span>
+        </div>
+        <div class="ctrls">
+          <div class="pillrow">
+            <button type="button" class="pill" data-n="1">Düz duvar</button>
+            <button type="button" class="pill" data-n="7" aria-pressed="true">N = 7</button>
+            <button type="button" class="pill" data-n="11">N = 11</button>
+            <button type="button" class="pill" data-n="17">N = 17</button>
+          </div>
+          <div class="grp ga">
+            <p class="tag"><span class="sw" style="background:var(--arc)"></span>ÖLÇÜM FREKANSI</p>
+            <div class="ctrl" style="flex:1 1 300px">
+              <label for="dF"><span>Hangi frekansta bakıyoruz</span><b class="lit" id="dFV">500 Hz</b></label>
+              <input type="range" id="dF" min="250" max="2500" step="10" value="500">
+            </div>
+          </div>
+          <div class="btnrow" style="flex:1 1 100%">
+            <button type="button" class="btn pri" id="dCal">Yansımayı dinle</button>
+            <button type="button" class="btn" id="dIki">Düz duvarla karşılaştır</button>
+          </div>
+        </div>
+        <div class="readout r3">
+          <div><span>Kuyu sayısı</span><b class="lit" id="dN">7</b></div>
+          <div><span>n² mod N dizisi</span><b class="lit" id="dDizi">0 1 4 2 2 4 1</b></div>
+          <div><span>En derin kuyu</span><b class="lit" id="dDer">19,6 cm</b></div>
+          <div><span>Çalışma aralığı</span><b class="lit" id="dAra">500 – 1750 Hz</b></div>
+          <div><span>En güçlü yön</span><b class="lit" id="dEn">0,46</b></div>
+          <div><span>Yansıma</span><b id="dYan">dağılmış</b></div>
+        </div>
+        <figcaption>Üstte difüzörün kesiti: yan yana dizilmiş, farklı derinliklerde kuyular. Altta <b>saçılma deseni</b> — ses duvara dik gelirken hangi yöne ne kadar enerji gittiği. Düz duvarda tek bir ince demet var ve hepsi geldiği yöne geri gidiyor; difüzörde aynı enerji geniş bir yelpazeye yayılıyor. <b>Toplam enerji ikisinde de aynı</b> — difüzör hiçbir şey yutmuyor.</figcaption>
+      </figure>
+      <p class="note" style="margin:10px 0 0"><b>Derinlikler nereden geliyor?</b> Tek satır: <b>dₙ = (n² mod N) × λ₀ / (2N)</b>. N bir asal sayı, λ₀ tasarım frekansının dalga boyu. N = 7 için n² mod 7 dizisi <b>0 1 4 2 2 4 1</b> çıkar; 500 Hz tasarım için bu <b>0 · 4,9 · 19,6 · 9,8 · 9,8 · 19,6 · 4,9 cm</b> demektir. Her kuyu sesi farklı bir gecikmeyle geri gönderir; gecikmeler bu özel diziye göre seçildiği için geri dönen dalgalar <b>tek bir yönde toplanamaz</b>. Desende gördüğün düzgün yayılma bunun sonucu.</p>
+      <p class="note" style="margin:8px 0 0"><b>Difüzörün bir alt ve bir üst sınırı var.</b> Alt sınır <b>tasarım frekansı</b>: daha peste inmek için kuyuların derinleşmesi gerekir. Üst sınır <b>kuyu genişliği</b>: dalga boyu kuyu genişliğinin iki katından kısa olduğunda ses kuyuların içine düzgün giremez ve desen bozulur. N = 7'de aralık <b>500–1750 Hz</b>. Kaydırıcıyı 2500 Hz'e götür ve desenin nasıl düzensizleştiğini gör.</p>
+      <p class="note" style="margin:8px 0 0"><b>Peki ne zaman difüzör, ne zaman soğurucu?</b> Basit bir ayrım: <b>erken ve güçlü tek bir yansımayı</b> yok etmek istiyorsan — mesela stüdyoda hoparlörün yan duvardan seken ilk yansıması — soğurucu kullanırsın. Ama odayı boğmadan <b>canlı tutmak</b> istiyorsan, özellikle dinleyicinin arkasındaki büyük düz yüzeylerde difüzör kullanırsın. Eski konser salonlarındaki girintili çıkıntılı yüzeyler, sütunlar, nişler ve heykeller de <b>aynı işi yapar</b> — üstelik kimse onları bu hesapla koymadan çok önce.</p>
+    </div>
+
+    <div>
+      <div class="cmpbox">
+        <h3>Dört yüzey yan yana · 500 Hz'te</h3>
+        <div class="cmpscroll">
+          <table class="cmp" id="tblD">
+            <thead><tr><th>Yüzey</th><th>En derin</th><th>Aralık</th><th>En güçlü yön</th></tr></thead>
+            <tbody></tbody>
+          </table>
+        </div>
+        <p class="note" style="padding:0 14px 12px; margin:0">Bir satıra tıkla. "En güçlü yön" sütunu, saçılan enerjinin en yoğun olduğu yöndeki genliği veriyor; 1,00 demek <b>her şey tek yönde</b> demek. Düz duvar tam olarak budur. N büyüdükçe desen düzgünleşir ama kuyular derinleşir ve incelir — yani difüzör <b>kalınlaşır</b> ve üretimi zorlaşır. Pratikte seçim hep bu üçgenin içinde yapılır: derinlik, bant genişliği, maliyet.</p>
+      </div>
+
+      <div class="cmpbox" style="margin-top:14px">
+        <h3>Difüzör nerede işe yarar, nerede yaramaz</h3>
+        <div class="cmpscroll">
+          <table class="cmp">
+            <tbody>
+              <tr class="key"><td class="lbl">Dinleyicinin arka duvarı</td><td class="v">işe yarar</td></tr>
+              <tr><td class="lbl">Konser salonunun yan duvarları</td><td class="v">işe yarar</td></tr>
+              <tr class="key"><td class="lbl">Hoparlörün ilk yansıma noktası</td><td class="v">soğurucu daha doğru</td></tr>
+              <tr><td class="lbl">Pes uğultusu olan küçük oda</td><td class="v">işe yaramaz</td></tr>
+              <tr><td class="lbl">Komşu gürültüsü</td><td class="v">hiç ilgisi yok</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="note" style="padding:0 14px 12px; margin:0">Son iki satır önemli. Difüzör <b>pes sorununu çözmez</b>: 60 Hz'te dalga boyu 5,7 metredir ve bu boydaki bir dalga için 20 santimlik kuyular görünmez bile — yüzey ona <b>düz</b> görünür. Ve difüzör bir şey <b>yutmadığı</b> için yalıtımla hiç ilgisi yoktur. Bir difüzör odanın enerjisini korur, sadece dağıtır.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 05 ============ -->
+<section id="s5">
+  <h2><span class="num">05</span> Atölye: yalıtım — ağırlık ve sızdırmazlık</h2>
+  <p style="max-width:74ch; color:var(--ink-2)">Şimdi bambaşka bir işe geçiyoruz. Buraya kadar hep odanın <b>içindeki</b> sesi düzelttik. Yalıtımın derdi ise odanın <b>dışı</b>: sesin duvardan geçmesini engellemek. Ve burada emicilerin hiçbir hükmü yok. Yalıtımın iki kuralı var, ikisi de şaşırtıcı derecede basit: <b>ağırlık</b> ve <b>sızdırmazlık</b>.</p>
+
+  <div class="lab">
+    <div>
+      <figure class="canvas-wrap">
+        <div class="canvas-inner"><canvas id="cYal" aria-label="Kütle yasası eğrisi ve açıklığın bileşik yalıtıma etkisi"></canvas></div>
+        <div class="legend">
+          <span><i style="background:var(--sin)"></i>kütle yasası · delik yokken</span>
+          <span><i style="background:var(--arc)"></i>açıklıkla birlikte gerçek</span>
+          <span><i style="background:var(--cos)"></i>500 Hz</span>
+        </div>
+        <div class="ctrls">
+          <div class="pillrow">
+            <button type="button" class="pill" data-mal="alci" aria-pressed="true">Alçıpan 10</button>
+            <button type="button" class="pill" data-mal="cift">Çift kat 20</button>
+            <button type="button" class="pill" data-mal="tugla">Tuğla 180</button>
+            <button type="button" class="pill" data-mal="beton">Beton 480</button>
+          </div>
+          <div class="grp ga">
+            <p class="tag"><span class="sw" style="background:var(--arc)"></span>DUVAR VE AÇIKLIK</p>
+            <div class="ctrl" style="flex:1 1 230px">
+              <label for="yM"><span>Kütle</span><b class="lit" id="yMV">10 kg/m²</b></label>
+              <input type="range" id="yM" min="0" max="100" step="1" value="26">
+            </div>
+            <div class="ctrl" style="flex:1 1 230px">
+              <label for="yA"><span>Açık kalan alan</span><b class="lit" id="yAV">yok</b></label>
+              <input type="range" id="yA" min="0" max="100" step="1" value="0">
+            </div>
+          </div>
+          <div class="btnrow" style="flex:1 1 100%">
+            <button type="button" class="btn pri" id="yCal">Yan odadan dinle</button>
+            <button type="button" class="btn" id="yDelik">Küçük bir delik aç</button>
+            <button type="button" class="btn" id="yKapat">Deliği kapat</button>
+          </div>
+        </div>
+        <div class="readout r3">
+          <div><span>Kütle</span><b class="lit" id="yKut">10 kg/m²</b></div>
+          <div><span>Kütle yasası · 500 Hz</span><b class="lit" id="yR5">27 dB</b></div>
+          <div><span>Açık alan</span><b class="lit" id="yAc">yok</b></div>
+          <div><span>Gerçek yalıtım</span><b class="lit" id="yGer">27 dB</b></div>
+          <div><span>Açıklığın götürdüğü</span><b class="lit" id="yKay">0 dB</b></div>
+          <div><span>Sonuç</span><b id="ySon">zayıf · konuşma duyulur</b></div>
+        </div>
+        <figcaption>Yatay eksen frekans, düşey eksen <b>ses geçiş kaybı</b> — yani duvarın kaç desibel kestiği. Düz çizgi kütle yasası: her oktavda <b>6 desibel</b> yükseliyor, yani duvar tizleri iyi keserken pesi zor kesiyor. Komşudan yalnızca <b>bas</b> duymanın sebebi tam olarak bu eğrinin eğimidir. İkinci eğri, üstünde bir açıklık varken gerçekte elde edilen değerdir.</figcaption>
+      </figure>
+      <p class="note" style="margin:10px 0 0"><b>Önce eğimine bak: her oktavda 6 dB.</b> Bu, duvarın 2 kHz'te kestiğini 125 Hz'te kesemediği anlamına geliyor — aradaki fark tam <b>24 desibel</b>. Bu yüzden yan daireden gelen müzikte melodiyi değil, sadece <b>davulu ve bası</b> duyarsın. Aynı kural kütle için de geçerli: kütleyi ikiye katlamak <b>+6 dB</b> kazandırır. 10 kg'lık bir alçıpandan 20 kg'lık çift kata geçmek 6 dB, bunu bir daha yapmak 6 dB daha. Yalıtımda ilerlemek pahalıdır çünkü <b>logaritmiktir</b>.</p>
+      <p class="note" style="margin:8px 0 0"><b>Şimdi "Küçük bir delik aç" düğmesine bas.</b> Düğme önce duvarı <b>20 cm betona</b> çeviriyor — 500 Hz'te <b>61 dB</b>, mükemmel bir duvar. Sonra üstünde 10 santimetrekarelik, yani bir kibrit kutusundan küçük bir açıklık bırakıyor: duvarın <b>on binde biri</b>. Sonuç <b>40 dB</b>’a düşüyor — yirmi bir desibel gitti. Sebebi matematiksel olarak kaçınılmaz: yalıtım dediğimiz şey <b>geçen enerjinin</b> küçüklüğü ve enerji açıklıktan hiç engellenmeden akıyor. 50 dB'lik bir duvar, geleni <b>yüz binde bire</b> indiriyor demektir; yanında hiç engellenmeyen bir delik varsa, toplam artık o deliğin alanı kadardır. Bu yüzden gerçek yalıtım işinde en çok emek <b>kapı, priz, havalandırma ve derz</b> gibi yerlere harcanır.</p>
+      <p class="note" style="margin:8px 0 0"><b>Bir örnek, bütün dersi özetliyor.</b> 8 m²'lik bir duvar 45 dB, üstündeki 2 m²'lik kapı 25 dB. Bileşik sonuç <b>31,8 dB</b> — kapıya yakın. Duvarı 55 dB'ye çıkarırsan sonuç <b>32,0 dB</b> olur, yani <b>hiçbir şey değişmez</b>. Ama kapıyı 40 dB'ye çıkarırsan sonuç <b>43,4 dB</b>'ye fırlar. Yalıtımda para <b>en zayıf halkaya</b> harcanır; en güçlü halkayı daha da güçlendirmek boşa gider.</p>
+      <p class="note" style="margin:8px 0 0"><b>Ve son bir hatırlatma:</b> bu bölümde bir kez bile <b>sünger</b> geçmedi. Gözenekli malzeme hafiftir ve havayı içinden geçirir; kütle yasası ona uymaz. Duvara yapıştırılan 5 santimlik bir süngerin yalıtımı <b>birkaç desibeldir</b> — pratikte sıfır. Sünger odanın içindeki çınlamayı kısaltır, bu da kendi başına değerli bir iştir; ama komşuyla ilgili hiçbir şey yapmaz. <b>Odanın içi ve odanın dışı, iki ayrı problemdir.</b></p>
+    </div>
+
+    <div>
+      <div class="cmpbox">
+        <h3>Kütle yasası · 500 Hz</h3>
+        <div class="cmpscroll">
+          <table class="cmp" id="tblM">
+            <thead><tr><th>Bölme</th><th>kg/m²</th><th>R</th></tr></thead>
+            <tbody></tbody>
+          </table>
+        </div>
+        <p class="note" style="padding:0 14px 12px; margin:0">Bir satıra tıkla. Sıçramalara dikkat: alçıpandan betona geçerken kütle <b>48 katına</b> çıkıyor ama yalıtım yalnız <b>34 dB</b> artıyor — çünkü ilişki logaritmiktir. <b>Dürüstlük notu:</b> kütle yasası bir <b>yaklaşımdır</b>. Gerçek duvarlar belirli bir frekansta eğilme dalgalarıyla rezonansa girer ve orada yalıtım <b>çöker</b>; ayrıca çift cidarlı yapılar (iki levha + arada boşluk) kütle yasasının çok üstüne çıkabilir. Bu sayfada ikisine de girilmemiştir.</p>
+      </div>
+
+      <div class="cmpbox" style="margin-top:14px">
+        <h3>En zayıf halka · 50 dB'lik duvar</h3>
+        <div class="cmpscroll">
+          <table class="cmp" id="tblZ">
+            <thead><tr><th>Açıklık</th><th>Bileşik R</th><th>Kayıp</th></tr></thead>
+            <tbody></tbody>
+          </table>
+        </div>
+        <p class="note" style="padding:0 14px 12px; margin:0">10 m²'lik bir duvarın üstünde açık kalan alanın etkisi. Hesap tek satır: <b>τ_ort = Σ(S·τ) / ΣS</b> ve <b>R = −10·log(τ_ort)</b>. Yüz santimetrekarelik bir açıklık — yani bir avuç kadar — 50 dB'lik duvarı <b>30 dB</b>'ye düşürüyor. Kapı altındaki bir santimlik boşluk gerçek hayatta tam olarak bu ölçektedir.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 06 ============ -->
+<section id="s6">
+  <h2><span class="num">06</span> Kavramın dili</h2>
+  <p style="max-width:62ch; color:var(--ink-2)">Dört terim. Düğmelere basıp farkı kulakla duy.</p>
+  <div class="terms">
+    <div class="term">
+      <h3>Soğurucu</h3>
+      <p class="en">absorber · akustik emici</p>
+      <p>Ses enerjisini ısıya çeviren malzeme. Odanın <b>içindeki</b> çınlamayı kısaltır. Gözenekli olanlar geniş bantlıdır ama pes için çok derinlik ister; rezonanslı olanlar dar bantlıdır ama az yer kaplar.</p>
+      <div class="mus"><span>Kural</span> Çeyrek dalga: 5 cm ~1700 Hz'ten, 30 cm ~290 Hz'ten</div>
+      <div class="btnrow" style="padding:0 14px 14px">
+        <button type="button" class="btn snd" data-snd="ciplak">Çıplak oda</button>
+        <button type="button" class="btn snd" data-snd="emili">Emici konmuş</button>
+      </div>
+    </div>
+    <div class="term">
+      <h3>Difüzör</h3>
+      <p class="en">diffuser · saçıcı</p>
+      <p>Enerjiyi <b>yutmadan</b> birçok yöne dağıtan şekilli yüzey. Çınlamayı kısaltmaz; yansımayı ayna olmaktan çıkarır. Odayı boğmadan canlı tutmak için kullanılır.</p>
+      <div class="mus"><span>Ölçü</span> dₙ = (n² mod N) × λ₀ / (2N) · N=7'de en derin 19,6 cm</div>
+      <div class="btnrow" style="padding:0 14px 14px">
+        <button type="button" class="btn snd" data-snd="ayna">Ayna yansıma</button>
+        <button type="button" class="btn snd" data-snd="sacik">Saçılmış yansıma</button>
+      </div>
+    </div>
+    <div class="term">
+      <h3>Kütle yasası</h3>
+      <p class="en">mass law</p>
+      <p>Bir bölmenin ses geçiş kaybının ağırlığına ve frekansa bağlı olması. <b>R = 20·log(m·f) − 47</b>. Kütle iki katı → +6 dB. Frekans iki katı → +6 dB.</p>
+      <div class="mus"><span>Sonuç</span> Her oktavda 6 dB: komşudan yalnız bas duyulur</div>
+      <div class="btnrow" style="padding:0 14px 14px">
+        <button type="button" class="btn snd" data-snd="acik">Aynı odada</button>
+        <button type="button" class="btn snd" data-snd="duvar">Duvarın ardında</button>
+      </div>
+    </div>
+    <div class="term">
+      <h3>Bileşik yalıtım</h3>
+      <p class="en">composite transmission loss</p>
+      <p>Farklı parçalardan oluşan bir bölmenin toplam yalıtımı. <b>τ_ort = Σ(S·τ)/ΣS</b>. Sonuç her zaman <b>en zayıf parçaya</b> yakın çıkar; güçlü parçayı iyileştirmek işe yaramaz.</p>
+      <div class="mus"><span>Sayı</span> 45 dB duvar + 25 dB kapı = 31,8 dB</div>
+      <div class="btnrow" style="padding:0 14px 14px">
+        <button type="button" class="btn snd" data-snd="kapali">Delik yok</button>
+        <button type="button" class="btn snd" data-snd="delik">Küçük bir delik</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 07 ============ -->
+<section id="s7">
+  <h2><span class="num">07</span> Şimdi sen dene</h2>
+  <div class="quizwrap">
+    <div id="quiz"></div>
+    <aside class="recap">
+      <h3>Aklında kalsın</h3>
+      <ol>
+        <li>Üç ayrı iş: <b>soğurucu</b> ısıya çevirir, <b>difüzör</b> dağıtır, <b>yalıtım</b> geçmesini engeller.</li>
+        <li>Soğurucu ve difüzör odanın <b>içiyle</b>, yalıtım odanın <b>dışıyla</b> ilgilidir.</li>
+        <li><b>Sünger yalıtım yapmaz.</b> Gözeneklidir, hafiftir, havayı geçirir.</li>
+        <li>Gözenekli emici <b>çeyrek dalga</b> kuralıyla çalışır: derinlik yetmezse pes yutulmaz.</li>
+        <li><b>Arka boşluk bedava kalınlıktır</b> — aynı 5 cm, 20 cm öne alınınca 125 Hz'te on kat iyileşir.</li>
+        <li>Pes için <b>rezonanslı emici</b>: f₀ = 60/√(m·d) — az yerle derine iner ama dar bantlıdır.</li>
+        <li>Difüzörün derinlikleri <b>dₙ = (n² mod N)·λ₀/(2N)</b>; alt sınırı tasarım frekansı, üst sınırı kuyu genişliği.</li>
+        <li>Kütle yasası: <b>oktav başına 6 dB</b>. Bu yüzden komşudan yalnız bas duyulur.</li>
+        <li>Yalıtımda zincir <b>en zayıf halkası</b> kadar güçlüdür: %1 açıklık 50 dB'yi 30 dB'ye düşürür.</li>
+      </ol>
+      <p class="score" id="score">Doğru: 0 / 6</p>
+    </aside>
+  </div>
+</section>
+
+<footer>
+  <p><b>Kaynaklar ve dürüstlük notu.</b> Çeyrek dalga frekansı (f = c/4d), membran emici rezonansı (f₀ = 60/√(m·d) — sabiti (1/2π)·√(ρc²) = 60,05 olarak <b>bu sayfa için hesaplandı</b>), Schroeder difüzörünün kuyu derinlikleri (dₙ = (n² mod N)·λ₀/2N), kütle yasası (R = 20·log(m·f) − 47) ve bileşik geçirgenlik (τ_ort = Σ(S·τ)/ΣS) yerleşik bağıntılardır ve sayfadaki bütün sayılar bunlardan <b>çalışma anında hesaplanır</b>. Difüzörün saçılma deseni de gerçekten hesaplanıyor: her kuyunun derinliğinden gelen faz gecikmesi toplanarak uzak alan genliği bulunuyor. <b>Yutum eğrisi bir modeldir, ölçüm değildir:</b> emicinin içindeki hava hızının karesinin ortalamasından türetilmiştir ve malzemenin <b>akış direncini</b> hesaba katmaz. Bu yüzden eğrinin <b>yükselmeye başladığı frekans</b> güvenilirdir ama pes uçtaki mutlak değerler gerçek ölçümlerin altında kalır — gerçek bir 5 cm süngerin 125 Hz'teki yutumu bu modelin verdiğinden yüksektir. Sayfadaki malzeme kütleleri ve kalınlıklar <b>yuvarlak temsilî değerlerdir</b>, ürün verisi değil. <b>Bu atölye kasten sığ tutulmuştur:</b> derin bir kaynak taraması yapılmadı ve şunlar sayfaya <b>konmamıştır</b>: kütle yasasının çöktüğü kritik frekans ve eğilme dalgaları; çift cidarlı yapıların kütle yasasını aşması; yapısal (darbe) sesin yalıtımı; havalandırma ve kanal yalıtımı; difüzörlerin gerçekte bir miktar da yuttuğu; saçılma katsayısının standart ölçüm yöntemi. Bunlar tahmin olarak değil <b>boşluk</b> olarak işaretlenmiştir.</p>
+  <p>İnönü Üniversitesi · Güzel Sanatlar ve Tasarım Fakültesi · Müzik Teknolojisi Programı · Ses Fiziği II · 12. Atölye</p>
+</footer>
+
+</div>
+<script>
+(function(){
+'use strict';
+var root=document.documentElement, TAU=Math.PI*2;
+var C={}, K={lw:1,fs:1,faint:.32,glow:0};
+var mqDark=window.matchMedia('(prefers-color-scheme: dark)');
+var mqSlow=window.matchMedia('(prefers-reduced-motion: reduce)');
+var CKEYS=['ground','panel','panel-2','ink','ink-2','ink-3','line','line-2','sin','cos','arc','brass','ok','no'];
+
+/* ---------------- tema ---------------- */
+function isProj(){ return root.getAttribute('data-mode')==='proj'; }
+function isDarkNow(){
+  if(isProj()) return false;
+  var t=root.getAttribute('data-theme');
+  if(t==='dark') return true;
+  if(t==='light') return false;
+  return mqDark.matches;
+}
+function readTheme(){
+  var cs=getComputedStyle(root);
+  for(var i=0;i<CKEYS.length;i++) C[CKEYS[i]]=cs.getPropertyValue('--'+CKEYS[i]).trim()||'#888';
+  var proj=isProj(), dark=isDarkNow();
+  K.glow = (dark && !proj) ? 0.7 : 0;
+  K.lw   = proj ? 1.5 : 1;
+  K.fs   = proj ? 1.24 : 1;
+  K.faint= proj ? 0.42 : (K.glow ? 0.34 : 0.32);
+}
+var tBtns=[].slice.call(document.querySelectorAll('.themebar button'));
+function syncTheme(){
+  var cur;
+  if(isProj()) cur='proj';
+  else if(root.getAttribute('data-theme')==='dark') cur='dark';
+  else if(root.getAttribute('data-theme')==='light') cur='light';
+  else cur = mqDark.matches ? 'dark' : 'light';
+  tBtns.forEach(function(b){ b.setAttribute('aria-pressed', b.dataset.t===cur?'true':'false'); });
+}
+function applyTheme(v,store){
+  if(v==='light'){ root.setAttribute('data-theme','light'); root.removeAttribute('data-mode'); }
+  else if(v==='dark'){ root.setAttribute('data-theme','dark'); root.removeAttribute('data-mode'); }
+  else if(v==='proj'){ root.setAttribute('data-theme','light'); root.setAttribute('data-mode','proj'); }
+  if(store){ try{ localStorage.setItem('mt-tema',v); }catch(e){} }
+  syncTheme();
+}
+tBtns.forEach(function(b){ b.addEventListener('click',function(){ applyTheme(b.dataset.t,true); }); });
+(function(){
+  var v=null; try{ v=localStorage.getItem('mt-tema'); }catch(e){}
+  if(v==='light'||v==='dark'||v==='proj') applyTheme(v,false); else syncTheme();
+})();
+
+/* ---------------- yardimcilar ---------------- */
+function nf(v,d){
+  d=(d===undefined)?2:d;
+  var r=Number(v.toFixed(d)); if(r===0) r=0;
+  return r.toFixed(d).replace('-','−').replace('.',',');
+}
+function deg(v,d){ return nf(v,d===undefined?0:d)+'°'; }
+function setFont(ctx,px,w,sans){
+  ctx.font=(w||500)+' '+Math.max(9,Math.round(px*K.fs))+'px '+(sans?'"IBM Plex Sans",system-ui,sans-serif':'"IBM Plex Mono",ui-monospace,monospace');
+}
+function gOn(ctx,col,amt){ if(K.glow){ ctx.shadowColor=col; ctx.shadowBlur=amt*K.glow; } }
+function gOff(ctx){ ctx.shadowBlur=0; ctx.shadowColor='transparent'; }
+function dash(ctx,a){ ctx.setLineDash(a?a.map(function(v){return v*K.lw;}):[]); }
+function line(ctx,x1,y1,x2,y2,col,w,d){
+  ctx.save(); ctx.strokeStyle=col; ctx.lineWidth=(w||1)*K.lw; dash(ctx,d);
+  ctx.beginPath(); ctx.moveTo(x1,y1); ctx.lineTo(x2,y2); ctx.stroke(); ctx.restore();
+}
+function dot(ctx,x,y,r,col,glow){
+  ctx.save(); ctx.fillStyle=col; if(glow) gOn(ctx,col,10);
+  ctx.beginPath(); ctx.arc(x,y,r*K.fs,0,TAU); ctx.fill(); gOff(ctx); ctx.restore();
+}
+function label(ctx,txt,x,y,col,px,align,bg){
+  var fs=px||11;
+  ctx.save(); setFont(ctx,fs,500,false);
+  ctx.textAlign=align||'left'; ctx.textBaseline='alphabetic';
+  if(bg){
+    var w=ctx.measureText(txt).width, h=fs*K.fs;
+    var lx=(align==='right')?x-w:((align==='center')?x-w/2:x);
+    ctx.fillStyle=alpha(C.panel,0.86);
+    ctx.fillRect(lx-3,y-h-1,w+6,h+5);
+  }
+  ctx.fillStyle=col; ctx.fillText(txt,x,y); ctx.restore();
+}
+function labelV(ctx,txt,x,y,col,px){
+  ctx.save(); setFont(ctx,px||11,500,false);
+  ctx.translate(x,y); ctx.rotate(Math.PI/2);
+  ctx.textAlign='center'; ctx.textBaseline='alphabetic';
+  ctx.fillStyle=col; ctx.fillText(txt,0,0); ctx.restore();
+}
+function textW(ctx,txt,px){ ctx.save(); setFont(ctx,px||11,500,false); var w=ctx.measureText(txt).width; ctx.restore(); return w; }
+function alpha(hex,a){
+  var h=hex.replace('#',''); if(h.length===3) h=h[0]+h[0]+h[1]+h[1]+h[2]+h[2];
+  var n=parseInt(h,16);
+  if(isNaN(n)) return hex;
+  return 'rgba('+((n>>16)&255)+','+((n>>8)&255)+','+(n&255)+','+a+')';
+}
+
+/* ---------------- sahne altyapisi ---------------- */
+var scenes=[];
+function makeScene(cv,painter){
+  var ctx=cv.getContext('2d'), s={cv:cv,ctx:ctx,W:0,H:0};
+  s.resize=function(){
+    var r=cv.getBoundingClientRect();
+    var w=Math.max(1,r.width), h=Math.max(1,r.height);
+    var dpr=Math.min(2,window.devicePixelRatio||1);
+    s.W=w; s.H=h; cv.width=Math.round(w*dpr); cv.height=Math.round(h*dpr);
+    ctx.setTransform(dpr,0,0,dpr,0,0);
+  };
+  s.draw=function(){ if(s.W<2) s.resize(); ctx.clearRect(0,0,s.W,s.H); painter(ctx,s.W,s.H); };
+  if(window.ResizeObserver) new ResizeObserver(function(){ s.resize(); s.draw(); }).observe(cv);
+  scenes.push(s); return s;
+}
+function markAll(){ UC.dirty=true; SG.dirty=true; DF.dirty=true; YL.dirty=true; }
+function redrawAll(){ readTheme(); scenes.forEach(function(s){ s.resize(); s.draw(); }); markAll(); }
+new MutationObserver(redrawAll).observe(root,{attributes:true,attributeFilter:['data-theme','data-mode']});
+if(mqDark.addEventListener) mqDark.addEventListener('change',function(){ redrawAll(); syncTheme(); });
+window.addEventListener('resize',function(){ markAll(); });
+
+/* ---------------- ses ---------------- */
+var AC=null;
+function ac(){
+  try{
+    if(!AC){ var Ctor=window.AudioContext||window.webkitAudioContext; if(!Ctor) return null; AC=new Ctor(); }
+    if(AC.state==='suspended') AC.resume();
+    return AC;
+  }catch(e){ return null; }
+}
+function playTones(specs,dur){
+  var c=ac(); if(!c) return;
+  try{
+    var t0=c.currentTime+0.06, master=c.createGain();
+    master.gain.setValueAtTime(0.0001,t0);
+    master.gain.linearRampToValueAtTime(1,t0+0.03);
+    master.gain.setValueAtTime(1,t0+dur-0.08);
+    master.gain.linearRampToValueAtTime(0.0001,t0+dur);
+    master.connect(c.destination);
+    specs.forEach(function(sp){
+      var o=c.createOscillator(); o.type='sine'; o.frequency.setValueAtTime(sp.f,t0);
+      var g=c.createGain(); g.gain.setValueAtTime(sp.g,t0);
+      o.connect(g); g.connect(master); o.start(t0); o.stop(t0+dur+0.06);
+    });
+    setTimeout(function(){ try{ master.disconnect(); }catch(e){} },(dur+0.4)*1000);
+  }catch(e){}
+}
+function playSeq(list,dur,gap){
+  var c=ac(); if(!c) return;
+  list.forEach(function(f,i){ setTimeout(function(){ playTones([{f:f,g:0.16}],dur); }, i*(dur+gap)*1000); });
+}
+function hatch(ctx,x0,x1,y,col,dir){
+  ctx.save(); ctx.strokeStyle=col; ctx.lineWidth=1*K.lw;
+  for(var x=x0+5;x<x1;x+=12){ ctx.beginPath(); ctx.moveTo(x,y); ctx.lineTo(x-5,y+5*(dir||1)); ctx.stroke(); }
+  ctx.restore();
+}
+
+/* ---------------- dalga bicimi sesi ---------------- */
+function gauss(){
+  var u=0,v=0;
+  while(u===0) u=Math.random();
+  while(v===0) v=Math.random();
+  return Math.sqrt(-2*Math.log(u))*Math.cos(TAU*v);
+}
+function playPeriodic(arr,f,amp,dur,noiseRms){
+  var c=ac(); if(!c) return;
+  try{
+    var sr=c.sampleRate, per=Math.max(8,Math.round(sr/f)), n=Math.max(per,Math.round(sr*dur));
+    var buf=c.createBuffer(1,n,sr), d=buf.getChannelData(0), i;
+    if(noiseRms){
+      for(i=0;i<n;i++){ var x=gauss()*noiseRms; if(x>1)x=1; if(x<-1)x=-1; d[i]=x*amp; }
+    } else {
+      var L=arr.length;
+      for(i=0;i<n;i++) d[i]=arr[Math.floor((i%per)/per*L)%L]*amp;
+    }
+    var src=c.createBufferSource(); src.buffer=buf;
+    var g=c.createGain(), t0=c.currentTime+0.05;
+    g.gain.setValueAtTime(0.0001,t0);
+    g.gain.linearRampToValueAtTime(1,t0+0.02);
+    g.gain.setValueAtTime(1,Math.max(t0+0.03,t0+dur-0.05));
+    g.gain.linearRampToValueAtTime(0.0001,t0+dur);
+    src.connect(g); g.connect(c.destination);
+    src.start(t0); src.stop(t0+dur+0.05);
+    setTimeout(function(){ try{ g.disconnect(); }catch(e){} },(dur+0.5)*1000);
+  }catch(e){}
+}
+function playMuffled(f,cut,g0,dur,delay){
+  var c=ac(); if(!c) return;
+  try{
+    var t0=c.currentTime+0.05+(delay||0);
+    var o=c.createOscillator(); o.type='sawtooth'; o.frequency.setValueAtTime(f,t0);
+    var lp=c.createBiquadFilter(); lp.type='lowpass';
+    lp.frequency.setValueAtTime(cut,t0); lp.Q.setValueAtTime(0.7,t0);
+    var g=c.createGain();
+    g.gain.setValueAtTime(0.0001,t0);
+    g.gain.linearRampToValueAtTime(g0,t0+0.03);
+    g.gain.setValueAtTime(g0,t0+dur-0.08);
+    g.gain.linearRampToValueAtTime(0.0001,t0+dur);
+    o.connect(lp); lp.connect(g); g.connect(c.destination);
+    o.start(t0); o.stop(t0+dur+0.05);
+    setTimeout(function(){ try{ g.disconnect(); }catch(e){} },(dur+(delay||0)+0.6)*1000);
+  }catch(e){}
+}
+
+/* ---------------- ham sinyal calma ---------------- */
+function playSig(sig,sr,g){
+  var c=ac(); if(!c||!sig||!sig.length) return;
+  try{
+    var buf=c.createBuffer(1,sig.length,sr), d=buf.getChannelData(0), i;
+    for(i=0;i<sig.length;i++) d[i]=sig[i];
+    var src=c.createBufferSource(); src.buffer=buf;
+    var gn=c.createGain(), t0=c.currentTime+0.04;
+    gn.gain.setValueAtTime(g===undefined?0.28:g,t0);
+    src.connect(gn); gn.connect(c.destination);
+    src.start(t0);
+    setTimeout(function(){ try{ gn.disconnect(); }catch(e){} },(sig.length/sr+0.7)*1000);
+  }catch(e){}
+}
+/* ---------------- ortak ---------------- */
+function $(id){ return document.getElementById(id); }
+function setTxt(id,v){ var e=$(id); if(e) e.textContent=v; }
+function makeSteps(ids,steps){
+  var list=$(ids.list), txt=$(ids.text), cnt=$(ids.count), cur=0;
+  steps.forEach(function(s,i){
+    var li=document.createElement('li'), b=document.createElement('button');
+    b.type='button'; b.innerHTML='<span class="k">'+(i+1)+'</span>'+s.t;
+    b.addEventListener('click',function(){ set(i,true); });
+    li.appendChild(b); list.appendChild(li);
+  });
+  function set(i,run){
+    cur=(i+steps.length)%steps.length;
+    [].slice.call(list.querySelectorAll('button')).forEach(function(b,j){ b.setAttribute('aria-current', j===cur?'true':'false'); });
+    txt.innerHTML=steps[cur].d; cnt.textContent=(cur+1)+' / '+steps.length;
+    if(run && steps[cur].apply) steps[cur].apply();
+  }
+  $(ids.prev).addEventListener('click',function(){ set(cur-1,true); });
+  $(ids.next).addEventListener('click',function(){ set(cur+1,true); });
+  set(0,false);
+  return { set:set };
+}
+function clampLab(ctx,txt,x,y,px0,px1,col,px,bg){
+  var w=textW(ctx,txt,px||9), al='center', tx=x;
+  if(tx+w/2>px1){ al='right'; tx=px1; }
+  else if(tx-w/2<px0){ al='left'; tx=px0; }
+  label(ctx,txt,tx,y,col,px||9,al,bg);
+}
+function hash1(i){
+  var h=(i*374761393+668265263)|0;
+  h=(h^(h>>>13))*1274126177|0;
+  return ((h^(h>>>16))>>>0)/4294967296;
+}
+function clampn(a,b,v){ return v<a?a:(v>b?b:v); }
+var SR=22050, TAU2=Math.PI*2, VSES=343, RHO=1.21;
+
+/* ================= akustik ================= */
+function ceyrekF(D){ return VSES/(4*D); }
+/* gozenekli emici : emicinin icindeki hava hizinin karesinin ortalamasi
+   (model — akis direncini hesaba katmaz, kunyede belirtildi)            */
+function yutum(f,d,g){
+  var k=TAU2*f/VSES;
+  if(k*d<1e-9) return 0.03;
+  var u2=0.5-(Math.sin(2*k*(g+d))-Math.sin(2*k*g))/(4*k*d);
+  return Math.min(0.95, 0.03+0.92*Math.max(0,Math.min(1,2*u2)));
+}
+function membranF(m,d){ return (1/TAU2)*Math.sqrt(RHO*VSES*VSES/(m*d)); }
+/* Schroeder ikinci derece kalinti difuzor */
+function qrd(N,f0){
+  var l0=VSES/f0, d=[], dz=[], n;
+  for(n=0;n<N;n++){ var q=(n*n)%N; dz.push(q); d.push(q*l0/(2*N)); }
+  return { N:N, l0:l0, dz:dz, d:d, w:l0/N };
+}
+/* uzak alan sacilma : her kuyunun faz gecikmesi toplaniyor */
+function sacilma(q,f,duz){
+  var k=TAU2*f/VSES, out=[], t, n;
+  for(t=-90;t<=90;t+=1){
+    var th=t*Math.PI/180, re=0, im=0;
+    for(n=0;n<q.N;n++){
+      var x=(n-(q.N-1)/2)*q.w;
+      var ph=(duz?0:(-2*k*q.d[n]))+k*x*Math.sin(th);
+      re+=Math.cos(ph); im+=Math.sin(ph);
+    }
+    out.push({t:t, a:Math.sqrt(re*re+im*im)/q.N});
+  }
+  return out;
+}
+function enGuclu(list){
+  var m=0, a=0;
+  list.forEach(function(p){ if(p.a>m){ m=p.a; a=p.t; } });
+  return {a:m, t:a};
+}
+/* yalitim */
+function kutleR(m,f){ return Math.max(0, 20*Math.log(Math.max(m*f,1))/Math.LN10-47); }
+function bilesikR(parcalar){
+  var St=0, Tt=0;
+  parcalar.forEach(function(p){ St+=p.S; Tt+=p.S*Math.pow(10,-p.R/10); });
+  return St>0? -10*Math.log(Tt/St)/Math.LN10 : 0;
+}
+
+/* ================= ses uretimi ================= */
+function rms(x){ var s=0,i; for(i=0;i<x.length;i++) s+=x[i]*x[i]; return Math.sqrt(s/x.length)+1e-12; }
+function setRms(x,t){ var g=t/rms(x), i; for(i=0;i<x.length;i++) x[i]*=g; return x; }
+function clip(x){ var i; for(i=0;i<x.length;i++){ if(x[i]>1)x[i]=1; if(x[i]<-1)x[i]=-1; } return x; }
+function fadeIO(x,ms){
+  var n=Math.min(x.length>>1, Math.round(ms/1000*SR)), i;
+  for(i=0;i<n;i++){ var g=i/n; x[i]*=g; x[x.length-1-i]*=g; }
+  return x;
+}
+function lp1(x,fc){
+  var a=Math.exp(-TAU2*fc/SR), z=0, i;
+  for(i=0;i<x.length;i++){ z=(1-a)*x[i]+a*z; x[i]=z; }
+  return x;
+}
+function hp1(x,fc){
+  var a=Math.exp(-TAU2*fc/SR), z=0, p=0, i;
+  for(i=0;i<x.length;i++){ z=a*(z+x[i]-p); p=x[i]; x[i]=z; }
+  return x;
+}
+function alkis(){
+  var n=Math.round(0.016*SR), y=new Float32Array(n), i;
+  for(i=0;i<n;i++) y[i]=(hash1(i*7+3)*2-1)*Math.exp(-i/(0.0022*SR));
+  lp1(y,6000); hp1(y,300);
+  return setRms(y,0.25);
+}
+/* basit oda kuyrugu : T60'a gore sonen gurultu */
+function kuyruk(T60,dur,tiz){
+  var n=Math.round(dur*SR), y=new Float32Array(n), i;
+  var tau=T60/6.908;
+  for(i=0;i<n;i++) y[i]=(hash1(i*13+29)*2-1)*Math.exp(-(i/SR)/tau);
+  if(tiz) lp1(y,tiz);
+  return y;
+}
+function konvol(x,h,maxLen){
+  var n=Math.min(maxLen||(x.length+h.length), x.length+h.length);
+  var y=new Float32Array(n), i, j;
+  for(i=0;i<x.length;i++){
+    var a=x[i]; if(Math.abs(a)<1e-5) continue;
+    var m=Math.min(h.length, n-i);
+    for(j=0;j<m;j++) y[i+j]+=a*h[j];
+  }
+  return y;
+}
+/* kisa muzikal parca : bas + akor, "komsudan gelen ses" demosu icin */
+function parca(dur){
+  var n=Math.round(dur*SR), y=new Float32Array(n), i, k;
+  var bas=[65.41,65.41,98.0,65.41], akor=[261.63,329.63,392.0,523.25];
+  for(k=0;k<4;k++){
+    var t0=Math.round(k*dur/4*SR), t1=Math.round((k+0.9)*dur/4*SR);
+    var f=bas[k], w=TAU2*f/SR;
+    for(i=t0;i<Math.min(t1,n);i++){
+      var e=Math.exp(-(i-t0)/SR/0.22);
+      y[i]+=0.9*Math.sin(w*(i-t0))*e+0.3*Math.sin(2*w*(i-t0))*e;
+    }
+  }
+  akor.forEach(function(f,q){
+    var w=TAU2*f/SR;
+    for(i=0;i<n;i++){
+      var ph=(i/SR)%(dur/4);
+      var e=Math.exp(-ph/0.13)*(0.45/(1+q*0.4));
+      y[i]+=e*Math.sin(w*i);
+    }
+  });
+  /* hafif vurus */
+  for(k=0;k<8;k++){
+    var t=Math.round(k*dur/8*SR);
+    for(i=0;i<Math.round(0.02*SR)&&t+i<n;i++)
+      y[t+i]+=(hash1(i+k*97)*2-1)*0.5*Math.exp(-i/(0.004*SR));
+  }
+  return fadeIO(setRms(y,0.20),20);
+}
+/* kutle yasasi suzgeci : oktav basina 6 dB -> birinci derece alcak gecirgen */
+function duvardanGecir(x,R500){
+  /* R(f) = R500 + 20log(f/500) : 6 dB/oktav. Kesim frekansi R=0 olan yer. */
+  var fc=500/Math.pow(10,R500/20);
+  var y=new Float32Array(x.length), i;
+  for(i=0;i<x.length;i++) y[i]=x[i];
+  lp1(y,Math.max(25,fc));
+  /* ikinci kutup : gercek duvarlar daha dik keser gibi duyulsun */
+  lp1(y,Math.max(40,fc*2.2));
+  var g=Math.pow(10,-Math.min(R500,60)/20)*14;
+  for(i=0;i<y.length;i++) y[i]*=g;
+  return y;
+}
+
+/* ================= 01 : uc ayri is ================= */
+var TIP={
+  ciplak:{ad:'Çıplak duvar', alfa:0.02, R:30, sac:false,
+    ic:'yok', ds:'orta', bic:'ayna gibi · tek yön'},
+  sog:   {ad:'Soğurucu',     alfa:0.70, R:30, sac:false,
+    ic:'çınlamayı kısaltır', ds:'HİÇ DEĞİŞMİYOR', bic:'zayıf · tek yön'},
+  dif:   {ad:'Difüzör',      alfa:0.10, R:30, sac:true,
+    ic:'yansımayı dağıtır', ds:'HİÇ DEĞİŞMİYOR', bic:'dağılmış · birçok yön'},
+  yal:   {ad:'Yalıtım',      alfa:0.03, R:55, sac:false,
+    ic:'yok · hatta artırır', ds:'çok iyi', bic:'ayna gibi · tek yön'}
+};
+var UC={tip:'ciplak', dirty:false};
+var ucScene=makeScene($('cUc'),function(ctx,W,H){
+  var pad=14, t=TIP[UC.tip];
+  var yc=Math.round(H*0.50);
+  var wx=Math.round(W*0.52), ww=Math.max(16,Math.round(W*0.055));
+  var gec=Math.pow(10,-t.R/10);
+  var yans=Math.max(0,1-t.alfa-gec), yut=t.alfa;
+  label(ctx,'GELEN SES ENERJİSİ ÜÇE AYRILIYOR',pad,pad+12,C['ink-3'],10,'left');
+  label(ctx,t.ad,W-pad,pad+12,C.ink,11,'right');
+  /* duvar */
+  ctx.save();
+  ctx.fillStyle=alpha(C['ink-3'],K.faint*0.55);
+  ctx.fillRect(wx,pad+30,ww,H-pad-76);
+  ctx.strokeStyle=C['ink-2']; ctx.lineWidth=2*K.lw;
+  ctx.strokeRect(wx+.5,pad+30.5,ww-1,H-pad-77);
+  ctx.restore();
+  label(ctx,'duvar',wx+ww+4,H-pad-24,C['ink-3'],9,'left');
+  /* kaplama : sogurucu veya difuzor duvarin ONUNDE */
+  if(UC.tip==='sog'||UC.tip==='dif'){
+    var kw=Math.round(ww*0.8), kx=wx-kw-2;
+    ctx.save();
+    ctx.fillStyle=alpha(UC.tip==='sog'?C.sin:C.cos,K.faint+0.10);
+    if(UC.tip==='dif'){
+      var nn=6, hh=(H-pad-76)/nn;
+      for(var q=0;q<nn;q++){
+        var dd=kw*(0.25+0.75*((q*q)%5)/4);
+        ctx.fillRect(kx+kw-dd,pad+30+q*hh+1,dd,hh-2);
+      }
+    } else ctx.fillRect(kx,pad+30,kw,H-pad-76);
+    ctx.restore();
+    label(ctx,UC.tip==='sog'?'emici':'difüzör',kx-4,H-pad-24,
+      UC.tip==='sog'?C.sin:C.cos,9,'right');
+  }
+  /* ok cizici : kalinlik = enerji */
+  function ok(x0,y0,x1,y1,pay,col,etiket,yuk){
+    var lw=Math.max(1.2,2+16*Math.sqrt(Math.max(pay,0)));
+    ctx.save(); ctx.strokeStyle=col; ctx.lineWidth=lw*K.lw; ctx.lineCap='round';
+    if(K.glow) gOn(ctx,col,8);
+    ctx.beginPath(); ctx.moveTo(x0,y0); ctx.lineTo(x1,y1); ctx.stroke();
+    gOff(ctx); ctx.restore();
+    var ang=Math.atan2(y1-y0,x1-x0), hl=Math.max(9,lw*1.5), hw=Math.max(5,lw*0.95);
+    ctx.save(); ctx.fillStyle=col;
+    ctx.translate(x1,y1); ctx.rotate(ang);
+    ctx.beginPath(); ctx.moveTo(hl*0.6,0); ctx.lineTo(-hl*0.5,hw); ctx.lineTo(-hl*0.5,-hw);
+    ctx.closePath(); ctx.fill(); ctx.restore();
+    if(etiket) clampLab(ctx,etiket,(x0+x1)/2,(y0+y1)/2+(yuk||-9),pad,W-pad,col,9.5,true);
+  }
+  /* gelen */
+  ok(pad+16,yc-46,wx-6,yc-8,1,C.arc,'gelen · %100',-8);
+  /* yansiyan : difuzorde yelpaze */
+  if(t.sac){
+    for(var a=-55;a<=55;a+=22){
+      var r=Math.min(wx-pad-30, W*0.30);
+      var th=(180-a)*Math.PI/180;
+      ok(wx-8,yc, wx-8+r*Math.cos(th), yc+r*Math.sin(th)*0.75, yans/5, C.sin, null);
+    }
+    clampLab(ctx,'yansıyan %'+nf(100*yans,0)+' · dağılmış',wx-Math.min(wx-pad-30,W*0.30)/2,
+      yc+52,pad,W-pad,C.sin,9.5,true);
+  } else {
+    ok(wx-8,yc, pad+16, yc+46, yans, C.sin, 'yansıyan · %'+nf(100*yans,0), 20);
+  }
+  /* yutulan : duvarin icinde isi */
+  if(yut>0.05){
+    var hx=(UC.tip==='sog')? wx-ww*0.4 : wx+ww/2;
+    for(var i=0;i<3;i++){
+      var yy=yc-18+i*18;
+      ctx.save(); ctx.strokeStyle=alpha(C['ink-2'],0.75); ctx.lineWidth=1.6*K.lw;
+      ctx.beginPath();
+      for(var s=0;s<=12;s++){
+        var xx=hx-10+s*2, zz=yy-4*Math.sin(s*0.9);
+        if(s===0) ctx.moveTo(xx,zz); else ctx.lineTo(xx,zz);
+      }
+      ctx.stroke(); ctx.restore();
+    }
+    clampLab(ctx,'ısı %'+nf(100*yut,0),hx+4,yc-30,pad,W-pad,C['ink-2'],9.5,true);
+  }
+  /* gecen */
+  var gx=wx+ww+10;
+  ok(gx,yc, Math.min(W-pad-16,gx+W*0.24), yc, Math.max(gec,0.00002), C.cos,
+     'geçen · '+nf(t.R,0)+' dB kesiliyor', -10);
+  label(ctx,'YAN ODA',W-pad,H-pad-24,C['ink-3'],9,'right');
+});
+function ucUpd(){
+  var t=TIP[UC.tip], gec=Math.pow(10,-t.R/10);
+  setTxt('uYan','%'+nf(100*Math.max(0,1-t.alfa-gec),0));
+  setTxt('uYut','%'+nf(100*t.alfa,0));
+  setTxt('uGec',nf(t.R,0)+' dB kesiyor');
+  setTxt('uBic',t.bic);
+  setTxt('uIc',t.ic);
+  setTxt('uDs',t.ds);
+  [].slice.call(document.querySelectorAll('.pill[data-tip]')).forEach(function(b){
+    b.setAttribute('aria-pressed', b.dataset.tip===UC.tip?'true':'false'); });
+  UC.dirty=true;
+}
+[].slice.call(document.querySelectorAll('.pill[data-tip]')).forEach(function(b){
+  b.addEventListener('click',function(){ UC.tip=b.dataset.tip; ucUpd(); });
+});
+function ucIci(){
+  var t=TIP[UC.tip];
+  var T=(UC.tip==='sog')?0.35:(UC.tip==='dif'?1.0:1.2);
+  var ir=kuyruk(T,Math.min(2.2,0.2+T),UC.tip==='sog'?3000:9000);
+  ir[0]+=6;
+  playSig(clip(fadeIO(setRms(konvol(alkis(),ir,Math.round(2.4*SR)),0.13),6)),SR,0.75);
+}
+function ucDis(){
+  var t=TIP[UC.tip];
+  playSig(clip(fadeIO(duvardanGecir(parca(2.6),t.R),25)),SR,0.9);
+}
+$('uIci').addEventListener('click',ucIci);
+$('uDis').addEventListener('click',ucDis);
+
+/* ================= 03 : sogurucu ================= */
+var EMI={
+  ince:  {k:5,  b:0},
+  kalin: {k:10, b:0},
+  bosluk:{k:5,  b:20},
+  tuzak: {k:30, b:0}
+};
+var SG={k:5, b:0, dirty:false};
+function sgD(){ return (SG.k+SG.b)/100; }
+var sogScene=makeScene($('cSog'),function(ctx,W,H){
+  var pad=14, x0=pad+34, x1=W-pad-14;
+  var d=SG.k/100, g=SG.b/100, D=d+g;
+  var topH=Math.round(H*0.42);
+  /* ---------- ust : kesit ---------- */
+  (function(){
+    var yT=pad+24, yB=topH-18, cy=(yT+yB)/2;
+    var FGOS=125, MAXD=0.78;             /* 125 Hz'te ceyrek dalga 0,686 m : sigsin */
+    var wx=x1-40;                                   /* duvar yuzu */
+    var sc=(wx-x0-20)/MAXD;
+    var X=function(m){ return wx-m*sc; };           /* duvardan uzaklik -> x */
+    label(ctx,'KESİT · duvardan uzaklık',pad,pad+12,C['ink-3'],10,'left');
+    /* duvar */
+    ctx.save(); ctx.fillStyle=alpha(C['ink-3'],K.faint*0.6);
+    ctx.fillRect(wx,yT,36,yB-yT);
+    ctx.strokeStyle=C['ink-2']; ctx.lineWidth=2*K.lw;
+    ctx.strokeRect(wx+.5,yT+.5,35,yB-yT-1); ctx.restore();
+    label(ctx,'duvar',wx+18,yT-6,C['ink-3'],9,'center');
+    /* bosluk */
+    if(g>0.001){
+      ctx.save(); ctx.fillStyle=alpha(C.cos,K.faint*0.30);
+      ctx.fillRect(X(g),yT,wx-X(g),yB-yT); ctx.restore();
+      if(X(g)<wx-26) clampLab(ctx,'boşluk '+nf(SG.b,0)+' cm',(X(g)+wx)/2,yB+15,x0,x1,C.cos,9,true);
+    }
+    /* emici */
+    ctx.save(); ctx.fillStyle=alpha(C.sin,K.faint+0.14);
+    ctx.fillRect(X(D),yT,X(g)-X(D),yB-yT);
+    ctx.strokeStyle=C.sin; ctx.lineWidth=1.6*K.lw;
+    ctx.strokeRect(X(D)+.5,yT+.5,X(g)-X(D)-1,yB-yT-1); ctx.restore();
+    clampLab(ctx,'emici '+nf(SG.k,0)+' cm',(X(D)+X(g))/2,yB+15,x0,x1,C.sin,9,true);
+    /* hava hizi : 125 Hz'te tek bir ceyrek dalga. Duvarda sifir, 69 cm'de en buyuk. */
+    var k=TAU2*FGOS/VSES, amp=(yB-yT)*0.42;
+    ctx.save(); ctx.strokeStyle=C.cos; ctx.lineWidth=2.4*K.lw;
+    if(K.glow) gOn(ctx,C.cos,7);
+    ctx.beginPath();
+    for(var i=0;i<=140;i++){
+      var m=MAXD*i/140, xx=X(m), yy=yB-4-amp*Math.abs(Math.sin(k*m));
+      if(i===0) ctx.moveTo(xx,yy); else ctx.lineTo(xx,yy);
+    }
+    ctx.stroke(); gOff(ctx); ctx.restore();
+    label(ctx,'125 Hz\u2019te havanın hareket hızı',x0,yT+11,C.cos,9.5,'left');
+    label(ctx,'← en hızlı: 69 cm',X(VSES/FGOS/4)-6,yB-4-amp-7,C.cos,9,'left');
+    dot(ctx,X(VSES/FGOS/4),yB-4-amp,4,C.cos,true);
+  })();
+  /* ---------- alt : yutum egrisi ---------- */
+  (function(){
+    var yT=topH+22, yB=H-34;
+    var F0=50, F1=8000;
+    var X=function(f){ return x0+(x1-x0)*Math.log(f/F0)/Math.log(F1/F0); };
+    var Y=function(a){ return yB-(yB-yT)*clampn(0,1,a); };
+    label(ctx,'YUTUM KATSAYISI α',pad,topH+10,C['ink-3'],10,'left');
+    [0,0.25,0.5,0.75,1].forEach(function(a){
+      line(ctx,x0,Y(a),x1,Y(a),alpha(C['line-2'],0.30),1);
+      label(ctx,nf(a,2),x0-6,Y(a)+3.5,C['ink-3'],8.5,'right');
+    });
+    [63,125,250,500,1000,2000,4000,8000].forEach(function(f){
+      var xx=X(f);
+      line(ctx,xx,yT,xx,yB,alpha(C['line-2'],0.22),1);
+      label(ctx,f<1000?String(f):(f/1000)+'k',xx,yB+15,C['ink-3'],8.5,'center');
+    });
+    line(ctx,x0,yB,x1,yB,alpha(C['ink-3'],0.55),1.4);
+    /* ceyrek dalga cizgisi */
+    var fq=ceyrekF(Math.max(D,0.02));
+    if(fq>F0&&fq<F1){
+      var xq=X(fq);
+      line(ctx,xq,yT-12,xq,yB,alpha(C['ink-2'],0.7),1.6,[5,4]);
+      clampLab(ctx,'çeyrek dalga '+nf(fq,0)+' Hz',xq,yT-16,x0,x1,C['ink-2'],9.5,true);
+    }
+    /* egri */
+    ctx.save(); ctx.strokeStyle=C.arc; ctx.lineWidth=2.8*K.lw; ctx.lineJoin='round';
+    if(K.glow) gOn(ctx,C.arc,8);
+    ctx.beginPath();
+    for(var i=0;i<=200;i++){
+      var f=F0*Math.pow(F1/F0,i/200);
+      var xx=X(f), yy=Y(yutum(f,d,g));
+      if(i===0) ctx.moveTo(xx,yy); else ctx.lineTo(xx,yy);
+    }
+    ctx.stroke(); gOff(ctx); ctx.restore();
+    [125,500,2000].forEach(function(f){
+      dot(ctx,X(f),Y(yutum(f,d,g)),4,C.arc,true);
+    });
+  })();
+});
+function sgUpd(){
+  var d=SG.k/100, g=SG.b/100, D=d+g, fq=ceyrekF(Math.max(D,0.02));
+  setTxt('gKV',nf(SG.k,0)+' cm');
+  setTxt('gBV',nf(SG.b,0)+' cm');
+  setTxt('gD',nf(SG.k+SG.b,0)+' cm');
+  setTxt('gF',nf(fq,0)+' Hz');
+  setTxt('g125',nf(yutum(125,d,g),2));
+  setTxt('g500',nf(yutum(500,d,g),2));
+  setTxt('g2k',nf(yutum(2000,d,g),2));
+  setTxt('gNe', yutum(125,d,g)>0.4?'pes dahil · bas tuzağı':
+    (yutum(250,d,g)>0.4?'orta ve tiz':(yutum(500,d,g)>0.4?'tiz ve biraz orta':'sadece tiz')));
+  var key=Object.keys(EMI).filter(function(k){ return EMI[k].k===SG.k&&EMI[k].b===SG.b; })[0];
+  [].slice.call(document.querySelectorAll('.pill[data-emi]')).forEach(function(b){
+    b.setAttribute('aria-pressed', b.dataset.emi===key?'true':'false'); });
+  [].slice.call($('tblC').querySelectorAll('tbody tr')).forEach(function(tr){
+    tr.classList.toggle('on', Math.abs(+tr.dataset.d-(SG.k+SG.b))<0.5);
+  });
+  SG.dirty=true;
+}
+$('gK').addEventListener('input',function(){ SG.k=+this.value; sgUpd(); });
+$('gB').addEventListener('input',function(){ SG.b=+this.value; sgUpd(); });
+[].slice.call(document.querySelectorAll('.pill[data-emi]')).forEach(function(b){
+  b.addEventListener('click',function(){
+    var e=EMI[b.dataset.emi]; SG.k=e.k; SG.b=e.b;
+    $('gK').value=e.k; $('gB').value=e.b; sgUpd(); sgCal();
+  });
+});
+/* emicinin yuttugunu duyur : alfa(f) kadar bastirilmis gurultu */
+function sgSig(uygula){
+  var n=Math.round(1.2*SR), y=new Float32Array(n), i, f;
+  var d=SG.k/100, g=SG.b/100;
+  var bant=[125,250,500,1000,2000,4000];
+  for(var q=0;q<bant.length;q++){
+    f=bant[q];
+    var a=uygula? Math.sqrt(Math.max(0.02,1-yutum(f,d,g))) : 1;
+    var w=TAU2*f/SR;
+    for(i=0;i<n;i++) y[i]+=a*(0.9/(1+q*0.15))*Math.sin(w*i+TAU2*hash1(q+3));
+  }
+  return fadeIO(setRms(y,0.18),40);
+}
+function sgCal(){
+  playSig(clip(sgSig(false)),SR,0.45);
+  setTimeout(function(){ playSig(clip(sgSig(true)),SR,0.45); },1400);
+}
+$('gCal').addEventListener('click',sgCal);
+$('gBosluk').addEventListener('click',function(){
+  SG.k=5; SG.b=20; $('gK').value=5; $('gB').value=20; sgUpd(); sgCal();
+});
+(function(){
+  var tb=$('tblC').querySelector('tbody');
+  [2,5,10,20,30,50,100].forEach(function(cm){
+    var tr=document.createElement('tr');
+    tr.dataset.d=cm;
+    if(cm===5||cm===30) tr.className='key';
+    tr.innerHTML='<td class="lbl">'+cm+' cm</td><td class="v lit">'+
+      nf(ceyrekF(cm/100),0)+' Hz</td>';
+    tr.addEventListener('click',function(){
+      SG.k=Math.min(40,cm); SG.b=Math.max(0,cm-SG.k);
+      $('gK').value=SG.k; $('gB').value=SG.b; sgUpd();
+    });
+    tb.appendChild(tr);
+  });
+})();
+
+makeSteps({list:'stList',text:'stText',count:'stCount',prev:'stPrev',next:'stNext'},[
+ {t:'5 cm sünger · duvara yapışık',
+  d:'Çeyrek dalga frekansı <b>1715 Hz</b>. Eğri ancak orada yükseliyor. 125 Hz\'teki yutum <b>0,04</b> — yani neredeyse hiç. "Sünger kapladım ama pes geçmedi" cümlesinin tamamı bu grafikte.',
+  apply:function(){ SG.k=5; SG.b=0; $('gK').value=5; $('gB').value=0; sgUpd(); }},
+ {t:'Kalınlığı iki katına çıkar',
+  d:'10 cm. Çeyrek dalga <b>858 Hz</b>\'e indi, eğri bir oktav sola kaydı. İyileşme var ama pes hâlâ boş. Malzemeyi iki katına çıkarmak frekansı yalnız <b>yarıya</b> indiriyor.',
+  apply:function(){ SG.k=10; SG.b=0; $('gK').value=10; $('gB').value=0; sgUpd(); sgCal(); }},
+ {t:'Şimdi malzemeyi değil, YERİNİ değiştir',
+  d:'Geri 5 cm\'e dön ama arkasına <b>20 cm boşluk</b> koy. Aynı malzeme, aynı para. Çeyrek dalga <b>343 Hz</b>\'e indi ve 125 Hz\'teki yutum <b>0,48</b> oldu — on kattan fazla iyileşme. Hava bedava.',
+  apply:function(){ SG.k=5; SG.b=20; $('gK').value=5; $('gB').value=20; sgUpd(); sgCal(); }},
+ {t:'Bas tuzağı',
+  d:'30 cm kalın emici. Çeyrek dalga <b>286 Hz</b>. Köşeye konan bas tuzakları bu boyuttadır ve küçük odalarda yer kaplamalarının sebebi budur: pes yutmak <b>derinlik</b> ister, başka yolu yok.',
+  apply:function(){ SG.k=30; SG.b=0; $('gK').value=30; $('gB').value=0; sgUpd(); sgCal(); }},
+ {t:'Peki 60 Hz?',
+  d:'Kaydırıcıları sonuna götür: 80 cm toplam derinlikte bile çeyrek dalga <b>107 Hz</b>. 60 Hz için <b>1,4 metre</b> gerekirdi. İşte bu yüzden pes için gözenekli emici değil, sağdaki kutudaki <b>rezonanslı emiciler</b> kullanılır.',
+  apply:function(){ SG.k=40; SG.b=40; $('gK').value=40; $('gB').value=40; sgUpd(); }}
+]);
+
+/* ================= 04 : difuzor ================= */
+var DF={N:7, f:500, f0:500, dirty:false};
+function dfQ(){ return qrd(Math.max(DF.N,1), DF.f0); }
+var difScene=makeScene($('cDif'),function(ctx,W,H){
+  var pad=14, x0=pad+26, x1=W-pad-14;
+  var q=dfQ(), duz=(DF.N===1);
+  var topH=Math.round(H*0.40);
+  /* ---------- ust : kuyu kesiti ---------- */
+  (function(){
+    var yT=pad+26, yB=topH-14;
+    label(ctx,duz?'DÜZ DUVAR · kesit':'DİFÜZÖR · kesit · N = '+q.N,pad,pad+12,C['ink-3'],10,'left');
+    var maxD=duz?0.05:Math.max.apply(null,q.d);
+    var bw=(x1-x0)/q.N;
+    var hmax=yB-yT;
+    for(var n=0;n<q.N;n++){
+      var dd=duz?0:q.d[n];
+      var h=hmax*(maxD>0? dd/maxD : 0)*0.92;
+      var bx=x0+n*bw;
+      /* KUYU bostur : malzeme kuyunun dibinden arkaya kadar dolu */
+      ctx.save();
+      ctx.fillStyle=alpha(C.sin,K.faint+0.10);
+      ctx.fillRect(bx+1,yT+h,bw-2,yB-(yT+h));
+      ctx.strokeStyle=C.sin; ctx.lineWidth=1.3*K.lw;
+      ctx.strokeRect(bx+1.5,yT+h+.5,bw-3,Math.max(yB-(yT+h),1)-1);
+      ctx.restore();
+      if(bw>20&&!duz&&h>13) label(ctx,String(q.dz[n]),bx+bw/2,yT+h-5,C.sin,9,'center');
+    }
+    line(ctx,x0,yB,x1,yB,C['ink-2'],2.4);
+    line(ctx,x0,yT,x1,yT,alpha(C['ink-3'],0.55),1.2,[4,4]);
+    label(ctx,'ön yüz',x1,yT-6,C['ink-3'],9,'right');
+    label(ctx,duz?'kuyu yok':'en derin kuyu '+nf(maxD*100,1)+' cm',x1,yB+15,C['ink-3'],9,'right');
+  })();
+  /* ---------- alt : sacilma deseni ---------- */
+  (function(){
+    var cx=(x0+x1)/2;
+    var R=Math.min((x1-x0)/2-10, H-30-topH-34);
+    var cy=topH+34+R;
+    label(ctx,'SAÇILMA DESENİ · '+nf(DF.f,0)+' Hz',pad,topH+10,C['ink-3'],10,'left');
+    /* yarim daire izgarasi */
+    ctx.save(); ctx.strokeStyle=alpha(C['line-2'],0.42); ctx.lineWidth=1;
+    [0.33,0.66,1].forEach(function(r){
+      ctx.beginPath(); ctx.arc(cx,cy,R*r,Math.PI,0); ctx.stroke();
+    });
+    ctx.restore();
+    [-60,-30,0,30,60].forEach(function(a){
+      var th=(a-90)*Math.PI/180;
+      line(ctx,cx,cy,cx+R*Math.cos(th),cy+R*Math.sin(th),alpha(C['line-2'],0.38),1);
+      label(ctx,(a>0?'+':'')+a+'°',cx+(R+13)*Math.cos(th),cy+(R+13)*Math.sin(th)+3,
+        C['ink-3'],8.5,'center');
+    });
+    line(ctx,cx-R-6,cy,cx+R+6,cy,alpha(C['ink-3'],0.55),1.4);
+    /* duz duvar referansi her zaman cizilir */
+    function ciz(list,col,lw,gl){
+      ctx.save(); ctx.strokeStyle=col; ctx.lineWidth=lw*K.lw; ctx.lineJoin='round';
+      if(gl&&K.glow) gOn(ctx,col,7);
+      ctx.beginPath();
+      list.forEach(function(p,i){
+        var th=(p.t-90)*Math.PI/180, r=R*clampn(0,1,p.a);
+        var xx=cx+r*Math.cos(th), yy=cy+r*Math.sin(th);
+        if(i===0) ctx.moveTo(xx,yy); else ctx.lineTo(xx,yy);
+      });
+      ctx.stroke(); gOff(ctx); ctx.restore();
+    }
+    var qd=qrd(Math.max(DF.N,7), DF.f0);
+    ciz(sacilma(qd,DF.f,true),alpha(C.cos,0.75),1.8,false);
+    if(!duz) ciz(sacilma(q,DF.f,false),C.arc,2.8,true);
+    label(ctx,'düz duvar',cx+R*0.70,cy-8,C.cos,9,'left');
+    if(!duz) label(ctx,'difüzör',cx-R*0.70,cy-8,C.arc,9,'right');
+  })();
+});
+function dfUpd(){
+  var q=dfQ(), duz=(DF.N===1);
+  var qd=qrd(Math.max(DF.N,7),DF.f0);
+  var g=enGuclu(duz? sacilma(qd,DF.f,true) : sacilma(q,DF.f,false));
+  setTxt('dFV',nf(DF.f,0)+' Hz');
+  setTxt('dN',duz?'—':String(q.N));
+  setTxt('dDizi',duz?'—':q.dz.join(' '));
+  setTxt('dDer',duz?'0 cm':nf(Math.max.apply(null,q.d)*100,1)+' cm');
+  setTxt('dAra',duz?'—':nf(DF.f0,0)+' – '+nf(VSES/(2*q.w),0)+' Hz');
+  setTxt('dEn',nf(g.a,2)+' @ '+nf(g.t,0)+'°');
+  setTxt('dYan',duz?'ayna gibi · tek yön':(g.a<0.55?'iyi dağılmış':(g.a<0.75?'kısmen dağılmış':'toplanmaya başlamış')));
+  [].slice.call(document.querySelectorAll('.pill[data-n]')).forEach(function(b){
+    b.setAttribute('aria-pressed', +b.dataset.n===DF.N?'true':'false'); });
+  [].slice.call($('tblD').querySelectorAll('tbody tr')).forEach(function(tr){
+    tr.classList.toggle('on', +tr.dataset.n===DF.N);
+  });
+  DF.dirty=true;
+}
+$('dF').addEventListener('input',function(){ DF.f=+this.value; dfUpd(); });
+[].slice.call(document.querySelectorAll('.pill[data-n]')).forEach(function(b){
+  b.addEventListener('click',function(){ DF.N=+b.dataset.n; dfUpd(); dfCal(); });
+});
+/* yansimayi duyur : duz duvar tek gecikme, difuzor kuyu gecikmeleri */
+function dfSig(duz){
+  var q=dfQ(), dur=1.6, n=Math.round(dur*SR);
+  var src=alkis();
+  var y=new Float32Array(n), i, k;
+  for(i=0;i<src.length;i++) y[i]+=src[i];
+  var t0=Math.round(0.018*SR);
+  if(duz||DF.N===1){
+    for(i=0;i<src.length&&t0+i<n;i++) y[t0+i]+=0.85*src[i];
+  } else {
+    for(k=0;k<q.N;k++){
+      var dt=Math.round((2*q.d[k]/VSES)*SR);
+      var g=0.85/Math.sqrt(q.N);
+      for(i=0;i<src.length&&t0+dt+i<n;i++) y[t0+dt+i]+=g*src[i];
+    }
+  }
+  var tail=kuyruk(0.7,1.2,7000);
+  var w=konvol(new Float32Array(y.buffer,0,Math.min(y.length,Math.round(0.12*SR))),tail,n);
+  for(i=0;i<n;i++) y[i]+=0.35*w[i];
+  return fadeIO(setRms(y,0.18),8);
+}
+function dfCal(){ playSig(clip(dfSig(DF.N===1)),SR,0.7); }
+$('dCal').addEventListener('click',dfCal);
+$('dIki').addEventListener('click',function(){
+  playSig(clip(dfSig(true)),SR,0.7);
+  setTimeout(function(){ playSig(clip(dfSig(false)),SR,0.7); },1800);
+});
+(function(){
+  var tb=$('tblD').querySelector('tbody');
+  [[1,'Düz duvar'],[7,'QRD · N = 7'],[11,'QRD · N = 11'],[17,'QRD · N = 17']].forEach(function(r){
+    var duz=(r[0]===1), q=qrd(Math.max(r[0],7),500);
+    var qq=duz?q:qrd(r[0],500);
+    var g=enGuclu(duz? sacilma(q,500,true) : sacilma(qq,500,false));
+    var tr=document.createElement('tr');
+    tr.dataset.n=r[0];
+    if(duz) tr.className='key';
+    tr.innerHTML='<td class="lbl">'+r[1]+'</td>'+
+      '<td class="v lit">'+(duz?'0':nf(Math.max.apply(null,qq.d)*100,1))+' cm</td>'+
+      '<td class="v lit">'+(duz?'—':'500–'+nf(VSES/(2*qq.w),0))+'</td>'+
+      '<td class="v lit">'+nf(g.a,2)+'</td>';
+    tr.addEventListener('click',function(){ DF.N=r[0]; dfUpd(); });
+    tb.appendChild(tr);
+  });
+})();
+
+/* ================= 05 : yalitim ================= */
+var MAL={ alci:10, cift:20, tugla:180, beton:480 };
+var YL={m:10, acm2:0, dirty:false};       /* acm2 : acik alan, cm2 */
+var SDUV=10;                              /* m2 */
+function ylAc(){ return YL.acm2/10000; }  /* m2 */
+/* kaydirici : 0 = kapali, 1..100 = 1 cm2 .. 1000 cm2 logaritmik */
+function aIdx(A){ return A<=0? 0 : Math.max(1,Math.min(100,Math.round(1+99*Math.log(A)/Math.log(1000)))); }
+function idxA(i){ return i<=0? 0 : Math.pow(1000,(i-1)/99); }
+function ylR(f){
+  var Sa=ylAc();
+  return bilesikR([{S:SDUV-Sa,R:kutleR(YL.m,f)},{S:Sa,R:0}]);
+}
+var yalScene=makeScene($('cYal'),function(ctx,W,H){
+  var pad=14, x0=pad+34, x1=W-pad-14;
+  var yT=pad+34, yB=H-40;
+  var F0=63, F1=4000, RMAX=70;
+  var X=function(f){ return x0+(x1-x0)*Math.log(f/F0)/Math.log(F1/F0); };
+  var Y=function(r){ return yB-(yB-yT)*clampn(0,1,r/RMAX); };
+  label(ctx,'SES GEÇİŞ KAYBI · dB',pad,pad+12,C['ink-3'],10,'left');
+  label(ctx,nf(YL.m,0)+' kg/m²',x1,pad+12,C['ink-2'],10,'right');
+  [0,10,20,30,40,50,60,70].forEach(function(r){
+    line(ctx,x0,Y(r),x1,Y(r),alpha(C['line-2'],0.28),1);
+    label(ctx,String(r),x0-6,Y(r)+3.5,C['ink-3'],8.5,'right');
+  });
+  [63,125,250,500,1000,2000,4000].forEach(function(f){
+    var xx=X(f);
+    line(ctx,xx,yT,xx,yB,alpha(C['line-2'],0.22),1);
+    label(ctx,f<1000?String(f):(f/1000)+'k',xx,yB+15,C['ink-3'],8.5,'center');
+  });
+  line(ctx,x0,yB,x1,yB,alpha(C['ink-3'],0.55),1.4);
+  /* 500 Hz isareti */
+  line(ctx,X(500),yT-10,X(500),yB,alpha(C.cos,0.6),1.4,[4,4]);
+  /* kutle yasasi */
+  function egri(fn,col,lw,gl){
+    ctx.save(); ctx.strokeStyle=col; ctx.lineWidth=lw*K.lw; ctx.lineJoin='round';
+    if(gl&&K.glow) gOn(ctx,col,8);
+    ctx.beginPath();
+    for(var i=0;i<=120;i++){
+      var f=F0*Math.pow(F1/F0,i/120);
+      var xx=X(f), yy=Y(fn(f));
+      if(i===0) ctx.moveTo(xx,yy); else ctx.lineTo(xx,yy);
+    }
+    ctx.stroke(); gOff(ctx); ctx.restore();
+  }
+  egri(function(f){ return kutleR(YL.m,f); },C.sin,2.6,false);
+  if(ylAc()>0) egri(ylR,C.arc,3,true);
+  /* okumalar */
+  dot(ctx,X(500),Y(kutleR(YL.m,500)),4.4,C.sin,true);
+  if(ylAc()>0) dot(ctx,X(500),Y(ylR(500)),5,C.arc,true);
+  clampLab(ctx,'kütle yasası',X(2200),Y(kutleR(YL.m,2200))-9,x0+6,x1-6,C.sin,9.5,true);
+  if(ylAc()>0)
+    clampLab(ctx,'delikle birlikte',X(2200),Y(ylR(2200))+16,x0+6,x1-6,C.arc,9.5,true);
+  label(ctx,'oktav başına 6 dB',x0+6,Y(4)+0,alpha(C['ink-2'],0.9),9.5,'left');
+});
+function ylUpd(){
+  var Sa=ylAc(), R5=kutleR(YL.m,500), Rg=ylR(500);
+  setTxt('yMV',nf(YL.m,0)+' kg/m²');
+  setTxt('yAV', YL.acm2<=0? 'yok' : nf(YL.acm2,YL.acm2<10?1:0)+' cm²');
+  setTxt('yKut',nf(YL.m,0)+' kg/m²');
+  setTxt('yR5',nf(R5,0)+' dB');
+  setTxt('yAc', Sa<1e-9? 'yok' : nf(YL.acm2,YL.acm2<10?1:0)+' cm² · duvarın ‰'+
+    nf(1000*Sa/SDUV,2)+'\u2019i');
+  setTxt('yGer',nf(Rg,0)+' dB');
+  setTxt('yKay',nf(R5-Rg,0)+' dB');
+  setTxt('ySon', Rg>=55?'çok iyi':(Rg>=45?'iyi · müzik zor duyulur':
+    (Rg>=35?'orta · bas geçer':(Rg>=25?'zayıf · konuşma duyulur':'yok gibi'))));
+  var key=Object.keys(MAL).filter(function(k){ return MAL[k]===YL.m; })[0];
+  [].slice.call(document.querySelectorAll('.pill[data-mal]')).forEach(function(b){
+    b.setAttribute('aria-pressed', b.dataset.mal===key?'true':'false'); });
+  [].slice.call($('tblM').querySelectorAll('tbody tr')).forEach(function(tr){
+    tr.classList.toggle('on', +tr.dataset.m===YL.m);
+  });
+  [].slice.call($('tblZ').querySelectorAll('tbody tr')).forEach(function(tr){
+    tr.classList.toggle('on', Math.abs(+tr.dataset.a-YL.acm2)<0.05);
+  });
+  YL.dirty=true;
+}
+/* kutle kaydiricisi : 2 - 600 kg/m2 arasi logaritmik */
+function mIdx(m){ return Math.round(100*Math.log(m/2)/Math.log(600/2)); }
+function idxM(i){ return 2*Math.pow(300,i/100); }
+$('yM').addEventListener('input',function(){
+  YL.m=Math.round(idxM(+this.value)); ylUpd();
+});
+$('yA').addEventListener('input',function(){ YL.acm2=idxA(+this.value); ylUpd(); });
+[].slice.call(document.querySelectorAll('.pill[data-mal]')).forEach(function(b){
+  b.addEventListener('click',function(){
+    YL.m=MAL[b.dataset.mal]; $('yM').value=mIdx(YL.m); ylUpd(); ylCal();
+  });
+});
+function ylCal(){
+  playSig(clip(fadeIO(duvardanGecir(parca(2.8),ylR(500)),25)),SR,0.9);
+}
+$('yCal').addEventListener('click',ylCal);
+$('yDelik').addEventListener('click',function(){
+  /* iyi bir duvardan basla : cokusun gorulebilmesi icin */
+  YL.m=480; $('yM').value=mIdx(480);
+  YL.acm2=10; $('yA').value=aIdx(10); ylUpd(); ylCal();
+});
+$('yKapat').addEventListener('click',function(){
+  YL.acm2=0; $('yA').value=0; ylUpd(); ylCal();
+});
+(function(){
+  var tb=$('tblM').querySelector('tbody');
+  [[1.5,'Akustik sünger 5 cm'],[10,'Alçıpan 12,5 mm'],[20,'Çift kat alçıpan'],
+   [180,'Tuğla duvar 10 cm'],[480,'Beton 20 cm']].forEach(function(r){
+    var tr=document.createElement('tr');
+    tr.dataset.m=r[0];
+    if(r[0]===1.5) tr.className='key';
+    tr.innerHTML='<td class="lbl">'+r[1]+'</td><td class="v lit">'+nf(r[0],r[0]<10?1:0)+'</td>'+
+      '<td class="v lit">'+(r[0]===1.5? 'birkaç dB' : nf(kutleR(r[0],500),0)+' dB')+'</td>';
+    tr.addEventListener('click',function(){
+      if(r[0]===1.5) return;
+      YL.m=r[0]; $('yM').value=mIdx(r[0]); ylUpd();
+    });
+    tb.appendChild(tr);
+  });
+  var n=document.createElement('tr');
+  n.innerHTML='<td class="lbl" colspan="3" style="font-size:.82rem; opacity:.8">'+
+    'Sünger gözeneklidir: havayı geçirir, kütle yasası ona uymaz.</td>';
+  tb.appendChild(n);
+})();
+(function(){
+  var tb=$('tblZ').querySelector('tbody');
+  [[0,'yok'],[1,'1 cm²'],[10,'10 cm²'],[100,'100 cm² · bir avuç'],[1000,'1000 cm² · kapı altı']]
+  .forEach(function(r){
+    var Sa=r[0]/10000;
+    var R=bilesikR([{S:SDUV-Sa,R:50},{S:Sa,R:0}]);
+    var tr=document.createElement('tr');
+    tr.dataset.a=r[0];
+    if(r[0]===100) tr.className='key';
+    tr.innerHTML='<td class="lbl">'+r[1]+'</td><td class="v lit">'+nf(R,1)+' dB</td>'+
+      '<td class="v lit">'+(r[0]===0?'—':'−'+nf(50-R,1)+' dB')+'</td>';
+    tr.addEventListener('click',function(){ YL.acm2=r[0]; $('yA').value=aIdx(r[0]); ylUpd(); });
+    tb.appendChild(tr);
+  });
+})();
+
+/* ================= 06 : sesler ================= */
+var SND={
+  ciplak: function(){ var ir=kuyruk(1.4,2.0,9000); ir[0]+=6;
+    playSig(clip(fadeIO(setRms(konvol(alkis(),ir,Math.round(2.2*SR)),0.13),6)),SR,0.75); },
+  emili:  function(){ var ir=kuyruk(0.35,0.7,3000); ir[0]+=6;
+    playSig(clip(fadeIO(setRms(konvol(alkis(),ir,Math.round(1.0*SR)),0.13),6)),SR,0.75); },
+  ayna:   function(){ DF.N=1; playSig(clip(dfSig(true)),SR,0.7); },
+  sacik:  function(){ DF.N=11; playSig(clip(dfSig(false)),SR,0.7); },
+  acik:   function(){ playSig(clip(parca(2.6)),SR,0.6); },
+  duvar:  function(){ playSig(clip(fadeIO(duvardanGecir(parca(2.6),45),25)),SR,0.9); },
+  kapali: function(){ playSig(clip(fadeIO(duvardanGecir(parca(2.6),50),25)),SR,0.9); },
+  delik:  function(){ playSig(clip(fadeIO(duvardanGecir(parca(2.6),
+    bilesikR([{S:9.99,R:50},{S:0.01,R:0}])),25)),SR,0.9); }
+};
+[].slice.call(document.querySelectorAll('.btn.snd')).forEach(function(b){
+  b.addEventListener('click',function(){ var f=SND[b.dataset.snd]; if(f) f(); });
+});
+
+/* ================= 07 : sorular ================= */
+var QS=[
+{q:'Duvara akustik sünger kapladın. Komşun seni daha az duyar mı?',
+ o:['Hayır — sünger odanın içindeki çınlamayı kısaltır, yalıtım yapmaz',
+    'Evet, ses geçişi yarı yarıya azalır',
+    'Evet, yeterince kalınsa tamamen keser',
+    'Yalnız tiz seslerde azalır'],a:0,
+ f:'En sık yapılan hata bu. Yalıtım <b>ağırlık</b> ve <b>sızdırmazlık</b> ister; gözenekli malzeme ise hafiftir ve havayı içinden geçirir, dolayısıyla kütle yasası ona uymaz. 5 cm süngerin ses geçiş kaybı <b>birkaç desibeldir</b> — pratikte sıfır. Sünger odanın <b>içindeki</b> çınlamayı kısaltır; bu değerli bir iştir ama komşuyla hiç ilgisi yoktur. <b>Odanın içi ve odanın dışı, iki ayrı problemdir.</b>'},
+{q:'5 cm\'lik bir sünger neden 125 Hz\'i yutmuyor?',
+ o:['Havanın en hızlı hareket ettiği yer duvardan 69 cm uzakta; sünger oraya ulaşamıyor',
+    'Sünger çok hafif olduğu için',
+    'Pes sesler sünger deliklerinden geçtiği için',
+    'Sünger yalnız tiz frekansları görebildiği için'],a:0,
+ f:'Gözenekli emici havanın <b>hareketini</b> sürtünmeyle yavaşlatır. Sert duvarın yüzeyinde hava hiç hareket etmez; en hızlı olduğu yer duvardan <b>çeyrek dalga boyu</b> uzaktadır. 125 Hz\'te bu <b>69 santimdir</b>. 5 santimlik bir emici o bölgeye yaklaşamaz bile, dolayısıyla yutacak bir hareket bulamaz. Kural: <b>f = 343 / (4 × derinlik)</b>.'},
+{q:'Aynı 5 cm süngeri duvardan 20 cm öne alırsan ne olur?',
+ o:['125 Hz\'teki yutum 0,04\'ten 0,48\'e çıkar — on kattan fazla',
+    'Hiçbir şey değişmez, malzeme aynı',
+    'Yutum azalır, çünkü duvarla teması kesilir',
+    'Yalnız tiz yutumu artar'],a:0,
+ f:'Akustiğin en ucuz numarası. Malzemeyi değil <b>yerini</b> değiştiriyorsun: emici artık havanın daha hızlı hareket ettiği bölgede duruyor. Toplam derinlik 5\'ten 25 santime çıktığı için çeyrek dalga frekansı 1715 Hz\'ten <b>343 Hz</b>\'e iniyor. Panelleri duvara sıkı sıkıya yapıştırmak, onları en işe yaramaz yere koymaktır.'},
+{q:'Difüzör ile soğurucu arasındaki temel fark nedir?',
+ o:['Difüzör enerjiyi yutmaz, birçok yöne dağıtır; soğurucu ısıya çevirir',
+    'Difüzör daha çok yutar',
+    'Difüzör yalnız pes frekanslarda çalışır',
+    'İkisi aynı şeyin farklı adıdır'],a:0,
+ f:'Soğurucu enerjiyi <b>yok eder</b> ve çınlamayı kısaltır. Difüzör enerjiyi <b>korur</b>, sadece tek bir ayna yönünde toplanmasını engelleyip geniş bir açıya yayar. Bu yüzden difüzör odayı <b>boğmadan</b> düzeltir. Schroeder difüzöründe kuyu derinlikleri <b>dₙ = (n² mod N)·λ₀/(2N)</b> ile seçilir; N = 7 için dizi <b>0 1 4 2 2 4 1</b>\'dir.'},
+{q:'Bir duvarın kütlesini iki katına çıkarırsan yalıtım ne kadar artar?',
+ o:['6 dB',
+    'İki katına çıkar',
+    '20 dB',
+    'Değişmez'],a:0,
+ f:'Kütle yasası: <b>R = 20·log(m·f) − 47</b>. Kütleyi ikiye katlamak 20·log(2) = <b>6 dB</b> kazandırır. Frekansı ikiye katlamak da aynı şekilde 6 dB — yani duvar her oktavda 6 dB daha çok keser. Komşudan yalnız <b>bası</b> duymanın sebebi tam olarak budur: 125 Hz ile 2 kHz arasında duvarın kestiği miktar <b>24 desibel</b> fark eder.'},
+{q:'50 dB yalıtımlı 10 m²\'lik bir duvarda 100 cm²\'lik bir açıklık kalırsa yalıtım ne olur?',
+ o:['30 dB\'ye düşer — açıklık duvarın binde biri olsa bile',
+    '49 dB, neredeyse etkilenmez',
+    '45 dB',
+    'Değişmez, açıklık çok küçük'],a:0,
+ f:'Yalıtım <b>geçen enerjinin</b> küçüklüğüdür ve enerji açıklıktan hiç engellenmeden akar. 50 dB\'lik duvar geleni yüz binde bire indirir; yanındaki delik hiçbir şey indirmez. Bileşik hesap <b>τ_ort = Σ(S·τ)/ΣS</b> sonucu <b>30 dB</b> verir. Bu yüzden gerçek yalıtım işinde en çok emek kapı, priz, havalandırma ve derzlere harcanır — <b>zincir en zayıf halkası kadar güçlüdür</b>.'}
+];
+function shuffle(a){ for(var i=a.length-1;i>0;i--){ var j=Math.floor(Math.random()*(i+1)); var t=a[i]; a[i]=a[j]; a[j]=t; } return a; }
+var quiz=$('quiz'), scoreEl=$('score'), correct=0;
+QS.forEach(function(q,qi){
+  var box=document.createElement('div'); box.className='q';
+  var idx=shuffle(q.o.map(function(_,i){ return i; }));
+  box.innerHTML='<p class="qh">Soru '+(qi+1)+'</p><p class="qt">'+q.q+'</p>';
+  var opts=document.createElement('div'); opts.className='opts';
+  idx.forEach(function(oi){
+    var b=document.createElement('button'); b.type='button'; b.textContent=q.o[oi];
+    b.addEventListener('click',function(){
+      if(box.classList.contains('done')) return;
+      box.classList.add('done');
+      var dogru=(oi===q.a);
+      b.classList.add(dogru?'ok':'no');
+      if(!dogru){
+        [].slice.call(opts.children).forEach(function(x,j){ if(idx[j]===q.a) x.classList.add('ok'); });
+      }
+      if(dogru) correct++;
+      var fb=document.createElement('p'); fb.className='fb'; fb.innerHTML=q.f;
+      box.appendChild(fb);
+      scoreEl.textContent='Doğru: '+correct+' / '+QS.length;
+    });
+    opts.appendChild(b);
+  });
+  box.appendChild(opts);
+  quiz.appendChild(box);
+});
+
+/* ================= baslangic + dongu ================= */
+readTheme();
+scenes.forEach(function(s){ s.resize(); });
+ucUpd(); sgUpd(); dfUpd(); ylUpd();
+scenes.forEach(function(s){ s.draw(); });
+
+function frame(){
+  if(UC.dirty){ ucScene.draw(); UC.dirty=false; }
+  if(SG.dirty){ sogScene.draw(); SG.dirty=false; }
+  if(DF.dirty){ difScene.draw(); DF.dirty=false; }
+  if(YL.dirty){ yalScene.draw(); YL.dirty=false; }
+  requestAnimationFrame(frame);
+}
+requestAnimationFrame(frame);
+})();</script>
+
+</body></html>
