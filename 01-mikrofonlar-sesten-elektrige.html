@@ -1,0 +1,2749 @@
+<!DOCTYPE html>
+<html lang="tr">
+<meta charset="utf-8">
+<title>Mikrofonlar: Sesten Elektriğe</title>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400..600;1,6..72,400&family=Chakra+Petch:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+  :root{
+    --ground:#E5ECF3; --panel:#FFFFFF; --panel-2:#F1F6FA;
+    --ink:#0B1620; --ink-2:#3F5265; --ink-3:#697E92;
+    --line:#C7D4E0; --line-2:#DEE7EF;
+    --sin:#A8600A; --cos:#0F5F80; --arc:#A81E6E; --brass:#4A7A12;
+    --on-sin:#FFFFFF; --ok:#1E6B45; --no:#A8203C;
+    --shadow:0 1px 2px rgba(11,22,32,.06), 0 8px 20px -14px rgba(11,22,32,.26);
+    --fs:15px;
+    --board-h:clamp(430px,43vw,520px);
+    --board-don:clamp(500px,50vw,570px);
+    --board-mek:clamp(470px,47vw,535px);
+    --board-elek:clamp(490px,49vw,560px);
+    --board-has:clamp(480px,48vw,545px);
+    --board-uc:clamp(560px,58vw,740px);
+    --font-display:"Chakra Petch","IBM Plex Sans",sans-serif;
+    --h1:clamp(30px,4.5vw,46px);
+    --h2:clamp(21px,2.5vw,28px);
+    --track:.02em; --radius:2px; --radius-s:2px;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --ground:#070F17; --panel:#0E1720; --panel-2:#13202C;
+      --ink:#E7F2FB; --ink-2:#9FB6C9; --ink-3:#6B8296;
+      --line:#213240; --line-2:#182533;
+      --sin:#FFB01F; --cos:#4FD3FF; --arc:#FF6AC1; --brass:#A8FF60;
+      --on-sin:#0A1017; --ok:#3EE59B; --no:#FF5F86;
+      --shadow:0 0 0 1px rgba(79,211,255,.07), 0 12px 30px -18px rgba(0,0,0,.9);
+    }
+  }
+  :root[data-theme="dark"]{
+    --ground:#070F17; --panel:#0E1720; --panel-2:#13202C;
+    --ink:#E7F2FB; --ink-2:#9FB6C9; --ink-3:#6B8296;
+    --line:#213240; --line-2:#182533;
+    --sin:#FFB01F; --cos:#4FD3FF; --arc:#FF6AC1; --brass:#A8FF60;
+    --on-sin:#0A1017; --ok:#3EE59B; --no:#FF5F86;
+    --shadow:0 0 0 1px rgba(79,211,255,.07), 0 12px 30px -18px rgba(0,0,0,.9);
+  }
+  :root[data-mode="proj"]{
+    --ground:#F3F8FC; --panel:#FFFFFF; --panel-2:#EDF4F9;
+    --ink:#040B12; --ink-2:#2A3A49; --ink-3:#546678;
+    --line:#ADBFCE; --line-2:#D2DEE9;
+    --sin:#8A4D00; --cos:#084A66; --arc:#8A1258; --brass:#3A6208;
+    --on-sin:#FFFFFF; --ok:#14512F; --no:#8A1428;
+    --shadow:0 1px 2px rgba(11,22,32,.09), 0 8px 20px -14px rgba(11,22,32,.3);
+    --fs:17px;
+    --board-h:clamp(470px,47vw,572px);
+    --board-don:clamp(550px,55vw,627px);
+    --board-mek:clamp(517px,51vw,589px);
+    --board-elek:clamp(539px,53vw,616px);
+    --board-has:clamp(528px,52vw,600px);
+    --board-uc:clamp(616px,64vw,814px);
+  }
+  @media (max-width:820px){
+    :root, :root[data-mode="proj"]{ --board-r:580px; }
+  }
+  @media (max-width:760px){
+    :root, :root[data-mode="proj"]{
+      --board-h:520px;
+      --board-don:660px; --board-mek:600px; --board-elek:640px; --board-has:620px;
+      --board-uc:780px;
+    }
+  }
+
+  *{box-sizing:border-box}
+  body{
+    background:var(--ground);color:var(--ink);
+    font-family:"IBM Plex Sans","Helvetica Neue",Arial,sans-serif;
+    font-size:var(--fs);line-height:1.6;-webkit-font-smoothing:antialiased;
+  }
+  .wrap{max-width:1160px;margin:0 auto;padding:34px 20px 60px;display:flex;flex-direction:column;gap:14px}
+
+  .topbar{display:flex;gap:28px;justify-content:space-between;align-items:flex-start;margin-bottom:12px}
+  @media (max-width:640px){.topbar{flex-direction:column-reverse;align-items:flex-start;gap:16px}}
+  .theme{display:flex;flex:0 0 auto;flex-wrap:wrap;border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;background:var(--panel);box-shadow:var(--shadow)}
+  .theme button{border:0;border-left:1px solid var(--line);border-radius:0;background:transparent;font-size:12.5px;padding:8px 12px;color:var(--ink-2)}
+  .theme button:first-child{border-left:0}
+  .theme button:hover{background:var(--panel-2);color:var(--ink)}
+  .theme button[aria-pressed="true"]{background:var(--ink);color:var(--panel);font-weight:500}
+  .theme button:focus-visible{outline:2px solid var(--arc);outline-offset:-2px}
+  header{display:flex;flex-direction:column;gap:9px;max-width:66ch}
+  .eyebrow{margin:0;font-size:11.5px;font-weight:600;letter-spacing:.13em;text-transform:uppercase;color:var(--ink-3)}
+  h1{margin:0;font-family:var(--font-display);font-weight:500;font-size:var(--h1);line-height:1.06;letter-spacing:var(--track);text-wrap:balance}
+  .lede{margin:2px 0 0;color:var(--ink-2);font-size:16.5px;text-wrap:pretty}
+  .lede b{color:var(--ink);font-weight:600}
+
+  section.sec{display:flex;flex-direction:column;gap:14px;padding-top:22px}
+  .sec-head{display:flex;align-items:baseline;gap:14px;border-bottom:1px solid var(--line);padding-bottom:9px}
+  .sec-num,.num{font-family:"IBM Plex Mono",monospace;font-size:12px;font-weight:500;color:var(--brass);letter-spacing:.06em;flex:0 0 auto;padding-top:5px}
+  .sec-head h2{margin:0;font-family:var(--font-display);font-weight:500;font-size:var(--h2);letter-spacing:var(--track);line-height:1.15;text-wrap:balance}
+  .sec-head p{margin:0;color:var(--ink-3);font-size:13px;margin-left:auto;flex:0 0 auto;text-align:right}
+  @media (max-width:620px){.sec-head p{display:none}}
+
+  .panel{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow)}
+
+  .why{display:grid;grid-template-columns:1fr 1.12fr;gap:20px 28px;align-items:center}
+  @media (max-width:860px){.why{grid-template-columns:1fr;align-items:start}}
+  .why-lead{display:flex;flex-direction:column;gap:13px;padding-bottom:4px}
+  .why-more{display:grid;grid-template-columns:repeat(auto-fit,minmax(255px,1fr));gap:16px 28px;margin-top:6px}
+  .why-lead p,.why-more p{margin:0;color:var(--ink-2)}
+  .why-lead p b,.why-more p b{color:var(--ink);font-weight:600}
+  .cols3{display:grid;grid-template-columns:repeat(3,1fr);gap:16px 28px}
+  @media (max-width:900px){.cols3{grid-template-columns:1fr}}
+  .cols3 p{margin:0;color:var(--ink-2);font-size:14px;line-height:1.6}
+  .cols3 p b{color:var(--ink);font-weight:600}
+  .cols .intro-col{display:flex;flex-direction:column;gap:12px}
+  .cols .intro-col p{margin:0;color:var(--ink-2)}
+  .cols .intro-col p b{color:var(--ink);font-weight:600}
+  p.pull{font-size:16px;color:var(--ink)!important;border-left:3px solid var(--sin);
+    padding-left:13px}
+  .panel-body.nopad{padding:0;gap:0}
+  .quiz{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);
+    box-shadow:var(--shadow);padding:16px 18px 18px;display:flex;flex-direction:column;gap:12px}
+  .q-head{display:flex;align-items:baseline;justify-content:space-between;gap:14px}
+  .q-head .count{font-family:"IBM Plex Mono",monospace;font-size:12px;color:var(--ink-3);
+    font-variant-numeric:tabular-nums;flex:0 0 auto}
+  .q-head .q-text{font-size:16px;font-weight:500;text-wrap:pretty}
+  .quiz > button{align-self:flex-start}
+  .kicker{font-family:"Newsreader",Georgia,serif;font-size:clamp(21px,2.2vw,26px);line-height:1.28;color:var(--ink);font-style:italic;max-width:29ch;letter-spacing:-.01em;text-wrap:balance}
+  .trio-list{display:flex;flex-direction:column;gap:1px;background:var(--line);
+    border:1px solid var(--line);border-radius:var(--radius);overflow:hidden}
+  .tl{background:var(--panel);padding:13px 15px 14px;border-left:3px solid var(--line)}
+  .tl-1{border-left-color:var(--sin)} .tl-2{border-left-color:var(--arc)}
+  .tl-3{border-left-color:var(--cos)}
+  .tl h3{margin:0 0 3px;font-family:var(--font-display);font-weight:500;font-size:15.5px;
+    letter-spacing:var(--track)}
+  .tl p{margin:0;font-size:13.5px;line-height:1.5;color:var(--ink-2)}
+  .tl p b{color:var(--ink);font-weight:600}
+  .tl code{font-size:.92em}
+
+  .defs{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--line);border:1px solid var(--line);border-radius:var(--radius);overflow:hidden}
+  @media (max-width:880px){.defs{grid-template-columns:repeat(2,1fr)}}
+  @media (max-width:560px){.defs{grid-template-columns:1fr}}
+  .def{background:var(--panel);padding:16px 17px 18px;display:flex;flex-direction:column;gap:7px}
+  .def h3{margin:0;font-size:14.5px;font-weight:600;display:flex;align-items:baseline;gap:8px;flex-wrap:wrap}
+  .def h3 em{font-style:normal;font-family:"IBM Plex Mono",monospace;font-size:11.5px;color:var(--ink-3);font-weight:400}
+  .def p{margin:0;font-size:13.8px;color:var(--ink-2);line-height:1.55}
+  .def p b{color:var(--ink);font-weight:600}
+  code{font-family:"IBM Plex Mono",monospace;font-size:.9em;background:var(--panel-2);border:1px solid var(--line-2);padding:1px 5px;border-radius:var(--radius-s)}
+
+  .lang{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--line);border:1px solid var(--line);border-radius:var(--radius);overflow:hidden}
+  @media (max-width:1000px){.lang{grid-template-columns:repeat(2,1fr)}}
+  @media (max-width:560px){.lang{grid-template-columns:1fr}}
+  .lg{background:var(--panel);padding:16px 17px 18px;display:flex;flex-direction:column;gap:8px}
+  .lg-top{display:flex;align-items:baseline;justify-content:space-between;gap:8px}
+  .lg h3{margin:0;font-size:14.5px;font-weight:600}
+  .lg .unit{font-family:"IBM Plex Mono",monospace;font-size:11px;color:var(--ink-3)}
+  .lg p{margin:0;font-size:13.8px;color:var(--ink-2);line-height:1.55}
+  .lg .music{margin-top:2px;font-size:12.5px;color:var(--ink);border-left:2px solid var(--brass);padding-left:9px}
+  .lg .music b{font-weight:600}
+
+  .stage{padding:0;overflow:hidden}
+  .stage-top,.stage-head{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px;padding:13px 16px;border-bottom:1px solid var(--line-2)}
+  .modes{display:flex;flex-wrap:wrap;border:1px solid var(--line);border-radius:var(--radius);overflow:hidden}
+  .modes button{border:0;border-left:1px solid var(--line);border-radius:0;background:var(--panel-2);font-size:13px;padding:8px 15px;color:var(--ink-2);font-weight:500}
+  .modes button:first-child{border-left:0}
+  .modes button:hover{color:var(--ink)}
+  .modes button[aria-pressed="true"]{background:var(--sin);color:var(--on-sin)}
+  .readout{display:flex;flex-wrap:wrap;font-family:"IBM Plex Mono",ui-monospace,monospace;font-variant-numeric:tabular-nums;font-size:13px}
+  .readout div{padding:0 13px;border-left:1px solid var(--line-2)}
+  .readout div:first-child{border-left:0;padding-left:0}
+  .readout b{font-weight:500}
+  .readout span{color:var(--ink-3);font-size:11px;letter-spacing:.06em;text-transform:uppercase;display:block;line-height:1.3}
+  .v-sin{color:var(--sin)} .v-cos{color:var(--cos)} .v-arc{color:var(--arc)}
+
+  .canvas-wrap{background:var(--panel-2);border-bottom:1px solid var(--line-2)}
+  #board{display:block;width:100%;height:var(--board-h);touch-action:none;cursor:crosshair}
+  .stage[data-scene="don"] #board{height:var(--board-don)}
+  .stage[data-scene="mek"] #board{height:var(--board-mek)}
+  .stage[data-scene="elek"] #board{height:var(--board-elek)}
+  .stage[data-scene="has"] #board{height:var(--board-has)}
+  .stage[data-scene="uc"] #board{height:var(--board-uc)}
+  .stage[data-scene="uc"] #board{cursor:default}
+  #board.tut{cursor:grab}
+  #board.tut:active{cursor:grabbing}
+
+  .controls{padding:15px 16px 17px;display:flex;flex-direction:column;gap:14px}
+  .ctl-row{display:flex;flex-wrap:wrap;gap:14px 20px;align-items:center}
+  .ctl-row[hidden]{display:none}
+  .field[hidden]{display:none}
+  .ctl-label{font-size:11px;font-weight:600;letter-spacing:.09em;text-transform:uppercase;color:var(--ink-3);flex:0 0 auto}
+  .field{display:flex;flex-direction:column;gap:5px;min-width:172px;flex:1 1 172px;max-width:300px}
+  .field label{font-size:11px;font-weight:600;letter-spacing:.09em;text-transform:uppercase;color:var(--ink-3);display:flex;justify-content:space-between;gap:10px}
+  .field label em{font-style:normal;font-family:"IBM Plex Mono",monospace;font-variant-numeric:tabular-nums;letter-spacing:0;text-transform:none;font-size:12px;color:var(--ink-2)}
+
+  input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:20px;background:transparent;margin:0}
+  input[type=range]::-webkit-slider-runnable-track{height:4px;background:var(--line);border-radius:2px}
+  input[type=range]::-moz-range-track{height:4px;background:var(--line);border-radius:2px}
+  input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;width:16px;height:16px;border-radius:50%;background:var(--arc);border:2px solid var(--panel);margin-top:-6px;box-shadow:0 0 0 1px var(--arc)}
+  input[type=range]::-moz-range-thumb{width:14px;height:14px;border-radius:50%;background:var(--arc);border:2px solid var(--panel);box-shadow:0 0 0 1px var(--arc)}
+  input[type=range]:focus-visible{outline:2px solid var(--arc);outline-offset:4px}
+
+  button{font:inherit;font-size:13.5px;color:var(--ink);background:var(--panel-2);border:1px solid var(--line);padding:7px 13px;border-radius:var(--radius-s);cursor:pointer;transition:background .13s,border-color .13s,color .13s}
+  button:hover{border-color:var(--ink-3)}
+  button:focus-visible{outline:2px solid var(--arc);outline-offset:2px}
+  button:disabled{opacity:.42;cursor:default}
+  button.on{background:var(--ink);border-color:var(--ink);color:var(--panel)}
+  .ctl-note{font-size:12px;color:var(--ink-3);font-family:"IBM Plex Mono",monospace;
+    letter-spacing:.01em;min-width:0;flex:1 1 138px;line-height:1.35}
+  .btn-group{display:flex;flex-wrap:wrap;gap:6px}
+  .btn-group.sm button{font-size:12.5px;padding:5px 9px}
+
+  .cols{display:grid;grid-template-columns:1.3fr 1fr;gap:16px;align-items:start}
+  @media (max-width:880px){.cols{grid-template-columns:1fr}}
+  .panel-head{display:flex;align-items:baseline;justify-content:space-between;gap:12px;padding:13px 18px 11px;border-bottom:1px solid var(--line-2)}
+  .panel-head h3{margin:0;font-family:var(--font-display);font-weight:500;font-size:19px;letter-spacing:var(--track)}
+  .panel-head .count{font-family:"IBM Plex Mono",monospace;font-size:12px;color:var(--ink-3);font-variant-numeric:tabular-nums}
+  .panel-body{padding:16px 18px 18px;display:flex;flex-direction:column;gap:13px}
+  .step-title{font-family:var(--font-display);font-size:21px;font-weight:500;line-height:1.22;margin:0;letter-spacing:var(--track);text-wrap:balance}
+  .step-body{margin:0;color:var(--ink-2)}
+  .step-body strong{color:var(--ink);font-weight:600}
+  .step-nav{display:flex;gap:8px;align-items:center;margin-top:auto;padding-top:4px;flex-wrap:wrap}
+  .dots{display:flex;gap:5px;margin-left:auto}
+  .dot{width:7px;height:7px;border-radius:50%;background:var(--line);border:0;padding:0;cursor:pointer}
+  .dot:hover{background:var(--ink-3)}
+  .dot[aria-current="true"]{background:var(--arc)}
+
+  table{width:100%;border-collapse:collapse;font-family:"IBM Plex Mono",monospace;font-size:12.5px;font-variant-numeric:tabular-nums}
+  th,td{text-align:right;padding:6px 8px;border-bottom:1px solid var(--line-2)}
+  th:first-child,td:first-child{text-align:left}
+  th:last-child,td:last-child{text-align:left}
+  thead th{font-family:"IBM Plex Sans",sans-serif;font-size:10.5px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-3);border-bottom:1px solid var(--line)}
+  tbody tr{cursor:pointer}
+  tbody tr:hover{background:var(--panel-2)}
+  tbody tr[aria-selected="true"]{background:color-mix(in srgb,var(--arc) 13%,var(--panel))}
+  tbody tr:last-child td{border-bottom:0}
+  td.c-cmp{font-family:"IBM Plex Sans",sans-serif;font-size:12px;color:var(--ink-2)}
+  tr.unitrow td:first-child{color:var(--brass);font-weight:500}
+  /* Dar ekranda tablo tasiyordu: en az gerekli sutun gizleniyor, kalani kayabiliyor. */
+  .tbl-scroll{overflow-x:auto;-webkit-overflow-scrolling:touch}
+  @media (max-width:620px){
+    th.c-cmp,td.c-cmp{display:none}
+    table{font-size:11.5px}
+    th,td{padding:6px 5px}
+  }
+  .tbl-note{margin:10px 18px 16px;font-size:12.5px;color:var(--ink-3);line-height:1.5}
+  .tbl-note b{color:var(--ink-2);font-weight:600}
+  .tbl-note + .tbl-note{margin-top:-4px}
+
+  .quiz-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;align-items:start}
+  @media (max-width:820px){.quiz-grid{grid-template-columns:1fr}}
+  .q-text{margin:0;font-size:16px;font-weight:500;text-wrap:pretty}
+  .q-opts{display:flex;flex-direction:column;gap:7px}
+  .q-opts button{text-align:left;padding:9px 12px}
+  .q-opts button.correct{border-color:var(--ok);background:color-mix(in srgb,var(--ok) 12%,var(--panel))}
+  .q-opts button.wrong{border-color:var(--no);background:color-mix(in srgb,var(--no) 12%,var(--panel))}
+  .q-feedback{margin:0;font-size:14px;color:var(--ink-2);min-height:1.6em}
+  .q-feedback b.y{color:var(--ok);font-weight:600}
+  .q-feedback b.n{color:var(--no);font-weight:600}
+  .recap ul{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:8px}
+  .recap li{color:var(--ink-2);font-size:14px}
+  .recap b{color:var(--ink);font-weight:600}
+
+  /* ---- video bloğu (yeni video eklemek için bu kalıbı kopyala) ---- */
+  .vid{display:grid;grid-template-columns:1.25fr 1fr;gap:16px;align-items:start}
+  @media (max-width:900px){.vid{grid-template-columns:1fr}}
+  .vid-main{display:flex;flex-direction:column;gap:9px;min-width:0}
+  .vid-frame{position:relative;aspect-ratio:16/9;width:100%;background:var(--panel-2);
+    border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);
+    overflow:hidden}
+  .vid-frame iframe{position:absolute;inset:0;z-index:1;width:100%;height:100%;border:0;display:block}
+  .vid-play{position:absolute;inset:0;z-index:0;width:100%;height:100%;
+    display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;
+    text-align:center;padding:20px;border:0;border-radius:0;background:transparent;
+    cursor:pointer;color:inherit}
+  .vid-play:hover{background:color-mix(in srgb,var(--sin) 7%,transparent);border-color:transparent}
+  .vid-play:focus-visible{outline:2px solid var(--arc);outline-offset:-4px}
+  .vid-tri{width:62px;height:62px;border-radius:50%;background:var(--sin);
+    display:block;margin-bottom:6px;position:relative;box-shadow:var(--shadow);
+    transition:transform .14s}
+  .vid-tri::after{content:"";position:absolute;top:50%;left:54%;transform:translate(-50%,-50%);
+    border-style:solid;border-width:11px 0 11px 18px;
+    border-color:transparent transparent transparent var(--on-sin)}
+  .vid-play:hover .vid-tri{transform:scale(1.07)}
+  .vid-play b{font-family:var(--font-display);font-weight:500;font-size:18px;
+    letter-spacing:var(--track);color:var(--ink);line-height:1.2;text-wrap:balance}
+  .vid-play .vid-ch{font-size:13px;color:var(--ink-3)}
+  .vid-play .vid-hint{font-style:normal;font-family:"IBM Plex Mono",monospace;
+    font-size:11.5px;color:var(--ink-3);margin-top:5px}
+  .vid-meta{margin:0;font-size:13px;color:var(--ink-2);line-height:1.5}
+  .vid-meta b{color:var(--ink);font-weight:600}
+  .vid-meta a{color:var(--cos);font-weight:600;text-underline-offset:3px}
+  .vid-meta span{display:block;margin-top:3px;font-size:12px;color:var(--ink-3)}
+  .vid-guide{background:var(--panel);border:1px solid var(--line);
+    border-left:3px solid var(--brass);border-radius:var(--radius);
+    box-shadow:var(--shadow);padding:15px 18px 17px}
+  .vid-guide h3{margin:0 0 9px;font-family:var(--font-display);font-weight:500;
+    font-size:17px;letter-spacing:var(--track)}
+  .vid-guide ol{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:9px}
+  .vid-guide li{font-size:13.5px;line-height:1.5;color:var(--ink-2)}
+  .vid-guide li b{color:var(--ink);font-weight:600}
+  .vid-guide li::marker{color:var(--brass);font-weight:600}
+  .vid-note{margin:13px 0 0;padding-top:11px;border-top:1px solid var(--line-2);
+    font-size:13px;color:var(--ink-3);line-height:1.5}
+  .vid-note b{color:var(--ink-2);font-weight:600}
+
+  .spec{display:grid;grid-template-columns:1.05fr 1fr;gap:16px;align-items:start}
+  @media (max-width:880px){.spec{grid-template-columns:1fr}}
+  .spec-card{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);
+    box-shadow:var(--shadow);padding:16px 18px 18px;font-family:"IBM Plex Mono",monospace;font-size:13px}
+  .spec-card h3{margin:0 0 10px;font-family:var(--font-display);font-size:17px;font-weight:500;letter-spacing:var(--track)}
+  .spec-row{display:flex;justify-content:space-between;gap:14px;padding:6px 0;border-bottom:1px solid var(--line-2)}
+  .spec-row:last-child{border-bottom:0}
+  .spec-row span{color:var(--ink-3)}
+  .spec-row b{font-weight:500;color:var(--ink)}
+  .spec-row.q{background:color-mix(in srgb,var(--arc) 9%,transparent);margin:0 -8px;padding:6px 8px;border-radius:2px}
+  .ask{display:flex;flex-direction:column;gap:12px}
+  .ask .a{background:var(--panel);border:1px solid var(--line);border-left:3px solid var(--arc);
+    border-radius:var(--radius);box-shadow:var(--shadow);padding:12px 15px 13px}
+  .ask .a h4{margin:0 0 3px;font-size:14px;font-weight:600}
+  .ask .a p{margin:0;font-size:13.5px;color:var(--ink-2);line-height:1.5}
+  .ask .a b{color:var(--ink);font-weight:600}
+  footer{color:var(--ink-3);font-size:12.5px;border-top:1px solid var(--line);padding-top:14px;margin-top:26px;display:flex;flex-wrap:wrap;gap:6px 18px}
+  footer b{color:var(--ink-2);font-weight:600}
+  @media (max-width:760px){
+    button{font-size:14.5px;padding:9px 14px}
+    .btn-group.sm button{font-size:13px;padding:7px 11px}
+    .theme button{padding:8px 9px;font-size:12px}
+    .modes button{padding:9px 12px;font-size:13px}
+    .q-opts button{padding:12px 14px}
+    input[type=range]{height:30px}
+    input[type=range]::-webkit-slider-thumb{width:22px;height:22px;margin-top:-9px}
+    input[type=range]::-moz-range-thumb{width:20px;height:20px}
+    .readout{width:100%}
+    .readout div{padding:0 11px 0 0;border-left:0}
+    .wrap{padding:22px 16px 44px}
+  }
+
+  /* ---- 18. atolyeye ozel ---- */
+  .cks{display:flex;flex-direction:column;gap:1px;background:var(--line);
+    border:1px solid var(--line);border-radius:var(--radius);overflow:hidden}
+  .ck{background:var(--panel);display:grid;grid-template-columns:auto 1fr;gap:3px 10px;
+    padding:10px 13px 11px;align-items:start}
+  .ck .mk{grid-row:1/3;width:20px;height:20px;border-radius:50%;display:flex;
+    align-items:center;justify-content:center;font-size:12px;font-weight:700;
+    font-family:"IBM Plex Mono",monospace;margin-top:1px}
+  .ck.ok .mk{background:color-mix(in srgb,var(--ok) 18%,var(--panel));color:var(--ok)}
+  .ck.no .mk{background:color-mix(in srgb,var(--sin) 20%,var(--panel));color:var(--sin)}
+  .ck b{font-size:13.2px;font-weight:600;line-height:1.35;color:var(--ink)}
+  .ck span{font-size:12.4px;color:var(--ink-2);line-height:1.45}
+  /* Tur seridi: sahne dugmelerinin altinda, tuvalin hemen ustunde. Tur degisince
+     yukaridaki sahne aninda degistigi icin secici gorus alaninda duruyor. */
+  .turbar{display:flex;align-items:center;gap:10px;padding:10px 16px;
+    border-bottom:1px solid var(--line-2);background:var(--panel-2)}
+  .turbar>.tb-lab{font-family:"IBM Plex Mono",monospace;font-size:10.5px;font-weight:500;
+    letter-spacing:.09em;text-transform:uppercase;color:var(--ink-3);flex:0 0 auto}
+  .turbar .tb-scroll{display:flex;gap:6px;overflow-x:auto;flex:1 1 auto;
+    scrollbar-width:thin;padding-bottom:1px}
+  .tb{flex:0 0 auto;border:1px solid var(--line);border-radius:var(--radius);
+    background:var(--panel);padding:6px 12px 7px;display:flex;flex-direction:column;
+    gap:1px;text-align:left;cursor:pointer;line-height:1.25}
+  .tb:hover{background:var(--panel-2);color:var(--ink)}
+  .tb b{font-size:12.8px;font-weight:600;color:var(--ink)}
+  .tb em{font-style:normal;font-family:"IBM Plex Mono",monospace;font-size:10.8px;
+    color:var(--ink-3);white-space:nowrap}
+  .tb[aria-pressed="true"]{border-color:var(--sin);
+    background:color-mix(in srgb,var(--sin) 12%,var(--panel))}
+  .tb[aria-pressed="true"] em{color:var(--ink-2)}
+  @media (max-width:760px){
+    .turbar{flex-direction:column;align-items:stretch;gap:6px;padding:9px 12px}
+    .tb{padding:6px 10px}
+    .tb b{font-size:12.4px}
+  }
+  .pick{display:flex;flex-direction:column;gap:1px;background:var(--line);
+    border:1px solid var(--line);border-radius:var(--radius);overflow:hidden}
+  .pk{background:var(--panel);border:0;border-left:3px solid transparent;border-radius:0;
+    text-align:left;padding:11px 14px 12px;display:flex;flex-direction:column;gap:3px;
+    cursor:pointer;width:100%}
+  .pk:hover{background:var(--panel-2)}
+  .pk[aria-pressed="true"]{border-left-color:var(--sin);
+    background:color-mix(in srgb,var(--sin) 8%,var(--panel))}
+  .pk b{font-size:13.4px;font-weight:600;color:var(--ink)}
+  .pk span{font-size:12.4px;color:var(--ink-2);line-height:1.45;font-weight:400}
+  .pk em{font-style:normal;font-family:"IBM Plex Mono",monospace;font-size:11.5px;
+    color:var(--ink-3)}
+  .tag{display:inline-block;padding:1px 6px;border-radius:2px;font-size:10.5px;font-weight:600;
+    letter-spacing:.04em;border:1px solid}
+  .tag-a{color:var(--brass);border-color:color-mix(in srgb,var(--brass) 45%,transparent);
+    background:color-mix(in srgb,var(--brass) 11%,transparent)}
+  .tag-b{color:var(--sin);border-color:color-mix(in srgb,var(--sin) 45%,transparent);
+    background:color-mix(in srgb,var(--sin) 11%,transparent)}
+  .hint{margin:0;font-size:12.5px;color:var(--ink-3);line-height:1.5}
+  .hint b{color:var(--ink-2);font-weight:600}
+  @media (prefers-reduced-motion: reduce){*{transition:none!important}}
+</style>
+<div class="wrap">
+  <div class="topbar">
+    <header>
+      <p class="eyebrow">Müzik Teknolojisine Giriş · Sınıf atölyesi</p>
+      <h1>Mikrofonlar: Sesten Elektriğe</h1>
+      <p class="lede">Havadaki basınç dalgası bir zarı <b>nanometreler</b> kadar oynatıyor ve
+        bu kıpırtı elektrik sinyaline çevriliyor. Bunu yapmanın birkaç yolu var; her yol
+        kendi fiziğini, kendi sesini ve kendi sınırlarını getiriyor. Bu atölye beş türün
+        <b>dönüştürme prensibini</b> açıyor: dinamik, kondansatör, şerit, elektret ve piezo.</p>
+    </header>
+    <div class="theme" role="group" aria-label="Görünüm">
+      <button type="button" data-t="light">Açık</button>
+      <button type="button" data-t="dark">Koyu</button>
+      <button type="button" data-t="proj">Projeksiyon</button>
+    </div>
+  </div>
+
+  <section class="sec">
+    <div class="sec-head"><span class="num">01</span><h2>Mekanik enerji nasıl elektriğe döner?</h2>
+      <span class="kicker">İki temel yol, bir de üçüncüsü</span></div>
+
+    <div class="cols">
+      <div class="intro-col">
+        <p class="pull">Bir mikrofonun içinde olup biten şey tek cümleyle şudur: <b>hava bir
+          zarı itiyor, zarın hareketi elektriğe çevriliyor</b>. Bütün mesele o ikinci adımın
+          nasıl yapıldığında.</p>
+        <p>Havadaki basınç değişimi zarın üstüne bir kuvvet uygular: <b>F = p · A</b>. Konuşma
+          seviyesinde bu kuvvet gülünç derecede küçüktür ve zarı ancak <b>birkaç on
+          nanometre</b> oynatır — saç telinin binde biri kadar. Mikrofonun bütün marifeti bu
+          kıpırtıyı ölçülebilir bir gerilime çevirmesidir.</p>
+        <p class="pull">Bunun iki ana yolu var. Birincisi <b>Faraday</b>: manyetik alan
+          içinde hareket eden bir iletkende gerilim doğar, <b>e = B · L · v</b>. Bu yol
+          <b>hıza</b> duyarlıdır. İkincisi <b>değişken sığa</b>: yüklü bir kondansatörün
+          plakaları yaklaşıp uzaklaşınca gerilimi değişir, <b>V = E₀ · x / d₀</b>. Bu yol
+          <b>yer değiştirmeye</b> duyarlıdır.</p>
+        <p>Üçüncü bir yol da var: <b>piezoelektrik</b>. Bazı kristaller sıkıştırıldığında
+          yüzeylerinde yük toplanır. Bu yol <b>kuvvete</b> duyarlıdır ve havadan çok
+          <b>temasla</b> çalışır — enstrüman üstüne yapıştırılan manyetikler böyledir.</p>
+      </div>
+      <div class="trio-list">
+        <div class="tl tl-1">
+          <h3>Hıza duyarlı: dinamik ve şerit</h3>
+          <p>Bobin ya da şerit mıknatısın içinde hareket eder, gerilim <b>hızla</b> orantılı
+            doğar. Hiçbir besleme gerekmez: mikrofon kendi elektriğini <b>kendi üretir</b>.
+            Bedeli düşük çıkış ve sınırlı banttır.</p>
+        </div>
+        <div class="tl tl-2">
+          <h3>Yer değiştirmeye duyarlı: kondansatör</h3>
+          <p>Zar ile sabit plaka bir kondansatör oluşturur. Yük sabit tutulursa gerilim
+            doğrudan <b>aralıkla</b> orantılıdır. Çok hassastır ama <b>kutuplama gerilimi</b>
+            ve kapsülün dibinde bir <b>empedans dönüştürücü</b> ister.</p>
+        </div>
+        <div class="tl tl-3">
+          <h3>Zarın ağırlığı her şeyi belirler</h3>
+          <p>Kondansatör zarı birkaç <b>mikron</b>, şerit birkaç <b>miligram</b>, dinamiğin
+            bobinli sistemi ise yüzlerce kat daha ağırdır. Bu ağırlık hem frekans yanıtını
+            hem vuruşların kenarını belirler.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="cols3">
+      <p><b>Düzlük bedavaya gelmez.</b> Dinamik mikrofonun düz olması için hareketli sistemin
+        <b>ağır sönümlenmesi</b> gerekir. Sönüm arttıkça bant genişler ama çıkış düşer —
+        dinamik ile kondansatör arasındaki 20 dB'lik hassasiyet farkı doğrudan buradan gelir.</p>
+      <p><b>Rezonans nereye konur?</b> Kondansatörde bandın <b>üstüne</b>, şeritte bandın
+        <b>altına</b>, dinamikte tam <b>içine</b>. Üç farklı tasarım stratejisi, üç farklı ses.
+        Bu atölyenin ikinci sahnesi bunu tek grafikte gösteriyor.</p>
+      <p><b>Kapsül çıkışı doğrudan kullanılamaz.</b> Kondansatör kapsülü yüz megaohmluk bir
+        kaynaktır, şerit ise mikrovoltluk. Biri <b>dönüştürücü</b>, öteki <b>trafo</b> ister.
+        Kutunun içindeki elektronik, kapsül kadar belirleyicidir.</p>
+    </div>
+  </section>
+
+  <section class="sec">
+    <div class="sec-head"><span class="num">02</span><h2>Altı kavram</h2>
+      <span class="kicker">Dönüşümden gürültüye</span></div>
+    <div class="defs">
+      <div class="def">
+        <h3>Dönüştürücü <span>transducer</span></h3>
+        <p>Bir enerji türünü başkasına çeviren aygıt. Mikrofon <b>akustik → elektrik</b>,
+          hoparlör <b>elektrik → akustik</b> çevirir. İkisi de aynı fiziği kullanır; bir
+          dinamik mikrofon aslında küçük bir hoparlördür ve tersi de doğrudur.</p>
+      </div>
+      <div class="def">
+        <h3>Faraday yasası <span>e = B · L · v</span></h3>
+        <p>Manyetik alan <b>B</b> içinde <b>L</b> uzunluğunda bir iletken <b>v</b> hızıyla
+          hareket ederse uçlarında <b>e</b> gerilimi doğar. Dinamik ve şerit mikrofonların
+          tamamı bu tek satırdır. Çıkış <b>hızla</b> orantılıdır, yer değiştirmeyle değil.</p>
+      </div>
+      <div class="def">
+        <h3>Değişken sığa <span>V = E₀ · x / d₀</span></h3>
+        <p>Zar ile sabit plaka arasındaki sığa <b>C = ε₀A/d</b>. Yük sabit tutulursa
+          (<b>Q = C·E₀</b>) gerilim aralıkla orantılı olur. Kondansatör ve elektret
+          mikrofonların prensibi budur; çıkış <b>yer değiştirmeyle</b> orantılıdır.</p>
+      </div>
+      <div class="def">
+        <h3>Denetim bölgesi <span>stiffness / resistance / mass controlled</span></h3>
+        <p>Kütle–yay–sönüm sisteminde rezonansın <b>altında sertlik</b>, çevresinde
+          <b>direnç</b>, üstünde <b>kütle</b> baskındır. Hangi bölgede çalıştığınız, hangi
+          büyüklüğün (x mi v mi) basınçla orantılı olacağını belirler.</p>
+      </div>
+      <div class="def">
+        <h3>Hassasiyet <span>sensitivity, mV/Pa</span></h3>
+        <p>1 paskallık ses basıncına (<b>94 dB SPL</b>) karşılık üretilen gerilim. Künyede
+          <b>mV/Pa</b> ya da <b>dBV/Pa</b> yazar. Kondansatör ~20 mV/Pa, dinamik ~2 mV/Pa —
+          arada tam <b>20 dB</b> vardır ve bu fark preamp kazancına doğrudan yansır.</p>
+      </div>
+      <div class="def">
+        <h3>Phantom besleme <span>P48</span></h3>
+        <p>Mikrofon kablosunun <b>iki sinyal ucundan da eşit</b> verilen +48 V. Kondansatörün
+          kutuplama gerilimini ve dönüştürücüsünü besler. İki <b>6,81 kΩ</b> direnç üzerinden
+          gelir; sinyal dengeli olduğu için besleme ortak modda kalır ve duyulmaz.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="sec">
+    <div class="sec-head"><span class="num">03</span><h2>Atölye: beş sahne</h2>
+      <span class="kicker">Dönüşüm · mekanik · elektrik · hassasiyet · 3B patlatma</span></div>
+
+    <div class="stage" id="stage">
+      <div class="stage-head">
+        <div class="modes" role="group" aria-label="Sahne">
+          <button type="button" data-m="don">Dönüşüm</button>
+          <button type="button" data-m="mek">Diyafram mekaniği</button>
+          <button type="button" data-m="elek">Elektriksel taraf</button>
+          <button type="button" data-m="has">Hassasiyet ve gürültü</button>
+          <button type="button" data-m="uc">3B gövde</button>
+        </div>
+        <div class="readout" id="readout"></div>
+      </div>
+
+      <div class="turbar">
+        <span class="tb-lab">Tür</span>
+        <div class="tb-scroll" id="turbar" role="group" aria-label="Mikrofon türü"></div>
+      </div>
+
+      <div class="canvas-wrap"><canvas id="board"></canvas></div>
+
+      <div class="controls">
+        <div class="ctl-row" id="row-don">
+          <div class="field">
+            <label for="f-frq">Ses frekansı <em id="v-frq"></em></label>
+            <input id="f-frq" type="range" min="0" max="100" value="42">
+          </div>
+          <div class="field">
+            <label for="f-spl">Ses basıncı <em id="v-spl"></em></label>
+            <input id="f-spl" type="range" min="54" max="124" step="1" value="94">
+          </div>
+          <button id="anim" type="button">Hareketi durdur</button>
+          <button id="yavas" type="button">Yavaşlat</button>
+          <span class="ctl-note" id="d-note"></span>
+        </div>
+
+        <div class="ctl-row" id="row-mek" hidden>
+          <div class="field">
+            <label for="f-f0">Rezonans frekansı <em id="v-f0"></em></label>
+            <input id="f-f0" type="range" min="0" max="100" value="50">
+          </div>
+          <div class="field">
+            <label for="f-q">Sönüm <em id="v-q"></em></label>
+            <input id="f-q" type="range" min="0.08" max="2" step="0.01" value="0.25">
+          </div>
+          <span class="ctl-label">Göster</span>
+          <div class="btn-group sm" id="mgos"></div>
+          <button id="mvar" type="button">Türün kendi ayarına dön</button>
+          <span class="ctl-note" id="m-note"></span>
+        </div>
+
+        <div class="ctl-row" id="row-elek" hidden>
+          <div class="field" id="fld-gap">
+            <label for="f-gap">Kapsül aralığı d₀ <em id="v-gap"></em></label>
+            <input id="f-gap" type="range" min="15" max="60" step="1" value="40">
+          </div>
+          <div class="field" id="fld-cap">
+            <label for="f-cap">Zar çapı <em id="v-cap"></em></label>
+            <input id="f-cap" type="range" min="6" max="26" step="0.5" value="22">
+          </div>
+          <div class="field" id="fld-ima">
+            <label for="f-ima">Phantom akımı <em id="v-ima"></em></label>
+            <input id="f-ima" type="range" min="0.5" max="8" step="0.1" value="2">
+          </div>
+          <span class="ctl-note" id="e-note"></span>
+        </div>
+
+        <div class="ctl-row" id="row-uc" hidden>
+          <div class="btn-group sm" id="ucgos"></div>
+          <button type="button" id="ucpat">Parçalarına ayır</button>
+          <span class="ctl-note" id="u-note"></span>
+        </div>
+
+        <div class="ctl-row" id="row-has" hidden>
+          <div class="field">
+            <label for="f-hspl">Kaynağın ses basıncı <em id="v-hspl"></em></label>
+            <input id="f-hspl" type="range" min="30" max="140" step="1" value="94">
+          </div>
+          <div class="field">
+            <label for="f-gain">Preamp kazancı <em id="v-gain"></em></label>
+            <input id="f-gain" type="range" min="0" max="70" step="1" value="40">
+          </div>
+          <button id="oto" type="button">Kazancı otomatik ayarla</button>
+          <span class="ctl-note" id="h-note"></span>
+        </div>
+      </div>
+    </div>
+
+    <div class="cols">
+      <section class="panel">
+        <div class="panel-head">
+          <h3>Ders adımları</h3>
+          <span class="count" id="step-count">1 / 27</span>
+        </div>
+        <div class="panel-body">
+          <h4 class="step-title" id="step-title"></h4>
+          <p class="step-body" id="step-body"></p>
+          <div class="step-nav">
+            <button id="prev" type="button">◀ Geri</button>
+            <button id="next" type="button">İleri ▶</button>
+            <div class="dots" id="dots"></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="panel">
+        <div class="panel-head">
+          <h3>Seçili tür</h3>
+          <span class="count" id="tur-count"></span>
+        </div>
+        <div class="panel-body">
+          <p class="tbl-note" id="tur-not"></p>
+          <p class="tbl-note">Tür şeridi tuvalin hemen üstünde: seçtiğiniz tür <b>bütün
+            sahnelerde</b> geçerli. Her türün kendi <b>dönüşüm yasası</b>, kendi
+            <b>rezonans yerleşimi</b> ve kendi <b>çıkış düzeyi</b> var; sahneler
+            arasında gezerken aynı mikrofonun farklı yüzlerine bakıyorsunuz.</p>
+        </div>
+      </section>
+    </div>
+  </section>
+
+  <section class="sec">
+    <div class="sec-head"><span class="num">04</span><h2>Beş tür yan yana</h2>
+      <span class="kicker">Aynı iş, beş farklı fizik</span></div>
+    <div class="panel">
+      <div class="tbl-scroll">
+      <table id="ktable">
+        <thead><tr><th>Tür</th><th>Dönüşüm</th><th>Duyarlı olduğu</th><th>Hassasiyet</th>
+          <th>Besleme</th><th class="c-cmp">Tipik yeri</th></tr></thead>
+        <tbody></tbody>
+      </table>
+      </div>
+      <p class="tbl-note">Hassasiyet değerleri tipiktir; künyelerde <b>mV/Pa</b> ya da
+        <b>dBV/Pa</b> olarak yazar ve ikisi aynı şeydir (20 mV/Pa = −34 dBV/Pa). "Besleme"
+        sütunu mikrofonun <b>çalışmak için</b> ne istediğini söyler — dinamik ve şerit
+        hiçbir şey istemez, çünkü gerilimi kendileri üretir.</p>
+    </div>
+  </section>
+
+  <section class="sec">
+    <div class="sec-head"><span class="num">05</span><h2>Pratikte ne yapılır?</h2>
+      <span class="kicker">Prensipten doğan alışkanlıklar</span></div>
+    <div class="defs">
+      <div class="def">
+        <h3>1 · Yüksek seviyeye dinamik</h3>
+        <p>Trampet, gitar amfisi, bas davul. Dinamiğin ağır ve sönümlü sistemi <b>aşırı
+          basınçtan zarar görmez</b> ve doğal olarak sıkıştırılmış bir ses verir. Aynı yerde
+          hassas bir kondansatör hem zorlanır hem fazla ayrıntı toplar.</p>
+      </div>
+      <div class="def">
+        <h3>2 · Ayrıntı ve hava için kondansatör</h3>
+        <p>Vokal, akustik gitar, oda mikrofonu, davul üstü. Hafif zar <b>vuruşun kenarını</b>
+          ve tiz ayrıntıyı olduğu gibi verir. Karşılığında phantom, daha fazla el dikkati ve
+          odanın da kayda girmesi gelir.</p>
+      </div>
+      <div class="def">
+        <h3>3 · Şeride üflemeyin</h3>
+        <p>Şerit birkaç mikron kalınlığında alüminyum folyodur; <b>güçlü bir hava akımı</b>
+          onu kalıcı olarak deforme edebilir. Bas davulun önüne koymayın, taşırken dik
+          tutun, üstüne üflemeyin. Phantom'u <b>kablo takılıyken açıp kapatmayın</b>.</p>
+      </div>
+      <div class="def">
+        <h3>4 · Dinamikte sessiz preamp arayın</h3>
+        <p>2 mV/Pa'lık bir mikrofonu konuşma seviyesinde kullanmak <b>56–70 dB</b> kazanç
+          demektir. Bu kadar kazançta preamp'in kendi gürültüsü duyulur hâle gelir; Giriş I’in Analog Sinyal Seviyeleri
+          atölyesindeki EIN satırı tam da bu yüzden önemlidir.</p>
+      </div>
+      <div class="def">
+        <h3>5 · Pad'i kapsülden sonra değil, önce düşünün</h3>
+        <p>Maksimum SPL kapsülün değil çoğu zaman <b>içindeki elektroniğin</b> sınırıdır.
+          −10/−20 dB pad anahtarı sinyali dönüştürücüden sonra kısarak elektroniği kurtarır.
+          Çok yüksek kaynaklarda önce pad'i açın, sonra kazancı ayarlayın.</p>
+      </div>
+      <div class="def">
+        <h3>6 · Elektret ucuz değil, farklı</h3>
+        <p>Yaka mikrofonları, telefonlar ve ölçüm mikrofonlarının çoğu elektrettir. Kalıcı
+          kutuplandığı için <b>kutuplama gerilimi istemez</b>, yalnız dönüştürücüsü için
+          birkaç volt yeter. Küçük olması kötü olması demek değildir.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="sec">
+    <div class="sec-head"><span class="num">06</span><h2>Bu kavramların dili</h2>
+      <span class="kicker">Stüdyoda duyacağınız sözler</span></div>
+    <div class="defs lang">
+      <div class="def">
+        <h3>"Bu mikrofon sıcak çıkıyor"</h3>
+        <p>Hassasiyeti yüksek demektir; aynı kaynakta daha az preamp kazancı ister.
+          Sıcaklık bir tını değil, bir <b>seviye</b> ifadesidir.</p>
+      </div>
+      <div class="def">
+        <h3>"Phantom'u açmayı unutma"</h3>
+        <p>Kondansatör beslemesiz <b>hiç ses vermez</b> — bozuk değildir. Dinamik ve şerit
+          ise phantom'dan etkilenmez; dengeli bağlantıda besleme ortak modda kalır.</p>
+      </div>
+      <div class="def">
+        <h3>"Kapsül kırpıyor"</h3>
+        <p>Maksimum SPL aşıldı. Çözüm kazancı kısmak değil — bozulma zaten kazançtan
+          <b>önce</b> oluştu. <b>Pad</b> açılmalı ya da mikrofon uzaklaştırılmalı.</p>
+      </div>
+      <div class="def">
+        <h3>"Bu şerit çok karanlık"</h3>
+        <p>Şeridin tiz yanıtı doğal olarak yumuşaktır: kütle denetimli sistem ve şeridin
+          önündeki akustik engeller tizi düşürür. Bu bir arıza değil, <b>prensibin</b>
+          sonucudur — bu yüzden parlak kaynaklarda tercih edilir.</p>
+      </div>
+      <div class="def">
+        <h3>"Kendi gürültüsü 7 dB(A)"</h3>
+        <p>Mikrofon tamamen sessiz bir odada bile bu kadar gürültü üretir; sanki ortamda
+          7 dB SPL'lik bir fısıltı varmış gibi. Sessiz kayıtlarda <b>taban</b> budur.</p>
+      </div>
+      <div class="def">
+        <h3>"Mikrofonu ters bağlamışsın"</h3>
+        <p>Dinamik mikrofon bir hoparlör gibi de çalışır: uçlarına sinyal verilirse
+          <b>ses üretir</b>. Aynı fizik iki yönde de işler; bu yüzden eski telsizlerde tek
+          bir kapsül hem mikrofon hem hoparlördür.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="sec">
+    <div class="sec-head"><span class="num">07</span><h2>Alıştırma</h2>
+      <span class="kicker">On dört soru</span></div>
+    <div class="quiz">
+      <div class="q-head"><span class="q-text" id="q-text"></span><span class="count" id="q-count">0 / 0 doğru</span></div>
+      <div class="q-opts" id="q-opts"></div>
+      <p class="q-feedback" id="q-fb"></p>
+      <button id="q-next" type="button">Sonraki soru</button>
+    </div>
+  </section>
+
+  <footer>
+    <span>İki temel dönüşüm: <b>Faraday e = B·L·v</b> (dinamik, şerit — <b>hıza</b> duyarlı) ve <b>değişken sığa V = E₀·x/d₀</b> (kondansatör, elektret — <b>yer değiştirmeye</b> duyarlı). Piezo ise <b>kuvvete</b> duyarlıdır.</span>
+    <span>Rezonans nereye konur: kondansatörde bandın <b>üstüne</b> (sertlik denetimli, x ∝ p), şeritte bandın <b>altına</b> (kütle denetimli; basınç farkındaki ω, kütleden gelen ω ile sadeleşir → v ∝ p), dinamikte bandın <b>içine</b> (direnç denetimli, v ∝ p).</span>
+    <span>Dinamikte düzlük <b>sönümle</b> satın alınır ve bedeli doğrudan çıkıştır: Q 1,5'ten 0,15'e inince bant dalgalanması 24 dB'den 6 dB'ye düşer, çıkış <b>20 dB</b> azalır. Kondansatör–dinamik hassasiyet farkı buradan gelir.</span>
+    <span>94 dB SPL'de kondansatör zarı yalnızca <b>13 nanometre</b> oynar. Kapsül 45–135 pF'lik bir kaynaktır; 20 Hz'de empedansı <b>yüz megaohm</b> mertebesindedir, bu yüzden dönüştürücü kapsülün dibindedir.</span>
+    <span>Phantom: <b>+48 V</b>, iki <b>6,81 kΩ</b> direnç üzerinden pin 2 ve 3'e eşit verilir. 2 mA çeken bir mikrofonda uçta <b>41 V</b> kalır. Dengeli bağlantıda besleme ortak moddadır, duyulmaz.</span>
+  </footer>
+</div>
+
+<script>
+(function(){
+  "use strict";
+  var TAU = Math.PI*2, L10 = Math.LN10;
+  var root = document.documentElement;
+  function lg(x){ return Math.log(x)/L10; }
+  var CS = 343;
+
+  var S = {
+    mode:'don', tur:'dinamik',
+    frq:500, spl:94, anim:true, yavas:false,      /* donusum */
+    f0:900, q:0.25, mgos:'hepsi',                 /* diyafram mekanigi */
+    gap:40, cap:22, ima:2,                        /* elektriksel taraf */
+    hspl:94, gain:40,                             /* hassasiyet ve gurultu */
+    ucKesit:false, ucPat:0, ucHedef:0          /* 3B govde: kesit ve patlatma */
+  };
+
+  /* ---------- tema ---------- */
+  var C = {}, K = { lw:1, fs:1, glow:0, faint:.32 };
+  function readColors(){
+    var s = getComputedStyle(root);
+    ['ink','ink-2','ink-3','line','line-2','sin','cos','arc','brass','panel','panel-2','ok','no'].forEach(function(k){
+      C[k.replace('-','')] = s.getPropertyValue('--'+k).trim();
+    });
+    var proj = root.getAttribute('data-mode') === 'proj';
+    var attr = root.getAttribute('data-theme');
+    var isDark = attr === 'dark' ||
+                 (!attr && window.matchMedia('(prefers-color-scheme: dark)').matches);
+    K.glow  = (isDark && !proj) ? 0.7 : 0;
+    K.lw    = proj ? 1.5 : 1;
+    K.fs    = proj ? 1.24 : 1;
+    K.faint = proj ? 0.42 : (K.glow ? 0.34 : 0.32);
+  }
+  readColors();
+
+  var MODES = { proj:'light' };
+  var themeBtns = document.querySelectorAll('.theme button');
+  function markTheme(t){
+    Array.prototype.forEach.call(themeBtns, function(b){
+      b.setAttribute('aria-pressed', b.dataset.t === t ? 'true':'false');
+    });
+  }
+  function applyTheme(t, save){
+    if (MODES[t]){ root.setAttribute('data-theme', MODES[t]); root.setAttribute('data-mode', t); }
+    else { root.setAttribute('data-theme', t); root.removeAttribute('data-mode'); }
+    if (save) { try { localStorage.setItem('dalga-tema', t); } catch(e){} }
+    markTheme(t);
+  }
+  Array.prototype.forEach.call(themeBtns, function(b){
+    b.addEventListener('click', function(){ applyTheme(b.dataset.t, true); });
+  });
+  var sysDark = window.matchMedia('(prefers-color-scheme: dark)');
+  var stored = null;
+  try { stored = localStorage.getItem('dalga-tema'); } catch(e){}
+  if (stored === 'light' || stored === 'dark' || MODES[stored]) applyTheme(stored, false);
+  else markTheme(sysDark.matches ? 'dark' : 'light');
+  sysDark.addEventListener('change', function(){
+    readColors(); render();
+    if (!root.hasAttribute('data-theme')) markTheme(sysDark.matches ? 'dark' : 'light');
+  });
+  new MutationObserver(function(){ readColors(); render(); })
+    .observe(root, {attributes:true, attributeFilter:['data-theme','data-mode']});
+
+  /* ---------- sayilar ---------- */
+  function n(v,d){
+    var x = v.toFixed(d===undefined?2:d);
+    if (/^-0[.,]?0*$/.test(x)) x = x.slice(1);
+    return x.replace('.',',').replace('-','−');
+  }
+  function fTxt(f){
+    return f >= 1000 ? n(f/1000, f >= 10000 ? 0 : 1).replace(',0','')+' kHz' : n(f,0)+' Hz';
+  }
+  function sgn(v,d){ return (v>0?'+':'')+n(v,d); }
+
+  /* ---------- canvas ---------- */
+  var board = document.getElementById('board');
+  var ctx = null, MONO = '"IBM Plex Mono", monospace', SANS = '"IBM Plex Sans", sans-serif';
+  function dash(a){ ctx.setLineDash(a ? a.map(function(v){ return v*K.lw; }) : []); }
+  function LW(v){ ctx.lineWidth = v*K.lw; }
+  function glowOn(col,amt){ if (K.glow){ ctx.shadowColor = col; ctx.shadowBlur = (amt||9)*K.lw; } }
+  function glowOff(){ ctx.shadowBlur = 0; }
+  function line(x1,y1,x2,y2){ ctx.beginPath(); ctx.moveTo(x1,y1); ctx.lineTo(x2,y2); ctx.stroke(); }
+  function dot(x,y,r,col){
+    ctx.beginPath(); ctx.arc(x,y,r*K.fs,0,TAU);
+    ctx.fillStyle = col; glowOn(col,10); ctx.fill(); glowOff();
+    LW(1.6); ctx.strokeStyle = C.panel2; ctx.stroke();
+  }
+  function txt(s,x,y,col,size,align,fam,weight){
+    ctx.fillStyle = col;
+    ctx.font = (weight||400)+' '+((size||12)*K.fs).toFixed(2)+'px '+(fam||MONO);
+    ctx.textAlign = align||'left'; ctx.textBaseline='middle';
+    ctx.fillText(s,x,y);
+  }
+  function tw(s,size,fam,weight){
+    ctx.font = (weight||400)+' '+((size||12)*K.fs).toFixed(2)+'px '+(fam||MONO);
+    return ctx.measureText(s).width;
+  }
+  function chip(s2,x,y,col,size,weight,fam){
+    var w = tw(s2,size,fam||MONO,weight||400), ph = (size+7)*K.fs;
+    ctx.fillStyle = C.panel2; ctx.globalAlpha = .92;
+    ctx.fillRect(x - w/2 - 4*K.fs, y - ph/2, w + 8*K.fs, ph);
+    ctx.globalAlpha = 1;
+    txt(s2, x, y, col, size, 'center', fam||MONO, weight||400);
+  }
+  function wrap(s, x, y, maxw, col, size, lh, weight){
+    var words = s.split(' '), ln = '', out = [];
+    words.forEach(function(w){
+      var t = ln ? ln+' '+w : w;
+      if (tw(t, size, SANS, weight) > maxw){ out.push(ln); ln = w; } else ln = t;
+    });
+    if (ln) out.push(ln);
+    out.forEach(function(l,k){ txt(l, x, y + k*lh, col, size, 'left', SANS, weight); });
+    return out.length;
+  }
+  var cw = 0, ch = 0;
+  function sized(cv){
+    var dpr = Math.min(window.devicePixelRatio||1, 2);
+    var r = cv.getBoundingClientRect();
+    if (r.width < 10) return null;
+    var W = Math.round(r.width*dpr), H = Math.round(r.height*dpr);
+    if (W !== cw || H !== ch){ cv.width = W; cv.height = H; cw = W; ch = H; }
+    var c = cv.getContext('2d');
+    c.setTransform(dpr,0,0,dpr,0,0);
+    c.clearRect(0,0,r.width,r.height);
+    c.lineJoin='round'; c.lineCap='round';
+    return { c:c, w:r.width, h:r.height };
+  }
+  function logAxis(x0, x1, f0, f1){
+    return { X: function(f){ return x0 + (lg(f) - lg(f0))/(lg(f1) - lg(f0))*(x1 - x0); },
+             F: function(x){ return f0*Math.pow(f1/f0, (x - x0)/(x1 - x0)); },
+             f0:f0, f1:f1, x0:x0, x1:x1 };
+  }
+  function drawTicks(A, y, list, fmt){
+    ctx.strokeStyle = C.line; LW(1.3);
+    line(A.x0, y, A.x1, y);
+    var dec, d;
+    for (dec = Math.floor(lg(A.f0)); dec <= Math.ceil(lg(A.f1)); dec++){
+      for (d = 1; d <= 9; d++){
+        var f = Math.pow(10, dec)*d;
+        if (f < A.f0 || f > A.f1) continue;
+        line(A.X(f), y, A.X(f), y + 2.6*K.fs);
+      }
+    }
+    list.forEach(function(v){
+      if (v < A.f0 || v > A.f1) return;
+      line(A.X(v), y, A.X(v), y + 6*K.fs);
+      txt((fmt||fTxt)(v), A.X(v), y + 16*K.fs, C.ink3, 9.5, 'center', MONO);
+    });
+  }
+  /* Hizli salinan yanitlar: her PIKSEL SUTUNU icin birkac ara deger alinip en kucuk
+     ile en buyuk arasina dikey cizgi cekiliyor. Seyrek ornekleme sahte desen uretmez. */
+  function bandCurve(A, yOf, fn, col, lw, lo, hi){
+    var px = Math.max(2, Math.round(A.x1 - A.x0)), x, k, ALT = 7;
+    ctx.strokeStyle = col; LW(lw||2.4); glowOn(col, 6);
+    ctx.beginPath();
+    for (x = 0; x <= px; x++){
+      var fa = A.f0*Math.pow(A.f1/A.f0, x/px);
+      var fb = A.f0*Math.pow(A.f1/A.f0, (x+1)/px);
+      var mn = 1e9, mx = -1e9;
+      for (k = 0; k < ALT; k++){
+        var v = fn(fa*Math.pow(fb/fa, k/(ALT-1)));
+        if (!isFinite(v)) v = lo;
+        if (v < lo) v = lo; else if (v > hi) v = hi;
+        if (v < mn) mn = v;
+        if (v > mx) mx = v;
+      }
+      ctx.moveTo(A.x0 + x, yOf(mx)); ctx.lineTo(A.x0 + x, yOf(mn));
+    }
+    ctx.stroke(); glowOff();
+  }
+
+  /* ================= cizim ================= */
+  function frame(x0,y0,w,h){
+    ctx.fillStyle = C.panel; ctx.fillRect(x0,y0,w,h);
+    ctx.strokeStyle = C.line; LW(1.2); ctx.strokeRect(x0+0.5,y0+0.5,w-1,h-1);
+  }
+  /* Yari saydam hucreler bitisik cizilince kenarlarda dikis izi birakiyor.
+     Bu yuzden renkler ONCEDEN panel rengiyle karistirilip TAM OPAK doldurulur. */
+  var RGBC = {};
+  function rgbOf(hx){
+    if (RGBC[hx]) return RGBC[hx];
+    var s2 = String(hx).trim(), r, g, b, m;
+    if (s2.charAt(0) === '#'){
+      if (s2.length === 4){
+        r = parseInt(s2.charAt(1)+s2.charAt(1),16);
+        g = parseInt(s2.charAt(2)+s2.charAt(2),16);
+        b = parseInt(s2.charAt(3)+s2.charAt(3),16);
+      } else {
+        r = parseInt(s2.substr(1,2),16); g = parseInt(s2.substr(3,2),16); b = parseInt(s2.substr(5,2),16);
+      }
+    } else {
+      m = s2.match(/(\d+)[,\s]+(\d+)[,\s]+(\d+)/);
+      r = m ? +m[1] : 128; g = m ? +m[2] : 128; b = m ? +m[3] : 128;
+    }
+    return (RGBC[hx] = [r||0, g||0, b||0]);
+  }
+  function mixc(a, b, t){
+    var A = rgbOf(a), B = rgbOf(b);
+    return 'rgb(' + Math.round(A[0]+(B[0]-A[0])*t) + ',' +
+                    Math.round(A[1]+(B[1]-A[1])*t) + ',' +
+                    Math.round(A[2]+(B[2]-A[2])*t) + ')';
+  }
+  function basincRenk(v){
+    var a = Math.min(1, Math.abs(v));
+    return mixc(C.panel, v >= 0 ? C.sin : C.cos, 0.05 + 0.84*a);
+  }
+  /* bir kesitin basinc haritasi: fu(u,v) -> [-1,1], u ve v 0..1 */
+  function harita(x0,y0,w,h,fu,NU,NV){
+    var i, j;
+    for (i=0;i<NU;i++){
+      var xa = Math.round(x0 + i*w/NU), xb = Math.round(x0 + (i+1)*w/NU);
+      for (j=0;j<NV;j++){
+        var ya = Math.round(y0 + j*h/NV), yb = Math.round(y0 + (j+1)*h/NV);
+        ctx.fillStyle = basincRenk(fu((i+0.5)/NU, (j+0.5)/NV));
+        ctx.fillRect(xa, ya, Math.max(1, xb-xa), Math.max(1, yb-ya));
+      }
+    }
+  }
+
+  /* Dar ekranda sol alt baslik ile sag ozet carpisiyordu: dar ekranda sol metin dusuyor. */
+  function sahneBaslik(w, sol, sag, sagCol, sagDar){
+    var pad = 16*K.fs, y = 16*K.fs, dar = w < 700;
+    if (!dar) txt(sol, pad, y, C.ink3, 10.5, 'left', MONO, 500);
+    var t = (dar && sagDar) ? sagDar : sag;
+    txt(t, dar ? pad : w - pad, y, sagCol, dar ? 11 : 11.5, dar ? 'left' : 'right', MONO, 600);
+  }
+
+
+  /* ================= fizik ================= */
+
+  /* ---- Mikrofon turleri ----
+     Her tur bir DONUSUM YASASI, bir REZONANS YERLESIMI ve bir CIKIS duzeyi tasiyor.   */
+  var TUR = {
+    dinamik: {
+      ad:'Dinamik (hareketli bobin)', alt:'Sahne vokali, trampet, gitar amfisi',
+      yasa:'e = B · L · v', duyar:'hız', simge:'v',
+      f0:900, Q:0.25, mkg:2.5e-4, sens:2.0, zc:150, bes:'yok',
+      B:1.0, L:6.28, maxSPL:150, gurultu:null,
+      not:'Bobin mıknatısın içinde hareket eder; gerilim doğrudan hızla orantılıdır. ' +
+          'Hiçbir besleme gerekmez — mikrofon elektriğini kendi üretir.'
+    },
+    kondansator: {
+      ad:'Kondansatör', alt:'Vokal, akustik çalgı, oda mikrofonu',
+      yasa:'V = E₀ · x / d₀', duyar:'yer değiştirme', simge:'x',
+      f0:14000, Q:1.0, mkg:4.1e-6, sens:20, zc:50, bes:'+48 V phantom',
+      E0:60, d0:40e-6, cap:22, maxSPL:134, gurultu:14,
+      not:'Zar ile sabit plaka bir kondansatördür. Yük sabit tutulunca gerilim aralıkla ' +
+          'orantılı olur; çıkış yer değiştirmeyi izler.'
+    },
+    serit: {
+      ad:'Şerit (ribbon)', alt:'Üflemeli, gitar amfisi, oda',
+      yasa:'e = B · L · v', duyar:'hız', simge:'v',
+      f0:35, Q:0.5, mkg:1.22e-6, sens:1.5, zc:300, bes:'yok (trafolu)',
+      B:0.35, L:0.05, trafo:15, maxSPL:135, gurultu:18,
+      not:'Tek bir alüminyum şerit hem zar hem iletkendir. Kütle denetimli çalışır; ' +
+          'basınç farkındaki ω ile kütleden gelen ω sadeleşir ve hız düz çıkar.'
+    },
+    elektret: {
+      ad:'Elektret', alt:'Yaka, telefon, ölçüm mikrofonu',
+      yasa:'V = E₀ · x / d₀', duyar:'yer değiştirme', simge:'x',
+      f0:12000, Q:1.0, mkg:2.0e-6, sens:7, zc:200, bes:'birkaç V (dönüştürücü için)',
+      E0:100, d0:25e-6, cap:10, maxSPL:130, gurultu:24,
+      not:'Kondansatörle aynı prensip, ama yalıtkan kalıcı olarak kutuplanmıştır. ' +
+          'Kutuplama gerilimi gerekmez; yalnız dönüştürücüsü birkaç volt ister.'
+    },
+    piezo: {
+      ad:'Piezo (temas)', alt:'Enstrüman manyetiği, temas mikrofonu',
+      yasa:'Q = d₃₃ · F   ·   V = Q / C', duyar:'kuvvet', simge:'F',
+      f0:6000, Q:1.4, mkg:1.5e-5, sens:35, zc:1e6, bes:'yok (yüksek Z)',
+      maxSPL:160, gurultu:null,
+      not:'Kristal sıkıştırılınca yüzeyinde yük toplanır. Havadan çok TEMASLA çalışır; ' +
+          'çıkış empedansı çok yüksektir, doğrudan hat girişine bağlanmaz.'
+    }
+  };
+  var TSIRA = ['dinamik','kondansator','serit','elektret','piezo'];
+
+  /* ---- Kutle-yay-sonum ----
+     m x'' + R x' + k x = F ;  x(w) = (F/m)/(w0^2 - w^2 + j w w0/Q) ;  v = jw x
+     Uc denetim bolgesi:
+       w << w0  SERTLIK : x = F/k          (yer degistirme kuvvetle orantili)
+       w ~  w0  DIRENC  : v = F/R          (hiz kuvvetle orantili)
+       w >> w0  KUTLE   : x = F/(m w^2)                                            */
+  function xBag(f, f0, Q){                   /* bagil yer degistirme (F/m disarida) */
+    var w = TAU*f, w0 = TAU*f0;
+    return 1/Math.hypot(w0*w0 - w*w, w*w0/Q);
+  }
+  function vBag(f, f0, Q){ return TAU*f*xBag(f, f0, Q); }
+  /* Serit basinc FARKI ile surulur: F ~ w p. Oteki turler basincla: F ~ p. */
+  function kuvvetCarpani(k, f){ return k === 'serit' ? TAU*f/CS*0.012 : 1; }
+  /* Turun CIKISI: hiza duyarliysa v, yer degistirmeye duyarliysa x, kuvvete duyarliysa F/k */
+  function cikisBag(k, f, f0, Q){
+    var T = TUR[k], F = kuvvetCarpani(k, f);
+    if (T.duyar === 'hız') return F*vBag(f, f0, Q);
+    if (T.duyar === 'kuvvet') return F;                       /* sert eleman: V ~ F */
+    return F*xBag(f, f0, Q);
+  }
+  function cikisDb(k, f, f0, Q){
+    var v = cikisBag(k, f, f0, Q), r = cikisBag(k, 1000, f0, Q);
+    return 20*lg(v/r);
+  }
+  function bantDalga(k, f0, Q, fa, fb){      /* bant ici dalgalanma (dB) */
+    var mn = 1e99, mx = 0, f;
+    for (f = fa; f <= fb; f *= 1.03){
+      var v = cikisBag(k, f, f0, Q);
+      if (v < mn) mn = v; if (v > mx) mx = v;
+    }
+    return 20*lg(mx/mn);
+  }
+  /* Sonum arttikca rezonanstaki cikis DUSER: |v|_w0 = F Q/(m w0) -> cikis ~ Q */
+  function sonumKazanc(Q, Q0){ return 20*lg(Q/Q0); }
+
+  /* ---- Zarin gercekte ne kadar oynadigi ----
+     Kondansatorde: V = E0 x/d0  ->  x = V d0 / E0                                  */
+  function paskal(spl){ return 2e-5*Math.pow(10, spl/20); }
+  function splOf(pa){ return 20*lg(pa/2e-5); }
+  /* Hiza duyarli turde cikis duz iken HIZ sabittir, dolayisiyla x = v/w FREKANSLA KUCULUR.
+     Yer degistirmeye duyarli turde tersine x sabittir. Sahnedeki en onemli karsitlik bu. */
+  function yerDegistirme(k, spl, f){
+    var T = TUR[k], p = paskal(spl);
+    if (T.E0) return (T.sens*1e-3*p)*T.d0/T.E0;       /* kondansator ve elektret: f'ten bagimsiz */
+    if (k === 'dinamik' || k === 'serit'){             /* e = BLv -> v, sonra x = v/w */
+      var v = T.sens*1e-3*p/(T.B*T.L*(T.trafo||1));
+      return v/(TAU*(f || 1000));
+    }
+    return T.sens*1e-3*p*1e-9;                         /* piezo: temsili */
+  }
+  function hiz(k, spl){
+    var T = TUR[k], p = paskal(spl);
+    if (T.B) return T.sens*1e-3*p/(T.B*T.L*(T.trafo||1));
+    return TAU*1000*yerDegistirme(k, spl);
+  }
+
+  /* ---- Elektriksel taraf ---- */
+  var EPS0 = 8.854e-12;
+  function kapsulC(capMm, gapUm){            /* F */
+    var A = Math.PI*Math.pow(capMm/1000/2, 2);
+    return EPS0*A/(gapUm*1e-6);
+  }
+  function kapsulZ(C, f){ return 1/(TAU*f*C); }
+  var PH_V = 48, PH_R = 6810;
+  function phantomV(mA){ return PH_V - mA*1e-3*(PH_R/2); }
+  function phantomZ(){ return PH_R/2; }
+
+  /* ---- Hassasiyet ve gurultu ---- */
+  function cikisV(k, spl){ return TUR[k].sens*1e-3*Math.pow(10, (spl-94)/20); }
+  function dBV(v){ return 20*lg(Math.max(1e-12, v)); }
+  function dBu(v){ return 20*lg(Math.max(1e-12, v)/0.7746); }
+  var KB = 1.380649e-23, TK = 293, BW = 20000;
+  function termalV(R){ return Math.sqrt(4*KB*TK*R*BW); }
+  function gurultuSPL(k){                    /* esdeger gurultu seviyesi, dB SPL */
+    var T = TUR[k];
+    if (T.gurultu != null) return T.gurultu;
+    return 94 + 20*lg(termalV(T.zc)/(T.sens*1e-3));   /* dinamik: bobinin termal gurultusu */
+  }
+  function dinamikAralik(k){ return TUR[k].maxSPL - gurultuSPL(k); }
+  function gerekliKazanc(k, spl, hedefDbu){ return hedefDbu - dBu(cikisV(k, spl)); }
+
+  /* ---------- SAHNE 1: donusum ---------- */
+  var REDUCED = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var t0 = null, rafId = null;
+  function nowS(){
+    var P = (window.performance && performance.now) ? performance : Date;
+    if (t0 === null) t0 = P.now();
+    return (P.now() - t0)/1000;
+  }
+  function drawDon(w,h){
+    var pad = 16*K.fs, small = w < 760;
+    var T = TUR[S.tur];
+    var faz = (S.anim && !REDUCED) ? TAU*(S.yavas ? 0.35 : 1.1)*nowS() : Math.PI*0.25;
+    sahneBaslik(w, 'DÖNÜŞÜM  ·  ' + T.yasa,
+      T.ad + '  ·  ' + T.duyar + 'la orantılı  ·  ' + n(S.spl,0) + ' dB SPL',
+      C.arc, T.ad + ' · ' + T.duyar);
+
+    var top = 40*K.fs;
+    var kesH = Math.min(190*K.fs, (h - top)*0.42);
+    var kx0 = pad, kw = small ? (w - 2*pad) : (w - 2*pad)*0.40;
+    var kcx = kx0 + kw*0.48, kcy = top + kesH*0.50;
+
+    /* --- kesit: zar / bobin / serit / plaka --- */
+    var xm = yerDegistirme(S.tur, S.spl, S.frq);       /* metre, secili frekansta */
+    /* Gorsel genlik hem SPL hem FREKANSLA degisiyor: hiza duyarli turde x ~ 1/f oldugu
+       icin frekansi yukseltince zarin oynamasi gozle gorulur sekilde kuculuyor.
+       Kondansatorde x frekanstan bagimsiz: oran 1 kaliyor. */
+    var xEs = yerDegistirme(S.tur, S.spl, 500);
+    var olc = Math.max(0.30, Math.min(1.7, Math.sqrt(xm/Math.max(1e-30, xEs))));
+    var gorsel = Math.sin(faz)*olc*
+                 Math.min(24*K.fs, 8*K.fs + Math.max(0, (S.spl-54))*0.24*K.fs);
+    txt('KESİT  ·  hareket abartılmış', kx0, top - 2*K.fs, C.ink3, 9.5, 'left', MONO);
+    var zh = kesH*0.36, zw = kw*0.26;
+
+    if (S.tur === 'dinamik'){
+      /* Miknatis iki kutup parcasi olarak ciziliyor; ARALARINDAKI BOSLUKTA bobin geziyor.
+         Onceki cizimde bobin miknatisin icine gomulu gorunuyordu. */
+      var slot = 24*K.fs, mgk = 17*K.fs;
+      var magX = kcx - 24*K.fs, magW = 76*K.fs;
+      [-1,1].forEach(function(sg){
+        var yy = sg < 0 ? (kcy - slot/2 - mgk) : (kcy + slot/2);
+        ctx.fillStyle = C.ink3; ctx.globalAlpha = 0.22;
+        ctx.fillRect(magX, yy, magW, mgk); ctx.globalAlpha = 1;
+        ctx.strokeStyle = C.ink2; LW(1.3);
+        ctx.strokeRect(magX, yy, magW, mgk);
+        txt(sg < 0 ? 'N' : 'S', magX + magW - 12*K.fs, yy + mgk/2,
+            C.ink3, 10, 'center', MONO, 600);
+      });
+      /* boslugun icindeki alan cizgileri */
+      ctx.strokeStyle = C.ink3; LW(1); ctx.globalAlpha = 0.45;
+      [0.74, 0.90].forEach(function(t){
+        var xx = magX + magW*t;
+        line(xx, kcy - slot/2 + 2*K.fs, xx, kcy + slot/2 - 2*K.fs);
+      });
+      ctx.globalAlpha = 1;
+      txt('mıknatıs', magX + magW/2, kcy + slot/2 + mgk + 12*K.fs, C.ink3, 9, 'center', MONO);
+      /* govde: zarin cemberi buraya gerili — koni boslukta asili durmasin */
+      ctx.strokeStyle = C.ink3; LW(2.4); ctx.globalAlpha = 0.65;
+      line(kcx - zw, kcy - zh - 11*K.fs, kcx - zw, kcy - zh + 7*K.fs);
+      line(kcx - zw, kcy + zh - 7*K.fs, kcx - zw, kcy + zh + 11*K.fs);
+      ctx.globalAlpha = 1;
+      txt('gövde', kcx - zw - 5*K.fs, kcy + zh + 18*K.fs, C.ink3, 9, 'center', MONO);
+      /* zar: koni -> boyunda bobin. Ikisi birlikte hareket ediyor. */
+      var nx = kcx + gorsel, nh = slot*0.30;
+      ctx.strokeStyle = C.sin; LW(2.8); glowOn(C.sin,6);
+      ctx.beginPath();
+      ctx.moveTo(kcx - zw, kcy - zh);
+      ctx.lineTo(nx, kcy - nh);
+      ctx.lineTo(nx, kcy + nh);
+      ctx.lineTo(kcx - zw, kcy + zh);
+      ctx.stroke(); glowOff();
+      txt('zar', kcx - zw + 8*K.fs, kcy - zh - 9*K.fs, C.sin, 9, 'left', MONO, 600);
+      ctx.fillStyle = C.cos;
+      ctx.fillRect(nx - 3.5*K.fs, kcy - slot/2 + 1.5*K.fs, 7*K.fs, slot - 3*K.fs);
+      txt('bobin', nx, kcy - slot/2 - mgk - 9*K.fs, C.cos, 9, 'center', MONO, 600);
+    } else if (S.tur === 'serit'){
+      [-1,1].forEach(function(sg){
+        ctx.fillStyle = C.ink3; ctx.globalAlpha = 0.22;
+        ctx.fillRect(kcx + sg*24*K.fs - 9*K.fs, kcy - zh, 18*K.fs, zh*2); ctx.globalAlpha = 1;
+        ctx.strokeStyle = C.ink2; LW(1.3);
+        ctx.strokeRect(kcx + sg*24*K.fs - 9*K.fs, kcy - zh, 18*K.fs, zh*2);
+        txt(sg < 0 ? 'N' : 'S', kcx + sg*24*K.fs, kcy, C.ink3, 12, 'center', MONO, 600);
+      });
+      ctx.strokeStyle = C.sin; LW(3); glowOn(C.sin,7);
+      ctx.beginPath();
+      ctx.moveTo(kcx + gorsel, kcy - zh*0.9);
+      ctx.quadraticCurveTo(kcx + gorsel*1.8, kcy, kcx + gorsel, kcy + zh*0.9);
+      ctx.stroke(); glowOff();
+      txt('alüminyum şerit', kcx, kcy + zh + 14*K.fs, C.sin, 9, 'center', MONO, 600);
+    } else if (S.tur === 'piezo'){
+      var kw2 = 62*K.fs, kh2 = 40*K.fs, ez = 6*K.fs - gorsel*0.22;  /* sikisma */
+      ctx.fillStyle = C.brass; ctx.globalAlpha = 0.26;
+      ctx.fillRect(kcx - kw2/2, kcy - kh2/2, kw2, kh2); ctx.globalAlpha = 1;
+      ctx.strokeStyle = C.brass; LW(1.8);
+      ctx.strokeRect(kcx - kw2/2, kcy - kh2/2, kw2, kh2);
+      txt('kristal', kcx, kcy, C.brass, 10.5, 'center', MONO, 600);
+      /* elektrot yuzeyleri: yuk burada toplaniyor */
+      ctx.strokeStyle = C.cos; LW(3);
+      line(kcx - kw2/2, kcy - kh2/2, kcx + kw2/2, kcy - kh2/2);
+      line(kcx - kw2/2, kcy + kh2/2, kcx + kw2/2, kcy + kh2/2);
+      txt('elektrot', kcx + kw2/2 + 6*K.fs, kcy - kh2/2, C.cos, 9, 'left', MONO, 600);
+      /* baski oku: uclu, kristali sikistiriyor */
+      ctx.strokeStyle = C.sin; LW(2.8); glowOn(C.sin,6);
+      line(kcx, kcy - kh2/2 - 30*K.fs + ez, kcx, kcy - kh2/2 - 4*K.fs + ez);
+      ctx.beginPath();
+      ctx.moveTo(kcx - 5*K.fs, kcy - kh2/2 - 11*K.fs + ez);
+      ctx.lineTo(kcx, kcy - kh2/2 - 3*K.fs + ez);
+      ctx.lineTo(kcx + 5*K.fs, kcy - kh2/2 - 11*K.fs + ez);
+      ctx.stroke(); glowOff();
+      txt('kuvvet', kcx, kcy - kh2/2 - 40*K.fs, C.sin, 9, 'center', MONO, 600);
+      /* govde: kristal buraya dayali */
+      ctx.strokeStyle = C.ink3; LW(2.4); ctx.globalAlpha = 0.65;
+      line(kcx - kw2*0.8, kcy + kh2/2 + 7*K.fs, kcx + kw2*0.8, kcy + kh2/2 + 7*K.fs);
+      ctx.globalAlpha = 1;
+      txt('gövde (temas yüzeyi)', kcx, kcy + kh2/2 + 20*K.fs, C.ink3, 9, 'center', MONO);
+    } else {
+      /* kondansator / elektret: zar + delikli sabit plaka.
+         Zar cok az oynuyor: egrilik gorunsun diye sisme abartili cizildi. */
+      var zy2 = zh*0.86, zx2 = kcx - 34*K.fs, px2 = kcx + 6*K.fs;
+      /* govde: zarin gerildigi cember */
+      ctx.strokeStyle = C.ink3; LW(2.4); ctx.globalAlpha = 0.65;
+      line(zx2, kcy - zy2 - 11*K.fs, zx2, kcy - zy2 + 7*K.fs);
+      line(zx2, kcy + zy2 - 7*K.fs, zx2, kcy + zy2 + 11*K.fs);
+      ctx.globalAlpha = 1;
+      ctx.strokeStyle = C.sin; LW(2.8); glowOn(C.sin,6);
+      ctx.beginPath();
+      ctx.moveTo(zx2, kcy - zy2);
+      ctx.quadraticCurveTo(zx2 + 30*K.fs + gorsel*1.6, kcy, zx2, kcy + zy2);
+      ctx.stroke(); glowOff();
+      txt('zar', zx2 - 6*K.fs, kcy - zy2 - 9*K.fs, C.sin, 9, 'right', MONO, 600);
+      ctx.fillStyle = C.cos; ctx.globalAlpha = 0.30;
+      ctx.fillRect(px2, kcy - zy2, 14*K.fs, zy2*2); ctx.globalAlpha = 1;
+      ctx.strokeStyle = C.cos; LW(1.6);
+      ctx.strokeRect(px2, kcy - zy2, 14*K.fs, zy2*2);
+      var hd;
+      for (hd = -2; hd <= 2; hd++){
+        ctx.fillStyle = C.panel;
+        ctx.fillRect(px2 + 3.5*K.fs, kcy + hd*zy2*0.34 - 2.5*K.fs, 7*K.fs, 5*K.fs);
+      }
+      txt('sabit plaka', px2 + 20*K.fs, kcy - zy2 - 9*K.fs, C.cos, 9, 'left', MONO, 600);
+      /* aralik olcusu: zarin tepesi ile plaka arasi */
+      var tepe = zx2 + 0.5*(30*K.fs + gorsel*1.6);
+      ctx.strokeStyle = C.arc; LW(1.6);
+      line(tepe, kcy + zy2*0.55, tepe, kcy + zy2*0.75);
+      line(px2, kcy + zy2*0.55, px2, kcy + zy2*0.75);
+      dash([3,3]); line(tepe, kcy + zy2*0.65, px2, kcy + zy2*0.65); dash(null);
+      chip('d₀', (tepe + px2)/2, kcy + zy2*0.65 + 14*K.fs, C.arc, 10, 600);
+    }
+    /* gelen ses dalgasi (yayin tamami cerceve icinde kalsin diye merkez saga alindi) */
+    ctx.strokeStyle = C.ink3; LW(1.4); ctx.globalAlpha = 0.55;
+    var wi;
+    for (wi = 0; wi < 3; wi++){
+      ctx.beginPath();
+      ctx.arc(kx0 - 6*K.fs, kcy, (22 + wi*15)*K.fs, -0.62, 0.62);
+      ctx.stroke();
+    }
+    ctx.globalAlpha = 1;
+    txt('ses', kx0 + 6*K.fs, kcy - 40*K.fs, C.ink3, 9, 'left', MONO);
+
+    /* --- canli denklem paneli: sol sutunun alt yarisi --- */
+    if (!small) denklemPaneli(kx0, top + kesH + 40*K.fs, kw, T);
+
+    /* --- dalga izleri --- */
+    var gx0 = (small ? pad : kx0 + kw + 22*K.fs) + 34*K.fs, gx1 = w - pad - 6*K.fs;
+    var gy0 = small ? (top + kesH + 26*K.fs) : top + 4*K.fs;
+    var gy1 = h - 34*K.fs;
+    var IZ = [
+      { ad:'basınç  p(t)',        col:C.ink3, fn:function(t){ return Math.sin(t); }, vurgu:false },
+      { ad:'yer değiştirme  x(t)', col:C.cos,
+        fn:function(t){ return Math.sin(t); }, vurgu:(T.duyar === 'yer değiştirme') },
+      { ad:'hız  v(t)',            col:C.brass,
+        fn:function(t){ return Math.cos(t); }, vurgu:(T.duyar === 'hız') },
+      { ad:'ÇIKIŞ  e(t)',          col:C.sin,
+        fn:function(t){ return T.duyar === 'hız' ? Math.cos(t) : Math.sin(t); }, vurgu:true }
+    ];
+    if (T.duyar === 'kuvvet'){
+      IZ[1].vurgu = false; IZ[2].vurgu = false;
+      IZ[3].fn = function(t){ return Math.sin(t); };
+    }
+    var nIz = IZ.length, ih = (gy1 - gy0)/nIz;
+    IZ.forEach(function(z, i){
+      var cy = gy0 + ih*(i + 0.5), amp = ih*0.34;
+      ctx.strokeStyle = C.line2; LW(1); dash([2,4]);
+      line(gx0, cy, gx1, cy); dash(null);
+      ctx.strokeStyle = z.col; LW(z.vurgu ? 3 : 1.6);
+      if (z.vurgu) glowOn(z.col, 7);
+      ctx.beginPath();
+      var px = Math.round(gx1 - gx0), j;
+      for (j = 0; j <= px; j += 2){
+        var t = faz + (j/px)*TAU*2;
+        var y = cy - z.fn(t)*amp;
+        if (j === 0) ctx.moveTo(gx0 + j, y); else ctx.lineTo(gx0 + j, y);
+      }
+      ctx.stroke(); glowOff();
+      txt(z.ad, gx0 + 4*K.fs, cy - ih*0.40, z.col, 10, 'left', MONO, z.vurgu ? 600 : 400);
+      /* anlik deger noktasi */
+      dot(gx0, cy - z.fn(faz)*amp, z.vurgu ? 4.6 : 3.2, z.col);
+    });
+    txt('2 çevrim = ' + n(2000/S.frq, 2) + ' ms', gx0, gy1 + 16*K.fs,
+        C.ink3, 9.5, 'left', MONO);
+    /* Dar ekranda iki altyazi ust uste biniyordu: uzun olani dusuyor (aynisi not satirinda var). */
+    if (!small) txt(T.duyar === 'hız'
+          ? 'çıkış hızı izliyor — basınçtan çeyrek çevrim ileride'
+          : (T.duyar === 'kuvvet'
+             ? 'çıkış kuvveti izliyor — basınçla aynı fazda'
+             : 'çıkış yer değiştirmeyi izliyor — basınçla aynı fazda'),
+        gx1, gy1 + 16*K.fs, C.ink3, 9.5, 'right', MONO);
+  }
+
+  /* Donusum yasasini SAYILARLA doldurmak: her satir denklemin bir carpani.
+     Butun degerler fizik fonksiyonlarindan geliyor, hicbiri elle yazilmadi. */
+  function denklemSatirlari(k, T, spl, f){
+    var v = hiz(k, spl), xm2 = yerDegistirme(k, spl, f), ev = cikisV(k, spl), p = paskal(spl);
+    var R = [['p    ses basıncı', n(p,3) + ' Pa', C.ink2]];
+    if (k === 'dinamik' || k === 'serit'){
+      R.push(['B    mıknatıs alanı', n(T.B,2) + ' T', C.ink2]);
+      R.push(['L    iletken uzunluğu',
+              T.L >= 1 ? n(T.L,2) + ' m' : n(T.L*100,1) + ' cm', C.ink2]);
+      R.push(['v    zarın hızı', n(v*1000,3) + ' mm/s', C.brass]);
+      R.push(['x = v / 2πf', nmTxt(xm2), C.cos]);
+      var eham = T.B*T.L*v;
+      if (T.trafo){
+        R.push(['e = B · L · v', n(eham*1e6,0) + ' µV', C.ink]);
+        R.push(['trafo  1:' + T.trafo + '  sonrası', n(ev*1000,2) + ' mV', C.sin]);
+      } else {
+        R.push(['e = B · L · v', n(ev*1000,2) + ' mV', C.sin]);
+      }
+    } else if (T.E0){
+      R.push(['E₀   kutuplama gerilimi', n(T.E0,0) + ' V', C.ink2]);
+      R.push(['d₀   zar–plaka aralığı', n(T.d0*1e6,0) + ' µm', C.ink2]);
+      R.push(['x    zarın oynaması', nmTxt(xm2), C.cos]);
+      R.push(['V = E₀ · x / d₀', n(ev*1000,2) + ' mV', C.sin]);
+    } else {
+      R.push(['kristalin duyarlığı', n(T.sens,0) + ' mV/Pa', C.ink2]);
+      R.push(['zar yok — kuvvet doğrudan', 'sıkıştırıyor', C.ink2]);
+      R.push(['V = duyarlık · p', n(ev*1000,2) + ' mV', C.sin]);
+    }
+    return R;
+  }
+  function denklemPaneli(x, y, w2, T){
+    txt('DEĞERLER  ·  ' + n(S.spl,0) + ' dB SPL  ·  ' + fTxt(S.frq),
+        x, y - 18*K.fs, C.ink3, 9.5, 'left', MONO);
+    ctx.fillStyle = C.panel2; ctx.globalAlpha = 0.70;
+    ctx.fillRect(x, y - 10*K.fs, w2, 32*K.fs); ctx.globalAlpha = 1;
+    ctx.strokeStyle = C.arc; LW(1.4);
+    line(x, y - 10*K.fs, x, y + 22*K.fs);
+    txt(T.yasa, x + 12*K.fs, y + 6*K.fs, C.arc, 13.5, 'left', MONO, 600);
+    var R = denklemSatirlari(S.tur, T, S.spl, S.frq), yy = y + 46*K.fs;
+    R.forEach(function(r){
+      txt(r[0], x + 4*K.fs, yy, C.ink3, 10.5, 'left', MONO);
+      txt(r[1], x + w2 - 4*K.fs, yy, r[2], 12.5, 'right', MONO, 600);
+      ctx.strokeStyle = C.line2; LW(1);
+      line(x + 4*K.fs, yy + 12*K.fs, x + w2 - 4*K.fs, yy + 12*K.fs);
+      yy += 26*K.fs;
+    });
+  }
+
+  /* ---------- SAHNE 2: diyafram mekanigi ---------- */
+  function drawMek(w,h){
+    var pad = 16*K.fs;
+    var T = TUR[S.tur];
+    var dal = bantDalga(S.tur, S.f0, S.q, 100, 10000);
+    var kaz = sonumKazanc(S.q, T.Q);
+    sahneBaslik(w, 'DİYAFRAM MEKANİĞİ  ·  rezonans nereye konuyor?',
+      'f₀ = ' + fTxt(S.f0) + '  ·  Q = ' + n(S.q,2) + '  ·  bant dalgalanması ' +
+      n(dal,1) + ' dB  ·  çıkış ' + sgn(kaz,1) + ' dB',
+      dal < 6 ? C.brass : C.arc,
+      'f₀ ' + fTxt(S.f0) + ' · Q ' + n(S.q,2) + ' · ' + n(dal,1) + ' dB');
+
+    var gx0 = pad + 40*K.fs, gx1 = w - pad - 6*K.fs;
+    var gy0 = 48*K.fs, gy1 = h - 36*K.fs;
+    var D0 = -30, D1 = 18;
+    function YD(v){ return gy1 - (Math.max(D0,Math.min(D1,v)) - D0)/(D1-D0)*(gy1-gy0); }
+    var A = logAxis(gx0, gx1, 20, 20000);
+
+    /* denetim bolgeleri */
+    var xr = A.X(Math.max(20, Math.min(20000, S.f0)));
+    ctx.fillStyle = C.cos; ctx.globalAlpha = 0.07;
+    ctx.fillRect(gx0, gy0, Math.max(0, xr - gx0), gy1 - gy0);
+    ctx.fillStyle = C.brass; ctx.globalAlpha = 0.07;
+    ctx.fillRect(xr, gy0, Math.max(0, gx1 - xr), gy1 - gy0);
+    ctx.globalAlpha = 1;
+    ctx.strokeStyle = C.arc; LW(1.6); dash([5,4]);
+    line(xr, gy0, xr, gy1); dash(null);
+    chip('f₀ = ' + fTxt(S.f0), Math.max(gx0+44*K.fs, Math.min(xr, gx1-44*K.fs)),
+         gy0 + 11*K.fs, C.arc, 10, 600);
+    if (xr > gx0 + 54*K.fs)
+      txt('SERTLİK denetimli', gx0 + 6*K.fs, gy0 + 28*K.fs, C.cos, 9.5, 'left', MONO, 600);
+    if (xr < gx1 - 54*K.fs)
+      txt('KÜTLE denetimli', gx1 - 6*K.fs, gy0 + 28*K.fs, C.brass, 9.5, 'right', MONO, 600);
+
+    ctx.strokeStyle = C.line2; LW(1);
+    [-30,-24,-18,-12,-6,0,6,12,18].forEach(function(v){
+      ctx.strokeStyle = v===0 ? C.line : C.line2;
+      dash(v===0?null:[2,4]); line(gx0, YD(v), gx1, YD(v)); dash(null);
+      txt(sgn(v,0), gx0 - 7*K.fs, YD(v), C.ink3, 9, 'right', MONO);
+    });
+    txt('dB', gx0 - 32*K.fs, gy0 + 8*K.fs, C.ink3, 9.5, 'left', MONO);
+    drawTicks(A, gy1, [20,50,100,500,1000,5000,10000,20000], function(v){
+      return v >= 1000 ? n(v/1000,0)+'k' : n(v,0); });
+
+    /* Cikis, turun duyarli oldugu buyuklukle AYNI egridir: kalin cikis egrisi otekini
+       tamamen ortuyordu. Cikis once ve kalin, ortusen egri sonra ve KESIKLI ciziliyor —
+       boylece "bu ikisi ayni sey" gozle okunuyor. */
+    var ayni = T.duyar === 'hız' ? 'v' : (T.duyar === 'yer değiştirme' ? 'x' : null);
+    var EG = [
+      { k:'out', ad:'ÇIKIŞ  (' + T.simge + ' ile orantılı)', col:C.sin,
+        fn:function(f){ return cikisDb(S.tur, f, S.f0, S.q); } },
+      { k:'x',   ad:'yer değiştirme  |x|' + (ayni === 'x' ? '  = çıkış' : ''), col:C.cos,
+        fn:function(f){ return 20*lg(kuvvetCarpani(S.tur,f)*xBag(f,S.f0,S.q) /
+                                     (kuvvetCarpani(S.tur,1000)*xBag(1000,S.f0,S.q))); } },
+      { k:'v',   ad:'hız  |v|' + (ayni === 'v' ? '  = çıkış' : ''), col:C.brass,
+        fn:function(f){ return 20*lg(kuvvetCarpani(S.tur,f)*vBag(f,S.f0,S.q) /
+                                     (kuvvetCarpani(S.tur,1000)*vBag(1000,S.f0,S.q))); } }
+    ];
+    var gor = EG.filter(function(g){ return S.mgos === 'hepsi' || S.mgos === g.k; });
+    gor.forEach(function(g){
+      var kal = (g.k === 'out'), ort = (g.k === ayni && S.mgos === 'hepsi');
+      ctx.strokeStyle = g.col; LW(kal ? 3.4 : (ort ? 2.2 : 1.8));
+      glowOn(g.col, kal ? 7 : 4);
+      if (ort) dash([7,6]);
+      ctx.beginPath();
+      var px = Math.round(gx1 - gx0), i, bas = false;
+      for (i = 0; i <= px; i += 2){
+        var v = g.fn(A.F(gx0 + i));
+        if (!isFinite(v)){ bas = false; continue; }
+        var y = YD(v);
+        if (!bas){ ctx.moveTo(gx0+i, y); bas = true; } else ctx.lineTo(gx0+i, y);
+      }
+      ctx.stroke(); glowOff(); dash(null);
+    });
+    /* efsane: egriler altindan gecince okunmuyordu, kendi zemini var */
+    var lx = gx0 + 6*K.fs, ly = gy0 + 56*K.fs, lw2 = 0;
+    gor.forEach(function(g){ lw2 = Math.max(lw2, tw(g.ad, 9.5, MONO, 600)); });
+    lw2 += 40*K.fs;
+    ctx.fillStyle = C.panel; ctx.globalAlpha = 0.90;
+    ctx.fillRect(lx - 4*K.fs, ly - 11*K.fs, lw2, gor.length*16*K.fs + 6*K.fs);
+    ctx.globalAlpha = 1;
+    ctx.strokeStyle = C.line2; LW(1);
+    ctx.strokeRect(lx - 4*K.fs, ly - 11*K.fs, lw2, gor.length*16*K.fs + 6*K.fs);
+    gor.forEach(function(g){
+      var kal = (g.k === 'out'), ort = (g.k === ayni && S.mgos === 'hepsi');
+      ctx.strokeStyle = g.col; LW(kal ? 3.4 : 2);
+      if (ort) dash([5,4]);
+      line(lx + 2*K.fs, ly, lx + 24*K.fs, ly); dash(null);
+      txt(g.ad, lx + 30*K.fs, ly, g.col, 9.5, 'left', MONO, kal ? 600 : 400);
+      ly += 16*K.fs;
+    });
+    /* bant penceresi: metin eksen etiketlerinin ustune biniyordu, iceri alindi */
+    ctx.strokeStyle = C.ink3; LW(1.1); ctx.globalAlpha = 0.55; dash([3,5]);
+    line(A.X(100), gy0, A.X(100), gy1); line(A.X(10000), gy0, A.X(10000), gy1);
+    dash(null); ctx.globalAlpha = 1;
+    chip('ölçüm penceresi  100 Hz – 10 kHz', (A.X(100) + A.X(10000))/2, gy1 - 13*K.fs,
+         C.ink3, 9.5, 600);
+  }
+
+  /* ---------- SAHNE 3: elektriksel taraf ---------- */
+  function drawElek(w,h){
+    var pad = 16*K.fs, small = w < 760;
+    var T = TUR[S.tur];
+    var kond = (S.tur === 'kondansator' || S.tur === 'elektret');
+    var C0 = kapsulC(S.cap, S.gap);
+    sahneBaslik(w, 'ELEKTRİKSEL TARAF  ·  kapsülden çıkışa',
+      kond ? ('C = ' + n(C0*1e12,0) + ' pF  ·  20 Hz’de |Z| = ' + n(kapsulZ(C0,20)/1e6,0) +
+              ' MΩ  ·  phantom ' + n(phantomV(S.ima),1) + ' V')
+           : (T.ad + '  ·  çıkış empedansı ' + (T.zc >= 1e5 ? n(T.zc/1e6,0)+' MΩ' : n(T.zc,0)+' Ω')),
+      C.arc,
+      kond ? (n(C0*1e12,0)+' pF · '+n(phantomV(S.ima),1)+' V') : T.ad);
+
+    var top = 46*K.fs;
+
+    /* --- sol: zincir semasi --- */
+    var zx0 = pad, zw = small ? (w - 2*pad) : (w - 2*pad)*0.46;
+    var kh = 40*K.fs;
+    var zy = top + 26*K.fs + kh/2;     /* zincir yukari alindi: altta yuk paneline yer acildi */
+    var ZIN = kond
+      ? [['kapsül', n(C0*1e12,0)+' pF', C.cos],
+         ['kutuplama', (T.E0||0)+' V', C.arc],
+         ['dönüştürücü', 'FET', C.brass],
+         ['çıkış', n(T.zc,0)+' Ω', C.sin]]
+      : (S.tur === 'serit'
+         ? [['şerit', 'µV', C.cos], ['trafo', '1:'+T.trafo, C.arc],
+            ['çıkış', n(T.zc,0)+' Ω', C.sin]]
+         : (S.tur === 'piezo'
+            ? [['kristal', 'yük', C.cos], ['çıkış', n(T.zc/1e6,0)+' MΩ', C.sin]]
+            : [['bobin', n(T.zc,0)+' Ω', C.cos], ['çıkış', n(T.zc,0)+' Ω', C.sin]]));
+    /* Kutu genisligi kutu SAYISINA gore: iki kutulu turlerde satir yarim kaliyordu. */
+    var kut = (zw - (ZIN.length - 1)*14*K.fs)/ZIN.length;
+    txt('ZİNCİR', zx0, top - 4*K.fs, C.ink3, 9.5, 'left', MONO);
+    ZIN.forEach(function(z, i){
+      var x = zx0 + i*(kut + 14*K.fs);
+      ctx.fillStyle = C.panel; ctx.fillRect(x, zy - kh/2, kut, kh);
+      ctx.strokeStyle = z[2]; LW(1.8); ctx.strokeRect(x, zy - kh/2, kut, kh);
+      txt(z[0], x + kut/2, zy - 7*K.fs, C.ink, 10, 'center', SANS, 600);
+      txt(z[1], x + kut/2, zy + 8*K.fs, z[2], 10, 'center', MONO, 600);
+      if (i < ZIN.length - 1){
+        ctx.strokeStyle = C.ink3; LW(1.6);
+        line(x + kut, zy, x + kut + 14*K.fs, zy);
+      }
+    });
+
+    /* --- phantom devresi (yalniz beslemeli turler) --- */
+    var py = zy + kh/2 + 46*K.fs, altY = py + 76*K.fs, sat;
+    if (kond && S.tur === 'kondansator'){
+      txt('PHANTOM BESLEME', zx0, py - 32*K.fs, C.ink3, 9.5, 'left', MONO);
+      var bw = zw*0.86, bx = zx0;
+      ctx.strokeStyle = C.arc; LW(2);
+      line(bx, py, bx + bw*0.22, py);
+      chip('+48 V', bx + bw*0.11, py - 12*K.fs, C.arc, 9.5, 600);
+      [[-1,'pin 2'],[1,'pin 3']].forEach(function(pr){
+        var yy = py + pr[0]*16*K.fs;
+        ctx.strokeStyle = C.ink2; LW(1.5);
+        line(bx + bw*0.22, py, bx + bw*0.34, yy);
+        ctx.fillStyle = C.panel2; ctx.fillRect(bx + bw*0.34, yy - 7*K.fs, 44*K.fs, 14*K.fs);
+        ctx.strokeStyle = C.ink3; LW(1.2);
+        ctx.strokeRect(bx + bw*0.34, yy - 7*K.fs, 44*K.fs, 14*K.fs);
+        txt('6,81 kΩ', bx + bw*0.34 + 22*K.fs, yy, C.ink2, 9, 'center', MONO);
+        ctx.strokeStyle = C.ink2; LW(1.5);
+        line(bx + bw*0.34 + 44*K.fs, yy, bx + bw*0.86, yy);
+        txt(pr[1], bx + bw*0.88, yy, C.ink3, 9, 'left', MONO);
+      });
+      chip(n(S.ima,1) + ' mA  →  mikrofonda ' + n(phantomV(S.ima),1) + ' V',
+           bx + bw*0.55, py + 36*K.fs, C.arc, 10, 600);
+      altY = py + 76*K.fs;
+    } else if (S.tur === 'serit'){
+      txt('ŞERİT NEDEN TRAFO İSTER', zx0, py - 14*K.fs, C.ink3, 9.5, 'left', MONO);
+      var ham = TUR.serit.sens/TUR.serit.trafo;
+      sat = wrap('Tek bir iletkenin ürettiği gerilim mikrovolt mertebesindedir (' +
+           n(ham*1000,0) + ' µV/Pa). Yükseltici trafo bunu 1:' + TUR.serit.trafo +
+           ' oranında büyütür ve çıkış empedansını hat girişine uygun hâle getirir.',
+           zx0, py + 4*K.fs, zw - 8*K.fs, C.ink2, 12.5, 16*K.fs);
+      altY = py + 4*K.fs + sat*16*K.fs + 30*K.fs;
+    } else {
+      txt(kond ? 'ELEKTRET: KUTUPLAMA HAZIR GELİYOR' : 'BESLEME GEREKMİYOR',
+          zx0, py - 14*K.fs, C.ink3, 9.5, 'left', MONO);
+      sat = wrap(S.tur === 'piezo'
+        ? 'Kristal yükü kendisi üretir, ama çıkış empedansı megaohm mertebesindedir: ' +
+          'doğrudan mikrofon girişine bağlanırsa bas kaybolur. Araya yüksek empedanslı ' +
+          'bir tampon (DI kutusu, preamp) gerekir.'
+        : (kond
+          ? 'Yalıtkan kalıcı olarak kutuplanmış olduğu için +48 V’a gerek yok. Yine de ' +
+            'kapsülün dibindeki dönüştürücü birkaç volt ister: yaka mikrofonu pilden ya da ' +
+            'vericiden beslenir.'
+          : 'Bobin mıknatısın içinde hareket ederken gerilimi kendi üretir. Hiçbir besleme ' +
+            'gerekmez; phantom açık olsa bile dengeli bağlantıda ortak modda kalır ve ' +
+            'mikrofonu etkilemez.'),
+        zx0, py + 4*K.fs, zw - 8*K.fs, C.ink2, 12.5, 16*K.fs);
+      altY = py + 4*K.fs + sat*16*K.fs + 30*K.fs;
+    }
+
+    /* --- yuk eslesmesi: cikis empedansi neden onemli --- */
+    if (!small && altY < h - 118*K.fs) yukPaneli(zx0, altY, zw, T);
+
+    /* --- sag: empedans egrisi --- */
+    var ex0 = (small ? pad : zx0 + zw + 26*K.fs) + 38*K.fs, ex1 = w - pad - 6*K.fs;
+    var ey1 = h - 36*K.fs;
+    /* Dar ekranda egri, ustundeki metnin bittigi yerden basliyor: baslik ust uste binmiyor. */
+    var ey0 = small ? Math.min(altY + 4*K.fs, ey1 - 210*K.fs) : top + 4*K.fs;
+    var A = logAxis(ex0, ex1, 20, 20000);
+    var Z0 = 1, Z1 = 1e9;                       /* SABİT EKSEN: 1 Ω – 1 GΩ */
+    function YZ(z){ return ey1 - (lg(Math.max(Z0,Math.min(Z1,z))) - lg(Z0))/(lg(Z1)-lg(Z0))*(ey1-ey0); }
+    txt('KAYNAK EMPEDANSI', ex0, ey0 - 9*K.fs, C.ink3, 9.5, 'left', MONO);
+    ctx.strokeStyle = C.line2; LW(1);
+    [1,1e2,1e4,1e6,1e8].forEach(function(z){
+      dash([2,4]); line(ex0, YZ(z), ex1, YZ(z)); dash(null);
+      txt(z >= 1e6 ? n(z/1e6,0)+' MΩ' : (z >= 1e3 ? n(z/1e3,0)+' kΩ' : n(z,0)+' Ω'),
+          ex0 - 7*K.fs, YZ(z), C.ink3, 9, 'right', MONO);
+    });
+    drawTicks(A, ey1, [20,100,1000,10000], function(v){
+      return v >= 1000 ? n(v/1000,0)+'k' : n(v,0); });
+    if (kond){
+      ctx.strokeStyle = C.cos; LW(3); glowOn(C.cos,6); ctx.beginPath();
+      var px = Math.round(ex1-ex0), i;
+      for (i=0;i<=px;i+=2){
+        var f = A.F(ex0+i), z = kapsulZ(C0, f);
+        if (i===0) ctx.moveTo(ex0+i, YZ(z)); else ctx.lineTo(ex0+i, YZ(z));
+      }
+      ctx.stroke(); glowOff();
+      chip('kapsül', ex0 + 44*K.fs, YZ(kapsulZ(C0, 60)) - 12*K.fs, C.cos, 9.5, 600);
+    }
+    ctx.strokeStyle = C.sin; LW(3); glowOn(C.sin,6);
+    line(ex0, YZ(TUR[S.tur].zc), ex1, YZ(TUR[S.tur].zc)); glowOff();
+    chip('mikrofon çıkışı  ' + (T.zc >= 1e5 ? n(T.zc/1e6,0)+' MΩ' : n(T.zc,0)+' Ω'),
+         ex0 + (ex1-ex0)*0.5, YZ(TUR[S.tur].zc) - 12*K.fs, C.sin, 10, 600);
+    /* Duz cizgi bos bir alan gibi gorunuyordu: duzlugun KENDISI bilgi.
+       Sigmayacak kadar uzunsa hic yazilmiyor — kirpik metin yaziden kotu. */
+    var altYaz = (S.tur === 'dinamik' || S.tur === 'serit')
+      ? 'bobin/şerit direnci frekansla neredeyse değişmiyor'
+      : (S.tur === 'piezo' ? 'megaohm mertebesi: hat girişi bu kaynağı yükler' : null);
+    if (altYaz && tw(altYaz, 9.5, MONO) < (ex1 - ex0) - 8*K.fs)
+      txt(altYaz, ex0 + 4*K.fs, YZ(TUR[S.tur].zc) + 16*K.fs, C.ink3, 9.5, 'left', MONO);
+    /* hat girisi 1-10 k bandi */
+    ctx.fillStyle = C.brass; ctx.globalAlpha = 0.14;
+    ctx.fillRect(ex0, YZ(10000), ex1-ex0, YZ(1000)-YZ(10000)); ctx.globalAlpha = 1;
+    txt('mikrofon girişinin beklediği aralık', ex1 - 4*K.fs, YZ(3000), C.brass, 9, 'right', MONO);
+  }
+
+  /* Cikis empedansi neden onemli: gerilim bolucu.  kayip = 20 log Zg/(Zg + Zc)
+     Mikrofon girisleri GUC degil GERILIM aktarimi icin yapilir: Zg >> Zc istenir. */
+  var ZGIR = 2000;
+  function yukPaneli(x, y, w2, T){
+    var oran = ZGIR/T.zc, kayip = 20*lg(ZGIR/(ZGIR + T.zc));
+    var iyi = oran >= 10, orta = oran >= 4;
+    var renk = iyi ? C.ok : (orta ? C.arc : C.no);
+    txt('YÜK EŞLEŞMESİ  ·  mikrofon girişi ' + n(ZGIR/1000,0) + ' kΩ kabul edildi',
+        x, y - 14*K.fs, C.ink3, 9.5, 'left', MONO);
+    var bh = 34*K.fs, bw2 = (w2 - 28*K.fs)/2;
+    [[0, 'mikrofonun çıkışı', T.zc >= 1e5 ? n(T.zc/1e6,0)+' MΩ' : n(T.zc,0)+' Ω', C.sin],
+     [1, 'preampın girişi',   n(ZGIR/1000,0) + ' kΩ', C.brass]].forEach(function(b){
+      var bx = x + b[0]*(bw2 + 28*K.fs);
+      ctx.fillStyle = C.panel; ctx.fillRect(bx, y, bw2, bh);
+      ctx.strokeStyle = b[3]; LW(1.8); ctx.strokeRect(bx, y, bw2, bh);
+      txt(b[1], bx + bw2/2, y + 11*K.fs, C.ink2, 9.5, 'center', SANS);
+      txt(b[2], bx + bw2/2, y + 25*K.fs, b[3], 11.5, 'center', MONO, 600);
+    });
+    ctx.strokeStyle = C.ink3; LW(1.6);
+    line(x + bw2, y + bh/2, x + bw2 + 28*K.fs, y + bh/2);
+    var ry = y + bh + 22*K.fs;
+    txt('köprüleme oranı', x + 4*K.fs, ry, C.ink3, 10.5, 'left', MONO);
+    txt(oran >= 1 ? n(oran,0) + '×' : '1 / ' + n(1/oran,0),
+        x + w2*0.46, ry, renk, 12.5, 'right', MONO, 600);
+    txt('gerilim kaybı', x + w2*0.56, ry, C.ink3, 10.5, 'left', MONO);
+    txt(sgn(kayip,1) + ' dB', x + w2 - 4*K.fs, ry, renk, 12.5, 'right', MONO, 600);
+    txt(iyi ? 'uygun: bu kaybı duymazsınız'
+            : (orta ? 'sınırda: seviye gözle görülür düşer'
+                    : 'doğrudan bağlanmaz — araya tampon (DI kutusu) gerekir'),
+        x + 4*K.fs, ry + 22*K.fs, renk, 11, 'left', MONO, 600);
+  }
+
+  /* ---------- SAHNE 4: hassasiyet ve gurultu ---------- */
+  function drawHas(w,h){
+    var pad = 16*K.fs;
+    var T = TUR[S.tur];
+    var v = cikisV(S.tur, S.hspl), lv = dBu(v);
+    var gr = gurultuSPL(S.tur), da = dinamikAralik(S.tur);
+    var otoG = gerekliKazanc(S.tur, S.hspl, 4);
+    sahneBaslik(w, 'HASSASİYET VE GÜRÜLTÜ  ·  ' + n(T.sens,1) + ' mV/Pa = ' +
+      n(dBV(T.sens*1e-3),1) + ' dBV/Pa',
+      n(S.hspl,0) + ' dB SPL → ' + n(lv,1) + ' dBu  ·  +' + n(S.gain,0) +
+      ' dB sonra ' + n(lv + S.gain,1) + ' dBu',
+      C.arc, n(S.hspl,0)+' dB → '+n(lv+S.gain,1)+' dBu');
+
+    var gx0 = pad + 52*K.fs, gx1 = w - pad - 6*K.fs;
+    var gy0 = 50*K.fs, gy1 = h - 40*K.fs;
+    var L0 = 0, L1 = 150;                        /* SABİT EKSEN: 0–150 dB SPL */
+    function YS(s){ return gy1 - (Math.max(L0,Math.min(L1,s)) - L0)/(L1-L0)*(gy1-gy0); }
+    ctx.strokeStyle = C.line2; LW(1);
+    [0,30,60,90,120,150].forEach(function(s){
+      dash([2,4]); line(gx0, YS(s), gx1, YS(s)); dash(null);
+      txt(n(s,0), gx0 - 9*K.fs, YS(s), C.ink3, 9.5, 'right', MONO);
+    });
+    txt('dB SPL', gx0 - 46*K.fs, gy0 - 16*K.fs, C.ink3, 9.5, 'left', MONO);
+
+    /* mikrofonun kullanilabilir penceresi */
+    ctx.fillStyle = C.brass; ctx.globalAlpha = 0.13;
+    ctx.fillRect(gx0, YS(T.maxSPL), (gx1-gx0)*0.46, YS(gr) - YS(T.maxSPL));
+    ctx.globalAlpha = 1;
+    ctx.strokeStyle = C.brass; LW(1.6); dash([4,4]);
+    line(gx0, YS(gr), gx0 + (gx1-gx0)*0.46, YS(gr));
+    line(gx0, YS(T.maxSPL), gx0 + (gx1-gx0)*0.46, YS(T.maxSPL)); dash(null);
+    chip('kendi gürültüsü ' + n(gr,0) + ' dB', gx0 + (gx1-gx0)*0.22, YS(gr) + 12*K.fs,
+         C.brass, 10, 600);
+    /* Chip cizimin ust kenarindan tasiyordu: pencerenin ICINE alindi. */
+    chip('maks SPL ' + n(T.maxSPL,0) + ' dB', gx0 + (gx1-gx0)*0.22, YS(T.maxSPL) + 13*K.fs,
+         C.brass, 10, 600);
+    txt('dinamik aralık', gx0 + 6*K.fs, (YS(gr) + YS(T.maxSPL))/2 - 8*K.fs,
+        C.ink2, 10, 'left', MONO, 600);
+    txt(n(da,0) + ' dB', gx0 + 6*K.fs, (YS(gr) + YS(T.maxSPL))/2 + 8*K.fs,
+        C.ink, 13, 'left', MONO, 600);
+
+    /* kaynagin seviyesi */
+    var sx = gx0 + (gx1-gx0)*0.60;
+    ctx.strokeStyle = C.sin; LW(3.4); glowOn(C.sin,7);
+    line(sx - 30*K.fs, YS(S.hspl), sx + 30*K.fs, YS(S.hspl)); glowOff();
+    chip('kaynak ' + n(S.hspl,0) + ' dB SPL', sx, YS(S.hspl) - 14*K.fs, C.sin, 10.5, 600);
+    var sic = S.hspl > gr + 3 && S.hspl < T.maxSPL - 1;
+    txt(sic ? 'pencerenin içinde' : (S.hspl >= T.maxSPL - 1 ? 'MAKS SPL AŞILDI' : 'gürültüye gömülü'),
+        sx, YS(S.hspl) + 16*K.fs, sic ? C.ok : C.no, 10, 'center', MONO, 600);
+
+    /* elektriksel seviye merdiveni */
+    var ex = gx1 - 4*K.fs;
+    var E0v = -70, E1v = 24;
+    function YE(d){ return gy1 - (Math.max(E0v,Math.min(E1v,d)) - E0v)/(E1v-E0v)*(gy1-gy0); }
+    ctx.strokeStyle = C.line; LW(1.4); line(ex, gy0, ex, gy1);
+    [-70,-50,-30,-10,4,24].forEach(function(d){
+      ctx.strokeStyle = C.line2; LW(1);
+      line(ex - 6*K.fs, YE(d), ex, YE(d));
+      txt(sgn(d,0), ex + 5*K.fs, YE(d), C.ink3, 9, 'left', MONO);
+    });
+    txt('dBu', ex + 5*K.fs, gy0 - 6*K.fs, C.ink3, 9.5, 'left', MONO);
+    /* mikrofon cikisi ve kazanctan sonrasi */
+    var xa = gx0 + (gx1-gx0)*0.76;
+    ctx.strokeStyle = C.cos; LW(2.6); glowOn(C.cos,6);
+    line(xa - 24*K.fs, YE(lv), xa + 24*K.fs, YE(lv)); glowOff();
+    chip('mikrofon çıkışı ' + n(lv,1) + ' dBu', xa, YE(lv) + 14*K.fs, C.cos, 9.5, 600);
+    ctx.strokeStyle = C.arc; LW(3.2); glowOn(C.arc,7);
+    line(xa - 24*K.fs, YE(lv + S.gain), xa + 24*K.fs, YE(lv + S.gain)); glowOff();
+    chip('preamp sonrası ' + n(lv + S.gain,1) + ' dBu', xa, YE(lv + S.gain) - 14*K.fs,
+         C.arc, 9.5, 600);
+    /* kazanc oku */
+    ctx.strokeStyle = C.arc; LW(1.6); dash([4,3]);
+    line(xa, YE(lv), xa, YE(lv + S.gain)); dash(null);
+    txt('+' + n(S.gain,0) + ' dB', xa + 28*K.fs, (YE(lv) + YE(lv + S.gain))/2,
+        C.arc, 10, 'left', MONO, 600);
+    /* hedef +4 dBu */
+    ctx.strokeStyle = C.brass; LW(1.4); dash([5,4]);
+    line(gx0 + (gx1-gx0)*0.52, YE(4), ex, YE(4)); dash(null);
+    txt('hedef +4 dBu', gx0 + (gx1-gx0)*0.53, YE(4) - 9*K.fs, C.brass, 9.5, 'left', MONO, 600);
+    txt('otomatik kazanç bu tür için ' + n(otoG,0) + ' dB olurdu',
+        gx1, gy1 + 18*K.fs, C.ink3, 9.5, 'right', MONO);
+  }
+
+  /* ================= SAHNE 5: 3B govde ve PATLATMA =================
+     Kucuk bir katilar-cizeri: her parca bir DONEL YUZEY (profil + eksen etrafinda
+     tarama) ya da bir KUTU. Dortgenler dondurulup derinlige gore siralaniyor
+     (ressamin algoritmasi). Olculer GERCEK milimetre.
+     Bakis SABIT uc ceyrek: fareyle dondurme kaldirildi, yerine parcalarina
+     ayirma animasyonu kondu — ogrenci acti kapatti ile ugrasmadan hep ayni,
+     okunakli resmi goruyor.                                                     */
+
+  var CAMD = 1600;
+  var VY = 0.58, VP = 0.17;                      /* SABIT UC CEYREK BAKIS */
+  var LX = -0.40, LY = 0.70, LZ = 0.59;          /* isik yonu (kamera uzayinda) */
+  var HX, HY, HZ;                                /* Blinn yarim vektoru */
+  (function(){
+    var hx = LX, hy = LY, hz = LZ + 1, L = Math.hypot(hx, hy, hz);
+    HX = hx/L; HY = hy/L; HZ = hz/L;
+  })();
+  var ISIK = '#ffffff', KOYU = '#0a0f17';
+
+  /* Malzemeler. Duz Lambert tonlama her seyi plastik oyuncak gosteriyordu:
+     parlama (Blinn) + kenar isigi (Fresnel) + tornalama bandi metali metal yapiyor. */
+  var MAT = {
+    krom:    { amb:0.20, kd:0.70, sp:0.85, sh:46, rim:0.44, bant:0.10, nb:1 },
+    metal:   { amb:0.24, kd:0.72, sp:0.44, sh:22, rim:0.30, bant:0.06, nb:1 },
+    tirtik:  { amb:0.24, kd:0.72, sp:0.52, sh:20, rim:0.28, bant:0.34, nb:10 },
+    mat:     { amb:0.30, kd:0.70, sp:0.07, sh:8,  rim:0.10, bant:0,    nb:1 },
+    plastik: { amb:0.28, kd:0.72, sp:0.26, sh:18, rim:0.18, bant:0,    nb:1 },
+    orgu:    { amb:0.26, kd:0.72, sp:0.34, sh:18, rim:0.28, bant:0,    nb:1, delik:1 },
+    sunger:  { amb:0.34, kd:0.66, sp:0.02, sh:4,  rim:0.05, bant:0,    nb:1 },
+    film:    { amb:0.26, kd:0.72, sp:0.72, sh:36, rim:0.36, bant:0,    nb:1 }
+  };
+
+  function kureProf(r, yc, y0, y1, n){           /* kure kapagi profili */
+    var P = [], i;
+    for (i = 0; i <= n; i++){
+      var y = y0 + (y1 - y0)*i/n, d = (y - yc)/r;
+      P.push([r*Math.sqrt(Math.max(0, 1 - d*d)), y]);
+    }
+    return P;
+  }
+  function silProf(r, y0, y1, kapak){            /* silindir; kapak: 'alt','ust','iki' */
+    var P = [];
+    if (kapak === 'alt' || kapak === 'iki') P.push([0, y0]);
+    P.push([r, y0], [r, y1]);
+    if (kapak === 'ust' || kapak === 'iki') P.push([0, y1]);
+    return P;
+  }
+
+  function donelYuz(prof, opt){
+    var Q = [], i, j, o = opt, seg = o.seg || 30;
+    var ox = (o.off && o.off[0]) || 0, oy = (o.off && o.off[1]) || 0,
+        oz = (o.off && o.off[2]) || 0;
+    var zEks = o.eksen === 'z';
+    function nok(r, y, a){
+      var c = Math.cos(a), s2 = Math.sin(a);
+      return zEks ? [r*c + ox, r*s2 + oy, y + oz] : [r*c + ox, y + oy, r*s2 + oz];
+    }
+    for (i = 0; i < prof.length - 1; i++){
+      var r0 = prof[i][0], y0 = prof[i][1], r1 = prof[i+1][0], y1 = prof[i+1][1];
+      if (r0 < 1e-6 && r1 < 1e-6) continue;
+      for (j = 0; j < seg; j++){
+        var a0 = j/seg*TAU, a1 = (j+1)/seg*TAU;
+        Q.push({ v:[nok(r0,y0,a0), nok(r0,y0,a1), nok(r1,y1,a1), nok(r1,y1,a0)],
+                 o:o, qj:j, qs:seg });
+      }
+    }
+    return Q;
+  }
+  function kutuYuz(w2, h2, d2, opt){
+    var o = opt, ox = (o.off&&o.off[0])||0, oy = (o.off&&o.off[1])||0,
+        oz = (o.off&&o.off[2])||0, Q = [], i;
+    var V = [[-w2,-h2,-d2],[w2,-h2,-d2],[w2,h2,-d2],[-w2,h2,-d2],
+             [-w2,-h2, d2],[w2,-h2, d2],[w2,h2, d2],[-w2,h2, d2]];
+    var F = [[0,1,2,3],[5,4,7,6],[4,0,3,7],[1,5,6,2],[3,2,6,7],[4,5,1,0]];
+    for (i = 0; i < 6; i++){
+      Q.push({ v:F[i].map(function(k){ return [V[k][0]+ox, V[k][1]+oy, V[k][2]+oz]; }),
+               o:o, qj:0, qs:1 });
+    }
+    return Q;
+  }
+
+  /* ---- Mikrofon govdeleri: gercek milimetre, gercek modellerin oranlari ----
+     eo = patlatma sirasi (montaj ekseni boyunca kacinci katman). pat verilirse
+     parca o yone gider (kart, trafo, miknatis gibi yandan cikan parcalar).      */
+  function mik3(k){
+    var P = [], ad, boy, cap, not, adim, i;
+    function pin3(eo){                            /* XLR erkek pimleri */
+      [[0,3.6],[-3.12,-1.8],[3.12,-1.8]].forEach(function(p, n2){
+        P.push({ prof: silProf(0.8, -5, 2.4, 'iki'), col:C.ink2, mat:'krom', seg:10,
+                 off:[p[0],0,p[1]], eo:eo, ad: n2 === 0 ? 'XLR pimleri' : null });
+      });
+    }
+    if (k === 'dinamik'){
+      ad = 'Dinamik sahne mikrofonu'; boy = 162; cap = 51; adim = 13;
+      not = 'Elde tutulan ince gövde, küresel tel ızgara, altta XLR çıkışı. ' +
+            'Kapsül ızgaranın ortasında, şok montajın üstünde asılı duruyor.';
+      pin3(-3);
+      P.push({ prof: silProf(8.4, -0.6, 2.6, 'iki'), col:C.ink3, mat:'plastik', eo:-3 });
+      P.push({ prof: silProf(9.5, 2.6, 15, 'alt'), col:C.ink2, mat:'metal', eo:-3,
+               ad:'XLR çıkışı' });
+      P.push({ prof: silProf(12.2, 62, 75, 'iki'), col:C.ink2, mat:'tirtik', eo:-2,
+               ad:'tırtıklı halka' });
+      P.push({ prof: [[9.5,15],[11.5,23],[11.5,100],[11.3,104]], col:C.ink2,
+               mat:'metal', eo:-1, ad:'gövde' });
+      /* Izgara topu govdeye bir bilezikle oturuyor. Top y=112,3'te r=9,5 ile
+         kesiliyor (merkez 136, R 25,5) — daha asagidan baslatilinca yarical sifira
+         inip sivri bir huni cikiyordu. */
+      P.push({ prof: [[11.3,104],[12.8,107],[12.8,112]], col:C.ink2, mat:'metal',
+               eo:0, ad:'bilezik' });
+      P.push({ prof: silProf(6, 30, 48, 'iki'), col:C.arc, mat:'mat', eo:0, ic:true,
+               ad:'trafo', yan:[-36,0,0] });
+      P.push({ prof: silProf(2.2, 48, 92, 'iki'), col:C.brass, mat:'mat', seg:12,
+               eo:0, ic:true, ad:'kablo', yan:[-36,0,0] });
+      P.push({ prof: silProf(12.6, 107, 116, 'iki'), col:C.ink3, mat:'plastik',
+               eo:1, ic:true, ad:'şok montaj' });
+      P.push({ prof: silProf(9.4, 116, 140, 'iki'), col:C.ink2, mat:'metal',
+               eo:2, ic:true, kes:true, ad:'kapsül' });
+      P.push({ prof: silProf(7.4, 119, 132, 'iki'), col:C.ink3, mat:'mat',
+               eo:3, ic:true, ad:'mıknatıs' });
+      P.push({ prof: silProf(4.3, 132, 136.6, 'iki'), col:C.cos, mat:'metal',
+               eo:4, ic:true, ad:'bobin' });
+      P.push({ prof: silProf(8.6, 136.6, 138, 'iki'), col:C.sin, mat:'film',
+               eo:5, ic:true, ad:'zar' });
+      P.push({ prof: kureProf(22.4, 136, 114.5, 157, 10), col:C.ink3, mat:'sunger',
+               seg:18, eo:6, ic:true, kes:true, ad:'iç sünger' });
+      P.push({ prof: kureProf(25.5, 136, 112.3, 161.4, 22), col:C.ink3, mat:'orgu',
+               seg:52, eo:7, ad:'tel ızgara' });
+    } else if (k === 'kondansator'){
+      ad = 'Geniş diyaframlı kondansatör'; boy = 200; cap = 56; adim = 16;
+      not = 'Kalın gövde, iki katlı tel ızgara. Kapsül gövdenin ucunda değil, ' +
+            'YANA bakacak şekilde asılı: bu mikrofona yandan konuşulur.';
+      pin3(-3);
+      P.push({ prof: silProf(21, -0.6, 2.6, 'iki'), col:C.ink3, mat:'plastik', eo:-3 });
+      P.push({ prof: silProf(23, 2.6, 13, 'alt'), col:C.ink2, mat:'metal', eo:-3,
+               ad:'XLR çıkışı' });
+      P.push({ prof: [[23,13],[27.8,23]], col:C.ink2, mat:'metal', eo:-2 });
+      P.push({ prof: silProf(27.8, 23, 114), col:C.ink2, mat:'metal', eo:-1,
+               ad:'gövde' });
+      P.push({ kutu:[17, 25, 3], col:C.brass, mat:'plastik', off:[0,64,0],
+               eo:0, ic:true, ad:'dönüştürücü kartı', yan:[-48,0,0] });
+      P.push({ prof: silProf(9, 92, 108, 'iki'), col:C.arc, mat:'mat',
+               eo:0, ic:true, ad:'çıkış trafosu', yan:[-48,0,0] });
+      P.push({ prof: silProf(28.6, 114, 123, 'iki'), col:C.ink2, mat:'tirtik', eo:1,
+               ad:'bilezik' });
+      P.push({ prof: silProf(23, -7.5, 7.5, 'iki'), col:C.ink3, mat:'plastik',
+               eksen:'z', off:[0,152,0], eo:2, ic:true, ad:'kapsül sepeti' });
+      P.push({ prof: silProf(21, -5, 5, 'iki'), col:C.ink2, mat:'metal', eksen:'z',
+               off:[0,152,0], eo:3, ic:true, kes:true, ad:'kapsül' });
+      P.push({ prof: silProf(20, 5, 6.6, 'iki'), col:C.sin, mat:'film', eksen:'z',
+               off:[0,152,0], eo:3, ic:true, ad:'zar', yan:[0,0,40] });
+      P.push({ prof: silProf(18, -6.6, -5, 'iki'), col:C.cos, mat:'metal', eksen:'z',
+               off:[0,152,0], eo:3, ic:true, ad:'sabit plaka', yan:[0,0,-40] });
+      P.push({ prof: silProf(24.6, 127, 174), col:C.ink3, mat:'orgu', seg:34,
+               eo:4, ic:true, kes:true, ad:'iç ızgara' });
+      P.push({ prof: kureProf(24.6, 174, 174, 197, 8), col:C.ink3, mat:'orgu',
+               seg:34, eo:4, ic:true, kes:true });
+      P.push({ prof: silProf(28, 123, 178), col:C.ink3, mat:'orgu', seg:50,
+               eo:5, ad:'dış ızgara' });
+      P.push({ prof: kureProf(28, 178, 178, 202, 10), col:C.ink3, mat:'orgu',
+               seg:40, eo:5 });
+    } else if (k === 'serit'){
+      ad = 'Şerit (ribbon) mikrofon'; boy = 210; cap = 25; adim = 15;
+      not = 'İnce uzun gövde. Izgaranın içinde, iki mıknatısın arasında tek bir ' +
+            'alüminyum şerit geriliyor; gövdede yükseltici trafo var.';
+      pin3(-3);
+      P.push({ prof: silProf(9.4, -0.6, 2.6, 'iki'), col:C.ink3, mat:'plastik', eo:-3 });
+      P.push({ prof: silProf(10.5, 2.6, 15, 'alt'), col:C.ink2, mat:'metal', eo:-3,
+               ad:'XLR çıkışı' });
+      P.push({ prof: silProf(13.2, 100, 112, 'iki'), col:C.ink2, mat:'tirtik', eo:-2,
+               ad:'tırtıklı halka' });
+      P.push({ prof: [[10.5,15],[12.4,22],[12.4,126]], col:C.ink2, mat:'metal',
+               eo:-1, ad:'gövde' });
+      P.push({ prof: silProf(8, 34, 68, 'iki'), col:C.arc, mat:'mat', eo:0, ic:true,
+               ad:'yükseltici trafo', yan:[-34,0,0] });
+      P.push({ prof: silProf(11.4, 126, 135, 'iki'), col:C.ink2, mat:'metal', eo:1 });
+      P.push({ kutu:[9.6, 27, 5.6], col:C.ink3, mat:'plastik', off:[0,166,0],
+               eo:2, ic:true, ad:'şerit çerçevesi' });
+      P.push({ kutu:[2.8, 25, 4.2], col:C.ink3, mat:'mat', off:[-7.4,166,0],
+               eo:3, ic:true, ad:'mıknatıslar', yan:[-44,0,0] });
+      P.push({ kutu:[2.8, 25, 4.2], col:C.ink3, mat:'mat', off:[7.4,166,0],
+               eo:3, ic:true, yan:[44,0,0] });
+      P.push({ kutu:[4.4, 25, 0.35], col:C.sin, mat:'film', off:[0,166,0],
+               eo:4, ic:true, ad:'alüminyum şerit' });
+      P.push({ prof: silProf(10.8, 138, 190), col:C.ink3, mat:'orgu', seg:30,
+               eo:5, ic:true, kes:true, ad:'iç ızgara' });
+      P.push({ prof: silProf(12.4, 135, 196), col:C.ink3, mat:'orgu', seg:40,
+               eo:6, ad:'tel ızgara' });
+      P.push({ prof: kureProf(12.4, 196, 196, 208, 8), col:C.ink3, mat:'orgu',
+               seg:36, eo:6 });
+    } else if (k === 'elektret'){
+      ad = 'Elektret yaka mikrofonu'; boy = 15; cap = 5; adim = 2.8;
+      not = 'Bir nohut büyüklüğünde. Kutuplama gerilimi yalıtkanın içinde kalıcı ' +
+            'olarak hazır; gövdeye sığan tek elektronik parça dönüştürücüsü.';
+      P.push({ prof: silProf(0.95, -9, 0.4, 'alt'), col:C.ink3, mat:'mat', seg:14,
+               eo:-2, ad:'kablo' });
+      P.push({ prof: silProf(2.5, 0.4, 11.4), col:C.ink2, mat:'metal', seg:26,
+               eo:-1, ad:'kapsül gövdesi' });
+      P.push({ prof: silProf(1.7, 2.6, 8.2, 'iki'), col:C.brass, mat:'plastik',
+               seg:20, eo:0, ic:true, ad:'dönüştürücü' });
+      P.push({ prof: silProf(2.0, 8.9, 9.9, 'iki'), col:C.cos, mat:'metal', seg:22,
+               eo:1, ic:true, ad:'sabit plaka' });
+      P.push({ prof: silProf(2.15, 10.1, 10.8, 'iki'), col:C.sin, mat:'film',
+               seg:22, eo:2, ic:true, ad:'zar' });
+      P.push({ prof: kureProf(2.5, 11.4, 11.4, 14.6, 8), col:C.ink3, mat:'orgu',
+               seg:28, eo:3, ad:'ızgara' });
+    } else {
+      ad = 'Piezo temas mikrofonu'; boy = 1.2; cap = 27; adim = 2.6;
+      not = 'Yassı bir disk: çalgının göbeğine yapıştırılır. Havayı değil ' +
+            'TAHTAYI dinler; pirinç disk büküldükçe seramik yük toplar.';
+      P.push({ prof: silProf(0.8, -5, 0.3, 'alt'), col:C.ink3, mat:'mat', seg:12,
+               eo:-1, ad:'kablo' });
+      P.push({ prof: silProf(13.5, 0, 0.45, 'iki'), col:C.ink2, mat:'metal', seg:44,
+               eo:0, ad:'pirinç disk' });
+      P.push({ prof: silProf(9.5, 0.45, 0.72, 'iki'), col:C.brass, mat:'mat', seg:40,
+               eo:1, ic:true, ad:'seramik' });
+      P.push({ prof: silProf(9.5, 0.72, 0.86, 'iki'), col:C.cos, mat:'krom', seg:40,
+               eo:2, ic:true, ad:'elektrot' });
+      P.push({ prof: silProf(1.2, 0.86, 1.9, 'iki'), col:C.ink3, mat:'metal', seg:14,
+               off:[6,0,0], eo:3, ic:true, ad:'lehim ucu' });
+    }
+    /* --- PATLATMA YERLESIMI ---
+       Sabit bir adimla acmak yetmiyordu: kucuk parcalar birbirinden ayrilirken
+       izgara ve sunger gibi buyuk parcalar ust uste biniyordu. Onun yerine her
+       KATMAN (eo) kendi y uzunlugu kadar yer kapliyor ve katmanlar montaj
+       sirasina gore alttan yukari bosluk birakilarak isteniyor. Yana cikan
+       parcalar (trafo, kart, miknatis) yiginin yuksekligine karismiyor.        */
+    function parcaY(p){
+      var oy = (p.off && p.off[1]) || 0, lo = 1e9, hi = -1e9;
+      if (p.kutu) return [oy - p.kutu[1], oy + p.kutu[1]];
+      if (p.eksen === 'z'){
+        var rr = 0;
+        p.prof.forEach(function(q){ rr = Math.max(rr, q[0]); });
+        return [oy - rr, oy + rr];
+      }
+      p.prof.forEach(function(q){ lo = Math.min(lo, q[1] + oy); hi = Math.max(hi, q[1] + oy); });
+      return [lo, hi];
+    }
+    var G = {}, KAT = [];
+    P.forEach(function(p){
+      if (G[p.eo] === undefined){ G[p.eo] = { lo:1e9, hi:-1e9 }; KAT.push(p.eo); }
+      if (!p.yan){
+        var e = parcaY(p);
+        G[p.eo].lo = Math.min(G[p.eo].lo, e[0]);
+        G[p.eo].hi = Math.max(G[p.eo].hi, e[1]);
+      }
+    });
+    KAT.sort(function(a2,b2){ return a2 - b2; });
+    var bos = Math.max(boy, cap)*0.05, ust = null, sonOff = 0, off = {}, enUz = 1;
+    KAT.forEach(function(g){
+      var e = G[g];
+      if (e.lo > e.hi){ off[g] = sonOff; return; }    /* yalniz yanal parcalar */
+      off[g] = (ust === null) ? 0 : (ust + bos - e.lo);
+      ust = e.hi + off[g];
+      sonOff = off[g];
+    });
+    P.forEach(function(p){ enUz = Math.max(enUz, Math.abs(off[p.eo])); });
+    P.forEach(function(p){
+      var dy = off[p.eo];
+      p.pat = p.yan ? [p.yan[0], dy + p.yan[1], p.yan[2]] : [0, dy, 0];
+      p.sira = Math.abs(dy)/enUz;                     /* en uzaga giden once cikar */
+    });
+    return { ad:ad, boy:boy, cap:cap, not:not, P:P, adim:adim };
+  }
+  var MIK3 = {};
+  function mik3Al(k){
+    if (!MIK3[k] || MIK3[k]._c !== C.ink){ MIK3[k] = mik3(k); MIK3[k]._c = C.ink; }
+    return MIK3[k];
+  }
+
+  function dondur(p, ya, pi){
+    var cy = Math.cos(ya), sy = Math.sin(ya), cp = Math.cos(pi), sp = Math.sin(pi);
+    var x = p[0]*cy + p[2]*sy, z = -p[0]*sy + p[2]*cy;
+    return [x, p[1]*cp - z*sp, p[1]*sp + z*cp];
+  }
+  function normal(v){
+    var a = [v[1][0]-v[0][0], v[1][1]-v[0][1], v[1][2]-v[0][2]];
+    var b = [v[3][0]-v[0][0], v[3][1]-v[0][1], v[3][2]-v[0][2]];
+    var n = [a[1]*b[2]-a[2]*b[1], a[2]*b[0]-a[0]*b[2], a[0]*b[1]-a[1]*b[0]];
+    var L = Math.hypot(n[0],n[1],n[2]) || 1;
+    return [n[0]/L, n[1]/L, n[2]/L];
+  }
+  /* Bir yuzun rengi: ortam + yayinim + parlama + kenar isigi + tornalama bandi */
+  function yuzRenk(base, m, nx, ny, nz, qj, qs){
+    var d = Math.max(0, nx*LX + ny*LY + nz*LZ);
+    var t = m.amb + m.kd*d;
+    if (m.bant) t *= 1 + m.bant*Math.cos(qj/qs*TAU*m.nb*qs/30);
+    var c = mixc(C.panel2, base, Math.max(0.04, Math.min(1, t)));
+    if (t < 0.34) c = mixc(c, KOYU, (0.34 - t)*0.55);
+    var rim = m.rim*Math.pow(1 - Math.min(1, Math.abs(nz)), 3);
+    if (rim > 0.004) c = mixc(c, ISIK, Math.min(0.42, rim));
+    var sp = m.sp*Math.pow(Math.max(0, nx*HX + ny*HY + nz*HZ), m.sh);
+    if (sp > 0.004) c = mixc(c, ISIK, Math.min(0.88, sp));
+    return c;
+  }
+  function yumusat(u){ return u <= 0 ? 0 : (u >= 1 ? 1 : 1 - Math.pow(1 - u, 3)); }
+
+  function drawUc(w, h){
+    var pad = 16*K.fs;
+    var M = mik3Al(S.tur), u = S.ucPat;
+    var etiketliMi = (u > 0.10) || S.ucKesit;
+    sahneBaslik(w, '3B GÖVDE  ·  ' + (u > 0.02 ? 'parçalarına ayrıldı' : 'gerçek ölçüler'),
+      M.ad + '  ·  ' + n(M.boy,0) + ' × Ø' + n(M.cap,0) + ' mm' +
+      (S.ucKesit ? '  ·  KESİT' : ''),
+      C.arc, M.ad + (S.ucKesit ? ' · kesit' : ''));
+
+    var top = 40*K.fs, altH = 74*K.fs;
+    var bx0 = pad, bx1 = w - pad, by0 = top, by1 = h - altH;
+    var cx = (bx0 + bx1)/2, cy = (by0 + by1)/2;
+
+    /* --- parcalarin o anki yerleri + kaplayan kutu --- */
+    var yMin = 1e9, yMax = -1e9, Rm = 1, i, j;
+    M.P.forEach(function(p){
+      p._u = yumusat((u - p.sira*0.40)/0.60);
+      var dx = p.pat[0]*p._u, dy = p.pat[1]*p._u, dz = p.pat[2]*p._u;
+      p._d = [dx, dy, dz];
+      var ox = ((p.off && p.off[0]) || 0) + dx, oy = ((p.off && p.off[1]) || 0) + dy,
+          oz = ((p.off && p.off[2]) || 0) + dz;
+      if (p.kutu){
+        yMin = Math.min(yMin, oy - p.kutu[1]); yMax = Math.max(yMax, oy + p.kutu[1]);
+        Rm = Math.max(Rm, Math.abs(ox) + p.kutu[0], Math.abs(oz) + p.kutu[2]);
+      } else if (p.eksen === 'z'){
+        var rr = 0;
+        p.prof.forEach(function(q){ rr = Math.max(rr, q[0]); });
+        yMin = Math.min(yMin, oy - rr); yMax = Math.max(yMax, oy + rr);
+        Rm = Math.max(Rm, Math.abs(ox) + rr);
+      } else {
+        p.prof.forEach(function(q){
+          yMin = Math.min(yMin, q[1] + oy); yMax = Math.max(yMax, q[1] + oy);
+          Rm = Math.max(Rm, Math.abs(ox) + q[0], Math.abs(oz) + q[0]);
+        });
+      }
+    });
+    var yOrt = (yMin + yMax)/2, Hm = Math.max(1, yMax - yMin);
+    var enX = (bx1 - bx0)*(etiketliMi ? 0.22 : 0.42);
+    var k = Math.min(enX/Rm, (by1 - by0)*0.47/(Hm/2));
+
+    /* --- dortgenleri topla, dondur, isikla --- */
+    var QS = [], CIZ = [], etiket = {};
+    M.P.forEach(function(p){
+      if (S.ucKesit || u > 0.02 || !p.ic){
+        var o = { off:[((p.off&&p.off[0])||0) + p._d[0],
+                       ((p.off&&p.off[1])||0) + p._d[1],
+                       ((p.off&&p.off[2])||0) + p._d[2]],
+                  eksen:p.eksen, seg:p.seg, mat:MAT[p.mat] || MAT.mat,
+                  col:p.col, ic:p.ic, kes:p.kes, ad:p.ad };
+        (p.kutu ? kutuYuz(p.kutu[0], p.kutu[1], p.kutu[2], o)
+                : donelYuz(p.prof, o)).forEach(function(q){ QS.push(q); });
+      }
+    });
+    QS.forEach(function(q){
+      var V = q.v.map(function(p){ return dondur([p[0], p[1]-yOrt, p[2]], VY, VP); });
+      var vz = (V[0][2]+V[1][2]+V[2][2]+V[3][2])/4;
+      /* KESIT: kabugun KAMERAYA YAKIN yarisi kalkiyor, ic parcalar butun kaliyor. */
+      if (S.ucKesit && (!q.o.ic || q.o.kes) && vz > 0) return;
+      var nz = normal(V), arka = nz[2] < 0;
+      if (arka && !S.ucKesit) return;
+      var N = arka ? [-nz[0],-nz[1],-nz[2]*0.5] : nz;
+      var col = yuzRenk(q.o.col, q.o.mat, N[0], N[1], N[2], q.qj, q.qs);
+      if (arka) col = mixc(col, KOYU, 0.34);
+      var pts = V.map(function(p){
+        var f = CAMD/(CAMD - p[2]);
+        return [cx + p[0]*k*f, cy - p[1]*k*f];
+      });
+      CIZ.push({ p:pts, col:col, z:vz,
+                 delik:q.o.mat.delik ? (arka ? 0.6 : 1) : 0 });
+      if (q.o.ad && etiketliMi){
+        var e = etiket[q.o.ad];
+        if (!e || vz > e.z){
+          etiket[q.o.ad] = { x:(pts[0][0]+pts[2][0])/2, y:(pts[0][1]+pts[2][1])/2,
+                             z:vz, col:q.o.col };
+        }
+      }
+    });
+    CIZ.sort(function(a,b){ return a.z - b.z; });
+
+    /* zemin golgesi */
+    var gr = Math.min(Rm*k*1.1, (bx1-bx0)*0.15);
+    var gy = Math.min(by1 - 6*K.fs, cy + (Hm/2)*k + 16*K.fs);   /* golge modelin dibinde */
+    ctx.fillStyle = C.ink3; ctx.globalAlpha = 0.10;
+    ctx.beginPath();
+    ctx.ellipse(cx, gy, gr, gr*0.20, 0, 0, TAU);
+    ctx.fill(); ctx.globalAlpha = 1;
+
+    CIZ.forEach(function(q){
+      ctx.beginPath();
+      ctx.moveTo(q.p[0][0], q.p[0][1]);
+      ctx.lineTo(q.p[1][0], q.p[1][1]);
+      ctx.lineTo(q.p[2][0], q.p[2][1]);
+      ctx.lineTo(q.p[3][0], q.p[3][1]);
+      ctx.closePath();
+      ctx.fillStyle = q.col; ctx.fill();
+      ctx.strokeStyle = q.col; LW(0.7); ctx.stroke();   /* dikis izini kapatir */
+      /* TEL IZGARA: yuzeye gercek delikler. Dama tahtasi dokusu golf topu gibi
+         duruyordu; delinmis sac bir adim daha gercek. */
+      if (q.delik){
+        var mx = (q.p[0][0]+q.p[1][0]+q.p[2][0]+q.p[3][0])/4;
+        var my = (q.p[0][1]+q.p[1][1]+q.p[2][1]+q.p[3][1])/4;
+        var d1 = Math.hypot(q.p[1][0]-q.p[0][0], q.p[1][1]-q.p[0][1]);
+        var d2 = Math.hypot(q.p[3][0]-q.p[0][0], q.p[3][1]-q.p[0][1]);
+        var r = Math.min(d1, d2)*0.30*q.delik;
+        if (r > 0.55){
+          ctx.fillStyle = mixc(q.col, KOYU, 0.52*q.delik);
+          ctx.beginPath(); ctx.arc(mx, my, r, 0, TAU); ctx.fill();
+        }
+      }
+    });
+
+    /* --- parca etiketleri: sag sutun, her parca kendi yuksekliginde --- */
+    if (etiketliMi){
+      var LS = [], nm;
+      for (nm in etiket){ if (etiket.hasOwnProperty(nm)) LS.push({ ad:nm, e:etiket[nm] }); }
+      LS.sort(function(a,b){ return a.e.y - b.e.y; });
+      /* Etiketler IKI YANA dagitiliyor: tek sutunda kilavuz cizgileri tuvali boydan
+         boya kesiyor ve dikey sikisma iki katina cikiyordu. */
+      var ara = 17.5*K.fs, tav = by0 + 10*K.fs, tab = by1 - 10*K.fs;
+      /* Sutunlar modelin hemen yanina: tuval kenarina yapisinca kilavuz cizgileri
+         gereksiz yere yarim ekran boyu uzuyordu. */
+      var yan = Rm*k + 200*K.fs;
+      var sx = [Math.max(bx0 + 6*K.fs, cx - yan), Math.min(bx1 - 6*K.fs, cx + yan)];
+      var alt = [tav, tav], son = [tav, tav];
+      LS.forEach(function(L, li){
+        L.s = li % 2;                                  /* 0 sol, 1 sag */
+        L.ly = Math.max(alt[L.s], Math.min(tab, L.e.y));
+        alt[L.s] = L.ly + ara; son[L.s] = L.ly;
+      });
+      [0,1].forEach(function(sd){
+        var tas = son[sd] - tab;
+        if (tas > 0) LS.forEach(function(L){ if (L.s === sd) L.ly -= tas; });
+      });
+      LS.forEach(function(L){
+        var sag = L.s === 1, gen = tw(L.ad, 10.5, MONO, 600);
+        var kx = sag ? (sx[1] - gen - 12*K.fs) : (sx[0] + gen + 12*K.fs);
+        ctx.strokeStyle = L.e.col; LW(1.3); ctx.globalAlpha = 0.80;
+        ctx.beginPath();
+        ctx.moveTo(L.e.x, L.e.y);
+        ctx.lineTo(kx + (sag ? -10*K.fs : 10*K.fs), L.ly);
+        ctx.lineTo(kx, L.ly);
+        ctx.stroke(); ctx.globalAlpha = 1;
+        dot(L.e.x, L.e.y, 3.2, L.e.col);
+        txt(L.ad, sx[L.s], L.ly, L.e.col, 10.5, sag ? 'right' : 'left', MONO, 600);
+      });
+    }
+
+    /* --- alt serit: BES TURUN GERCEK ORANLARI (TEK OLCEK) --- */
+    var sy0 = by1 + 12*K.fs, sh = altH - 30*K.fs;
+    txt('AYNI ÖLÇEKTE BEŞ TÜR', bx0, sy0 - 2*K.fs, C.ink3, 9.5, 'left', MONO);
+    var enBoy = 0;
+    TSIRA.forEach(function(t2){ var A = mik3Al(t2); enBoy = Math.max(enBoy, A.boy, A.cap); });
+    var sk = sh/enBoy, gw = (bx1 - bx0)/TSIRA.length;
+    TSIRA.forEach(function(t2, ti){
+      var M2 = mik3Al(t2), sec = (t2 === S.tur);
+      var gx = bx0 + gw*(ti + 0.5), tb = sy0 + sh + 4*K.fs;
+      var ww = Math.max(2, M2.cap*sk), hh = Math.max(2, M2.boy*sk);
+      ctx.fillStyle = sec ? C.sin : C.ink3; ctx.globalAlpha = sec ? 0.95 : 0.32;
+      ctx.fillRect(gx - ww/2, tb - hh, ww, hh); ctx.globalAlpha = 1;
+      txt(n(M2.boy,0) + '×' + n(M2.cap,0) + (w < 760 ? '' : ' mm'), gx, tb + 11*K.fs,
+          sec ? C.sin : C.ink3, w < 760 ? 8.5 : 9, 'center', MONO, sec ? 600 : 400);
+    });
+  }
+
+  /* ---------- yonetici ---------- */
+  function drawBoard(){
+    var g = sized(board); if (!g) return;
+    ctx = g.c;
+    if (S.mode === 'don')       drawDon(g.w, g.h);
+    else if (S.mode === 'mek')  drawMek(g.w, g.h);
+    else if (S.mode === 'elek') drawElek(g.w, g.h);
+    else if (S.mode === 'uc')   drawUc(g.w, g.h);
+    else                        drawHas(g.w, g.h);
+  }
+  function render(){ drawBoard(); }
+  if (window.ResizeObserver){ new ResizeObserver(function(){ render(); }).observe(board); }
+  window.addEventListener('resize', render);
+
+  /* ---------- animasyon ---------- */
+  function canliMi(){
+    if (REDUCED) return false;
+    if (S.mode === 'don') return S.anim;
+    if (S.mode === 'uc')  return S.ucPat !== S.ucHedef;
+    return false;
+  }
+  var patT = 0;
+  function tick(){
+    rafId = null;
+    if (!canliMi()){ if (S.mode === 'uc') sync(); return; }
+    if (S.mode === 'uc'){
+      /* Patlatma tweeni: ~1,25 sn'de acilip kapaniyor. Her parcanin kendi
+         gecikmesi drawUc icinde (sira) veriliyor, burada tek ilerleme var. */
+      var t2 = nowS(), dt = Math.min(0.05, patT ? (t2 - patT) : 0.016);
+      patT = t2;
+      var yon = S.ucHedef > S.ucPat ? 1 : -1, adim = dt/1.25;
+      S.ucPat += yon*adim;
+      if ((yon > 0 && S.ucPat >= S.ucHedef) || (yon < 0 && S.ucPat <= S.ucHedef))
+        S.ucPat = S.ucHedef;
+      sync();
+    }
+    render();
+    rafId = requestAnimationFrame(tick);
+  }
+  function startAnim(){ if (rafId === null && canliMi()) rafId = requestAnimationFrame(tick); }
+  function stopAnim(){ if (rafId !== null){ cancelAnimationFrame(rafId); rafId = null; } }
+
+  /* ================= gosterge ================= */
+  var ro = document.getElementById('readout');
+  function cell(lab,val,cls){
+    return '<div><span>'+lab+'</span><b'+(cls?' class="'+cls+'"':'')+'>'+val+'</b></div>';
+  }
+  function mark(sel, key, val){
+    Array.prototype.forEach.call(document.querySelectorAll(sel+' button'), function(b){
+      b.classList.toggle('on', b.dataset[key] === String(val));
+    });
+  }
+  function nmTxt(x){
+    return x >= 1e-6 ? n(x*1e6,2)+' µm' : n(x*1e9,1)+' nm';
+  }
+  function sync(){
+    var T = TUR[S.tur];
+    if (S.mode === 'don'){
+      ro.innerHTML =
+        cell('tür', T.ad) +
+        cell('yasa', T.yasa,'v-sin') +
+        cell('duyarlı olduğu', T.duyar,'v-cos') +
+        (S.tur === 'piezo'                 /* piezoda zar yok: olculecek oynama da yok */
+          ? cell('çıkış gerilimi', n(cikisV(S.tur, S.spl)*1000,2)+' mV','v-arc')
+          : cell('zarın oynaması', nmTxt(yerDegistirme(S.tur, S.spl, S.frq)),'v-arc'));
+      document.getElementById('v-frq').textContent = fTxt(S.frq);
+      document.getElementById('v-spl').textContent = n(S.spl,0)+' dB SPL';
+      var ab = document.getElementById('anim');
+      ab.textContent = S.anim ? 'Hareketi durdur' : 'Hareketi başlat';
+      ab.classList.toggle('on', !S.anim);
+      var yb = document.getElementById('yavas');
+      yb.textContent = S.yavas ? 'Normal hız' : 'Yavaşlat';
+      yb.classList.toggle('on', S.yavas);
+      document.getElementById('d-note').textContent =
+        T.duyar === 'hız'
+          ? 'Çıkış hızı izliyor: basınç sıfırdan geçerken çıkış en büyük değerinde. ' +
+            'Frekansı yükseltin — çıkış aynı kalırken zarın oynaması küçülüyor (x = v / 2πf).'
+          : (T.duyar === 'kuvvet'
+             ? 'Çıkış kuvvetle aynı fazda; kristal sıkıştıkça yük topluyor.'
+             : 'Çıkış yer değiştirmeyi izliyor: basınçla aynı fazda. Frekans değişse de ' +
+               'zarın oynaması aynı kalıyor — bu türün çıkışını belirleyen x.');
+    } else if (S.mode === 'mek'){
+      var dal = bantDalga(S.tur, S.f0, S.q, 100, 10000);
+      ro.innerHTML =
+        cell('tür', T.ad) +
+        cell('rezonans', fTxt(S.f0),'v-cos') +
+        cell('bant dalgalanması', n(dal,1)+' dB', dal < 6 ? 'v-sin' : 'v-arc') +
+        cell('çıkış', sgn(sonumKazanc(S.q, T.Q),1)+' dB','v-arc');
+      document.getElementById('v-f0').textContent = fTxt(S.f0);
+      document.getElementById('v-q').textContent = n(S.q,2) +
+        (S.q < 0.3 ? '  (ağır sönüm)' : (S.q > 1.1 ? '  (az sönüm)' : ''));
+      mark('#mgos','g',S.mgos);
+      document.getElementById('m-note').textContent =
+        dal < 4 ? 'Bant düz — ama sönümü artırdıkça çıkışın ne kadar düştüğüne bakın.'
+        : (S.f0 > 10000 ? 'Rezonans bandın üstünde: sertlik denetimli, yer değiştirme düz.'
+        : (S.f0 < 80 ? 'Rezonans bandın altında: kütle denetimli.'
+        : 'Rezonans bandın içinde: düzlük yalnız ağır sönümle gelir.'));
+    } else if (S.mode === 'elek'){
+      var kond = (S.tur === 'kondansator' || S.tur === 'elektret');
+      var C0 = kapsulC(S.cap, S.gap);
+      ro.innerHTML =
+        cell('tür', T.ad) +
+        cell(kond ? 'kapsül sığası' : 'çıkış empedansı',
+             kond ? n(C0*1e12,0)+' pF' : (T.zc>=1e5 ? n(T.zc/1e6,0)+' MΩ' : n(T.zc,0)+' Ω'),'v-cos') +
+        cell(kond ? '20 Hz’de |Z|' : 'besleme',
+             kond ? n(kapsulZ(C0,20)/1e6,0)+' MΩ' : T.bes,'v-sin') +
+        cell('phantom', S.tur==='kondansator' ? n(phantomV(S.ima),1)+' V' : 'gerekmiyor','v-arc');
+      document.getElementById('v-gap').textContent = n(S.gap,0)+' µm';
+      document.getElementById('v-cap').textContent = n(S.cap,1)+' mm';
+      document.getElementById('v-ima').textContent = n(S.ima,1)+' mA';
+      /* Kapsul ve phantom kaydiraclari yalniz ilgili turde ise yariyor: otekilerde gizleniyor. */
+      document.getElementById('fld-gap').hidden = !kond;
+      document.getElementById('fld-cap').hidden = !kond;
+      document.getElementById('fld-ima').hidden = (S.tur !== 'kondansator');
+      document.getElementById('e-note').textContent =
+        !kond ? (S.tur==='serit' ? 'Şerit ham çıkışı mikrovolt; trafo hem seviyeyi hem empedansı düzeltiyor.'
+                 : (S.tur==='piezo' ? 'Megaohmluk kaynak: araya tampon girmezse bas kaybolur.'
+                    : 'Bobin gerilimi kendi üretir; besleme gerekmiyor.'))
+        : (kapsulZ(C0,20) > 5e7
+           ? 'Yüz megaohmluk kaynak — dönüştürücü kapsülün dibinde olmak zorunda.'
+           : 'Aralığı daraltmak sığayı büyütür, empedansı düşürür ama hassasiyeti artırır.');
+    } else if (S.mode === 'uc'){
+      var M3 = mik3Al(S.tur);
+      ro.innerHTML =
+        cell('tür', T.ad) +
+        cell('gövde', n(M3.boy,0) + ' × Ø' + n(M3.cap,0) + ' mm','v-cos') +
+        cell('parça sayısı', n(M3.P.filter(function(q){ return q.ad; }).length,0),'v-sin') +
+        cell('görünüm', (S.ucKesit ? 'kesit' : 'dış gövde') +
+             (S.ucPat > 0.02 ? ' · açık' : ''),'v-arc');
+      mark('#ucgos','g', S.ucKesit ? 'kesit' : 'dis');
+      var pb = document.getElementById('ucpat');
+      pb.textContent = S.ucHedef ? 'Yeniden birleştir' : 'Parçalarına ayır';
+      pb.classList.toggle('on', !!S.ucHedef);
+      document.getElementById('u-note').textContent =
+        S.ucPat > 0.9
+          ? 'Parçalar montaj sırasına göre dizildi: en dıştaki en uzağa gitti.'
+          : (S.ucKesit
+             ? 'Gövdenin öne bakan yarısı kaldırıldı; iç parçalar bütün duruyor.'
+             : M3.not);
+    } else {
+      var v2 = cikisV(S.tur, S.hspl), lv2 = dBu(v2);
+      ro.innerHTML =
+        cell('hassasiyet', n(T.sens,1)+' mV/Pa') +
+        cell('mikrofon çıkışı', n(lv2,1)+' dBu','v-cos') +
+        cell('preamp sonrası', n(lv2 + S.gain,1)+' dBu','v-arc') +
+        cell('dinamik aralık', n(dinamikAralik(S.tur),0)+' dB','v-sin');
+      document.getElementById('v-hspl').textContent = n(S.hspl,0)+' dB SPL';
+      document.getElementById('v-gain').textContent = '+'+n(S.gain,0)+' dB';
+      var hedef = lv2 + S.gain;
+      document.getElementById('h-note').textContent =
+        S.hspl > TUR[S.tur].maxSPL - 1 ? 'Maksimum SPL aşıldı: bozulma kazançtan ÖNCE oluşuyor, pad gerekir.'
+        : (Math.abs(hedef - 4) < 2 ? 'Seviye hedefte. Türü değiştirin: aynı kaynak için gereken kazanç değişiyor.'
+        : (hedef < 4 ? 'Seviye düşük — bu tür için ' + n(gerekliKazanc(S.tur,S.hspl,4),0) + ' dB kazanç gerekiyor.'
+        : 'Seviye hedefin üstünde; kazancı kısın.'));
+    }
+    turSync();
+  }
+
+  /* ================= tur secimi =================
+     Serit tuvalin hemen USTUNDE: tur degisince degisen sahne gorus alaninda kaliyor.
+     Once sayfanin altindaydi, secici ile sonucu ayni anda gormek mumkun degildi.   */
+  var turHost = document.getElementById('turbar');
+  function turSec(k){
+    S.tur = k; S.f0 = TUR[k].f0; S.q = TUR[k].Q;
+    fF0.value = logPos(S.f0, 20, 20000); fQ.value = S.q;
+    sync(); render();
+  }
+  TSIRA.forEach(function(k){
+    var b = document.createElement('button');
+    b.type='button'; b.className='tb'; b.dataset.t = k;
+    b.innerHTML = '<b>' + TUR[k].ad.replace(/ \(.*\)$/,'') + '</b><em data-e></em>';
+    b.addEventListener('click', function(){ turSec(k); });
+    turHost.appendChild(b);
+  });
+  function turSync(){
+    Array.prototype.forEach.call(turHost.children, function(b){
+      var k = b.dataset.t, T = TUR[k];
+      b.setAttribute('aria-pressed', k === S.tur ? 'true':'false');
+      b.querySelector('[data-e]').textContent = T.simge ? (T.yasa) : T.yasa;
+      if (k === S.tur) b.scrollIntoView({ block:'nearest', inline:'nearest' });
+    });
+    document.getElementById('tur-count').textContent = TUR[S.tur].duyar + 'a duyarlı';
+    document.getElementById('tur-not').innerHTML =
+      '<b>' + TUR[S.tur].ad + ':</b> ' + TUR[S.tur].not;
+  }
+
+  /* ================= karsilastirma tablosu ================= */
+  var ktb = document.querySelector('#ktable tbody');
+  TSIRA.forEach(function(k){
+    var T = TUR[k], tr = document.createElement('tr');
+    tr.innerHTML = '<td>'+T.ad+'</td><td>'+T.yasa+'</td><td>'+T.duyar+'</td>' +
+      '<td>'+n(T.sens,1)+' mV/Pa</td><td>'+T.bes+'</td>' +
+      '<td class="c-cmp">'+T.alt+'</td>';
+    tr.addEventListener('click', function(){ turSec(k); });
+    ktb.appendChild(tr);
+  });
+
+  /* ================= sahne secimi ================= */
+  var modeBtns = document.querySelectorAll('.modes button[data-m]');
+  function setMode(m){
+    S.mode = m;
+    Array.prototype.forEach.call(modeBtns, function(b){
+      b.setAttribute('aria-pressed', b.dataset.m === m ? 'true':'false');
+    });
+    ['don','mek','elek','has','uc'].forEach(function(k){
+      document.getElementById('row-'+k).hidden = (k !== m);
+    });
+    document.getElementById('stage').dataset.scene = m;
+    sync(); render();
+    if (canliMi()) startAnim(); else stopAnim();
+  }
+  Array.prototype.forEach.call(modeBtns, function(b){
+    b.addEventListener('click', function(){ setMode(b.dataset.m); });
+  });
+
+  /* ================= kontroller ================= */
+  function group(host, items, set){
+    var g = document.getElementById(host);
+    items.forEach(function(o){
+      var b = document.createElement('button');
+      b.type='button'; b.textContent = o[0];
+      if (o[2]) b.dataset[o[2]] = o[1];
+      b.addEventListener('click', function(){ set(o[1]); sync(); render(); });
+      g.appendChild(b);
+    });
+  }
+  group('mgos', [['Hepsi','hepsi','g'],['Yer değiştirme','x','g'],['Hız','v','g'],
+                 ['Yalnız çıkış','out','g']], function(v){ S.mgos = v; });
+  group('ucgos', [['Dış gövde','dis','g'],['Kesit','kesit','g']],
+        function(v){ S.ucKesit = (v === 'kesit'); });
+  document.getElementById('ucpat').addEventListener('click', function(){
+    S.ucHedef = S.ucHedef ? 0 : 1;
+    patT = 0;
+    if (canliMi()) startAnim();
+    sync(); render();
+  });
+
+  var fFrq = document.getElementById('f-frq'), fSpl = document.getElementById('f-spl'),
+      fF0 = document.getElementById('f-f0'), fQ = document.getElementById('f-q'),
+      fGap = document.getElementById('f-gap'), fCap = document.getElementById('f-cap'),
+      fIma = document.getElementById('f-ima'), fHspl = document.getElementById('f-hspl'),
+      fGain = document.getElementById('f-gain');
+  function logVal(v, lo, hi){ return Math.round(Math.pow(10, lg(lo) + (lg(hi)-lg(lo))*v/100)); }
+  function logPos(f, lo, hi){ return Math.round((lg(f)-lg(lo))/(lg(hi)-lg(lo))*100); }
+
+  fFrq.addEventListener('input', function(){ S.frq = logVal(+fFrq.value, 20, 16000); sync(); render(); });
+  fSpl.addEventListener('input', function(){ S.spl = +fSpl.value; sync(); render(); });
+  fF0.addEventListener('input',  function(){ S.f0 = logVal(+fF0.value, 20, 20000); sync(); render(); });
+  fQ.addEventListener('input',   function(){ S.q = +fQ.value; sync(); render(); });
+  fGap.addEventListener('input', function(){ S.gap = +fGap.value; sync(); render(); });
+  fCap.addEventListener('input', function(){ S.cap = +fCap.value; sync(); render(); });
+  fIma.addEventListener('input', function(){ S.ima = +fIma.value; sync(); render(); });
+  fHspl.addEventListener('input',function(){ S.hspl = +fHspl.value; sync(); render(); });
+  fGain.addEventListener('input',function(){ S.gain = +fGain.value; sync(); render(); });
+  document.getElementById('anim').addEventListener('click', function(){
+    S.anim = !S.anim; if (canliMi()) startAnim(); else stopAnim(); sync(); render();
+  });
+  document.getElementById('yavas').addEventListener('click', function(){
+    S.yavas = !S.yavas; sync(); render();
+  });
+  document.getElementById('mvar').addEventListener('click', function(){
+    S.f0 = TUR[S.tur].f0; S.q = TUR[S.tur].Q;
+    fF0.value = logPos(S.f0, 20, 20000); fQ.value = S.q;
+    sync(); render();
+  });
+  document.getElementById('oto').addEventListener('click', function(){
+    S.gain = Math.max(0, Math.min(70, Math.round(gerekliKazanc(S.tur, S.hspl, 4))));
+    fGain.value = S.gain; sync(); render();
+  });
+
+  /* ================= ders adimlari ================= */
+  var STEPS = [
+    { t:'Havanın zara yaptığı şey',
+      b:'Dönüşüm sahnesi, dinamik mikrofon. Soldaki kesitte ses dalgası zarı itiyor; ' +
+        'sağdaki ilk iz basınç. Basınç 94 dB SPL’de <b>1 paskal</b>, yani zarın üstüne düşen ' +
+        'kuvvet gülünç derecede küçük. Hareket çizimde abartıldı — gerçekte zar <b>nanometre</b> ' +
+        'mertebesinde oynuyor.',
+      a:{ mode:'don', frq:500, tur:'dinamik', spl:94, anim:true } },
+    { t:'Faraday: çıkış hızı izliyor',
+      b:'İzlere bakın. Dinamikte çıkış <b>hız</b> izini takip ediyor, yer değiştirmeyi değil. ' +
+        'Sebebi tek satır: <b>e = B · L · v</b>. Basınç sıfırdan geçerken zar en hızlı ' +
+        'hareket ettiği için çıkış <b>en büyük</b> değerinde — aralarında çeyrek çevrim fark var.',
+      a:{ mode:'don', frq:500, tur:'dinamik', spl:94, anim:true } },
+    { t:'Aynı ses, daha yüksek frekans',
+      b:'Frekans kaydıracını <b>4 kHz</b>’e getirdik. Değerler panelinde hız <b>aynı kaldı</b> ' +
+        '(çıkış da öyle), ama <b>x = v / 2πf</b> olduğu için zarın oynaması sekizde birine ' +
+        'indi. Yüksek frekansta mikrofon neredeyse hiç kıpırdamadan çalışıyor. Kondansatöre ' +
+        'geçip aynı şeyi deneyin: orada çıkışı belirleyen <b>x</b> olduğu için oynama değişmez.',
+      a:{ mode:'don', frq:4000, tur:'dinamik', spl:94, anim:true } },
+    { t:'Kondansatör: çıkış yer değiştirmeyi izliyor',
+      b:'Kondansatöre geçin. Şimdi çıkış <b>x</b> iziyle çakışıyor. Zar ile sabit plaka bir ' +
+        'kondansatör; yük sabit tutulunca <b>V = E₀ · x / d₀</b> olur, yani gerilim doğrudan ' +
+        'aralığı söyler. Bu yüzden kondansatör mikrofonlar yer değiştirmeye duyarlıdır.',
+      a:{ mode:'don', frq:500, tur:'kondansator', spl:94, anim:true } },
+    { t:'Zar gerçekte ne kadar oynuyor?',
+      b:'Göstergedeki "zarın oynaması" satırına bakın: 94 dB SPL’de <b>13 nanometre</b>. ' +
+        'Saç telinin yaklaşık beş binde biri. Ses basıncını 124 dB’e çıkarın — hâlâ yarım ' +
+        'mikronun altında. Mikrofonun bütün marifeti bu kıpırtıyı ölçebilmesi.',
+      a:{ mode:'don', frq:500, tur:'kondansator', spl:124, anim:true } },
+    { t:'Şerit: zar ile iletken aynı şey',
+      b:'Şeride geçin. Burada ayrı bir bobin yok: birkaç mikron kalınlığındaki alüminyum ' +
+        'şerit hem zar hem iletken. Mıknatısların arasında sallanıyor ve gerilimi <b>kendisi</b> ' +
+        'üretiyor. Yasa dinamikle aynı, ama kütlesi <b>iki yüz kat</b> daha küçük.',
+      a:{ mode:'don', frq:500, tur:'serit', spl:94, anim:true } },
+    { t:'Piezo: kuvvete duyarlı olan',
+      b:'Piezoya geçin. Burada hareket değil <b>sıkışma</b> ölçülüyor: kristal baskı altında ' +
+        'yüzeyinde yük topluyor. Çıkış basınçla aynı fazda çünkü sert bir eleman için kuvvet ' +
+        've yer değiştirme birbirinin aynısı. Bu yüzden piezo havadan çok <b>temasla</b> çalışır.',
+      a:{ mode:'don', frq:500, tur:'piezo', spl:94, anim:true } },
+
+    { t:'Rezonans nereye konur?',
+      b:'Mekanik sahnesine geçin. Her zar bir <b>kütle–yay–sönüm</b> sistemidir ve bir ' +
+        'rezonansı vardır. Grafikte mavi eğri yer değiştirme, yeşil eğri hız, turuncu eğri ' +
+        'ise o türün <b>çıkışı</b>. Rezonans çizgisinin solu sertlik, sağı kütle denetimli.',
+      a:{ mode:'mek', tur:'kondansator', f0:14000, q:1.0, mgos:'hepsi' } },
+    { t:'Kondansatör: rezonans bandın ÜSTÜNDE',
+      b:'Kondansatörün rezonansı <b>14 kHz</b>’de, yani duyulabilir bandın üstünde. Bütün ' +
+        'bant <b>sertlik denetimli</b> bölgede kalıyor ve orada yer değiştirme kuvvetle ' +
+        'orantılı: x = F/k. Çıkış x ile orantılı olduğu için eğri <b>kendiliğinden düz</b> — ' +
+        'bant dalgalanması 1 dB’in altında.',
+      a:{ mode:'mek', tur:'kondansator', f0:14000, q:1.0, mgos:'hepsi' } },
+    { t:'Şerit: rezonans bandın ALTINDA',
+      b:'Şeride geçin: rezonans <b>35 Hz</b>’de, bütün bant <b>kütle denetimli</b>. Burada ' +
+        'yer değiştirme frekansın karesiyle düşüyor — ama şerit basınç <b>farkıyla</b> ' +
+        'sürüldüğü için kuvvet frekansla artıyor. İki ω birbirini götürüyor ve <b>hız düz ' +
+        'çıkıyor</b>. Çıkış hızla orantılı olduğu için eğri yine düz.',
+      a:{ mode:'mek', tur:'serit', f0:35, q:0.5, mgos:'hepsi' } },
+    { t:'Dinamik: rezonans tam bandın İÇİNDE',
+      b:'Dinamiğe geçin. Rezonans <b>900 Hz</b>’de, yani tam bandın ortasında. Burada ' +
+        '<b>direnç denetimli</b> olmak gerekiyor: hız kuvvetle orantılı olsun diye sistem ' +
+        'ağır sönümleniyor. Sönüm kaydırıcısı şu an 0,25’te ve bant dalgalanması 9 dB.',
+      a:{ mode:'mek', tur:'dinamik', f0:900, q:0.25, mgos:'out' } },
+    { t:'Sönümü azaltın: çıkış artar, bant bozulur',
+      b:'Sönümü <b>1,5</b>’e çıkarın (yani az sönüm). Çıkış <b>+15 dB</b> yükseldi ama bant ' +
+        'dalgalanması 24 dB’e fırladı: rezonansta koca bir tümsek, iki yanda dik inişler. ' +
+        'Tek rezonanslı bir sistem hızda <b>bant geçiren</b> gibi davranır.',
+      a:{ mode:'mek', tur:'dinamik', f0:900, q:1.5, mgos:'out' } },
+    { t:'Sönümü artırın: bant düzelir, çıkış düşer',
+      b:'Şimdi sönümü <b>0,10</b>’a indirin. Dalgalanma 3 dB’e indi — neredeyse düz. Ama ' +
+        'çıkışa bakın: <b>−20 dB</b>. Dinamik mikrofonun düzlüğü tam olarak böyle satın ' +
+        'alınıyor ve bedeli doğrudan hassasiyet. Kondansatörle arasındaki 20 dB’lik fark ' +
+        'işte bu takastan geliyor.',
+      a:{ mode:'mek', tur:'dinamik', f0:900, q:0.10, mgos:'out' } },
+
+    { t:'Kapsül yüz megaohmluk bir kaynak',
+      b:'Elektrik sahnesine geçin, kondansatör seçili. Sağdaki eğri kapsülün kaynak ' +
+        'empedansı: 20 Hz’de <b>95 MΩ</b>. Yeşil bant mikrofon girişinin beklediği aralık — ' +
+        'arada beş basamak var. Kapsülü doğrudan kabloya bağlarsanız sinyalden eser kalmaz.',
+      a:{ mode:'elek', tur:'kondansator', gap:40, cap:22, ima:2 } },
+    { t:'Dönüştürücü kapsülün dibinde',
+      b:'Zincir şemasındaki <b>FET</b> kutusu bu yüzden var: yüksek empedanslı kapsülü alıp ' +
+        'düşük empedanslı bir çıkışa çeviriyor ve bunu kapsülün <b>birkaç milimetre</b> ' +
+        'yanında yapıyor. Arada uzun bir tel olsaydı kaçak akımlar ve kapasitans sinyali yerdi.',
+      a:{ mode:'elek', tur:'kondansator', gap:40, cap:22, ima:2 } },
+    { t:'Phantom: +48 V iki dirençten eşit',
+      b:'Alttaki devreye bakın: +48 V, iki <b>6,81 kΩ</b> direnç üzerinden pin 2 ve pin 3’e ' +
+        '<b>eşit</b> veriliyor. İkisi eşit olduğu için besleme sinyal için <b>ortak moddur</b> ' +
+        've dengeli giriş onu siler — Giriş I’in Dengeli ve Dengesiz Bağlantı atölyesindeki ortak mod bastırması burada işe yarıyor. ' +
+        'Akımı 8 mA’e çekin: mikrofonda kalan gerilim düşüyor.',
+      a:{ mode:'elek', tur:'kondansator', gap:40, cap:22, ima:8 } },
+    { t:'Şeridin trafosu',
+      b:'Şeride geçin. Tek bir iletkenin ürettiği gerilim <b>mikrovolt</b> mertebesinde; ' +
+        'doğrudan kullanılamaz. Yükseltici trafo hem seviyeyi 1:15 oranında büyütüyor hem de ' +
+        'çıkış empedansını hat girişine uygun hâle getiriyor. Dinamikte buna gerek yok, ' +
+        'çünkü bobin yüzlerce sarımdır.',
+      a:{ mode:'elek', tur:'serit', gap:40, cap:22, ima:2 } },
+    { t:'Piezo neden doğrudan bağlanmaz',
+      b:'Piezoya geçin: çıkış empedansı <b>megaohm</b> mertebesinde. Normal bir mikrofon ' +
+        'girişine bağlarsanız giriş empedansı kaynağı yükler ve <b>önce bas kaybolur</b>. ' +
+        'Araya yüksek empedanslı bir tampon — DI kutusu ya da özel preamp — girmesi gerekir.',
+      a:{ mode:'elek', tur:'piezo', gap:40, cap:22, ima:2 } },
+
+    { t:'Aynı kaynak, iki farklı çıkış',
+      b:'Hassasiyet sahnesine geçin, kondansatör seçili, kaynak 94 dB SPL. Mikrofon çıkışı ' +
+        '<b>−31,8 dBu</b>. Şimdi dinamiğe geçin: aynı kaynak, aynı mesafe, ama çıkış ' +
+        '<b>−51,8 dBu</b> — tam 20 dB aşağıda. Bir önceki sahnede gördüğünüz sönüm takasının ' +
+        'künyedeki karşılığı bu.',
+      a:{ mode:'has', tur:'kondansator', hspl:94, gain:36 } },
+    { t:'Preamp kazancı türe göre değişiyor',
+      b:'Dinamik seçiliyken "Kazancı otomatik ayarla"ya basın: hedefe ulaşmak için ' +
+        '<b>56 dB</b> gerekiyor. Kondansatörde aynı kaynak için <b>36 dB</b> yetiyordu. ' +
+        'Yirmi desibel fazla kazanç demek, preamp’in kendi gürültüsünün 20 dB daha ' +
+        'duyulur olması demek.',
+      a:{ mode:'has', tur:'dinamik', hspl:94, gain:56 } },
+    { t:'Fısıltı: gürültü tabanına yaklaşmak',
+      b:'Kaynağı <b>40 dB SPL</b>’e indirin — sessiz bir odada fısıltı. Sol taraftaki yeşil ' +
+        'pencere mikrofonun kullanılabilir aralığı; kaynak artık <b>tabana çok yakın</b>. ' +
+        'Kondansatörün kendi gürültüsü 14 dB(A) olduğu için hâlâ pencerenin içinde, ama ' +
+        'elektret (24 dB) ile deneyin: taban yükseliyor.',
+      a:{ mode:'has', tur:'kondansator', hspl:40, gain:56 } },
+    { t:'Bas davul: maksimum SPL sınırı',
+      b:'Kaynağı <b>140 dB SPL</b>’e çıkarın. Kondansatörde kırmızı uyarı çıkıyor: maksimum ' +
+        'SPL aşıldı ve <b>bozulma kazançtan önce</b>, kapsülün kendisinde oluşuyor. Kazancı ' +
+        'kısmak bunu düzeltmez; pad gerekir ya da dinamik kullanılır. Dinamiğe geçin — ' +
+        '150 dB sınırıyla rahatça içeride.',
+      a:{ mode:'has', tur:'kondansator', hspl:140, gain:20 } },
+    { t:'Dinamik aralık: pencerenin yüksekliği',
+      b:'Dinamiğe geçin ve kaynağı 94 dB’e geri alın. Yeşil pencerenin yüksekliği mikrofonun ' +
+        '<b>dinamik aralığı</b>: kendi gürültüsünden maksimum SPL’ine kadar. Her türde başka ' +
+        'bir pencere var ve doğru mikrofon seçmek, <b>kaynağı bu pencerenin içine ' +
+        'oturtmaktır</b>.',
+      a:{ mode:'has', tur:'dinamik', hspl:94, gain:56 } },
+    { t:'Şimdi gerçek gövdeye bakalım',
+      b:'3B gövde sahnesine geçin. Dinamik sahne mikrofonu: <b>küresel tel ızgara</b>, ' +
+        'elde tutulacak ince gövde, tırtıklı halka, altta üç pimli <b>XLR çıkışı</b>. ' +
+        'Ölçüler gerçek milimetre: 162 mm boy, 51 mm en. Alttaki şerit beş türü aynı ' +
+        'ölçekte gösteriyor.',
+      a:{ mode:'uc', tur:'dinamik', ucKesit:false, ucPat:0 } },
+    { t:'Parçalarına ayırın',
+      b:'<b>Parçalarına ayır</b> düğmesine basın. Mikrofon montaj sırasına göre açılıyor: ' +
+        'en üstte <b>tel ızgara</b>, altında <b>iç sünger</b>, sonra sırasıyla <b>zar</b>, ' +
+        '<b>bobin</b>, <b>mıknatıs</b> ve bunları taşıyan <b>kapsül</b>. Dönüşüm sahnesinde ' +
+        'çizdiğimiz kesit işte bu üç parça — gerçek bir mikrofonun neresinde durduklarını ' +
+        'şimdi görüyorsunuz. Gövdenin içinden <b>trafo</b> ile <b>kablo</b> yana çıkıyor.',
+      a:{ mode:'uc', tur:'dinamik', ucKesit:false, ucPat:1 } },
+    { t:'Kondansatörde zar gövdeye DİK duruyor',
+      b:'Kondansatöre geçin. Kapsül gövdenin ucunda değil, <b>yana bakacak şekilde</b> ' +
+        'duruyor: <b>zar</b> ile <b>sabit plaka</b> yan yana ayrılıyor, ikisinin yüzü de ' +
+        'gövdenin yanına bakıyor. Geniş diyaframlı kondansatöre bu yüzden ucundan değil ' +
+        '<b>yandan</b> konuşulur. Gövdenin içinde <b>dönüştürücü kartı</b> ve ' +
+        '<b>çıkış trafosu</b> var — megaohmluk kaynağın neden kapsülün dibinde ' +
+        'karşılanmak zorunda olduğunu elektriksel taraf sahnesinde görmüştük.',
+      a:{ mode:'uc', tur:'kondansator', ucKesit:false, ucPat:1 } },
+    { t:'Beş tür, aynı ölçekte',
+      b:'Şeritte iki mıknatıs yana açılıyor ve aralarındaki tek alüminyum şerit ortada ' +
+        'kalıyor. Öteki türleri de açıp karşılaştırın: şerit mikrofon <b>210 mm</b>, yaka ' +
+        'elektreti <b>15 mm</b>, piezo disk <b>1 mm</b> kalınlığında. Aynı işi yapan beş ' +
+        'cihaz, aralarında iki yüz kat boyut farkı var — çünkü fizikleri farklı, ' +
+        'dolayısıyla <b>neye ihtiyaç duydukları</b> da farklı.',
+      a:{ mode:'uc', tur:'serit', ucKesit:false, ucPat:1 } }
+  ];
+  var si = 0;
+  var stT = document.getElementById('step-title'), stB = document.getElementById('step-body'),
+      stC = document.getElementById('step-count'), dots = document.getElementById('dots');
+  STEPS.forEach(function(_, i){
+    var d = document.createElement('button');
+    d.type = 'button'; d.className = 'dot';
+    d.setAttribute('aria-label', (i+1)+'. adım');
+    d.addEventListener('click', function(){ setStep(i, true); });
+    dots.appendChild(d);
+  });
+  function setStep(i, apply){
+    si = Math.max(0, Math.min(STEPS.length-1, i));
+    var s2 = STEPS[si];
+    stT.textContent = (si+1)+'. '+s2.t;
+    stB.innerHTML = s2.b;
+    stC.textContent = (si+1)+' / '+STEPS.length;
+    Array.prototype.forEach.call(dots.children, function(d,k){
+      d.setAttribute('aria-current', k === si ? 'true':'false');
+    });
+    document.getElementById('prev').disabled = si === 0;
+    document.getElementById('next').disabled = si === STEPS.length-1;
+    if (apply && s2.a){
+      var a = s2.a;
+      ['tur','spl','frq','f0','q','mgos','gap','cap','ima','hspl','gain'].forEach(function(k){
+        if (a[k] !== undefined) S[k] = a[k];
+      });
+      if (a.anim !== undefined) S.anim = a.anim;
+      if (a.ucKesit !== undefined) S.ucKesit = a.ucKesit;
+      if (a.ucPat !== undefined){ S.ucPat = a.ucPat; S.ucHedef = a.ucPat; }
+      fSpl.value = S.spl; fQ.value = S.q; fGap.value = S.gap; fCap.value = S.cap;
+      fIma.value = S.ima; fHspl.value = S.hspl; fGain.value = S.gain;
+      fFrq.value = logPos(S.frq, 20, 16000);
+      fF0.value = logPos(S.f0, 20, 20000);
+      if (a.mode) setMode(a.mode); else { sync(); render(); }
+    }
+  }
+  document.getElementById('prev').addEventListener('click', function(){ setStep(si-1, true); });
+  document.getElementById('next').addEventListener('click', function(){ setStep(si+1, true); });
+
+  /* ================= alistirma ================= */
+  var QS = [
+    { q:'Dinamik mikrofonun çıkışı neyle orantılıdır?',
+      o:['Zarın yer değiştirmesiyle','Zarın hızıyla','Ses basıncının karesiyle','Zarın kütlesiyle'], c:1,
+      e:'e = B·L·v. Manyetik alan içinde hareket eden iletkende doğan gerilim hızla orantılıdır. Bu yüzden basınç sıfırdan geçerken (zar en hızlıyken) çıkış en büyük değerindedir — aralarında çeyrek çevrim faz farkı vardır.' },
+    { q:'Kondansatör mikrofonda gerilim nasıl doğar?',
+      o:['Bobin mıknatısın içinde hareket eder','Yük sabit tutulur, aralık değişince gerilim değişir',
+         'Kristal sıkışınca yük toplanır','Zar ısınır'], c:1,
+      e:'C = ε₀A/d ve Q = C·E₀ sabit tutulursa V = Q/C = E₀·d/d₀ olur. Aralık yer değiştirmeyle değiştiği için gerilim doğrudan x’i izler. Bu yüzden kondansatör yer değiştirmeye duyarlıdır.' },
+    { q:'94 dB SPL’de bir kondansatör zarı yaklaşık ne kadar oynar?',
+      o:['13 nanometre','13 mikron','0,13 milimetre','1,3 milimetre'], c:0,
+      e:'V = E₀·x/d₀ bağıntısından, 20 mV/Pa hassasiyet, 60 V kutuplama ve 40 µm aralık için x ≈ 13 nm çıkar — saç telinin yaklaşık beş binde biri. Mikrofonun asıl marifeti bu kıpırtıyı ölçebilmesidir.' },
+    { q:'Kondansatör mikrofonun rezonansı nereye konur?',
+      o:['Bandın altına','Bandın tam ortasına','Duyulabilir bandın üstüne','Rezonansı yoktur'], c:2,
+      e:'Rezonans ~14 kHz’e konur; böylece bütün bant sertlik denetimli bölgede kalır ve orada x = F/k, yani yer değiştirme basınçla orantılıdır. Çıkış x ile orantılı olduğu için yanıt kendiliğinden düz çıkar.' },
+    { q:'Şeridin frekans yanıtı neden düz çıkar?',
+      o:['Çok hafif olduğu için','Kütle denetiminden gelen ω ile basınç farkındaki ω sadeleştiği için',
+         'Trafosu düzelttiği için','Rezonansı çok yüksek olduğu için'], c:1,
+      e:'Şerit kütle denetimli bölgede çalışır: x ∝ F/ω². Ama basınç FARKI kuvveti frekansla artar (F ∝ ω·p). İkisi birleşince v = ωx ∝ p olur ve hız frekanstan bağımsız hâle gelir. Çıkış hızla orantılı olduğu için yanıt düzdür.' },
+    { q:'Dinamik mikrofonda sönümü artırmanın bedeli nedir?',
+      o:['Bant daralır','Çıkış seviyesi düşer','Gürültü artar','Empedans yükselir'], c:1,
+      e:'Rezonanstaki hız v = F·Q/(m·ω₀) olduğu için çıkış doğrudan Q ile orantılıdır. Q’yu 1,5’ten 0,15’e indirmek bandı 24 dB dalgalanmadan 6 dB’e düşürür ama çıkışı tam 20 dB azaltır. Kondansatörle arasındaki hassasiyet farkı buradan gelir.' },
+    { q:'"Direnç denetimli" çalışmak ne demektir?',
+      o:['Mikrofonun direnci yüksektir','Hız kuvvetle orantılıdır, yani rezonans çevresinde çalışılır',
+         'Yer değiştirme sabittir','Sönüm yoktur'], c:1,
+      e:'Rezonans çevresinde mekanik empedansı sönüm (direnç) belirler: v = F/R. Hız kuvvetle orantılı olduğu için, çıkışı hızla orantılı olan dinamik mikrofon burada düz yanıt verir. Rezonansın altında sertlik, üstünde kütle baskındır.' },
+    { q:'Kondansatör kapsülünün 20 Hz’deki kaynak empedansı hangi mertebededir?',
+      o:['150 Ω','10 kΩ','Yüz megaohm','1 Ω'], c:2,
+      e:'C ≈ 50–130 pF için |Z| = 1/(2πfC) 20 Hz’de 60–180 MΩ çıkar. Bu yüzden empedans dönüştürücü kapsülün birkaç milimetre yanındadır; arada uzun bir tel olsaydı kaçak akımlar ve kablo kapasitansı sinyali yerdi.' },
+    { q:'Phantom besleme sinyali neden bozmaz?',
+      o:['Çok küçük olduğu için','İki sinyal ucuna da eşit verildiği için ortak modda kalır',
+         'Filtrelendiği için','Yalnız sessizken açıldığı için'], c:1,
+      e:'+48 V iki 6,81 kΩ direnç üzerinden pin 2 ve 3’e eşit verilir. Dengeli girişte iki ucun farkı alındığı için eşit olan besleme silinir — Giriş I’in Dengeli ve Dengesiz Bağlantı atölyesindeki ortak mod bastırmasının doğrudan uygulamasıdır.' },
+    { q:'Şerit mikrofon neden yükseltici trafo kullanır?',
+      o:['Empedansı düşürmek için sadece','Ham çıkışı mikrovolt mertebesinde olduğu için',
+         'Phantom’dan korunmak için','Bası artırmak için'], c:1,
+      e:'Tek bir iletken, birkaç yüz mikrovoltluk gerilim üretir. Trafo hem seviyeyi (tipik 1:15–1:30) hem de çıkış empedansını hat girişine uygun hâle getirir. Dinamikte bobin yüzlerce sarım olduğu için buna gerek kalmaz.' },
+    { q:'20 mV/Pa hassasiyet kaç dBV/Pa’dır?',
+      o:['−20 dBV','−34 dBV','−54 dBV','+26 dBV'], c:1,
+      e:'20·log₁₀(0,020) = −34 dBV. Künyelerde iki gösterim de kullanılır ve aynı şeyi söyler. Dinamik bir mikrofonun 2 mV/Pa değeri ise −54 dBV/Pa’dır — arada tam 20 dB vardır.' },
+    { q:'Aynı kaynağı kaydederken dinamik mikrofon kondansatöre göre ne kadar fazla preamp kazancı ister?',
+      o:['Aynı kazanç','Yaklaşık 20 dB fazla','Yaklaşık 6 dB fazla','Daha az'], c:1,
+      e:'Hassasiyetler 2 mV/Pa ve 20 mV/Pa, yani tam 20 dB fark. 94 dB SPL’de kondansatör −31,8 dBu, dinamik −51,8 dBu verir; hedefe ulaşmak için 36 dB yerine 56 dB kazanç gerekir. Bu kadar kazançta preamp gürültüsü belirleyici olur.' },
+    { q:'Mikrofonun "maksimum SPL" sınırı aşılırsa ne yapılır?',
+      o:['Preamp kazancı kısılır','Pad açılır ya da mikrofon uzaklaştırılır',
+         'Phantom kapatılır','Kablo değiştirilir'], c:1,
+      e:'Bozulma kazançtan ÖNCE, kapsülde ya da kapsülün elektroniğinde oluşur; kazancı kısmak onu geri getirmez. Pad sinyali dönüştürücüden sonra kısarak elektroniği kurtarır, ya da mikrofon kaynaktan uzaklaştırılır.' },
+    { q:'Piezo mikrofon normal bir mikrofon girişine doğrudan bağlanırsa ne olur?',
+      o:['Hiçbir şey, sorunsuz çalışır','Çıkış empedansı çok yüksek olduğu için önce bas kaybolur',
+         'Mikrofon zarar görür','Phantom’a ihtiyaç duyar'], c:1,
+      e:'Piezonun kaynak empedansı megaohm mertebesindedir. Mikrofon girişinin görece düşük empedansı kaynağı yükler ve yüksek empedanslı kaynakta en çok düşük frekanslar zayıflar. Araya yüksek empedanslı bir tampon (DI kutusu) gerekir.' },
+    { q:'Geniş diyaframlı bir kondansatörde zar gövdeye göre nasıl durur?',
+      o:['Gövdenin ucunda, eksenle aynı hizada','Gövde eksenine dik; kapsül yana bakar',
+         'Gövdenin tam dibinde','Gövdenin dışında, ızgaranın üstünde'], c:1,
+      e:'3B kesitte görüldüğü gibi zar gövde eksenine diktir: kapsülün yüzü yana bakar. Bu yüzden geniş diyaframlı kondansatöre ucundan değil YANDAN konuşulur — üstündeki logo hangi yüzün ön yüz olduğunu söyler.' },
+    { q:'Dinamik mikrofonun kapsülü gövdenin neresinde durur?',
+      o:['XLR çıkışının hemen üstünde','Gövdenin tam ortasında',
+         'Tel ızgara topunun içinde, zar sese bakacak şekilde','Izgaranın dışında, açıkta'], c:2,
+      e:'Kapsül ızgara topunun içindedir; en üstte sese bakan zar, onun altında bobin ve bobinin gezdiği mıknatıs boşluğu vardır. Izgara kapsülü darbeden ve rüzgârdan korur, sesi değil.' }
+  ];
+  var qi = 0, qok = 0, qDone = [];
+  var qT=document.getElementById('q-text'), qO=document.getElementById('q-opts'),
+      qF=document.getElementById('q-fb'), qC=document.getElementById('q-count'),
+      qN=document.getElementById('q-next');
+  function renderQ(){
+    var Q = QS[qi];
+    qT.textContent = (qi+1)+'. '+Q.q;
+    qF.innerHTML = ''; qO.innerHTML = '';
+    Q.o.forEach(function(s2,ix){
+      var b = document.createElement('button');
+      b.type='button'; b.textContent = s2;
+      b.addEventListener('click', function(){
+        if (qDone[qi]) return;
+        qDone[qi] = true;
+        var right = ix === Q.c;
+        if (right) qok++;
+        b.classList.add(right ? 'correct' : 'wrong');
+        Array.prototype.forEach.call(qO.children, function(bb,k){
+          if (k === Q.c) bb.classList.add('correct');
+        });
+        qF.innerHTML = (right ? '<b class="y">Doğru.</b> ' : '<b class="n">Değil.</b> ') + Q.e;
+        qC.textContent = qok+' / '+qDone.filter(Boolean).length+' doğru';
+      });
+      qO.appendChild(b);
+    });
+    qN.textContent = (qi === QS.length-1) ? 'Baştan başla' : 'Sonraki soru';
+  }
+  qN.addEventListener('click', function(){ qi = (qi+1)%QS.length; renderQ(); });
+
+  /* ================= baslangic ================= */
+  fFrq.value = logPos(S.frq, 20, 16000);
+  fF0.value = logPos(S.f0, 20, 20000);
+  setMode('don');
+  setStep(0, false);
+  renderQ();
+  sync();
+  render();
+  startAnim();
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(render);
+})();
+</script>

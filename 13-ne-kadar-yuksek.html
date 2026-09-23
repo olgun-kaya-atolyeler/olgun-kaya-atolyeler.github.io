@@ -1,0 +1,2201 @@
+<!DOCTYPE html>
+<html lang="tr">
+<meta charset="utf-8">
+<title>Ne Kadar Yüksek?</title>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400..600;1,6..72,400&family=Chakra+Petch:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+  :root{
+    --ground:#E5ECF3; --panel:#FFFFFF; --panel-2:#F1F6FA;
+    --ink:#0B1620; --ink-2:#3F5265; --ink-3:#697E92;
+    --line:#C7D4E0; --line-2:#DEE7EF;
+    --sin:#A8600A; --cos:#0F5F80; --arc:#A81E6E; --brass:#4A7A12;
+    --on-sin:#FFFFFF; --ok:#1E6B45; --no:#A8203C;
+    --shadow:0 1px 2px rgba(11,22,32,.06), 0 8px 20px -14px rgba(11,22,32,.26);
+    --fs:15px;
+    --board-h:clamp(420px,44vw,520px);
+    --meter-h:330px;
+    --lufs-h:clamp(470px,48vw,580px);
+    --norm-h:clamp(400px,40vw,480px);
+    --font-display:"Chakra Petch","IBM Plex Sans",sans-serif;
+    --h1:clamp(30px,4.5vw,46px);
+    --h2:clamp(21px,2.5vw,28px);
+    --track:.02em; --radius:2px; --radius-s:2px;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --ground:#070F17; --panel:#0E1720; --panel-2:#13202C;
+      --ink:#E7F2FB; --ink-2:#9FB6C9; --ink-3:#6B8296;
+      --line:#213240; --line-2:#182533;
+      --sin:#FFB01F; --cos:#4FD3FF; --arc:#FF6AC1; --brass:#A8FF60;
+      --on-sin:#0A1017; --ok:#3EE59B; --no:#FF5F86;
+      --shadow:0 0 0 1px rgba(79,211,255,.07), 0 12px 30px -18px rgba(0,0,0,.9);
+    }
+  }
+  :root[data-theme="dark"]{
+    --ground:#070F17; --panel:#0E1720; --panel-2:#13202C;
+    --ink:#E7F2FB; --ink-2:#9FB6C9; --ink-3:#6B8296;
+    --line:#213240; --line-2:#182533;
+    --sin:#FFB01F; --cos:#4FD3FF; --arc:#FF6AC1; --brass:#A8FF60;
+    --on-sin:#0A1017; --ok:#3EE59B; --no:#FF5F86;
+    --shadow:0 0 0 1px rgba(79,211,255,.07), 0 12px 30px -18px rgba(0,0,0,.9);
+  }
+  :root[data-mode="proj"]{
+    --ground:#F3F8FC; --panel:#FFFFFF; --panel-2:#EDF4F9;
+    --ink:#040B12; --ink-2:#2A3A49; --ink-3:#546678;
+    --line:#ADBFCE; --line-2:#D2DEE9;
+    --sin:#8A4D00; --cos:#084A66; --arc:#8A1258; --brass:#3A6208;
+    --on-sin:#FFFFFF; --ok:#14512F; --no:#8A1428;
+    --shadow:0 1px 2px rgba(11,22,32,.09), 0 8px 20px -14px rgba(11,22,32,.3);
+    --fs:17px; --board-h:clamp(470px,50vw,590px); --meter-h:380px;
+    --lufs-h:clamp(520px,54vw,640px); --norm-h:clamp(450px,45vw,540px);
+  }
+  @media (max-width:760px){
+    /* sahneler esit x/y olcekli ve geniş formatli: dar ekranda yukseklik
+       genislikten turetilir, yoksa tuvalin yarisi bos kalir. */
+    :root, :root[data-mode="proj"]{ --board-h:560px; --meter-h:340px;
+      --lufs-h:560px; --norm-h:520px; }
+  }
+
+  *{box-sizing:border-box}
+  body{
+    background:var(--ground);color:var(--ink);
+    font-family:"IBM Plex Sans","Helvetica Neue",Arial,sans-serif;
+    font-size:var(--fs);line-height:1.6;-webkit-font-smoothing:antialiased;
+  }
+  .wrap{max-width:1160px;margin:0 auto;padding:34px 20px 60px;display:flex;flex-direction:column;gap:14px}
+
+  .topbar{display:flex;gap:28px;justify-content:space-between;align-items:flex-start;margin-bottom:12px}
+  @media (max-width:640px){.topbar{flex-direction:column-reverse;align-items:flex-start;gap:16px}}
+  .theme{display:flex;flex:0 0 auto;flex-wrap:wrap;border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;background:var(--panel);box-shadow:var(--shadow)}
+  .theme button{border:0;border-left:1px solid var(--line);border-radius:0;background:transparent;font-size:12.5px;padding:8px 12px;color:var(--ink-2)}
+  .theme button:first-child{border-left:0}
+  .theme button:hover{background:var(--panel-2);color:var(--ink)}
+  .theme button[aria-pressed="true"]{background:var(--ink);color:var(--panel);font-weight:500}
+  .theme button:focus-visible{outline:2px solid var(--arc);outline-offset:-2px}
+  header{display:flex;flex-direction:column;gap:9px;max-width:66ch}
+  .eyebrow{margin:0;font-size:11.5px;font-weight:600;letter-spacing:.13em;text-transform:uppercase;color:var(--ink-3)}
+  h1{margin:0;font-family:var(--font-display);font-weight:500;font-size:var(--h1);line-height:1.06;letter-spacing:var(--track);text-wrap:balance}
+  .lede{margin:2px 0 0;color:var(--ink-2);font-size:16.5px;text-wrap:pretty}
+  .lede b{color:var(--ink);font-weight:600}
+
+  section.sec{display:flex;flex-direction:column;gap:14px;padding-top:22px}
+  .sec-head{display:flex;align-items:baseline;gap:14px;border-bottom:1px solid var(--line);padding-bottom:9px}
+  .sec-num{font-family:"IBM Plex Mono",monospace;font-size:12px;font-weight:500;color:var(--brass);letter-spacing:.06em;flex:0 0 auto;padding-top:5px}
+  .sec-head h2{margin:0;font-family:var(--font-display);font-weight:500;font-size:var(--h2);letter-spacing:var(--track);line-height:1.15;text-wrap:balance}
+  .sec-head p{margin:0;color:var(--ink-3);font-size:13px;margin-left:auto;flex:0 0 auto;text-align:right}
+  @media (max-width:620px){.sec-head p{display:none}}
+
+  .panel{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow)}
+
+  .why{display:grid;grid-template-columns:1fr 1.12fr;gap:20px 28px;align-items:center}
+  @media (max-width:860px){.why{grid-template-columns:1fr;align-items:start}}
+  .why-lead{display:flex;flex-direction:column;gap:13px;padding-bottom:4px}
+  .why-more{display:grid;grid-template-columns:repeat(auto-fit,minmax(255px,1fr));gap:16px 28px;margin-top:6px}
+  .why-lead p,.why-more p{margin:0;color:var(--ink-2)}
+  .why-lead p b,.why-more p b{color:var(--ink);font-weight:600}
+  .kicker{font-family:"Newsreader",Georgia,serif;font-size:clamp(21px,2.2vw,26px);line-height:1.28;color:var(--ink);font-style:italic;max-width:27ch;letter-spacing:-.01em;text-wrap:balance}
+  .trio-list{display:flex;flex-direction:column;gap:1px;background:var(--line);
+    border:1px solid var(--line);border-radius:var(--radius);overflow:hidden}
+  .tl{background:var(--panel);padding:13px 15px 14px;border-left:3px solid var(--line)}
+  .tl-1{border-left-color:var(--sin)} .tl-2{border-left-color:var(--arc)}
+  .tl-3{border-left-color:var(--cos)}
+  .tl h3{margin:0 0 3px;font-family:var(--font-display);font-weight:500;font-size:15.5px;
+    letter-spacing:var(--track)}
+  .tl p{margin:0;font-size:13.5px;line-height:1.5;color:var(--ink-2)}
+  .tl p b{color:var(--ink);font-weight:600}
+
+  .defs{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--line);border:1px solid var(--line);border-radius:var(--radius);overflow:hidden}
+  @media (max-width:880px){.defs{grid-template-columns:repeat(2,1fr)}}
+  @media (max-width:560px){.defs{grid-template-columns:1fr}}
+  .def{background:var(--panel);padding:16px 17px 18px;display:flex;flex-direction:column;gap:7px}
+  .def h3{margin:0;font-size:14.5px;font-weight:600;display:flex;align-items:baseline;gap:8px;flex-wrap:wrap}
+  .def h3 em{font-style:normal;font-family:"IBM Plex Mono",monospace;font-size:11.5px;color:var(--ink-3);font-weight:400}
+  .def p{margin:0;font-size:13.8px;color:var(--ink-2);line-height:1.55}
+  .def p b{color:var(--ink);font-weight:600}
+  code{font-family:"IBM Plex Mono",monospace;font-size:.9em;background:var(--panel-2);border:1px solid var(--line-2);padding:1px 5px;border-radius:var(--radius-s)}
+
+  .lang{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--line);border:1px solid var(--line);border-radius:var(--radius);overflow:hidden}
+  @media (max-width:1000px){.lang{grid-template-columns:repeat(2,1fr)}}
+  @media (max-width:560px){.lang{grid-template-columns:1fr}}
+  .lg{background:var(--panel);padding:16px 17px 18px;display:flex;flex-direction:column;gap:8px}
+  .lg-top{display:flex;align-items:baseline;justify-content:space-between;gap:8px}
+  .lg h3{margin:0;font-size:14.5px;font-weight:600}
+  .lg .unit{font-family:"IBM Plex Mono",monospace;font-size:11px;color:var(--ink-3)}
+  .lg p{margin:0;font-size:13.8px;color:var(--ink-2);line-height:1.55}
+  .lg .music{margin-top:2px;font-size:12.5px;color:var(--ink);border-left:2px solid var(--brass);padding-left:9px}
+  .lg .music b{font-weight:600}
+
+  .stage{padding:0;overflow:hidden}
+  .stage-top{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px;padding:13px 16px;border-bottom:1px solid var(--line-2)}
+  .modes{display:flex;flex-wrap:wrap;border:1px solid var(--line);border-radius:var(--radius);overflow:hidden}
+  .modes button{border:0;border-left:1px solid var(--line);border-radius:0;background:var(--panel-2);font-size:13px;padding:8px 15px;color:var(--ink-2);font-weight:500}
+  .modes button:first-child{border-left:0}
+  .modes button:hover{color:var(--ink)}
+  .modes button[aria-pressed="true"]{background:var(--sin);color:var(--on-sin)}
+  .readout{display:flex;flex-wrap:wrap;font-family:"IBM Plex Mono",ui-monospace,monospace;font-variant-numeric:tabular-nums;font-size:13px}
+  .readout div{padding:0 13px;border-left:1px solid var(--line-2)}
+  .readout div:first-child{border-left:0;padding-left:0}
+  .readout b{font-weight:500}
+  .readout span{color:var(--ink-3);font-size:11px;letter-spacing:.06em;text-transform:uppercase;display:block;line-height:1.3}
+  .v-sin{color:var(--sin)} .v-cos{color:var(--cos)} .v-arc{color:var(--arc)}
+
+  .canvas-wrap{background:var(--panel-2);border-bottom:1px solid var(--line-2)}
+  #board{display:block;width:100%;height:var(--board-h);touch-action:none;cursor:grab}
+  #board:active{cursor:grabbing}
+  .stage[data-scene="lufs"] #board{height:var(--lufs-h);cursor:ew-resize}
+  #norm{display:block;width:100%;height:var(--norm-h);touch-action:none}
+
+  .controls{padding:15px 16px 17px;display:flex;flex-direction:column;gap:14px}
+  .ctl-row{display:flex;flex-wrap:wrap;gap:14px 20px;align-items:center}
+  .ctl-row[hidden]{display:none}
+  .field[hidden]{display:none}
+  .ctl-label{font-size:11px;font-weight:600;letter-spacing:.09em;text-transform:uppercase;color:var(--ink-3);flex:0 0 auto}
+  .field{display:flex;flex-direction:column;gap:5px;min-width:172px;flex:1 1 172px;max-width:300px}
+  .field label{font-size:11px;font-weight:600;letter-spacing:.09em;text-transform:uppercase;color:var(--ink-3);display:flex;justify-content:space-between;gap:10px}
+  .field label em{font-style:normal;font-family:"IBM Plex Mono",monospace;font-variant-numeric:tabular-nums;letter-spacing:0;text-transform:none;font-size:12px;color:var(--ink-2)}
+
+  input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:20px;background:transparent;margin:0}
+  input[type=range]::-webkit-slider-runnable-track{height:4px;background:var(--line);border-radius:2px}
+  input[type=range]::-moz-range-track{height:4px;background:var(--line);border-radius:2px}
+  input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;width:16px;height:16px;border-radius:50%;background:var(--arc);border:2px solid var(--panel);margin-top:-6px;box-shadow:0 0 0 1px var(--arc)}
+  input[type=range]::-moz-range-thumb{width:14px;height:14px;border-radius:50%;background:var(--arc);border:2px solid var(--panel);box-shadow:0 0 0 1px var(--arc)}
+  input[type=range]:focus-visible{outline:2px solid var(--arc);outline-offset:4px}
+
+  button{font:inherit;font-size:13.5px;color:var(--ink);background:var(--panel-2);border:1px solid var(--line);padding:7px 13px;border-radius:var(--radius-s);cursor:pointer;transition:background .13s,border-color .13s,color .13s}
+  button:hover{border-color:var(--ink-3)}
+  button:focus-visible{outline:2px solid var(--arc);outline-offset:2px}
+  button:disabled{opacity:.42;cursor:default}
+  button.primary{background:var(--sin);border-color:var(--sin);color:var(--on-sin);font-weight:500;min-width:112px}
+  button.primary:hover{filter:brightness(1.07);border-color:var(--sin)}
+  button.on{background:var(--ink);border-color:var(--ink);color:var(--panel)}
+  .ctl-note{font-size:12px;color:var(--ink-3);font-family:"IBM Plex Mono",monospace;
+    letter-spacing:.01em;min-width:0;flex:1 1 138px;line-height:1.35}
+  .ctl-note.on{color:var(--sin)}
+  .btn-group{display:flex;flex-wrap:wrap;gap:6px}
+  .btn-group.sm button{font-size:12.5px;padding:5px 9px}
+
+  .cols{display:grid;grid-template-columns:1.3fr 1fr;gap:16px;align-items:start}
+  @media (max-width:880px){.cols{grid-template-columns:1fr}}
+  .panel-head{display:flex;align-items:baseline;justify-content:space-between;gap:12px;padding:13px 18px 11px;border-bottom:1px solid var(--line-2)}
+  .panel-head h3{margin:0;font-family:var(--font-display);font-weight:500;font-size:19px;letter-spacing:var(--track)}
+  .panel-head .count{font-family:"IBM Plex Mono",monospace;font-size:12px;color:var(--ink-3);font-variant-numeric:tabular-nums}
+  .panel-body{padding:16px 18px 18px;display:flex;flex-direction:column;gap:13px}
+  .step-title{font-family:var(--font-display);font-size:21px;font-weight:500;line-height:1.22;margin:0;letter-spacing:var(--track);text-wrap:balance}
+  .step-body{margin:0;color:var(--ink-2)}
+  .step-body strong{color:var(--ink);font-weight:600}
+  .step-nav{display:flex;gap:8px;align-items:center;margin-top:auto;padding-top:4px;flex-wrap:wrap}
+  .dots{display:flex;gap:5px;margin-left:auto}
+  .dot{width:7px;height:7px;border-radius:50%;background:var(--line);border:0;padding:0;cursor:pointer}
+  .dot:hover{background:var(--ink-3)}
+  .dot[aria-current="true"]{background:var(--arc)}
+
+  table{width:100%;border-collapse:collapse;font-family:"IBM Plex Mono",monospace;font-size:12.5px;font-variant-numeric:tabular-nums}
+  th,td{text-align:right;padding:6px 8px;border-bottom:1px solid var(--line-2)}
+  th:first-child,td:first-child{text-align:left}
+  th:last-child,td:last-child{text-align:left}
+  thead th{font-family:"IBM Plex Sans",sans-serif;font-size:10.5px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-3);border-bottom:1px solid var(--line)}
+  tbody tr{cursor:pointer}
+  tbody tr:hover{background:var(--panel-2)}
+  tbody tr[aria-selected="true"]{background:color-mix(in srgb,var(--arc) 13%,var(--panel))}
+  tbody tr:last-child td{border-bottom:0}
+  td.c-cmp{font-family:"IBM Plex Sans",sans-serif;font-size:12px;color:var(--ink-2)}
+  .tbl-note{margin:10px 18px 16px;font-size:12.5px;color:var(--ink-3);line-height:1.5}
+  .tbl-note b{color:var(--ink-2);font-weight:600}
+  .tbl-note + .tbl-note{margin-top:-4px}
+
+  .quiz-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;align-items:start}
+  @media (max-width:820px){.quiz-grid{grid-template-columns:1fr}}
+  .q-text{margin:0;font-size:16px;font-weight:500;text-wrap:pretty}
+  .q-opts{display:flex;flex-direction:column;gap:7px}
+  .q-opts button{text-align:left;padding:9px 12px}
+  .q-opts button.correct{border-color:var(--ok);background:color-mix(in srgb,var(--ok) 12%,var(--panel))}
+  .q-opts button.wrong{border-color:var(--no);background:color-mix(in srgb,var(--no) 12%,var(--panel))}
+  .q-feedback{margin:0;font-size:14px;color:var(--ink-2);min-height:1.6em}
+  .q-feedback b.y{color:var(--ok);font-weight:600}
+  .q-feedback b.n{color:var(--no);font-weight:600}
+  .recap ul{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:8px}
+  .recap li{color:var(--ink-2);font-size:14px}
+  .recap b{color:var(--ink);font-weight:600}
+
+  footer{color:var(--ink-3);font-size:12.5px;border-top:1px solid var(--line);padding-top:14px;margin-top:26px;display:flex;flex-wrap:wrap;gap:6px 18px}
+  footer b{color:var(--ink-2);font-weight:600}
+  @media (max-width:760px){
+    button{font-size:14.5px;padding:9px 14px}
+    .btn-group.sm button{font-size:13px;padding:7px 11px}
+    .theme button{padding:8px 9px;font-size:12px}
+    .modes button{padding:9px 12px;font-size:13px}
+    .q-opts button{padding:12px 14px}
+    input[type=range]{height:30px}
+    input[type=range]::-webkit-slider-thumb{width:22px;height:22px;margin-top:-9px}
+    input[type=range]::-moz-range-thumb{width:20px;height:20px}
+    .readout{width:100%}
+    .readout div{padding:0 11px 0 0;border-left:0}
+    .wrap{padding:22px 16px 44px}
+  }
+  @media (prefers-reduced-motion: reduce){*{transition:none!important}}
+</style>
+<div class="wrap">
+  <div class="topbar">
+    <header>
+      <p class="eyebrow">Müzik Teknolojisine Giriş · Sınıf atölyesi</p>
+      <h1>Ne Kadar Yüksek?</h1>
+      <p class="lede">Bir önceki atölyede desibeli ve dB SPL ile dBFS'i kurduk. Şimdi
+        sıra ölçeğin <b>zaman boyutunda</b>: tepe ile RMS arasındaki boşluk
+        (<b>crest factor</b>), o boşluğu kapatan <b>kırpma ve limitleme</b>, genliğin
+        zaman içindeki şekli (<b>zarf</b>) ve bütün bir parçanın tek sayıyla ölçüsü:
+        <b>LUFS</b>.</p>
+    </header>
+    <div class="theme" role="group" aria-label="Görünüm">
+      <button type="button" data-t="light">Açık</button>
+      <button type="button" data-t="dark">Koyu</button>
+      <button type="button" data-t="proj">Projeksiyon</button>
+    </div>
+  </div>
+
+  <!-- ============ 01 ============ -->
+  <section class="sec">
+    <div class="sec-head">
+      <span class="sec-num">01</span>
+      <h2>Desibeli biliyoruz — peki neden hâlâ yetmiyor?</h2>
+      <p>Üç eksik</p>
+    </div>
+
+    <div class="why">
+      <div class="why-lead">
+        <p class="kicker">Aynı tepe değerine ayarlanmış bir davul kaydı ile bir org kaydı aynı yükseklikte duyulmaz. Desibel bunu söyleyemez, çünkü desibel bir ânı ölçer; kulak ise bir süreyi dinler.</p>
+        <p>Önceki atölyede bir sesin seviyesini <b>tek bir anda</b> ölçmeyi öğrendik.
+          Ama müzik durmuyor: vuruyor, sönüyor, yeniden yükseliyor. Bu yüzden üç şey daha
+          gerekiyor — tepeyle ortalamanın <b>arasındaki boşluk</b>, o boşluğa yapılan
+          müdahale (<b>kırpma ve limitleme</b>) ve bütün parçanın <b>zaman boyunca</b>
+          ortalaması (<b>LUFS</b>).</p>
+      </div>
+
+      <div class="trio-list">
+        <div class="tl tl-1">
+          <h3>Crest factor</h3>
+          <p>Tepe ile RMS arasındaki fark. Sinüste 3 dB, kare dalgada 0, tekme davulunda
+            15 dB. <b>Sesin dinamiği</b> bu sayıda saklı.</p>
+        </div>
+        <div class="tl tl-2">
+          <h3>Kırpma ve limitleme</h3>
+          <p>Tepe zaten 0 dBFS'te duruyorsa sesi yükseltmenin tek yolu <b>tepeleri
+            kesmektir</b>. Kazanç var, bedeli dinamik.</p>
+        </div>
+        <div class="tl tl-3">
+          <h3>LUFS</h3>
+          <p>Bütün bir parçanın, kulağın duyduğu biçimde ölçülmüş yüksekliği.
+            <b>Yayın platformları sesi buna göre eşitliyor.</b></p>
+        </div>
+      </div>
+    </div>
+
+    <div class="why-more">
+      <p><b>Neden iki zaman ölçeği var?</b> Dalga şekli <b>milisaniye</b> ölçeğinde salınır —
+        220 Hz'lik bir sesin bir titreşimi 4,55 ms. Zarf ise <b>yüz milisaniye ile saniyeler</b>
+        ölçeğinde değişir: bir piyano notası 3 saniye sönümlenir. Aynı grafikte ikisini birden
+        göremezsiniz; bu yüzden atölyede yakınlaştırma penceresi var. Öğrencinin en çok
+        karıştırdığı yer burası: <b>zarf, dalganın kendisi değil, sınırıdır</b>.</p>
+      <p><b>Neden dB yerine LUFS?</b> Çünkü kulak bütün frekanslara eşit duyarlı değil ve
+        anlık değil, <b>saniyeler boyunca</b> ortalama alır. LUFS her ikisini de hesaba katar:
+        önce sinyali kulağın duyarlılığına benzeyen bir süzgeçten geçirir, sonra parça boyunca
+        ortalar ve sessiz bölümleri hesaba katmaz. Sonuç tek bir sayıdır ve <b>iki farklı
+        parçayı gerçekten karşılaştırabilirsiniz</b>.</p>
+      <p><b>Bu atölye neden stüdyoya bakıyor?</b> Çünkü gain staging, headroom, limitleme,
+        normalizasyon, "loudness war" — hepsi tepe ile ortalama arasındaki boşluk üzerine
+        kurulu. Bir masterı yüksek duyurmanın yolu tepeyi büyütmek değildir (zaten 0 dBFS'te
+        durur); <b>crest factor'ü küçültmektir</b>. Bedeli de dinamiktir — ve platformlar
+        sesi eşitlediği için artık o bedelin <b>karşılığı da yoktur</b>.</p>
+    </div>
+  </section>
+
+  <!-- ============ 02 ============ -->
+  <section class="sec">
+    <div class="sec-head">
+      <span class="sec-num">02</span>
+      <h2>Bilmemiz gereken altı kavram</h2>
+      <p>Önceki atölyenin üstüne</p>
+    </div>
+
+    <div class="defs">
+      <div class="def">
+        <h3>Crest factor <em>tepe − RMS, dB</em></h3>
+        <p>Sinyalin tepesiyle ortalaması arasındaki mesafe. Büyükse ses <b>vurucu</b>,
+          küçükse <b>duvar gibi</b>. Sinüs 3 dB, kare dalga 0 dB, tekme davulu 15 dB
+          civarındadır.</p>
+      </div>
+      <div class="def">
+        <h3>Kırpma <em>clipping</em></h3>
+        <p>Sinyal tavana dayandığında tepelerin <b>düz kesilmesi</b>. Yeni harmonikler
+          üretir — bu yüzden bozuk duyulur. Dijitalde tavan 0 dBFS'tir ve orası
+          <b>aşılamaz</b>.</p>
+      </div>
+      <div class="def">
+        <h3>Limitleme <em>limiting</em></h3>
+        <p>Tepeleri keskin kesmek yerine <b>yumuşakça bastırmak</b>. Aynı işi yapar —
+          crest factor'ü küçültür — ama duyulur bozulma üretmeden. Her masterın son
+          halkasıdır.</p>
+      </div>
+      <div class="def">
+        <h3>Zarf <em>ADSR</em></h3>
+        <p>Genliğin zaman içindeki şekli: <b>attack, decay, sustain, release</b>.
+          Bir çalgıyı tanımamızı sağlayan şey büyük ölçüde budur; aynı harmonik içerik
+          farklı zarfla bambaşka bir çalgıya dönüşür.</p>
+      </div>
+      <div class="def">
+        <h3>Zarf takipçisi <em>kayan RMS</em></h3>
+        <p>Sinyalin yüksekliğini <b>sürekli ölçen</b> hesap. Kompresörün, limiterin,
+          gate'in içinde bu vardır. Pencere kısa olursa dalgayı takip eder, uzun olursa
+          yumuşak bir zarf verir.</p>
+      </div>
+      <div class="def">
+        <h3>LUFS <em>ITU-R BS.1770</em></h3>
+        <p>Algısal yükseklik ölçüsü. Sinyal önce kulağa benzeyen bir süzgeçten geçer
+          (<b>K-ağırlık</b>), sonra parça boyunca ortalanır ve sessiz bölümler
+          <b>kapılama</b> ile dışarıda bırakılır. 1 LU = 1 dB.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 03 ============ -->
+  <section class="sec">
+    <div class="sec-head">
+      <span class="sec-num">03</span>
+      <h2>Atölye: dört sahne</h2>
+      <p>Crest → kırpma → zarf → LUFS</p>
+    </div>
+
+    <div class="panel stage" id="stage1" data-scene="genlik">
+      <div class="stage-top">
+        <div class="modes" role="group" aria-label="Sahne">
+          <button type="button" data-m="genlik" aria-pressed="true">Tepe, RMS, crest</button>
+          <button type="button" data-m="kirpma">Kırpma ve limitleme</button>
+          <button type="button" data-m="zarf">Zarf</button>
+          <button type="button" data-m="lufs">LUFS</button>
+        </div>
+        <div class="readout" id="ro"></div>
+      </div>
+
+      <div class="canvas-wrap">
+        <canvas id="board" aria-label="Seçilen sahnenin çizimi: dalga şekli ile tepe ve RMS çizgileri, kırpma öncesi ve sonrası, ya da zarf ve zarf takipçisi."></canvas>
+      </div>
+
+      <div class="controls">
+        <div class="ctl-row" id="row-genlik">
+          <span class="ctl-label">Dalga şekli</span>
+          <div class="btn-group sm" id="shapes"></div>
+          <div class="field">
+            <label for="gfreq">Frekans <em id="gfreq-out">220 Hz</em></label>
+            <input type="range" id="gfreq" min="55" max="880" step="1" value="220">
+          </div>
+          <button id="hearPeak" type="button">Eşit tepe ile duy ♪</button>
+          <button id="hearRms" type="button">Eşit RMS ile duy ♪</button>
+          <span class="ctl-note" id="g-stat" aria-live="polite"></span>
+        </div>
+
+        <div class="ctl-row" id="row-kirpma" hidden>
+          <div class="field">
+            <label for="gain">Giriş kazancı <em id="gain-out">0,0 dB</em></label>
+            <input type="range" id="gain" min="0" max="24" step="0.5" value="0">
+          </div>
+          <span class="ctl-label">Sınırlama</span>
+          <div class="btn-group sm" id="clipk"></div>
+          <div class="btn-group sm" id="gpre"></div>
+          <button id="hearClip" type="button">Ham ↔ limitli duy ♪</button>
+          <span class="ctl-note" id="k-stat" aria-live="polite"></span>
+        </div>
+
+        <div class="ctl-row" id="row-lufs" hidden>
+          <button class="primary" id="lplay" type="button">Parçayı çal ▶</button>
+          <div class="field">
+            <label for="mgain">Master kazancı <em id="mgain-out">+4,0 dB</em></label>
+            <input type="range" id="mgain" min="0" max="20" step="0.5" value="4">
+          </div>
+          <span class="ctl-label">Limiter</span>
+          <div class="btn-group sm" id="lim"></div>
+          <span class="ctl-label">Hazır</span>
+          <div class="btn-group sm" id="lpre"></div>
+          <span class="ctl-note" id="l-stat" aria-live="polite">Zaman eksenine tıklayarak anlık ve kısa dönem değerlerini gezdirebilirsin.</span>
+        </div>
+
+        <div class="ctl-row" id="row-zarf" hidden>
+          <button class="primary" id="zplay" type="button">Çal ▶</button>
+          <div class="field">
+            <label for="atk">Attack <em id="atk-out">4 ms</em></label>
+            <input type="range" id="atk" min="0.001" max="0.6" step="0.001" value="0.004">
+          </div>
+          <div class="field">
+            <label for="dec">Decay <em id="dec-out">300 ms</em></label>
+            <input type="range" id="dec" min="0.01" max="1.5" step="0.01" value="0.30">
+          </div>
+          <div class="field">
+            <label for="sus">Sustain <em id="sus-out">0,45</em></label>
+            <input type="range" id="sus" min="0" max="1" step="0.01" value="0.45">
+          </div>
+          <div class="field">
+            <label for="rel">Release <em id="rel-out">300 ms</em></label>
+            <input type="range" id="rel" min="0.01" max="2" step="0.01" value="0.30">
+          </div>
+          <div class="field">
+            <label for="win">Takipçi penceresi <em id="win-out">20 ms</em></label>
+            <input type="range" id="win" min="1" max="200" step="1" value="20">
+          </div>
+          <div class="btn-group sm" id="zpre"></div>
+          <span class="ctl-note" id="z-stat" aria-live="polite"></span>
+        </div>
+      </div>
+    </div>
+
+    <div class="cols">
+      <section class="panel">
+        <div class="panel-head">
+          <h3>Ders adımları</h3>
+          <span class="count" id="step-count">1 / 12</span>
+        </div>
+        <div class="panel-body">
+          <h4 class="step-title" id="step-title"></h4>
+          <p class="step-body" id="step-body"></p>
+          <div class="step-nav">
+            <button id="prev" type="button">◀ Geri</button>
+            <button id="next" type="button">İleri ▶</button>
+            <div class="dots" id="dots"></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="panel">
+        <div class="panel-head">
+          <h3>Crest factor tablosu</h3>
+          <span class="count">satıra tıkla</span>
+        </div>
+        <table>
+          <thead><tr><th>Sinyal</th><th>RMS</th><th>Crest</th><th>Nasıl duyulur</th></tr></thead>
+          <tbody id="tbody"></tbody>
+        </table>
+        <p class="tbl-note">Bütün satırlar <b>aynı tepe değerine</b> (0 dBFS) normalize
+          edilmiştir. RMS sütunu düştükçe crest factor büyür ve ses <b>daha sessiz ama daha
+          dinamik</b> duyulur. Satıra tıklamak ilk sahnedeki şekli değiştirir.</p>
+      </section>
+    </div>
+  </section>
+
+  <!-- ============ 04 ============ -->
+  <section class="sec">
+    <div class="sec-head">
+      <span class="sec-num">04</span>
+      <h2>İkinci görüş: aynı parça, iki master, tek hedef</h2>
+      <p>Normalizasyon ne yapıyor?</p>
+    </div>
+
+    <div class="panel stage">
+      <div class="stage-top">
+        <div class="modes" role="group" aria-label="Platform">
+          <div class="btn-group sm" id="plat"></div>
+        </div>
+        <div class="readout" id="ro2"></div>
+      </div>
+      <div class="canvas-wrap">
+        <canvas id="norm" aria-label="İki masterın ölçülen yükseklikleri ve seçilen platformun hedefine normalize edildikten sonraki hâlleri, LUFS ölçeğinde."></canvas>
+      </div>
+      <p class="tbl-note">Solda iki master var: biri <b>dinamik</b>, biri limiterle
+        <b>ezilmiş</b>. Ezilmiş olan ölçüldüğünde gerçekten daha yüksek çıkıyor — burası
+        beklendiği gibi. Sağda ise aynı iki parça, seçtiğiniz platformun hedefine
+        <b>normalize edilmiş</b> hâlleriyle duruyor.</p>
+      <p class="tbl-note">Sonuç şu: platform yüksek olanı <b>kısıyor</b>. İkisi de aynı
+        hedefte, yani <b>aynı yükseklikte</b> çalıyor. Fark sadece şurada: ezilmiş
+        masterın crest factor'ü küçüldüğü için vuruşları artık dümdüz. <b>Yükseklik
+        kazancı silindi, dinamik kaybı kaldı.</b></p>
+      <p class="tbl-note">"Loudness war" tam olarak bunun için bitti. Bugün bir masterı
+        hedeften çok daha yüksek yapmak <b>hiçbir şey kazandırmıyor</b>; yalnızca
+        platformun kısma miktarını artırıyor. Yayın standardı (<b>EBU R128, −23 LUFS</b>)
+        ise televizyon ve radyonun kanaldan kanala seviye zıplamasını çözmek için çok
+        daha aşağıda durur.</p>
+    </div>
+  </section>
+
+  <!-- ============ 05 ============ -->
+  <section class="sec">
+    <div class="sec-head">
+      <span class="sec-num">05</span>
+      <h2>Bu sayıların dili</h2>
+      <p>Her birinin bir stüdyo karşılığı var</p>
+    </div>
+
+    <div class="lang">
+      <div class="lg">
+        <div class="lg-top"><h3>Crest factor</h3><span class="unit">dB</span></div>
+        <p>Dinamiğin ölçüsü. Küçültmek sesi yükseltir, ama vuruculuğu alır.</p>
+        <p class="music"><b>Stüdyoda:</b> 1980'lerin masterları ~14 dB crest, 2000'lerin
+          bazıları ~6 dB. Aynı tepe, daha yüksek ses, daha az nefes.</p>
+      </div>
+      <div class="lg">
+        <div class="lg-top"><h3>True peak</h3><span class="unit">dBTP</span></div>
+        <p>Örnekler arasında kalan gerçek tepe. Sayısal tepe 0 dBFS'in altındayken bile
+          <b>gerçek tepe üstüne çıkabilir</b>.</p>
+        <p class="music"><b>Stüdyoda:</b> master çıkışını <b>−1 dBTP</b>'de tutmak
+          alışılmıştır; mp3/AAC'ye dönüşümde tepe biraz daha yükselir.</p>
+      </div>
+      <div class="lg">
+        <div class="lg-top"><h3>Zarf</h3><span class="unit">ADSR</span></div>
+        <p>Genliğin zaman içindeki şekli. Çalgı kimliğinin büyük kısmı burada.</p>
+        <p class="music"><b>Stüdyoda:</b> kompresörün <b>attack</b> ve <b>release</b>
+          ayarları zarfı yeniden yazar. Attack'ı yavaş tutmak vuruşun ilk tokluğunu
+          korur; hızlı tutmak onu ezer.</p>
+      </div>
+      <div class="lg">
+        <div class="lg-top"><h3>LUFS</h3><span class="unit">LU · BS.1770</span></div>
+        <p>Bütün parçanın algısal yüksekliği. <code>1 LU = 1 dB</code>.</p>
+        <p class="music"><b>Yayında:</b> Spotify, YouTube, Tidal, Amazon <b>−14 LUFS</b>,
+          Apple Music <b>−16 LUFS</b> hedefine normalize eder; Avrupa yayıncılığı
+          <b>−23 LUFS</b> (EBU R128) kullanır.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 06 ============ -->
+  <section class="sec">
+    <div class="sec-head">
+      <span class="sec-num">06</span>
+      <h2>Şimdi sen dene</h2>
+      <p>On soru, her birinde açıklama var</p>
+    </div>
+
+    <div class="quiz-grid">
+      <section class="panel">
+        <div class="panel-head">
+          <h3>Alıştırma</h3>
+          <span class="count" id="q-count">0 / 0 doğru</span>
+        </div>
+        <div class="panel-body">
+          <p class="q-text" id="q-text"></p>
+          <div class="q-opts" id="q-opts"></div>
+          <p class="q-feedback" id="q-fb"></p>
+          <div class="step-nav"><button id="q-next" type="button">Sonraki soru</button></div>
+        </div>
+      </section>
+
+      <section class="panel recap">
+        <div class="panel-head"><h3>Aklında kalsın</h3></div>
+        <div class="panel-body">
+          <ul>
+            <li><b>Tepe kırpmayı, RMS yüksekliği söyler.</b> Aynı tepe değerinde iki sinyal
+              çok farklı yükseklikte duyulabilir.</li>
+            <li><b>Sinüsün RMS'i tepesinin 0,707 katı</b> — yani 3 dB aşağıda. Kare dalgada
+              fark yok, %10 darbede 9,5 dB.</li>
+            <li><b>Crest factor = tepe − RMS.</b> Büyükse dinamik ve vurucu, küçükse sıkı
+              ve yüksek. Limitleme bu sayıyı küçültür.</li>
+            <li><b>Zarf, dalganın kendisi değil sınırıdır.</b> Dalga şekli ms ölçeğinde,
+              zarf yüz ms ile saniyeler ölçeğinde yaşar.</li>
+            <li><b>Zarf takipçisi = kayan pencereli RMS.</b> Kompresör, limiter, gate — hepsi
+              aynı ölçümü kullanır; pencere uzunluğu "attack/release" olarak karşımıza çıkar.</li>
+          </ul>
+        </div>
+      </section>
+    </div>
+  </section>
+
+  <footer>
+    <span>Ses yalnızca <b>Duy</b> ve <b>Çal</b> düğmelerine basınca çalar.</span>
+    <span>LUFS ölçümü <b>ITU-R BS.1770-4</b>'e göre hesaplanır: K-ağırlık, 400 ms bloklar, iki katlı kapılama.</span>
+    <span>Gerçek tepe 4 kat ara değerlemeyle bulunur; limiterin çıkış tavanı <b>−1 dBFS</b>'tir.</span>
+    <span>Platform hedefleri Eylül 2026 itibarıyladır ve zamanla değişebilir.</span>
+  </footer>
+</div>
+<script>
+(function(){
+  "use strict";
+  var TAU = Math.PI*2, C1 = 343, DEG = Math.PI/180;
+  var root = document.documentElement;
+  var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  var S = {
+    mode:'genlik',
+    /* genlik + RMS */
+    shape:'sinus', f:220,
+    /* kirpma */
+    gainDb:0, soft:false,
+    /* zarf (saniye) */
+    atk:0.004, dec:0.30, sus:0.45, rel:0.30, hold:0.55,
+    win:20, zc:0.35, zplay:false,
+    /* LUFS sahnesi */
+    mg:4, lim:true, lt:5.5, lplay:false, plat:0
+  };
+
+
+  /* ---------- tema + projeksiyon ---------- */
+  var C = {}, K = { lw:1, fs:1, glow:0, faint:.32 };
+  function readColors(){
+    var s = getComputedStyle(root);
+    ['ink','ink-2','ink-3','line','line-2','sin','cos','arc','brass','panel','panel-2'].forEach(function(k){
+      C[k.replace('-','')] = s.getPropertyValue('--'+k).trim();
+    });
+    var mode = root.getAttribute('data-mode');
+    var proj = mode === 'proj';
+    var attr = root.getAttribute('data-theme');
+    var isDark = attr === 'dark' ||
+                 (!attr && window.matchMedia('(prefers-color-scheme: dark)').matches);
+    K.glow  = (isDark && !proj) ? 0.7 : 0;
+    K.lw    = proj ? 1.5 : 1;
+    K.fs    = proj ? 1.24 : 1;
+    K.faint = proj ? 0.42 : (K.glow ? 0.34 : 0.32);
+  }
+  readColors();
+
+  var MODES = { proj:'light' };
+  var themeBtns = document.querySelectorAll('.theme button');
+  function markTheme(t){
+    Array.prototype.forEach.call(themeBtns, function(b){
+      b.setAttribute('aria-pressed', b.dataset.t === t ? 'true':'false');
+    });
+  }
+  function applyTheme(t, save){
+    if (MODES[t]){ root.setAttribute('data-theme', MODES[t]); root.setAttribute('data-mode', t); }
+    else { root.setAttribute('data-theme', t); root.removeAttribute('data-mode'); }
+    if (save) { try { localStorage.setItem('dalga-tema', t); } catch(e){} }
+    markTheme(t);
+  }
+  Array.prototype.forEach.call(themeBtns, function(b){
+    b.addEventListener('click', function(){ applyTheme(b.dataset.t, true); });
+  });
+  var sysDark = window.matchMedia('(prefers-color-scheme: dark)');
+  var stored = null;
+  try { stored = localStorage.getItem('dalga-tema'); } catch(e){}
+  if (stored === 'light' || stored === 'dark' || MODES[stored]) applyTheme(stored, false);
+  else markTheme(sysDark.matches ? 'dark' : 'light');
+  sysDark.addEventListener('change', function(){
+    readColors(); render();
+    if (!root.hasAttribute('data-theme')) markTheme(sysDark.matches ? 'dark' : 'light');
+  });
+  new MutationObserver(function(){ readColors(); render(); })
+    .observe(root, {attributes:true, attributeFilter:['data-theme','data-mode']});
+
+  /* ---------- sayilar ---------- */
+  function n(v,d){
+    var x = v.toFixed(d===undefined?2:d);
+    if (/^-0[.,]?0*$/.test(x)) x = x.slice(1);
+    return x.replace('.',',').replace('-','−');
+  }
+  function mText(l){ return l >= 1 ? n(l,2)+' m' : n(l*100,0)+' cm'; }
+
+  /* ---------- renk karistirma (opak dolgu, dikissiz yuzey) ---------- */
+  function rgbOf(v){
+    v = (v||'').trim();
+    if (v.charAt(0) === '#'){
+      if (v.length === 4) return [parseInt(v[1]+v[1],16), parseInt(v[2]+v[2],16),
+                                  parseInt(v[3]+v[3],16)];
+      return [parseInt(v.substr(1,2),16), parseInt(v.substr(3,2),16),
+              parseInt(v.substr(5,2),16)];
+    }
+    var m = v.match(/(-?[\d.]+)/g);
+    return m ? [+m[0], +m[1], +m[2]] : [128,128,128];
+  }
+  function mixHex(a,b,t){
+    var A = rgbOf(a), B = rgbOf(b);
+    t = Math.max(0, Math.min(1, t));
+    return 'rgb('+Math.round(A[0]+(B[0]-A[0])*t)+','+
+                  Math.round(A[1]+(B[1]-A[1])*t)+','+
+                  Math.round(A[2]+(B[2]-A[2])*t)+')';
+  }
+
+  /* ---------- canvas yardimcilari ---------- */
+  var ctx = null;
+  function dash(a){ ctx.setLineDash(a ? a.map(function(v){ return v*K.lw; }) : []); }
+  function LW(v){ ctx.lineWidth = v*K.lw; }
+  function glowOn(col,amt){ if (K.glow){ ctx.shadowColor = col; ctx.shadowBlur = (amt||9)*K.lw; } }
+  function glowOff(){ ctx.shadowBlur = 0; }
+  function line(x1,y1,x2,y2){ ctx.beginPath(); ctx.moveTo(x1,y1); ctx.lineTo(x2,y2); ctx.stroke(); }
+  function dot(x,y,r,col){
+    ctx.beginPath(); ctx.arc(x,y,r*K.fs,0,TAU);
+    ctx.fillStyle = col; glowOn(col,10); ctx.fill(); glowOff();
+    LW(1.6); ctx.strokeStyle = C.panel2; ctx.stroke();
+  }
+  function txt(s,x,y,col,size,align,fam,weight){
+    ctx.fillStyle = col;
+    ctx.font = (weight||400)+' '+((size||12)*K.fs).toFixed(2)+'px '+(fam||'"IBM Plex Mono", monospace');
+    ctx.textAlign = align||'left'; ctx.textBaseline='middle';
+    ctx.fillText(s,x,y);
+  }
+  function arrow(x1,y1,x2,y2,col,wide){
+    ctx.strokeStyle = col; LW(wide||2);
+    line(x1,y1,x2,y2);
+    var a = Math.atan2(y2-y1, x2-x1), h = 8*K.fs;
+    ctx.beginPath();
+    ctx.moveTo(x2,y2);
+    ctx.lineTo(x2 - h*Math.cos(a-0.4), y2 - h*Math.sin(a-0.4));
+    ctx.lineTo(x2 - h*Math.cos(a+0.4), y2 - h*Math.sin(a+0.4));
+    ctx.closePath(); ctx.fillStyle = col; ctx.fill();
+  }
+  function hatch(x0,y0,w,h,col){
+    ctx.save();
+    ctx.beginPath(); ctx.rect(x0,y0,w,h); ctx.clip();
+    ctx.strokeStyle = col; LW(1); ctx.globalAlpha = .5;
+    for (var x=x0-h; x<x0+w+h; x+=9*K.fs) line(x, y0+h, x+h, y0);
+    ctx.globalAlpha = 1; ctx.restore();
+  }
+  function sized(cv){
+    var dpr = Math.min(window.devicePixelRatio||1, 2);
+    var r = cv.getBoundingClientRect();
+    if (r.width < 10) return null;
+    cv.width = Math.round(r.width*dpr); cv.height = Math.round(r.height*dpr);
+    var c = cv.getContext('2d');
+    c.setTransform(dpr,0,0,dpr,0,0);
+    c.clearRect(0,0,r.width,r.height);
+    c.lineJoin='round'; c.lineCap='round';
+    return { c:c, w:r.width, h:r.height };
+  }
+  /* Sahne olcegi: x ve y AYNI olcek olmali, yoksa acilar yanlis cizilir. */
+  function fitScene(W,H,sw,sh,padL,padR,padT,padB){
+    var aw = W-padL-padR, ah = H-padT-padB;
+    var k = Math.min(aw/sw, ah/sh);
+    return { k:k, ox: padL + (aw - sw*k)/2, oy: padT + (ah - sh*k)/2 };
+  }
+
+
+
+  var G = {};
+
+  /* ================= sinyaller ================= */
+  var NPH = 2048, noiseBuf = null;
+  function mulberry(a){
+    return function(){
+      a |= 0; a = a + 0x6D2B79F5 | 0;
+      var t = Math.imul(a ^ a >>> 15, 1 | a);
+      t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t;
+      return ((t ^ t >>> 14) >>> 0) / 4294967296;
+    };
+  }
+  (function(){
+    var r = mulberry(20260910), i, mx = 0;
+    noiseBuf = new Float32Array(NPH);
+    for (i=0;i<NPH;i++){
+      /* uc duzgun dagilimin toplami: gercek gurultuye yakin crest factor */
+      noiseBuf[i] = (r()+r()+r()-1.5)/1.5;
+      if (Math.abs(noiseBuf[i]) > mx) mx = Math.abs(noiseBuf[i]);
+    }
+    for (i=0;i<NPH;i++) noiseBuf[i] /= mx;      /* tepe = 1 */
+  })();
+
+  var SHAPES = [
+    ['sinus','Sinüs'], ['ucgen','Üçgen'], ['testere','Testere'],
+    ['kare','Kare'], ['darbe','Darbe %10'], ['gurultu','Gürültü']
+  ];
+  var SHNAME = {};
+  SHAPES.forEach(function(o){ SHNAME[o[0]] = o[1]; });
+
+  /* p: faz (0..1). Butun sekiller tepe = 1'e normalize. */
+  function sigOf(sh, p){
+    p = p - Math.floor(p);
+    if (sh === 'sinus')   return Math.sin(TAU*p);
+    if (sh === 'ucgen')   return 4*Math.abs(p-0.5) - 1;
+    if (sh === 'testere') return 2*(p-0.5);
+    if (sh === 'kare')    return p < 0.5 ? 1 : -1;
+    if (sh === 'darbe')   return p < 0.1 ? 1 : -1/9;     /* ortalamasi sifir */
+    return noiseBuf[Math.floor(p*NPH) % NPH];
+  }
+  function sig(p){ return sigOf(S.shape, p); }
+
+  var statCache = {};
+  function stats(sh){
+    if (statCache[sh]) return statCache[sh];
+    var N = 8192, mx = 0, s2 = 0, i, v;
+    for (i=0;i<N;i++){
+      v = sigOf(sh, i/N); s2 += v*v;
+      if (Math.abs(v) > mx) mx = Math.abs(v);
+    }
+    var rms = Math.sqrt(s2/N);
+    statCache[sh] = { peak:mx, rms:rms,
+      crest: 20*Math.log(mx/rms)/Math.LN10,
+      rmsDb: 20*Math.log(rms/mx)/Math.LN10 };
+    return statCache[sh];
+  }
+  function dbOf(v){ return v <= 1e-6 ? -120 : 20*Math.log(v)/Math.LN10; }
+
+  /* --- kirpma: kazanc + sinirlama, tepe yine 1 --- */
+  function gainLin(){ return Math.pow(10, S.gainDb/20); }
+  function clipped(p){
+    var g = gainLin(), x = sig(p)*g;
+    if (S.soft){
+      var k = Math.max(1.0001, g);
+      return Math.tanh(k*sig(p)) / Math.tanh(k);
+    }
+    return Math.max(-1, Math.min(1, x));
+  }
+  var clipCache = {};
+  function clipStats(){
+    var key = S.shape+'|'+S.gainDb+'|'+(S.soft?'s':'h');
+    if (clipCache[key]) return clipCache[key];
+    var N = 8192, mx = 0, s2 = 0, i, v;
+    for (i=0;i<N;i++){
+      v = clipped(i/N); s2 += v*v;
+      if (Math.abs(v) > mx) mx = Math.abs(v);
+    }
+    var rms = Math.sqrt(s2/N);
+    clipCache[key] = { peak:mx, rms:rms, crest: 20*Math.log(mx/rms)/Math.LN10 };
+    return clipCache[key];
+  }
+
+  /* --- zarf --- */
+  function envAt(t){
+    if (t <= 0) return 0;
+    if (t < S.atk) return t/S.atk;
+    var lvl = function(u){ return S.sus + (1-S.sus)*Math.exp(-4.6*u); };
+    if (t < S.hold) return lvl((t - S.atk)/S.dec);
+    var L0 = (S.hold < S.atk) ? S.hold/S.atk : lvl((S.hold - S.atk)/S.dec);
+    return L0*Math.exp(-4.6*(t - S.hold)/S.rel);
+  }
+  function noteLen(){ return S.hold + S.rel + 0.04; }
+
+  /* ================= 03-A: genlik ve RMS ================= */
+  function panel(gx, gy, gw, gh, title){
+    ctx.strokeStyle = C.line2; LW(1); ctx.strokeRect(gx, gy, gw, gh);
+    if (title) txt(title, gx + 5*K.fs, gy - 8*K.fs, C.ink3, 10, 'left',
+        '"IBM Plex Sans", sans-serif', 700);
+  }
+  function drawGenlik(f){
+    var W=f.w, H=f.h, i;
+    var small = W < 660;
+    var st = stats(S.shape);
+    var pad = 16*K.fs;
+    var mL = (small ? 52 : 62)*K.fs, mR = (small ? 58 : 92)*K.fs,
+        mT = 26*K.fs, mB = 34*K.fs;
+    var gx0 = pad + mL, gx1 = W - pad - mR;
+    var gy0 = pad + mT, gy1 = H - pad - mB;
+    var cy = (gy0+gy1)/2, ha = (gy1-gy0)/2*0.92;
+    var T = 1/S.f, WIN = 3*T;                       /* uc periyot */
+    function XT(t){ return gx0 + t/WIN*(gx1-gx0); }
+    function YV(v){ return cy - v*ha; }
+
+    txt(small ? 'DALGA ŞEKLİ' : 'DALGA ŞEKLİ  ·  '+SHNAME[S.shape]+'  ·  üç periyot',
+        gx0, pad + 6*K.fs, C.ink3, 10.5, 'left', '"IBM Plex Sans", sans-serif', 700);
+
+    /* RMS bandi */
+    ctx.fillStyle = C.cos; ctx.globalAlpha = .15;
+    ctx.fillRect(gx0, YV(st.rms), gx1-gx0, 2*st.rms*ha);
+    ctx.globalAlpha = 1;
+
+    /* sifir ve tepe cizgileri */
+    ctx.strokeStyle = C.line2; LW(1); dash([3,4]);
+    line(gx0, cy, gx1, cy); dash();
+    ctx.strokeStyle = C.ink3; LW(1.4); dash([5,4]);
+    line(gx0, YV(1), gx1, YV(1)); line(gx0, YV(-1), gx1, YV(-1)); dash();
+
+    /* dalga */
+    ctx.strokeStyle = C.sin; LW(2.5); glowOn(C.sin,8);
+    ctx.beginPath();
+    var NN = Math.max(600, Math.round(gx1-gx0));
+    for (i=0;i<=NN;i++){
+      var tt = i/NN*WIN, px = XT(tt), py = YV(sig(tt/T));
+      i ? ctx.lineTo(px,py) : ctx.moveTo(px,py);
+    }
+    ctx.stroke(); glowOff();
+
+    /* RMS cizgileri */
+    ctx.strokeStyle = C.cos; LW(1.8);
+    line(gx0, YV(st.rms), gx1, YV(st.rms));
+    line(gx0, YV(-st.rms), gx1, YV(-st.rms));
+
+    /* sol etiketler */
+    txt('tepe  1,00', gx0 - 8*K.fs, YV(1), C.ink3, 10.5, 'right');
+    txt('0 dBFS', gx0 - 8*K.fs, YV(1) + 13*K.fs, C.ink3, 9.5, 'right');
+    txt('RMS  '+n(st.rms,3), gx0 - 8*K.fs, YV(st.rms), C.cos, 10.5, 'right');
+    txt(n(st.rmsDb,1)+' dBFS', gx0 - 8*K.fs, YV(st.rms) + 13*K.fs, C.cos, 9.5, 'right');
+    txt('0', gx0 - 8*K.fs, cy, C.ink3, 10, 'right');
+
+    /* sagda crest factor olcusu */
+    var bx = gx1 + 34*K.fs;
+    ctx.strokeStyle = C.arc; LW(1.8);
+    line(bx, YV(1), bx, YV(st.rms));
+    line(bx-6*K.fs, YV(1), bx+6*K.fs, YV(1));
+    line(bx-6*K.fs, YV(st.rms), bx+6*K.fs, YV(st.rms));
+    arrow(bx, YV(st.rms)-1, bx, YV(1)+1, C.arc, 1.5);
+    txt('crest', bx + 10*K.fs, (YV(1)+YV(st.rms))/2 - 8*K.fs, C.arc, 10.5, 'left',
+        '"IBM Plex Sans", sans-serif', 700);
+    txt(n(st.crest,1)+' dB', bx + 10*K.fs, (YV(1)+YV(st.rms))/2 + 7*K.fs, C.arc, 11.5,
+        'left', '"IBM Plex Mono", monospace', 500);
+
+    /* zaman cetveli */
+    ctx.strokeStyle = C.line; LW(1.25); line(gx0, gy1 + 8*K.fs, gx1, gy1 + 8*K.fs);
+    for (i=0;i<=3;i++){
+      var pxr = XT(i*T);
+      line(pxr, gy1+4*K.fs, pxr, gy1+12*K.fs);
+      txt(i === 0 ? '0' : n(i*T*1000,2)+(i===3?' ms':''), pxr, gy1 + 22*K.fs,
+          C.ink3, 9.5, 'center');
+    }
+    if (!small) txt('RMS bandı: sinyalin ortalama gücü — kulağın duyduğu yükseklik',
+        gx1, pad + 6*K.fs, C.ink3, 9.5, 'right', '"IBM Plex Sans", sans-serif');
+  }
+
+  /* ================= 03-B: kirpma ================= */
+  function drawKirpma(f){
+    var W=f.w, H=f.h, i;
+    var small = W < 660;
+    var st = stats(S.shape), cs = clipStats(), g = gainLin();
+    var pad = 16*K.fs;
+    var mL = (small ? 54 : 66)*K.fs, mR = (small ? 60 : 96)*K.fs,
+        mT = 26*K.fs, mB = 34*K.fs;
+    var gx0 = pad + mL, gx1 = W - pad - mR;
+    var gy0 = pad + mT, gy1 = H - pad - mB;
+    var cy = (gy0+gy1)/2, VMAX = 1.42;
+    var ha = (gy1-gy0)/2*0.94;
+    var T = 1/S.f, WIN = 3*T;
+    function XT(t){ return gx0 + t/WIN*(gx1-gx0); }
+    function YV(v){ return cy - v/VMAX*ha; }
+    var NN = Math.max(600, Math.round(gx1-gx0));
+    function raw(t){ return Math.max(-VMAX, Math.min(VMAX, sig(t/T)*g)); }
+
+    txt(small ? 'KIRPMA' : 'AYNI TEPE DEĞERİ, DAHA YÜKSEK SES  ·  '+SHNAME[S.shape],
+        gx0, pad + 6*K.fs, C.ink3, 10.5, 'left', '"IBM Plex Sans", sans-serif', 700);
+
+    ctx.save();
+    ctx.beginPath(); ctx.rect(gx0-1, gy0-1, gx1-gx0+2, gy1-gy0+2); ctx.clip();
+
+    /* sifir + 0 dBFS cizgileri (dalganin ALTINDA kalsin) */
+    ctx.strokeStyle = C.line2; LW(1); dash([3,4]);
+    line(gx0, cy, gx1, cy); dash();
+    ctx.strokeStyle = C.ink3; LW(1.2); dash([5,4]);
+    line(gx0, YV(1), gx1, YV(1)); line(gx0, YV(-1), gx1, YV(-1)); dash();
+
+    /* kesilen kisimlar: ham egri ile tavan arasi */
+    function fillCut(sgn){
+      ctx.fillStyle = C.arc; ctx.globalAlpha = .20;
+      var open = false;
+      for (i=0;i<=NN;i++){
+        var tt = i/NN*WIN, v = raw(tt)*sgn;
+        if (v > 1){
+          if (!open){ ctx.beginPath(); ctx.moveTo(XT(tt), YV(sgn)); open = true; }
+          ctx.lineTo(XT(tt), YV(v*sgn));
+        } else if (open){
+          ctx.lineTo(XT(tt), YV(sgn)); ctx.closePath(); ctx.fill(); open = false;
+        }
+      }
+      if (open){ ctx.lineTo(XT(WIN), YV(sgn)); ctx.closePath(); ctx.fill(); }
+      ctx.globalAlpha = 1;
+    }
+    fillCut(1); fillCut(-1);
+
+    /* ham sinyal — hayalet */
+    ctx.strokeStyle = C.cos; LW(1.7); ctx.globalAlpha = Math.max(K.faint, 0.5);
+    ctx.beginPath();
+    for (i=0;i<=NN;i++){
+      var t1 = i/NN*WIN, px = XT(t1), py = YV(raw(t1));
+      i ? ctx.lineTo(px,py) : ctx.moveTo(px,py);
+    }
+    ctx.stroke(); ctx.globalAlpha = 1;
+
+    /* sinirlanmis cikis */
+    ctx.strokeStyle = C.sin; LW(2.8); glowOn(C.sin,8);
+    ctx.beginPath();
+    for (i=0;i<=NN;i++){
+      var t2 = i/NN*WIN, p2 = XT(t2), y2 = YV(clipped(t2/T));
+      i ? ctx.lineTo(p2,y2) : ctx.moveTo(p2,y2);
+    }
+    ctx.stroke(); glowOff();
+
+    /* RMS cizgileri */
+    ctx.strokeStyle = C.cos; LW(1.6); dash([6,4]);
+    line(gx0, YV(st.rms), gx1, YV(st.rms)); dash();
+    ctx.strokeStyle = C.sin; LW(1.8);
+    line(gx0, YV(cs.rms), gx1, YV(cs.rms));
+    ctx.restore();
+
+    /* etiketler: 0 dBFS solda, RMS'ler cakismasin diye ayri yanlarda */
+    txt('0 dBFS', gx0 - 8*K.fs, YV(1), C.ink3, 10, 'right');
+    txt('RMS önce', gx0 - 8*K.fs, YV(st.rms) - 7*K.fs, C.cos, 9.5, 'right');
+    txt(n(st.rmsDb,1)+' dB', gx0 - 8*K.fs, YV(st.rms) + 6*K.fs, C.cos, 9.5, 'right');
+    var tight = Math.abs(YV(cs.rms) - YV(1)) < 24*K.fs;
+    txt('RMS sonra  '+n(dbOf(cs.rms),1)+' dB', gx1 - 8*K.fs,
+        YV(cs.rms) + (tight ? 15 : -11)*K.fs,
+        C.sin, 10, 'right', '"IBM Plex Mono", monospace', 500);
+
+    /* sagda: kazanilan yukseklik */
+    var bx = gx1 + 36*K.fs;
+    var gainDb2 = dbOf(cs.rms) - st.rmsDb;
+    if (gainDb2 > 0.05){
+      ctx.strokeStyle = C.arc; LW(1.8);
+      line(bx, YV(st.rms), bx, YV(cs.rms));
+      line(bx-6*K.fs, YV(st.rms), bx+6*K.fs, YV(st.rms));
+      line(bx-6*K.fs, YV(cs.rms), bx+6*K.fs, YV(cs.rms));
+      arrow(bx, YV(st.rms)-1, bx, YV(cs.rms)+1, C.arc, 1.5);
+      txt('kazanılan', bx + 10*K.fs, (YV(st.rms)+YV(cs.rms))/2 - 8*K.fs, C.arc, 10.5, 'left',
+          '"IBM Plex Sans", sans-serif', 700);
+      txt('+'+n(gainDb2,1)+' dB', bx + 10*K.fs, (YV(st.rms)+YV(cs.rms))/2 + 7*K.fs, C.arc,
+          11.5, 'left', '"IBM Plex Mono", monospace', 500);
+    } else {
+      txt('kazanç yok', bx + 4*K.fs, cy, C.ink3, 10.5, 'left',
+          '"IBM Plex Sans", sans-serif');
+    }
+    if (!small){
+      txt('crest: '+n(st.crest,1)+' dB → '+n(cs.crest,1)+' dB',
+          gx1, pad + 6*K.fs, C.ink3, 10, 'right', '"IBM Plex Sans", sans-serif');
+      txt('soluk eğri: kırpılmadan önce', gx0, gy1 + 18*K.fs, C.cos, 9.5, 'left',
+          '"IBM Plex Sans", sans-serif');
+      txt('magenta alan: kesilen kısım', gx1, gy1 + 18*K.fs, C.arc, 9.5, 'right',
+          '"IBM Plex Sans", sans-serif');
+    }
+  }
+
+  /* ================= 03-C: zarf ================= */
+  var zcache = { key:'', n:0 };
+  function zarfKey(w){
+    return [w, S.atk, S.dec, S.sus, S.rel, S.hold, S.win, S.f, S.shape].join('|');
+  }
+  function buildZ(nCol, TT){
+    var i, j, env = new Float32Array(nCol+1), flw = new Float32Array(nCol+1);
+    var lo = new Float32Array(nCol+1), hi = new Float32Array(nCol+1);
+    var T = 1/S.f, wS = S.win/1000, SUB = 40;
+    var dt = TT/nCol;
+    for (i=0;i<=nCol;i++){
+      var t = i*dt;
+      env[i] = envAt(t);
+      /* piksel sutunundaki en kucuk/en buyuk deger: DAW dalga gorunumu */
+      var mn = 1e9, mx = -1e9;
+      for (j=0;j<=SUB;j++){
+        var tt = t + j/SUB*dt, v = envAt(tt)*sigOf(S.shape, tt/T);
+        if (v < mn) mn = v; if (v > mx) mx = v;
+      }
+      lo[i] = mn; hi[i] = mx;
+      /* kayan pencereli RMS: zarf takipcisi */
+      var s2 = 0, M = 64;
+      for (j=0;j<M;j++){
+        var tw = t - wS*(j/M);
+        var vv = tw <= 0 ? 0 : envAt(tw)*sigOf(S.shape, tw/T);
+        s2 += vv*vv;
+      }
+      flw[i] = Math.sqrt(s2/M);
+    }
+    return { env:env, flw:flw, lo:lo, hi:hi, n:nCol, TT:TT };
+  }
+  /* Zarfli bir notanin crest factor'u: tepe 1, RMS = rms(zarf) x rms(sekil).
+     Surekli bir sinus 3 dB iken piyano notasi 20 dB'yi asiyor — zarfin crest
+     factor'u belirledigini gosteren sayi. */
+  function noteCrest(){
+    /* Cizim onbellegine bakmiyor: sync() drawZarf'tan once calisiyor ve
+       onbellek bir adim geride kaliyordu. */
+    var N = 900, s2 = 0, TT = noteLen(), i;
+    for (i=0;i<N;i++){ var e = envAt((i+0.5)/N*TT); s2 += e*e; }
+    var re = Math.sqrt(s2/N) * stats(S.shape).rms;
+    return re <= 1e-7 ? null : -20*Math.log(re)/Math.LN10;
+  }
+  function drawZarf(f){
+    var W=f.w, H=f.h, i;
+    var small = W < 700;
+    var pad = 16*K.fs;
+    var TT = noteLen();
+    var insH = small ? (H - 2*pad)*0.30 : (H - 2*pad)*0.34;
+    var mainH = H - 2*pad - insH - 58*K.fs;
+    var mL = 46*K.fs, mR = 16*K.fs;
+    var gx0 = pad + mL, gx1 = W - pad - mR;
+    var gy0 = pad + 32*K.fs, gy1 = gy0 + mainH;
+    var cy = (gy0+gy1)/2, ha = (gy1-gy0)/2*0.90;
+    function XT(t){ return gx0 + t/TT*(gx1-gx0); }
+    function YV(v){ return cy - v*ha; }
+    var nCol = Math.max(240, Math.round(gx1-gx0));
+    var key = zarfKey(nCol);
+    if (zcache.key !== key){ zcache = buildZ(nCol, TT); zcache.key = key; }
+
+    txt(small ? 'ZARF · '+n(TT,2)+' s' :
+        'ZARF  ·  bütün nota, '+n(TT,2)+' saniye  ·  dalga şekli bu ölçekte tek tek görünmez',
+        gx0, pad + 4*K.fs, C.ink3, 10.5, 'left', '"IBM Plex Sans", sans-serif', 700);
+
+    /* --- ADSR bolgeleri --- */
+    var t1 = Math.min(S.atk, TT), t2 = Math.min(S.atk+S.dec, S.hold), t3 = S.hold;
+    var REG = [[0,t1,'A'],[t1,t2,'D'],[t2,t3,'S'],[t3,TT,'R']];
+    REG.forEach(function(r,k){
+      if (r[1] - r[0] < TT*0.004) return;
+      if (k % 2 === 1){
+        ctx.fillStyle = C.ink3; ctx.globalAlpha = .07;
+        ctx.fillRect(XT(r[0]), gy0, XT(r[1])-XT(r[0]), gy1-gy0);
+        ctx.globalAlpha = 1;
+      }
+      txt(r[2], (XT(r[0])+XT(r[1]))/2, gy0 - 8*K.fs, C.ink3, 10, 'center',
+          '"IBM Plex Sans", sans-serif', 700);
+    });
+    ctx.strokeStyle = C.line2; LW(1); dash([3,4]);
+    line(gx0, cy, gx1, cy); dash();
+
+    /* --- dalga gorunumu (min/max bandi) --- */
+    ctx.strokeStyle = C.sin; LW(1); ctx.globalAlpha = .55;
+    for (i=0;i<=zcache.n;i++){
+      var px = gx0 + i/zcache.n*(gx1-gx0);
+      line(px, YV(zcache.lo[i]), px, YV(zcache.hi[i]));
+    }
+    ctx.globalAlpha = 1;
+
+    /* --- ideal zarf --- */
+    ctx.strokeStyle = C.arc; LW(2.4); glowOn(C.arc,8);
+    ctx.beginPath();
+    for (i=0;i<=zcache.n;i++){
+      var px2 = gx0 + i/zcache.n*(gx1-gx0), py2 = YV(zcache.env[i]);
+      i ? ctx.lineTo(px2,py2) : ctx.moveTo(px2,py2);
+    }
+    ctx.stroke(); glowOff();
+
+    /* --- zarf takipcisi (kayan RMS) --- */
+    ctx.strokeStyle = C.cos; LW(2.2); glowOn(C.cos,7);
+    ctx.beginPath();
+    for (i=0;i<=zcache.n;i++){
+      var px3 = gx0 + i/zcache.n*(gx1-gx0), py3 = YV(zcache.flw[i]);
+      i ? ctx.lineTo(px3,py3) : ctx.moveTo(px3,py3);
+    }
+    ctx.stroke(); glowOff();
+
+    if (!small){
+      txt('ideal zarf (ADSR)', gx1 - 6*K.fs, gy0 + 12*K.fs, C.arc, 10, 'right',
+          '"IBM Plex Sans", sans-serif', 700);
+      txt('zarf takipçisi · '+S.win+' ms pencere', gx1 - 6*K.fs, gy0 + 27*K.fs, C.cos, 10,
+          'right', '"IBM Plex Sans", sans-serif', 700);
+    }
+
+    /* --- zaman cetveli --- */
+    ctx.strokeStyle = C.line; LW(1.25); line(gx0, gy1 + 8*K.fs, gx1, gy1 + 8*K.fs);
+    var tick = TT > 1.6 ? 0.4 : (TT > 0.8 ? 0.2 : 0.1);
+    for (var tv=0; tv<=TT+1e-9; tv+=tick){
+      var pxt = XT(tv);
+      line(pxt, gy1+4*K.fs, pxt, gy1+12*K.fs);
+      txt(tv === 0 ? '0' : n(tv,1)+(tv+tick > TT ? ' s' : ''), pxt, gy1 + 21*K.fs,
+          C.ink3, 9.5, 'center');
+    }
+
+    /* --- buyutec imleci --- */
+    var tc = S.zc*TT;
+    ctx.strokeStyle = C.ok; LW(1.6); ctx.globalAlpha = .9;
+    line(XT(tc), gy0, XT(tc), gy1); ctx.globalAlpha = 1;
+    dot(XT(tc), YV(envAt(tc)), 4.4, C.ok);
+    G.zx0 = gx0; G.zx1 = gx1; G.zy0 = gy0; G.zy1 = gy1;
+
+    /* ================= yakinlastirma ================= */
+    var iy0 = gy1 + 46*K.fs, iy1 = iy0 + insH;
+    var icy = (iy0+iy1)/2, iha = (iy1-iy0)/2*0.86;
+    var ZW = 8/1000;                              /* 8 ms */
+    panel(gx0, iy0, gx1-gx0, insH);
+    txt(small ? 'YAKINLAŞTIRMA · 8 ms' :
+        'YAKINLAŞTIRMA  ·  imlecin çevresinde 8 milisaniye  ·  burada dalganın kendisi görünür',
+        gx0 + 5*K.fs, iy0 - 8*K.fs, C.ok, 10, 'left', '"IBM Plex Sans", sans-serif', 700);
+    var e0 = envAt(tc);
+    ctx.strokeStyle = C.line2; LW(1); dash([3,4]);
+    line(gx0, icy, gx1, icy); dash();
+    /* zarf seviyesi */
+    ctx.strokeStyle = C.arc; LW(1.6); dash([5,4]);
+    line(gx0, icy - e0*iha, gx1, icy - e0*iha);
+    line(gx0, icy + e0*iha, gx1, icy + e0*iha); dash();
+    txt('zarf: '+n(e0,2), gx0 + 7*K.fs, icy - e0*iha - 9*K.fs, C.arc, 10, 'left',
+        '"IBM Plex Mono", monospace', 500);
+    /* dalga */
+    var T2 = 1/S.f;
+    ctx.strokeStyle = C.sin; LW(2.3); glowOn(C.sin,7);
+    ctx.beginPath();
+    var NI = Math.max(400, Math.round(gx1-gx0));
+    for (i=0;i<=NI;i++){
+      var ti = tc - ZW/2 + i/NI*ZW;
+      var vi = ti <= 0 ? 0 : envAt(ti)*sigOf(S.shape, ti/T2);
+      var pxi = gx0 + i/NI*(gx1-gx0);
+      i ? ctx.lineTo(pxi, icy - vi*iha) : ctx.moveTo(pxi, icy - vi*iha);
+    }
+    ctx.stroke(); glowOff();
+    /* takipci degeri */
+    var fi = Math.round(S.zc*zcache.n);
+    ctx.strokeStyle = C.cos; LW(1.6);
+    line(gx0, icy - zcache.flw[fi]*iha, gx1, icy - zcache.flw[fi]*iha);
+    txt('takipçi: '+n(zcache.flw[fi],2), gx0 + 7*K.fs, icy - zcache.flw[fi]*iha + 13*K.fs,
+        C.cos, 10, 'left', '"IBM Plex Mono", monospace', 500);
+    if (!small) txt('imleç: '+n(tc*1000,0)+' ms', (gx0+gx1)/2, iy1 - 9*K.fs, C.ok, 9.5,
+        'center', '"IBM Plex Mono", monospace');
+  }
+
+  /* ================= LUFS motoru (ITU-R BS.1770-4) =================
+     Tek kanal (mono, G = 1). Iki asamali K-agirlik + 400 ms bloklar +
+     mutlak (-70 LUFS) ve goreli (-10 LU) kapilama.
+     Kalibrasyon dogrulamasi: 1 kHz sinus, RMS -20 dBFS -> -20,0 LUFS.   */
+  var LSR = 48000, LDUR = 12, LSEG = 4800;        /* 100 ms segment */
+  var songRaw = null, procBuf = null, lufsCache = {}, procKey = null;
+
+  /* --- 12 saniyelik "parca": pad + bas + tekme + trampet + hihat --- */
+  function buildSong(){
+    var N = LSR*LDUR, x = new Float32Array(N), i, t, v, g, h;
+    var rnd = mulberry(20260912), nz = new Float32Array(8192);
+    for (i=0;i<8192;i++) nz[i] = rnd()*2-1;
+    var CH = [110, 130.81, 164.81];               /* la minor */
+    var BAS = [55, 55, 73.42, 65.41];
+    for (i=0;i<N;i++){
+      t = i/LSR;
+      g = (t < 2.5) ? 0.30 : (t < 3.0 ? 0 : (t < 8.0 ? 1.0 :
+          (t < 11.0 ? 0.60 : Math.max(0, 0.60*(1-(t-11))))));
+      if (g <= 0){ x[i] = 0; continue; }
+      v = 0;
+      for (h=0;h<3;h++){
+        var f = CH[h];
+        v += 0.10*Math.sin(TAU*f*t) + 0.05*Math.sin(TAU*2*f*t) + 0.025*Math.sin(TAU*3*f*t);
+      }
+      if (t >= 3.0 && t < 11.0){
+        var bt = t % 1.0, bf = BAS[Math.floor(t) % 4];
+        var be = Math.exp(-bt/0.45)*(bt < 0.004 ? bt/0.004 : 1), bv = 0;
+        for (h=1;h<=6;h++) bv += Math.sin(TAU*bf*h*t)/h;
+        v += 0.24*be*bv;
+        var kt = t % 0.5;
+        v += 0.55*Math.exp(-kt/0.055)*Math.sin(TAU*(52 + 70*Math.exp(-kt/0.02))*kt);
+        var s2 = t % 2.0;
+        var sp = (s2 >= 0.5 && s2 < 0.56) ? s2-0.5 : ((s2 >= 1.5 && s2 < 1.56) ? s2-1.5 : -1);
+        if (sp >= 0) v += 0.34*Math.exp(-sp/0.018)*nz[i % 8192];
+        var ht = t % 0.25;
+        if (ht < 0.010) v += 0.10*Math.exp(-ht/0.004)*nz[(i*7) % 8192];
+      }
+      x[i] = g*v;
+    }
+    var mx = 0;
+    for (i=0;i<N;i++) if (Math.abs(x[i]) > mx) mx = Math.abs(x[i]);
+    for (i=0;i<N;i++) x[i] = x[i]/mx*0.95;
+    return x;
+  }
+
+  var KP = [1.53512485958697, -2.69169618940638, 1.19839281085285,
+            -1.69065929318241, 0.73248077421585];
+  var KR = [1.0, -2.0, 1.0, -1.99004745483398, 0.99007225036621];
+
+  /* iki biquad tek gecimde + 100 ms'lik ortalama kare dizisi */
+  function segPowers(x){
+    var n = x.length, i, v, w, acc = 0, c = 0, k = 0;
+    var x1=0,x2=0,y1=0,y2=0,u1=0,u2=0,z1=0,z2=0;
+    var out = new Float64Array(Math.floor(n/LSEG));
+    for (i=0;i<n;i++){
+      v = KP[0]*x[i] + KP[1]*x1 + KP[2]*x2 - KP[3]*y1 - KP[4]*y2;
+      x2=x1; x1=x[i]; y2=y1; y1=v;
+      w = KR[0]*v + KR[1]*u1 + KR[2]*u2 - KR[3]*z1 - KR[4]*z2;
+      u2=u1; u1=v; z2=z1; z1=w;
+      acc += w*w;
+      if (++c === LSEG){ if (k < out.length) out[k++] = acc/LSEG; acc = 0; c = 0; }
+    }
+    return out;
+  }
+  function LU(z){ return z <= 0 ? -Infinity : -0.691 + 10*Math.log(z)/Math.LN10; }
+  function wMean(p, j, w){ var a = 0, i; for (i=j;i<j+w;i++) a += p[i]; return a/w; }
+
+  /* gercek tepe: yalnizca yerel tepelerin cevresinde 4x sinc ara deger */
+  function truePeak(x, pk){
+    var TAPS = 20, PH = [0.25, 0.5, 0.75], best = pk, thr = pk*0.90;
+    var i, ph, k, m, sc, wn, acc, cand = 0;
+    for (i=TAPS;i<x.length-TAPS && cand < 3000;i++){
+      var a = Math.abs(x[i]);
+      if (a < thr || a < Math.abs(x[i-1]) || a < Math.abs(x[i+1])) continue;
+      cand++;
+      for (ph=0;ph<3;ph++){
+        acc = 0;
+        for (k=-TAPS;k<=TAPS;k++){
+          m = k - PH[ph];
+          sc = Math.abs(m) < 1e-9 ? 1 : Math.sin(Math.PI*m)/(Math.PI*m);
+          wn = 0.5 + 0.5*Math.cos(Math.PI*m/(TAPS+1));
+          acc += x[i+k]*sc*wn;
+        }
+        if (Math.abs(acc) > best) best = Math.abs(acc);
+      }
+    }
+    return best;
+  }
+
+  function measure(x){
+    var p = segPowers(x), nSeg = p.length, i, j, z;
+    var momZ = [], mom = [], sh = [];
+    for (j=0;j+4<=nSeg;j++){ z = wMean(p,j,4); momZ.push(z); mom.push(LU(z)); }
+    for (j=0;j+30<=nSeg;j++) sh.push(LU(wMean(p,j,30)));
+    var I = -Infinity, rel = -Infinity, kept = 0, mA = 0, nA = 0;
+    for (i=0;i<momZ.length;i++) if (mom[i] > -70){ mA += momZ[i]; nA++; }
+    if (nA){
+      rel = LU(mA/nA) - 10;
+      var mk = 0;
+      for (i=0;i<momZ.length;i++) if (mom[i] > -70 && mom[i] > rel){ mk += momZ[i]; kept++; }
+      if (kept) I = LU(mk/kept);
+    }
+    var pk = 0, ss = 0;
+    for (i=0;i<x.length;i++){ var av = Math.abs(x[i]); if (av > pk) pk = av; ss += x[i]*x[i]; }
+    var rms = Math.sqrt(ss/x.length);
+    var tp = truePeak(x, pk);
+    var tpdb = tp <= 0 ? -99 : 20*Math.log(tp)/Math.LN10;
+    return { mom:mom, sh:sh, I:I, rel:rel, kept:kept, nMom:momZ.length,
+             peak:pk, tp:tp, tpdb:tpdb, rms:rms,
+             crest: 20*Math.log(pk/rms)/Math.LN10,
+             plr: tpdb - I };                    /* PLR: butun parcanin crest'i */
+  }
+
+  /* master zinciri: kazanc + (yumusak limiter | sert kirpma) */
+  var CEIL = 0.8913;                               /* -1 dBFS cikis tavani */
+  function masterInto(out, src, gDb, lim){
+    var g = Math.pow(10, gDb/20), T = 0.70, i, v, a, pk = 0;
+    for (i=0;i<src.length;i++){
+      v = g*src[i];
+      if (lim){
+        a = Math.abs(v);
+        if (a > T) v = (v < 0 ? -1 : 1)*(T + (1-T)*Math.tanh((a-T)/(1-T)));
+      } else {
+        v = v > 1 ? 1 : (v < -1 ? -1 : v);
+      }
+      out[i] = v;
+      a = v < 0 ? -v : v; if (a > pk) pk = a;
+    }
+    /* limiterin cikis tavani: ornek tepesini -1 dBFS'e otur */
+    if (lim && pk > 0){
+      var k = CEIL/pk;
+      for (i=0;i<out.length;i++) out[i] *= k;
+    }
+    return out;
+  }
+  function lufsOf(gDb, lim){
+    var key = gDb + '|' + (lim ? 1 : 0);
+    if (lufsCache[key]) return lufsCache[key];
+    if (!songRaw) songRaw = buildSong();
+    if (!procBuf || procBuf.length !== songRaw.length) procBuf = new Float32Array(songRaw.length);
+    masterInto(procBuf, songRaw, gDb, lim);
+    procKey = key;
+    var m = measure(procBuf);
+    m.gDb = gDb; m.lim = lim;
+    lufsCache[key] = m;
+    return m;
+  }
+  function curLufs(){ return lufsOf(S.mg, S.lim); }
+  /* procBuf paylasimli: cizmeden once guncel ayara ait oldugundan emin ol
+     (masters() cagrisi tamponu baska bir masterla doldurmus olabilir) */
+  function ensureProc(){
+    var key = S.mg + '|' + (S.lim ? 1 : 0);
+    if (procKey === key) return;
+    if (!songRaw) songRaw = buildSong();
+    if (!procBuf || procBuf.length !== songRaw.length) procBuf = new Float32Array(songRaw.length);
+    masterInto(procBuf, songRaw, S.mg, S.lim);
+    procKey = key;
+  }
+
+  /* ================= 03-D: LUFS ve normalizasyon ================= */
+  var LMIN = -40, LMAX = 0;
+  function drawLufs(f){
+    var W=f.w, H=f.h, i, j;
+    var small = W < 760;
+    var pad = 16*K.fs;
+    var RW = small ? 0 : 176*K.fs;                 /* sagdaki olcer sutunu */
+    var gx0 = pad + (small ? 28 : 40)*K.fs, gx1 = W - pad - RW - (small ? 4 : 18)*K.fs;
+    var top = pad + 22*K.fs, bot = H - pad - (small ? 26 : 34)*K.fs;
+    var wh = (bot-top)*0.34, gap = 26*K.fs;
+    var wy0 = top, wy1 = top + wh, wcy = (wy0+wy1)/2;
+    var cy0 = wy1 + gap, cy1 = bot;
+    var m = curLufs(); ensureProc();
+    function XT(t){ return gx0 + t/LDUR*(gx1-gx0); }
+    function YL(v){ return cy1 - (Math.max(LMIN, Math.min(LMAX, v))-LMIN)/(LMAX-LMIN)*(cy1-cy0); }
+    G.lx0 = gx0; G.lx1 = gx1;
+
+    /* --- dalga --- */
+    txt(small ? 'DALGA' : 'DALGA ŞEKLİ  ·  12 saniyelik parça',
+        gx0, pad + 4*K.fs, C.ink3, 10.5, 'left', '"IBM Plex Sans", sans-serif', 700);
+    ctx.strokeStyle = C.line2; LW(1); dash([3,4]);
+    line(gx0, wy0, gx1, wy0); line(gx0, wy1, gx1, wy1); dash();
+    ctx.strokeStyle = C.line; LW(1); line(gx0, wcy, gx1, wcy);
+    txt('0 dBFS', gx0 - 6*K.fs, wy0, C.ink3, 9, 'right');
+    var cols = Math.max(60, Math.round(gx1-gx0));
+    ctx.strokeStyle = C.sin; LW(1); ctx.globalAlpha = .9;
+    ctx.beginPath();
+    for (i=0;i<cols;i++){
+      var a0 = Math.floor(i/cols*procBuf.length), a1 = Math.floor((i+1)/cols*procBuf.length);
+      var mn = 0, mx = 0;
+      for (j=a0;j<a1;j++){ var vv = procBuf[j]; if (vv<mn) mn=vv; if (vv>mx) mx=vv; }
+      var xx = gx0 + i + 0.5;
+      ctx.moveTo(xx, wcy - mx*wh/2); ctx.lineTo(xx, wcy - mn*wh/2);
+    }
+    ctx.stroke(); ctx.globalAlpha = 1;
+
+    /* --- LUFS egrileri --- */
+    txt(small ? 'LUFS' : 'YÜKSEKLİK  ·  anlık (400 ms) ve kısa dönem (3 s)',
+        gx0, cy0 - 11*K.fs, C.ink3, 10.5, 'left', '"IBM Plex Sans", sans-serif', 700);
+    ctx.strokeStyle = C.line; LW(1.2); line(gx0, cy1, gx1, cy1);
+    for (i=LMIN;i<=LMAX;i+=10){
+      var yy = YL(i);
+      ctx.strokeStyle = C.line2; LW(1); ctx.globalAlpha = .7; line(gx0, yy, gx1, yy);
+      ctx.globalAlpha = 1;
+      txt(String(i).replace('-','−'), gx0 - 6*K.fs, yy, C.ink3, 9, 'right');
+    }
+    /* kapi altinda kalan bloklar */
+    if (m.rel > -Infinity){
+      ctx.fillStyle = C.ink3; ctx.globalAlpha = .10;
+      for (i=0;i<m.mom.length;i++) if (!(m.mom[i] > -70 && m.mom[i] > m.rel)){
+        var t0 = (i+4)*0.1;
+        ctx.fillRect(XT(t0-0.1), cy0, Math.max(1, XT(t0)-XT(t0-0.1)), cy1-cy0);
+      }
+      ctx.globalAlpha = 1;
+      ctx.strokeStyle = C.ink3; LW(1.3); dash([5,4]);
+      line(gx0, YL(m.rel), gx1, YL(m.rel)); dash();
+      if (!small) txt('kapı: '+n(m.rel,1)+' LUFS', gx1 - 4*K.fs, YL(m.rel) - 8*K.fs,
+          C.ink3, 9.5, 'right', '"IBM Plex Mono", monospace');
+    }
+    /* anlik (soguk) */
+    ctx.strokeStyle = C.cos; LW(1.4); ctx.globalAlpha = .75;
+    ctx.beginPath();
+    for (i=0;i<m.mom.length;i++){
+      var px = XT((i+4)*0.1), py = YL(m.mom[i]);
+      i ? ctx.lineTo(px,py) : ctx.moveTo(px,py);
+    }
+    ctx.stroke(); ctx.globalAlpha = 1;
+    /* kisa donem (sicak) */
+    ctx.strokeStyle = C.sin; LW(2.4); glowOn(C.sin,8);
+    ctx.beginPath();
+    for (i=0;i<m.sh.length;i++){
+      var px2 = XT((i+30)*0.1), py2 = YL(m.sh[i]);
+      i ? ctx.lineTo(px2,py2) : ctx.moveTo(px2,py2);
+    }
+    ctx.stroke(); glowOff();
+    /* butunlesik */
+    ctx.strokeStyle = C.arc; LW(2); dash([7,4]);
+    line(gx0, YL(m.I), gx1, YL(m.I)); dash();
+    if (!small) txt('bütünleşik '+n(m.I,1), gx0 + 6*K.fs, YL(m.I) - 9*K.fs, C.arc, 10.5,
+        'left', '"IBM Plex Mono", monospace', 500);
+
+    /* --- zaman ekseni --- */
+    for (i=0;i<=12;i+=2){
+      var tx = XT(i);
+      ctx.strokeStyle = C.line; LW(1.1); line(tx, cy1, tx, cy1+5*K.fs);
+      txt(i+(i===12?' s':''), tx, cy1 + 15*K.fs, C.ink3, 9.5, 'center');
+    }
+
+    /* --- oynatma imleci --- */
+    var lx = XT(S.lt);
+    ctx.strokeStyle = C.arc; LW(1.8); ctx.globalAlpha = .9;
+    line(lx, wy0, lx, cy1); ctx.globalAlpha = 1;
+    var mi = Math.max(0, Math.min(m.mom.length-1, Math.round(S.lt*10) - 4));
+    var si = Math.max(0, Math.min(m.sh.length-1, Math.round(S.lt*10) - 30));
+    dot(lx, YL(m.mom[mi]), 4.2, C.cos);
+    dot(lx, YL(m.sh[si]), 5, C.arc);
+
+    /* --- sagdaki olcerler --- */
+    if (!small){
+      var rx = W - pad - RW + 12*K.fs, ry = top + 10*K.fs, lh = 44*K.fs;
+      var rows = [
+        ['anlık  ·  400 ms', n(m.mom[mi],1), C.cos],
+        ['kısa dönem  ·  3 s', n(m.sh[si],1), C.sin],
+        ['bütünleşik  ·  tüm parça', n(m.I,1), C.arc],
+        ['gerçek tepe', n(m.tpdb,1)+' dBTP', C.ink],
+        ['PLR  ·  tepe − yükseklik', n(m.plr,1)+' LU', C.ink2]
+      ];
+      rows.forEach(function(r, k){
+        var yy = ry + k*lh;
+        txt(r[0], rx, yy, C.ink3, 9.5, 'left', '"IBM Plex Sans", sans-serif', 600);
+        txt(r[1], rx, yy + 17*K.fs, r[2], k === 2 ? 19 : 15, 'left',
+            '"IBM Plex Mono", monospace', 500);
+        if (k < 3) txt('LUFS', rx + tw2(r[1], k===2?19:15) + 7*K.fs, yy + 17*K.fs,
+            C.ink3, 10, 'left', '"IBM Plex Mono", monospace');
+      });
+      var dy = ry + 5*lh + 2*K.fs;
+      txt('kapıdan geçen blok', rx, dy, C.ink3, 9.5, 'left',
+          '"IBM Plex Sans", sans-serif', 600);
+      txt(m.kept + ' / ' + m.nMom, rx, dy + 16*K.fs, C.ink2, 13, 'left',
+          '"IBM Plex Mono", monospace', 500);
+    }
+    /* dar ekranda ozet satiri zaman ekseninin altina degil, LUFS basliginin
+       yanina yaziliyor — yoksa eksen rakamlarinin uzerine biniyor */
+    if (small) txt(n(m.I,1)+' LUFS · '+n(m.tpdb,1)+' dBTP · PLR '+n(m.plr,1),
+        gx1, cy0 - 11*K.fs, C.ink2, 10, 'right', '"IBM Plex Mono", monospace', 500);
+  }
+  function tw2(s2, size){
+    ctx.font = '500 '+(size*K.fs).toFixed(2)+'px "IBM Plex Mono", monospace';
+    return ctx.measureText(s2).width;
+  }
+
+  /* ================= 04: normalizasyon ================= */
+  var PLAT = [
+    ['Spotify · YouTube · Tidal', -14],
+    ['Apple Music', -16],
+    ['EBU R128 · yayın', -23]
+  ];
+  var MA = null, MB = null;                        /* iki master */
+  function masters(){
+    if (!MA){ MA = lufsOf(4, true); MB = lufsOf(17, true); }
+    return [MA, MB];
+  }
+  function drawNorm(f){
+    var W=f.w, H=f.h, i;
+    ctx = f.c;
+    var small = W < 700;
+    var pad = 18*K.fs;
+    var mm = masters(), tgt = PLAT[S.plat][1];
+    var top = pad + 40*K.fs, bot = H - pad - 58*K.fs;
+    var NMIN = -30, NMAX = 0;
+    function Y(v){ return bot - (Math.max(NMIN, Math.min(NMAX, v))-NMIN)/(NMAX-NMIN)*(bot-top); }
+    var half = (W - 2*pad)/2;
+    var bw = small ? 38*K.fs : 62*K.fs;
+    var xs = [pad + half*0.30, pad + half*0.72, pad + half + half*0.26, pad + half + half*0.64];
+
+    txt(small ? 'ÖLÇÜLEN' : 'ÖLÇÜLEN  ·  masterdan çıktığı hâli', pad, pad + 6*K.fs,
+        C.ink3, 10.5, 'left', '"IBM Plex Sans", sans-serif', 700);
+    txt(small ? 'NORMALİZE' : 'NORMALİZE EDİLMİŞ  ·  dinleyicinin duyduğu',
+        W - pad, pad + 6*K.fs, C.arc, 10.5, 'right', '"IBM Plex Sans", sans-serif', 700);
+    ctx.strokeStyle = C.line2; LW(1); dash([3,5]);
+    line(pad + half, top - 16*K.fs, pad + half, bot + 16*K.fs); dash();
+
+    /* LUFS cetveli */
+    for (i=NMIN;i<=NMAX;i+=5){
+      ctx.strokeStyle = C.line2; LW(1); ctx.globalAlpha = .65;
+      line(pad, Y(i), W-pad, Y(i)); ctx.globalAlpha = 1;
+      txt(String(i).replace('-','−'), pad - 4*K.fs, Y(i), C.ink3, 9, 'right');
+    }
+    /* hedef */
+    ctx.strokeStyle = C.arc; LW(2); dash([6,4]);
+    line(pad, Y(tgt), W-pad, Y(tgt)); dash();
+    txt('hedef '+tgt+' LUFS', W - pad, Y(tgt) - 10*K.fs, C.arc, 10.5, 'right',
+        '"IBM Plex Mono", monospace', 500);
+
+    var NAME = ['dinamik master', 'ezilmiş master'];
+    mm.forEach(function(M, k){
+      var col = k ? C.cos : C.sin;
+      /* olculen */
+      var x0 = xs[k];
+      ctx.fillStyle = col; ctx.globalAlpha = .30;
+      ctx.fillRect(x0-bw/2, Y(M.I), bw, bot-Y(M.I)); ctx.globalAlpha = 1;
+      ctx.strokeStyle = col; LW(2); ctx.strokeRect(x0-bw/2, Y(M.I), bw, bot-Y(M.I));
+      txt(n(M.I,1), x0, Y(M.I) - 11*K.fs, col, 12.5, 'center',
+          '"IBM Plex Mono", monospace', 500);
+      txt(NAME[k], x0, bot + 15*K.fs, col, small ? 9.5 : 11, 'center',
+          '"IBM Plex Sans", sans-serif', 600);
+      if (!small) txt('PLR '+n(M.plr,1)+' LU', x0, bot + 30*K.fs, C.ink3, 10,
+          'center', '"IBM Plex Mono", monospace');
+      /* normalize */
+      var x1 = xs[k+2], dg = tgt - M.I;
+      ctx.fillStyle = col; ctx.globalAlpha = .30;
+      ctx.fillRect(x1-bw/2, Y(tgt), bw, bot-Y(tgt)); ctx.globalAlpha = 1;
+      ctx.strokeStyle = col; LW(2); ctx.strokeRect(x1-bw/2, Y(tgt), bw, bot-Y(tgt));
+      txt(n(tgt,1), x1, Y(tgt) - 11*K.fs, col, 12.5, 'center',
+          '"IBM Plex Mono", monospace', 500);
+      txt(NAME[k], x1, bot + 15*K.fs, col, small ? 9.5 : 11, 'center',
+          '"IBM Plex Sans", sans-serif', 600);
+      if (!small) txt('PLR '+n(M.plr,1)+' LU', x1, bot + 30*K.fs, C.ink3, 10,
+          'center', '"IBM Plex Mono", monospace');
+      /* uygulanan kazanc oku — cubugun DISINDA, etiketlerin uzerine binmesin */
+      var ax = x1 + bw/2 + 15*K.fs, ay = (Y(M.I)+Y(tgt))/2;
+      ctx.strokeStyle = C.arc; LW(1.4); ctx.globalAlpha = .75; dash([4,4]);
+      line(x0 + bw/2, Y(M.I), ax, Y(M.I)); dash(); ctx.globalAlpha = 1;
+      arrow(ax, Y(M.I), ax, Y(tgt) + (dg > 0 ? 5*K.fs : -5*K.fs), C.arc, 1.6);
+      txt((dg >= 0 ? '+' : '')+n(dg,1)+' dB', ax + 8*K.fs, ay, C.arc,
+          small ? 10 : 11.5, 'left', '"IBM Plex Mono", monospace', 500);
+    });
+
+    if (!small){
+      var d1 = mm[1].I - mm[0].I, d2 = mm[1].plr - mm[0].plr;
+      txt('Ölçüldüğünde ezilmiş master '+n(d1,1)+' dB daha yüksek. Normalizasyondan sonra '+
+          'ikisi de aynı seviyede — geriye yalnızca '+n(-d2,1)+' LU’luk dinamik kaybı kalıyor.',
+          pad, H - pad - 4*K.fs, C.ink3, 10.5, 'left', '"IBM Plex Sans", sans-serif');
+    }
+  }
+
+  /* ================= ana cizim ================= */
+  var board = document.getElementById('board');
+  function drawBoard(){
+    var f = sized(board); if (!f) return;
+    ctx = f.c;
+    if (S.mode === 'genlik') drawGenlik(f);
+    else if (S.mode === 'kirpma') drawKirpma(f);
+    else if (S.mode === 'zarf') drawZarf(f);
+    else drawLufs(f);
+  }
+
+  var normEl = document.getElementById('norm');
+
+  function render(){ drawBoard(); var f2 = sized(normEl); if (f2) drawNorm(f2); }
+  if (window.ResizeObserver){
+    var ro3 = new ResizeObserver(function(){ render(); });
+    ro3.observe(board); ro3.observe(normEl);
+  }
+  window.addEventListener('resize', render);
+
+  /* ================= gosterge ================= */
+  var ro = document.getElementById('ro'), ro2b = document.getElementById('ro2');
+  function cell(lab,val,cls){
+    return '<div><span>'+lab+'</span><b'+(cls?' class="'+cls+'"':'')+'>'+val+'</b></div>';
+  }
+  function sync(){
+    var st = stats(S.shape), cs = clipStats();
+    if (S.mode === 'genlik'){
+      ro.innerHTML =
+        cell('şekil', SHNAME[S.shape]) +
+        cell('tepe', '1,00  ·  0 dBFS','v-sin') +
+        cell('RMS', n(st.rms,3),'v-cos') +
+        cell('RMS seviyesi', n(st.rmsDb,1)+' dBFS','v-cos') +
+        cell('crest factor', n(st.crest,1)+' dB','v-arc');
+    } else if (S.mode === 'kirpma'){
+      ro.innerHTML =
+        cell('kazanç', '+'+n(S.gainDb,1)+' dB') +
+        cell('tepe', n(dbOf(cs.peak),1)+' dBFS','v-sin') +
+        cell('RMS', n(dbOf(cs.rms),1)+' dBFS','v-cos') +
+        cell('kazanılan yükseklik', '+'+n(dbOf(cs.rms)-st.rmsDb,1)+' dB','v-arc') +
+        cell('crest factor', n(st.crest,1)+' → '+n(cs.crest,1)+' dB','v-arc');
+    } else if (S.mode === 'zarf'){
+      var nc = noteCrest();
+      ro.innerHTML =
+        cell('nota boyu', n(noteLen(),2)+' s') +
+        cell('attack', n(S.atk*1000,0)+' ms','v-arc') +
+        cell('decay', n(S.dec*1000,0)+' ms','v-arc') +
+        cell('notanın crest\'i', nc === null ? '—' : n(nc,1)+' dB','v-sin') +
+        cell('takipçi penceresi', S.win+' ms','v-cos');
+    } else {
+      var lm = curLufs();
+      var mi = Math.max(0, Math.min(lm.mom.length-1, Math.round(S.lt*10) - 4));
+      var si = Math.max(0, Math.min(lm.sh.length-1, Math.round(S.lt*10) - 30));
+      ro.innerHTML =
+        cell('master kazancı', (S.mg>0?'+':'')+n(S.mg,1)+' dB') +
+        cell('anlık', n(lm.mom[mi],1)+' LUFS','v-cos') +
+        cell('kısa dönem', n(lm.sh[si],1)+' LUFS','v-sin') +
+        cell('bütünleşik', n(lm.I,1)+' LUFS','v-arc') +
+        cell('gerçek tepe', n(lm.tpdb,1)+' dBTP') +
+        cell('PLR', n(lm.plr,1)+' LU','v-arc');
+    }
+    var mm2 = masters(), tg = PLAT[S.plat][1];
+    ro2b.innerHTML =
+      cell('platform', PLAT[S.plat][0].split(' · ')[0],'v-arc') +
+      cell('hedef', tg+' LUFS','v-arc') +
+      cell('dinamik master', n(mm2[0].I,1)+' → '+(tg-mm2[0].I>=0?'+':'')+n(tg-mm2[0].I,1)+' dB','v-sin') +
+      cell('ezilmiş master', n(mm2[1].I,1)+' → '+(tg-mm2[1].I>=0?'+':'')+n(tg-mm2[1].I,1)+' dB','v-cos') +
+      cell('PLR farkı', n(mm2[1].plr-mm2[0].plr,1)+' LU');
+
+    document.getElementById('gfreq-out').textContent = S.f+' Hz';
+    document.getElementById('gfreq').value = S.f;
+    document.getElementById('gain-out').textContent = n(S.gainDb,1)+' dB';
+    document.getElementById('gain').value = S.gainDb;
+    document.getElementById('atk-out').textContent = n(S.atk*1000,0)+' ms';
+    document.getElementById('atk').value = S.atk;
+    document.getElementById('dec-out').textContent = n(S.dec*1000,0)+' ms';
+    document.getElementById('dec').value = S.dec;
+    document.getElementById('sus-out').textContent = n(S.sus,2);
+    document.getElementById('sus').value = S.sus;
+    document.getElementById('rel-out').textContent = n(S.rel*1000,0)+' ms';
+    document.getElementById('rel').value = S.rel;
+    document.getElementById('win-out').textContent = S.win+' ms';
+    document.getElementById('win').value = S.win;
+    document.getElementById('mgain-out').textContent = (S.mg>0?'+':'')+n(S.mg,1)+' dB';
+    document.getElementById('mgain').value = S.mg;
+    Array.prototype.forEach.call(document.querySelectorAll('#lim button'), function(b){
+      b.classList.toggle('on', (b.dataset.l === 'on') === !!S.lim);
+    });
+    Array.prototype.forEach.call(document.querySelectorAll('#plat button'), function(b){
+      b.classList.toggle('on', parseInt(b.dataset.p,10) === S.plat);
+    });
+    Array.prototype.forEach.call(document.querySelectorAll('#shapes button'), function(b){
+      b.classList.toggle('on', b.dataset.s === S.shape);
+    });
+    Array.prototype.forEach.call(document.querySelectorAll('#clipk button'), function(b){
+      b.classList.toggle('on', (b.dataset.k === 'soft') === !!S.soft);
+    });
+    Array.prototype.forEach.call(tbody.children, function(tr){
+      tr.setAttribute('aria-selected', tr.dataset.s === S.shape ? 'true':'false');
+    });
+  }
+
+  /* ================= mod secimi ================= */
+  var modeBtns = document.querySelectorAll('.modes button[data-m]');
+  function setMode(m){
+    S.mode = m;
+    Array.prototype.forEach.call(modeBtns, function(b){
+      b.setAttribute('aria-pressed', b.dataset.m === m ? 'true':'false');
+    });
+    ['genlik','kirpma','zarf','lufs'].forEach(function(k){
+      document.getElementById('row-'+k).hidden = (k !== m);
+    });
+    document.getElementById('stage1').dataset.scene = m;
+    sync(); render();
+  }
+  Array.prototype.forEach.call(modeBtns, function(b){
+    b.addEventListener('click', function(){ setMode(b.dataset.m); });
+  });
+
+  /* ================= crest factor tablosu ================= */
+  var tbody = document.getElementById('tbody');
+  var CMP = {
+    kare:'duvar gibi, en yüksek',
+    testere:'parlak ve dolgun',
+    ucgen:'yumuşak',
+    sinus:'saf, referans',
+    darbe:'tık gibi, çok dinamik',
+    gurultu:'ıslık/hava, dinamik'
+  };
+  SHAPES.slice().sort(function(a,b){ return stats(a[0]).crest - stats(b[0]).crest; })
+    .forEach(function(o){
+      var st = stats(o[0]);
+      var tr = document.createElement('tr');
+      tr.dataset.s = o[0];
+      tr.innerHTML = '<td>'+o[1]+'</td><td>'+n(st.rmsDb,1)+' dB</td>'+
+                     '<td>'+n(st.crest,1)+' dB</td>'+
+                     '<td class="c-cmp">'+CMP[o[0]]+'</td>';
+      tr.addEventListener('click', function(){
+        S.shape = o[0];
+        if (S.mode === 'zarf') setMode('genlik');
+        sync(); render();
+      });
+      tbody.appendChild(tr);
+    });
+
+  /* ================= kontroller ================= */
+  function rng(id, key, parse){
+    document.getElementById(id).addEventListener('input', function(){
+      S[key] = parse(this.value); sync(); render();
+    });
+  }
+  var pInt = function(v){ return parseInt(v,10); }, pF = function(v){ return parseFloat(v); };
+  rng('gfreq','f',pInt); rng('gain','gainDb',pF);
+  rng('atk','atk',pF); rng('dec','dec',pF); rng('sus','sus',pF); rng('rel','rel',pF);
+  rng('win','win',pInt);
+  rng('mgain','mg',pF);
+
+  function group(host, items, set){
+    var g = document.getElementById(host);
+    items.forEach(function(o){
+      var b = document.createElement('button');
+      b.type='button'; b.textContent = o[0];
+      if (o[2]) b.dataset[o[2]] = o[1];
+      b.addEventListener('click', function(){ set(o[1]); sync(); render(); });
+      g.appendChild(b);
+    });
+  }
+  group('shapes', SHAPES.map(function(o){ return [o[1], o[0], 's']; }),
+        function(v){ S.shape = v; });
+  group('clipk', [['Sert kırpma','hard','k'],['Yumuşak','soft','k']],
+        function(v){ S.soft = (v === 'soft'); });
+  group('gpre', [['+6 dB',6],['+12 dB',12],['+20 dB',20]],
+        function(v){ S.gainDb = v; });
+  group('lim', [['Açık','on','l'],['Kapalı','off','l']],
+        function(v){ S.lim = (v === 'on'); });
+  group('lpre', [['Dinamik master',4],['Ezilmiş master',17]],
+        function(v){ S.mg = v; S.lim = true; });
+  group('plat', PLAT.map(function(o,i){
+          return [o[0].split(' · ')[0]+'  '+o[1], i, 'p'];
+        }), function(v){ S.plat = v; });
+  group('zpre', [
+    ['Yay',   'yay'],
+    ['Piyano','piyano'],
+    ['Tekme davulu','tekme'],
+    ['Org',   'org']
+  ], function(v){
+    var P = {
+      yay:    { atk:0.18,  dec:0.25, sus:0.85, rel:0.25, hold:1.0 },
+      piyano: { atk:0.004, dec:0.85, sus:0.05, rel:0.30, hold:1.1 },
+      tekme:  { atk:0.002, dec:0.09, sus:0.0,  rel:0.06, hold:0.13 },
+      org:    { atk:0.012, dec:0.02, sus:1.0,  rel:0.03, hold:1.1 }
+    }[v];
+    Object.keys(P).forEach(function(k){ S[k] = P[k]; });
+    S.zc = Math.min(0.5, S.atk/noteLen() + 0.06);
+  });
+
+  /* --- lufs sahnesinde zaman imleci --- */
+  board.addEventListener('pointerdown', function(ev){
+    if (S.mode !== 'lufs' || G.lx0 === undefined) return;
+    G.ldrag = true; setLPlay(false);
+    try { board.setPointerCapture(ev.pointerId); } catch(e){}
+    onLMove(ev);
+  });
+  function onLMove(ev){
+    if (!G.ldrag) return;
+    var r = board.getBoundingClientRect();
+    var u = (ev.clientX - r.left - G.lx0)/(G.lx1 - G.lx0);
+    S.lt = Math.max(0, Math.min(LDUR-0.05, u*LDUR));
+    sync(); drawBoard();
+  }
+  board.addEventListener('pointermove', onLMove);
+  board.addEventListener('pointerup', function(){ G.ldrag = false; });
+  board.addEventListener('pointercancel', function(){ G.ldrag = false; });
+
+  /* --- zarf sahnesinde buyutec imleci --- */
+  board.addEventListener('pointerdown', function(ev){
+    if (S.mode !== 'zarf' || G.zx0 === undefined) return;
+    var r = board.getBoundingClientRect();
+    var my = ev.clientY - r.top;
+    if (my < G.zy0 - 14 || my > G.zy1 + 14) return;
+    G.drag = true; setZPlay(false);
+    try { board.setPointerCapture(ev.pointerId); } catch(e){}
+    onMove(ev);
+  });
+  function onMove(ev){
+    if (!G.drag) return;
+    var r = board.getBoundingClientRect();
+    var mx = ev.clientX - r.left;
+    S.zc = Math.max(0, Math.min(1, (mx - G.zx0)/(G.zx1 - G.zx0)));
+    sync(); drawBoard();
+  }
+  board.addEventListener('pointermove', onMove);
+  board.addEventListener('pointerup', function(){ G.drag = false; });
+  board.addEventListener('pointercancel', function(){ G.drag = false; });
+
+  /* ================= ses ================= */
+  var actx = null, audioOK = true, timers = [];
+  function say(el, s, at, on){
+    timers.push(setTimeout(function(){
+      el.textContent = s; el.classList.toggle('on', !!on);
+    }, at*1000));
+  }
+  function clearSay(){ timers.forEach(clearTimeout); timers = []; }
+  function ac(){
+    if (!actx) actx = new (window.AudioContext || window.webkitAudioContext)();
+    if (actx.state === 'suspended') actx.resume();
+    return actx;
+  }
+  /* Sekli zamanin fonksiyonu olarak ver; gurultu her ornekte yeni. */
+  function shapeFn(sh, freq){
+    if (sh === 'gurultu'){
+      var r = mulberry((Date.now() & 0x7fffffff) | 1);
+      return function(){ return Math.max(-1, Math.min(1, (r()+r()+r()-1.5)/1.275)); };
+    }
+    return function(t){ return sigOf(sh, t*freq); };
+  }
+  function buildBuf(fn, dur, gain){
+    var sr = actx.sampleRate, N = Math.max(8, Math.floor(sr*dur)), i;
+    var b = actx.createBuffer(1, N, sr), ch = b.getChannelData(0);
+    for (i=0;i<N;i++) ch[i] = fn(i/sr)*gain;
+    var fd = Math.min(Math.floor(sr*0.004), Math.floor(N/2));
+    for (i=0;i<fd;i++){ ch[i] *= i/fd; ch[N-1-i] *= i/fd; }
+    return b;
+  }
+  function playBuf(buf, at){
+    var s2 = actx.createBufferSource();
+    s2.buffer = buf; s2.connect(actx.destination); s2.start(at);
+    return s2;
+  }
+
+  var gStat = document.getElementById('g-stat');
+  /* Esit tepe: sinus ile secili sekli ayni tepe degerinde cal.
+     Esit RMS: ayni etkin degerde cal — bu kez ayni yukseklikte duyulurlar. */
+  function hearPair(equalRms){
+    if (!audioOK) return;
+    try {
+      ac(); clearSay();
+      var D = 1.1, gap = 0.3, t0 = actx.currentTime + 0.06;
+      var stA = stats('sinus'), stB = stats(S.shape);
+      var gA, gB;
+      if (equalRms){ var tgt = 0.20; gA = tgt/stA.rms; gB = tgt/stB.rms; }
+      else { gA = 0.42; gB = 0.42; }
+      playBuf(buildBuf(shapeFn('sinus', S.f), D, gA), t0);
+      playBuf(buildBuf(shapeFn(S.shape, S.f), D, gB), t0 + D + gap);
+      var dRms = stB.rmsDb - stA.rmsDb;
+      say(gStat, '1 · sinüs (referans)', 0, true);
+      if (equalRms){
+        say(gStat, '2 · '+SHNAME[S.shape]+' — aynı RMS, tepesi '+
+            n(-stB.crest+stA.crest,1)+' dB farklı: aynı yükseklikte duyulur',
+            D + gap, true);
+      } else {
+        say(gStat, '2 · '+SHNAME[S.shape]+' — aynı tepe, RMS '+
+            (dRms >= 0 ? '+' : '')+n(dRms,1)+' dB: '+
+            (Math.abs(dRms) < 0.2 ? 'aynı ses' : (dRms > 0 ? 'daha yüksek' : 'daha sessiz')),
+            D + gap, true);
+      }
+      say(gStat, '', 2*D + gap + 0.5);
+    } catch(err){
+      audioOK = false; gStat.textContent = 'Bu tarayıcıda ses çalınamadı.';
+      document.getElementById('hearPeak').disabled = true;
+      document.getElementById('hearRms').disabled = true;
+    }
+  }
+  document.getElementById('hearPeak').addEventListener('click', function(){ hearPair(false); });
+  document.getElementById('hearRms').addEventListener('click', function(){ hearPair(true); });
+
+  var kStat = document.getElementById('k-stat');
+  document.getElementById('hearClip').addEventListener('click', function(){
+    if (!audioOK) return;
+    try {
+      ac(); clearSay();
+      var D = 1.1, gap = 0.3, t0 = actx.currentTime + 0.06, G0 = 0.5;
+      var st = stats(S.shape), cs = clipStats();
+      var raw = shapeFn(S.shape, S.f);
+      var g = gainLin(), soft = S.soft;
+      var lim = (S.shape === 'gurultu')
+        ? (function(){ var r0 = shapeFn('gurultu', S.f);
+            return function(t){ var x = r0(t);
+              return soft ? Math.tanh(Math.max(1.0001,g)*x)/Math.tanh(Math.max(1.0001,g))
+                          : Math.max(-1, Math.min(1, x*g)); }; })()
+        : function(t){ return clipped(t*S.f); };
+      playBuf(buildBuf(raw, D, G0), t0);
+      playBuf(buildBuf(lim, D, G0), t0 + D + gap);
+      say(kStat, '1 · ham sinyal', 0, true);
+      say(kStat, '2 · limitli — aynı tepe, '+
+          '+'+n(dbOf(cs.rms)-st.rmsDb,1)+' dB daha yüksek', D + gap, true);
+      say(kStat, '', 2*D + gap + 0.5);
+    } catch(err){
+      audioOK = false; kStat.textContent = 'Bu tarayıcıda ses çalınamadı.';
+      this.disabled = true;
+    }
+  });
+
+  var zStat = document.getElementById('z-stat');
+  var zplayBtn = document.getElementById('zplay');
+  function setZPlay(v){
+    S.zplay = v;
+    zplayBtn.textContent = v ? 'Durdur ❚❚' : 'Çal ▶';
+    zplayBtn.setAttribute('aria-pressed', v?'true':'false');
+  }
+  zplayBtn.addEventListener('click', function(){
+    if (S.zplay){ setZPlay(false); clearSay(); zStat.textContent = ''; return; }
+    if (!audioOK){ setZPlay(false); return; }
+    try {
+      ac(); clearSay();
+      var TTn = noteLen(), fn = shapeFn(S.shape, S.f);
+      var buf = buildBuf(function(t){ return envAt(t)*fn(t); }, TTn, 0.55);
+      playBuf(buf, actx.currentTime + 0.05);
+      S.zc = 0; setZPlay(true);
+      say(zStat, 'çalıyor — büyüteç sesle birlikte ilerliyor', 0, true);
+      say(zStat, '', TTn + 0.6);
+    } catch(err){
+      audioOK = false; zStat.textContent = 'Bu tarayıcıda ses çalınamadı.';
+      zplayBtn.disabled = true; setZPlay(false);
+    }
+  });
+
+  /* ================= LUFS sahnesi: parcayi cal ================= */
+  var lStat = document.getElementById('l-stat');
+  var lplayBtn = document.getElementById('lplay');
+  var lSrc = null, lT0 = 0;
+  function setLPlay(v){
+    S.lplay = v;
+    lplayBtn.textContent = v ? 'Durdur ❚❚' : 'Parçayı çal ▶';
+    lplayBtn.setAttribute('aria-pressed', v ? 'true':'false');
+    if (!v && lSrc){ try { lSrc.stop(); } catch(e){} lSrc = null; }
+  }
+  lplayBtn.addEventListener('click', function(){
+    if (S.lplay){ setLPlay(false); return; }
+    if (!audioOK) return;
+    try {
+      ac(); clearSay();
+      curLufs(); ensureProc();                     /* procBuf guncel olsun */
+      var b = actx.createBuffer(1, procBuf.length, LSR), ch = b.getChannelData(0), i;
+      for (i=0;i<procBuf.length;i++) ch[i] = procBuf[i]*0.6;   /* kulak icin -4,4 dB */
+      lSrc = actx.createBufferSource();
+      lSrc.buffer = b; lSrc.connect(actx.destination);
+      lT0 = actx.currentTime + 0.05;
+      lSrc.start(lT0, S.lt);
+      lSrc.onended = function(){ if (S.lplay) setLPlay(false); };
+      setLPlay(true);
+      lStat.textContent = 'Çalıyor — imleç kısa dönem eğrisini izliyor.';
+    } catch(err){
+      audioOK = false; lStat.textContent = 'Bu tarayıcıda ses çalınamadı.';
+      lplayBtn.disabled = true; setLPlay(false);
+    }
+  });
+
+  /* ================= animasyon ================= */
+  var last = 0;
+  function frame(ts){
+    if (!last) last = ts;
+    var dt = Math.min((ts-last)/1000, 0.05); last = ts;
+    if (S.zplay && S.mode === 'zarf'){
+      S.zc += dt/noteLen();
+      if (S.zc >= 1){ S.zc = 1; setZPlay(false); }
+      sync(); drawBoard();
+    }
+    if (S.lplay && S.mode === 'lufs'){
+      S.lt += dt;
+      if (S.lt >= LDUR-0.05){ S.lt = LDUR-0.05; setLPlay(false); }
+      sync(); drawBoard();
+    }
+    requestAnimationFrame(frame);
+  }
+  requestAnimationFrame(frame);
+
+  /* ================= ders adimlari ================= */
+  var STEPS = [
+    { t:'Tepe değeri ile RMS aynı şey değil',
+      b:'Bir sinüs görüyorsunuz, tepe değeri <strong>1,00</strong> yani'+
+        ' <strong>0 dBFS</strong>. Mavi bant <strong>RMS</strong>\'i gösteriyor: tepenin'+
+        ' <code>1/√2</code>\'si, yani <strong>0,707</strong> — dB olarak 3 dB aşağıda.'+
+        ' Sağdaki magenta ölçü bu boşluğun adını veriyor: <strong>crest factor</strong>.'+
+        ' Kayıt cihazı tepeyi ölçer, kulak ise RMS\'i duyar.',
+      a:{ mode:'genlik', shape:'sinus', f:220 } },
+    { t:'Kare dalga: crest factor sıfır',
+      b:'Şimdi <strong>Kare</strong>. Sinyal zamanın tamamında tepe değerinde duruyor,'+
+        ' dolayısıyla <strong>RMS = tepe</strong> ve crest factor <strong>0 dB</strong>.'+
+        ' <strong>Eşit tepe ile duy</strong>\'a basın: iki ses aynı tepe değerinde ama kare'+
+        ' dalga belirgin şekilde <strong>daha yüksek</strong> duyuluyor. Tepe değerini'+
+        ' eşitlemek yüksekliği eşitlemiyor.',
+      a:{ mode:'genlik', shape:'kare', f:220 } },
+    { t:'Darbe: aynı tepe, çok daha sessiz',
+      b:'<strong>Darbe %10</strong>: sinyal zamanın onda birinde tepede, gerisinde'+
+        ' neredeyse sıfır. RMS <strong>0,333</strong>\'e düştü, crest factor'+
+        ' <strong>9,5 dB</strong>. <strong>Eşit tepe ile duy</strong> — çok sessiz. Sonra'+
+        ' <strong>Eşit RMS ile duy</strong>: bu kez aynı yükseklikte duyuluyorlar, ama'+
+        ' darbenin tepesi sinüsünkinden çok yukarıda. <strong>Yükseklik RMS\'te,'+
+        ' kırpma riski tepede.</strong>',
+      a:{ mode:'genlik', shape:'darbe', f:220 } },
+    { t:'Tabloyu okuyun: sıralama dinamik sıralamasıdır',
+      b:'Yandaki tablo bütün şekilleri <strong>aynı tepe değerinde</strong> karşılaştırıyor.'+
+        ' Yukarıdan aşağı crest factor büyüyor: kare 0 dB, testere ve üçgen 4,8 dB, gürültü'+
+        ' yaklaşık 8 dB, darbe 9,5 dB. Satırlara tıklayıp şekli değiştirin. Aynı tepede'+
+        ' <strong>RMS düştükçe ses sessizleşir ama dinamikleşir</strong> — bu iki şey'+
+        ' birbirinin bedeli.',
+      a:{ mode:'genlik', shape:'gurultu', f:220 } },
+    { t:'Kırpma: tepeyi büyütemiyorsan RMS\'i büyüt',
+      b:'Kırpma sahnesi, darbe sinyaliyle. Kazancı açtıkça soluk eğri (ham sinyal) tavanı'+
+        ' aşıyor, ama çıkış <strong>0 dBFS\'te kesiliyor</strong> — magenta alan kesilen'+
+        ' kısım. Tepe hiç değişmiyor, buna karşılık <strong>RMS yükseliyor</strong> ve crest'+
+        ' factor küçülüyor. <strong>Ham ↔ limitli duy</strong>\'a basın: ikisi de aynı'+
+        ' tepede, ama ikincisi apaçık daha yüksek. "Loudness war" tek cümlede bu.',
+      a:{ mode:'kirpma', shape:'darbe', f:220, gainDb:12, soft:false } },
+    { t:'Yumuşak sınırlama ve limitin sınırı',
+      b:'<strong>Yumuşak</strong>\'a geçin: köşeler yuvarlanıyor, aynı yüksekliğe daha az'+
+        ' bozulmayla çıkılıyor — gerçek limiterlerin yaptığı iş. Şimdi şekli'+
+        ' <strong>Kare</strong> yapın: crest factor zaten 0 dB olduğu için kazanç açmak'+
+        ' <strong>hiçbir şey kazandırmıyor</strong>, sadece kırpıyor. Sıkıştırılacak'+
+        ' dinamiği olmayan bir sinyal daha yüksek yapılamaz.',
+      a:{ mode:'kirpma', shape:'darbe', f:220, gainDb:16, soft:true } },
+    { t:'Zarf: dalganın kendisi değil, sınırı',
+      b:'Zarf sahnesi, <strong>Piyano</strong> preseti. Kehribar bant dalga şeklinin'+
+        ' kendisi — bu ölçekte tek tek titreşimler görünmüyor, çünkü bir titreşim 4,5 ms,'+
+        ' nota ise 1,4 saniye. Magenta eğri <strong>zarf</strong>: A, D, S, R bölgeleri'+
+        ' üstte işaretli. <strong>Çal</strong>\'a basın; yeşil büyüteç sesle birlikte'+
+        ' ilerliyor ve alttaki pencerede <strong>8 milisaniyelik</strong> gerçek dalgayı'+
+        ' gösteriyor. İki zaman ölçeği yan yana. Göstergedeki'+
+        ' <strong>notanın crest\'i</strong> değerine de bakın: bu piyano notasında'+
+        ' <strong>14,4 dB</strong>. Presetleri dolaşın — <strong>Org</strong> 3,3 dB'+
+        ' (sürekli sinüsle aynı), <strong>Yay</strong> 5,7 dB, <strong>Tekme davulu</strong>'+
+        ' 16,4 dB. Yani crest factor\'ü asıl belirleyen şey <strong>zarftır</strong>:'+
+        ' sesin ne kadarını tepede geçirdiği.',
+      a:{ mode:'zarf', shape:'sinus', f:220, atk:0.004, dec:0.85, sus:0.05, rel:0.30,
+          hold:1.1, win:20, zc:0.15 } },
+    { t:'Zarf takipçisi = kayan pencereli RMS',
+      b:'Buz mavisi eğri <strong>zarf takipçisi</strong>: RMS\'i kısa bir pencerede sürekli'+
+        ' hesaplıyor. Pencereyi <strong>1 ms</strong>\'ye indirin — eğri dalganın kendisini'+
+        ' takip etmeye başlıyor, dişli hâle geliyor. <strong>200 ms</strong> yapın — çok'+
+        ' yumuşak ama artık atağı geç fark ediyor. Kompresörün <strong>attack ve release</strong>'+
+        ' ayarları tam olarak bu pencereyi ayarlar. Yay presetiyle karşılaştırın: yavaş atak,'+
+        ' takipçi rahat yetişiyor.',
+      a:{ mode:'zarf', shape:'sinus', f:220, win:1, zc:0.2 } },
+    { t:'LUFS: bütün parçanın tek sayısı',
+      b:'Son sahne. Üstte 12 saniyelik bir parçanın dalga şekli, altta aynı parçanın'+
+        ' <strong>yüksekliği</strong>. Buz mavisi eğri <strong>anlık</strong> değer'+
+        ' (400 ms pencere), kehribar eğri <strong>kısa dönem</strong> (3 saniye) — biri'+
+        ' her vuruşu görüyor, öbürü bölümleri. Magenta kesikli çizgi ise'+
+        ' <strong>bütünleşik</strong> değer: parçanın tamamının tek sayısı. Zaman eksenine'+
+        ' tıklayıp imleci gezdirin, sağdaki üç sayının nasıl ayrıştığını görün.',
+      a:{ mode:'lufs', mg:4, lim:true, lt:5.5 } },
+    { t:'Kapılama: sessizlik ortalamayı bozmasın',
+      b:'Parçanın <strong>2,5 – 3 saniye</strong> arası sessiz. Eğer bütünleşik değer'+
+        ' düz ortalama olsaydı bu boşluk parçayı olduğundan sessiz gösterirdi. Standart'+
+        ' bunu <strong>kapılama</strong> ile çözüyor: gri taranmış bölgeler hesaba'+
+        ' katılmıyor. Ölçüt iki katlı — mutlak <strong>−70 LUFS</strong> ve parçanın kendi'+
+        ' ortalamasının <strong>10 LU altı</strong> (gri kesikli çizgi). Sağ altta kaç'+
+        ' bloğun geçtiği yazıyor.',
+      a:{ mode:'lufs', mg:4, lim:true, lt:2.7 } },
+    { t:'Master kazancını açın: LUFS da yükselir',
+      b:'Kazancı <strong>+17 dB</strong> yaptık ve limiter açık. Bütün eğri yukarı kaydı,'+
+        ' bütünleşik değer <strong>−14 LUFS</strong> hedefinin çok üstünde. Ama dalga'+
+        ' şekline bakın: tepeler artık dümdüz, <strong>crest factor küçüldü</strong>.'+
+        ' <strong>Parçayı çal</strong> ile dinleyin, sonra kazancı geri indirip yeniden'+
+        ' dinleyin — ikisi arasındaki fark yalnızca yükseklik değil, <strong>nefes</strong>.',
+      a:{ mode:'lufs', mg:17, lim:true, lt:5.5 } },
+    { t:'Ve normalizasyon o kazancı geri alıyor',
+      b:'04. bölüme bakın. Solda iki master ölçülmüş hâlleriyle duruyor: ezilmiş olan'+
+        ' gerçekten daha yüksek. Sağda ise platformun yaptığı iş var — ikisini de'+
+        ' <strong>aynı hedefe</strong> getiriyor. Ezilmiş master <strong>kısılıyor</strong>'+
+        ' ve elde ettiği bütün yükseklik avantajı siliniyor; geriye yalnızca kaybettiği'+
+        ' crest factor kalıyor. Platform düğmelerini değiştirin: hedef değişse de sonuç'+
+        ' aynı. <strong>Loudness war\'ın bittiği yer burası.</strong>',
+      a:{ mode:'lufs', mg:17, lim:true, lt:5.5, plat:0 } }
+  ];
+  var si = 0;
+  var elT=document.getElementById('step-title'), elB=document.getElementById('step-body'),
+      elC=document.getElementById('step-count'), dots=document.getElementById('dots'),
+      prevB=document.getElementById('prev'), nextB=document.getElementById('next');
+  STEPS.forEach(function(_,i){
+    var d = document.createElement('button');
+    d.className='dot'; d.type='button';
+    d.setAttribute('aria-label',(i+1)+'. adım');
+    d.addEventListener('click', function(){ setStep(i); });
+    dots.appendChild(d);
+  });
+  function setStep(i, apply){
+    si = Math.max(0, Math.min(STEPS.length-1, i));
+    var st = STEPS[si];
+    elT.textContent = st.t; elB.innerHTML = st.b;
+    elC.textContent = (si+1)+' / '+STEPS.length;
+    Array.prototype.forEach.call(dots.children, function(d,k){
+      d.setAttribute('aria-current', k===si ? 'true':'false');
+    });
+    prevB.disabled = (si===0); nextB.disabled = (si===STEPS.length-1);
+    if (apply === false){ sync(); render(); return; }
+    var a = st.a;
+    ['shape','f','gainDb','soft','atk','dec','sus','rel','hold','win','zc',
+     'mg','lim','lt','plat']
+      .forEach(function(k){ if (a[k] !== undefined) S[k] = a[k]; });
+    setZPlay(false);
+    if (a.mode) setMode(a.mode);
+    sync(); render();
+  }
+  prevB.addEventListener('click', function(){ setStep(si-1); });
+  nextB.addEventListener('click', function(){ setStep(si+1); });
+  document.addEventListener('keydown', function(ev){
+    if (ev.target.tagName === 'INPUT' || ev.target.tagName === 'BUTTON') return;
+    if (ev.key === 'ArrowRight') setStep(si+1);
+    else if (ev.key === 'ArrowLeft') setStep(si-1);
+  });
+
+  /* ================= alistirma ================= */
+  var QS = [
+    { q:'Bir sinüsün tepe değeri 1,00 ise RMS\'i kaçtır?',
+      o:['0,707','1,00','0,50','1,41'], c:0,
+      e:'RMS = tepe / √2 = 0,707. dB olarak tepenin 3,01 dB altında. Bu yüzden sinüsün crest factor\'ü 3 dB\'dir.' },
+    { q:'İki sinyali "aynı yükseklikte" karşılaştırmak isterseniz neye göre eşitlersiniz?',
+      o:['RMS\'e göre','Tepe değerine göre','Frekansa göre','Süreye göre'], c:0,
+      e:'Algılanan yükseklik ortalama güçle, yani RMS ile ilgilidir. Tepeye göre eşitlerseniz crest factor\'ü büyük olan sinyal sessiz sanılır — normalizasyonun klasik tuzağı.' },
+    { q:'Kare dalganın crest factor\'ü kaçtır?',
+      o:['0 dB','3 dB','6 dB','9,5 dB'], c:0,
+      e:'Kare dalga her an tepe değerinde durur, dolayısıyla RMS = tepe ve oran 1, yani 0 dB. Bu yüzden aynı tepede en yüksek duyulan şekildir.' },
+    { q:'Bir limitere kazanç verip tepeyi 0 dBFS\'te tuttunuz. Ne olur?',
+      o:['RMS yükselir, crest factor küçülür','Tepe yükselir, RMS sabit kalır',
+         'İkisi de değişmez','Crest factor büyür'], c:0,
+      e:'Tepe tavana dayandığı için sabit kalır; kesilen tepeler sayesinde ortalama güç artar. Sonuç: daha yüksek ama daha az dinamik ses. "Loudness war" budur.' },
+    { q:'Zarf ile dalga şekli arasındaki fark nedir?',
+      o:['Zarf, genliğin zaman içindeki dış sınırıdır',
+         'Zarf, dalganın frekansıdır','İkisi aynı şeydir','Zarf yalnızca dijital seslerde olur'], c:0,
+      e:'Dalga şekli milisaniye ölçeğinde salınır; zarf yüz milisaniye ile saniyeler ölçeğinde bu salınımın ne kadar büyük olduğunu belirler. Zarf dalganın kendisi değil, onu saran eğridir.' },
+    { q:'Zarf takipçisinin penceresini çok kısa yaparsanız ne olur?',
+      o:['Dalganın kendisini takip etmeye başlar, dişli olur',
+         'Daha yumuşak bir zarf verir','Hiçbir şey değişmez','Frekansı ölçer'], c:0,
+      e:'Kısa pencerede RMS, tek tek titreşimleri görecek kadar hızlı tepki verir. Kompresörlerde çok hızlı attack ayarının dalga şeklini bozmasının sebebi de bu.' },
+    { q:'Bir tekme davulunun crest factor\'ü neden yüksektir?',
+      o:['Kısa bir vuruş tepeyi belirler, gerisi sessizdir',
+         'Frekansı düşüktür','Genliği küçüktür','Zarfı yoktur'], c:0,
+      e:'Tepe değerini vuruşun ilk anı belirler; sinyalin geri kalanı çok daha sessizdir, bu yüzden ortalama güç (RMS) düşük kalır. Aynı sebeple kayıtta bol headroom gerektirir.' },
+    { q:'LUFS ölçümünde "kapılama" (gating) ne işe yarar?',
+      o:['Sessiz bölümleri ortalamanın dışında bırakır',
+         'Yüksek bölümleri kısar','Frekansları süzer','Tepe değerini sınırlar'], c:0,
+      e:'Bir parçadaki sessizlikler düz ortalamayı aşağı çeker ve parçayı olduğundan sessiz gösterirdi. BS.1770 iki kapı kullanır: mutlak −70 LUFS ve parçanın kendi ortalamasının 10 LU altı. Yalnızca bu eşiklerin üstündeki 400 ms\'lik bloklar hesaba katılır.' },
+    { q:'Masterınızı −6 LUFS\'a kadar ezdiniz. Spotify\'da ne olur?',
+      o:['Platform sesi kısar; rakiplerinizden daha yüksek çalmaz',
+         'Daha yüksek çalar, avantaj sağlar','Kırpılır ve bozuk çıkar','Hiçbir şey değişmez'], c:0,
+      e:'Spotify, YouTube, Tidal ve Amazon −14 LUFS, Apple Music −16 LUFS hedefine normalize eder. −6 LUFS\'luk bir master 8 dB kısılarak çalınır; kazandığınız yükseklik silinir, kaybettiğiniz dinamik kalır.' },
+    { q:'Sayısal tepe −0,3 dBFS ölçülen bir masterın gerçek tepesi (true peak) ne olabilir?',
+      o:['0 dBFS\'in üstüne çıkabilir','Kesinlikle −0,3 dBTP\'dir',
+         'Her zaman daha düşüktür','Örnekleme frekansına bağlı değildir'], c:0,
+      e:'Sayısal tepe yalnızca örnek noktalarına bakar; gerçek dalga iki örnek arasında daha yükseğe çıkabilir. Bu yüzden standart 4 kat ara değerleme ister ve master çıkışını −1 dBTP\'de tutmak alışılmıştır — mp3/AAC\'ye dönüşümde tepe bir miktar daha yükselir.' }
+  ];
+  var qi = 0, qok = 0, qDone = [];
+  var qT=document.getElementById('q-text'), qO=document.getElementById('q-opts'),
+      qF=document.getElementById('q-fb'), qC=document.getElementById('q-count'),
+      qN=document.getElementById('q-next');
+  function renderQ(){
+    var Q = QS[qi];
+    qT.textContent = (qi+1)+'. '+Q.q;
+    qF.innerHTML = ''; qO.innerHTML = '';
+    Q.o.forEach(function(s2,ix){
+      var b = document.createElement('button');
+      b.type='button'; b.textContent = s2;
+      b.addEventListener('click', function(){
+        if (qDone[qi]) return;
+        qDone[qi] = true;
+        var right = ix === Q.c;
+        if (right) qok++;
+        b.classList.add(right ? 'correct' : 'wrong');
+        Array.prototype.forEach.call(qO.children, function(bb,k){
+          if (k === Q.c) bb.classList.add('correct');
+        });
+        qF.innerHTML = (right ? '<b class="y">Doğru.</b> ' : '<b class="n">Değil.</b> ') + Q.e;
+        qC.textContent = qok+' / '+qDone.filter(Boolean).length+' doğru';
+      });
+      qO.appendChild(b);
+    });
+    qN.textContent = (qi === QS.length-1) ? 'Baştan başla' : 'Sonraki soru';
+  }
+  qN.addEventListener('click', function(){ qi = (qi+1)%QS.length; renderQ(); });
+
+  /* ================= baslangic ================= */
+  setMode('genlik');
+  setZPlay(false);
+  setStep(0, false);
+  renderQ();
+  sync();
+  render();
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(render);
+})();
+</script>

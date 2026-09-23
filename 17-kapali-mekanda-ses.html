@@ -1,0 +1,2584 @@
+<!DOCTYPE html>
+<html lang="tr">
+<meta charset="utf-8">
+<title>Kapalı Mekânda Ses</title>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400..600;1,6..72,400&family=Chakra+Petch:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+  :root{
+    --ground:#E5ECF3; --panel:#FFFFFF; --panel-2:#F1F6FA;
+    --ink:#0B1620; --ink-2:#3F5265; --ink-3:#697E92;
+    --line:#C7D4E0; --line-2:#DEE7EF;
+    --sin:#A8600A; --cos:#0F5F80; --arc:#A81E6E; --brass:#4A7A12;
+    --on-sin:#FFFFFF; --ok:#1E6B45; --no:#A8203C;
+    --shadow:0 1px 2px rgba(11,22,32,.06), 0 8px 20px -14px rgba(11,22,32,.26);
+    --fs:15px;
+    --board-h:clamp(430px,43vw,520px);
+    --board-mod:clamp(470px,47vw,540px);
+    --board-sch:clamp(430px,43vw,490px);
+    --board-cin:clamp(440px,44vw,500px);
+    --board-sbir:clamp(450px,45vw,510px);
+    --board-yer:clamp(520px,52vw,590px);
+    --font-display:"Chakra Petch","IBM Plex Sans",sans-serif;
+    --h1:clamp(30px,4.5vw,46px);
+    --h2:clamp(21px,2.5vw,28px);
+    --track:.02em; --radius:2px; --radius-s:2px;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --ground:#070F17; --panel:#0E1720; --panel-2:#13202C;
+      --ink:#E7F2FB; --ink-2:#9FB6C9; --ink-3:#6B8296;
+      --line:#213240; --line-2:#182533;
+      --sin:#FFB01F; --cos:#4FD3FF; --arc:#FF6AC1; --brass:#A8FF60;
+      --on-sin:#0A1017; --ok:#3EE59B; --no:#FF5F86;
+      --shadow:0 0 0 1px rgba(79,211,255,.07), 0 12px 30px -18px rgba(0,0,0,.9);
+    }
+  }
+  :root[data-theme="dark"]{
+    --ground:#070F17; --panel:#0E1720; --panel-2:#13202C;
+    --ink:#E7F2FB; --ink-2:#9FB6C9; --ink-3:#6B8296;
+    --line:#213240; --line-2:#182533;
+    --sin:#FFB01F; --cos:#4FD3FF; --arc:#FF6AC1; --brass:#A8FF60;
+    --on-sin:#0A1017; --ok:#3EE59B; --no:#FF5F86;
+    --shadow:0 0 0 1px rgba(79,211,255,.07), 0 12px 30px -18px rgba(0,0,0,.9);
+  }
+  :root[data-mode="proj"]{
+    --ground:#F3F8FC; --panel:#FFFFFF; --panel-2:#EDF4F9;
+    --ink:#040B12; --ink-2:#2A3A49; --ink-3:#546678;
+    --line:#ADBFCE; --line-2:#D2DEE9;
+    --sin:#8A4D00; --cos:#084A66; --arc:#8A1258; --brass:#3A6208;
+    --on-sin:#FFFFFF; --ok:#14512F; --no:#8A1428;
+    --shadow:0 1px 2px rgba(11,22,32,.09), 0 8px 20px -14px rgba(11,22,32,.3);
+    --fs:17px;
+    --board-h:clamp(470px,47vw,572px);
+    --board-mod:clamp(517px,51vw,594px);
+    --board-sch:clamp(473px,47vw,539px);
+    --board-cin:clamp(484px,48vw,550px);
+    --board-sbir:clamp(495px,49vw,561px);
+    --board-yer:clamp(572px,57vw,649px);
+  }
+  @media (max-width:820px){
+    :root, :root[data-mode="proj"]{ --board-r:580px; }
+  }
+  @media (max-width:760px){
+    :root, :root[data-mode="proj"]{
+      --board-h:520px;
+      --board-mod:600px; --board-sch:560px; --board-cin:580px; --board-sbir:560px; --board-yer:780px;
+    }
+  }
+
+  *{box-sizing:border-box}
+  body{
+    background:var(--ground);color:var(--ink);
+    font-family:"IBM Plex Sans","Helvetica Neue",Arial,sans-serif;
+    font-size:var(--fs);line-height:1.6;-webkit-font-smoothing:antialiased;
+  }
+  .wrap{max-width:1160px;margin:0 auto;padding:34px 20px 60px;display:flex;flex-direction:column;gap:14px}
+
+  .topbar{display:flex;gap:28px;justify-content:space-between;align-items:flex-start;margin-bottom:12px}
+  @media (max-width:640px){.topbar{flex-direction:column-reverse;align-items:flex-start;gap:16px}}
+  .theme{display:flex;flex:0 0 auto;flex-wrap:wrap;border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;background:var(--panel);box-shadow:var(--shadow)}
+  .theme button{border:0;border-left:1px solid var(--line);border-radius:0;background:transparent;font-size:12.5px;padding:8px 12px;color:var(--ink-2)}
+  .theme button:first-child{border-left:0}
+  .theme button:hover{background:var(--panel-2);color:var(--ink)}
+  .theme button[aria-pressed="true"]{background:var(--ink);color:var(--panel);font-weight:500}
+  .theme button:focus-visible{outline:2px solid var(--arc);outline-offset:-2px}
+  header{display:flex;flex-direction:column;gap:9px;max-width:66ch}
+  .eyebrow{margin:0;font-size:11.5px;font-weight:600;letter-spacing:.13em;text-transform:uppercase;color:var(--ink-3)}
+  h1{margin:0;font-family:var(--font-display);font-weight:500;font-size:var(--h1);line-height:1.06;letter-spacing:var(--track);text-wrap:balance}
+  .lede{margin:2px 0 0;color:var(--ink-2);font-size:16.5px;text-wrap:pretty}
+  .lede b{color:var(--ink);font-weight:600}
+
+  section.sec{display:flex;flex-direction:column;gap:14px;padding-top:22px}
+  .sec-head{display:flex;align-items:baseline;gap:14px;border-bottom:1px solid var(--line);padding-bottom:9px}
+  .sec-num,.num{font-family:"IBM Plex Mono",monospace;font-size:12px;font-weight:500;color:var(--brass);letter-spacing:.06em;flex:0 0 auto;padding-top:5px}
+  .sec-head h2{margin:0;font-family:var(--font-display);font-weight:500;font-size:var(--h2);letter-spacing:var(--track);line-height:1.15;text-wrap:balance}
+  .sec-head p{margin:0;color:var(--ink-3);font-size:13px;margin-left:auto;flex:0 0 auto;text-align:right}
+  @media (max-width:620px){.sec-head p{display:none}}
+
+  .panel{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow)}
+
+  .why{display:grid;grid-template-columns:1fr 1.12fr;gap:20px 28px;align-items:center}
+  @media (max-width:860px){.why{grid-template-columns:1fr;align-items:start}}
+  .why-lead{display:flex;flex-direction:column;gap:13px;padding-bottom:4px}
+  .why-more{display:grid;grid-template-columns:repeat(auto-fit,minmax(255px,1fr));gap:16px 28px;margin-top:6px}
+  .why-lead p,.why-more p{margin:0;color:var(--ink-2)}
+  .why-lead p b,.why-more p b{color:var(--ink);font-weight:600}
+  .cols3{display:grid;grid-template-columns:repeat(3,1fr);gap:16px 28px}
+  @media (max-width:900px){.cols3{grid-template-columns:1fr}}
+  .cols3 p{margin:0;color:var(--ink-2);font-size:14px;line-height:1.6}
+  .cols3 p b{color:var(--ink);font-weight:600}
+  .cols .intro-col{display:flex;flex-direction:column;gap:12px}
+  .cols .intro-col p{margin:0;color:var(--ink-2)}
+  .cols .intro-col p b{color:var(--ink);font-weight:600}
+  p.pull{font-size:16px;color:var(--ink)!important;border-left:3px solid var(--sin);
+    padding-left:13px}
+  .panel-body.nopad{padding:0;gap:0}
+  .quiz{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);
+    box-shadow:var(--shadow);padding:16px 18px 18px;display:flex;flex-direction:column;gap:12px}
+  .q-head{display:flex;align-items:baseline;justify-content:space-between;gap:14px}
+  .q-head .count{font-family:"IBM Plex Mono",monospace;font-size:12px;color:var(--ink-3);
+    font-variant-numeric:tabular-nums;flex:0 0 auto}
+  .q-head .q-text{font-size:16px;font-weight:500;text-wrap:pretty}
+  .quiz > button{align-self:flex-start}
+  .kicker{font-family:"Newsreader",Georgia,serif;font-size:clamp(21px,2.2vw,26px);line-height:1.28;color:var(--ink);font-style:italic;max-width:29ch;letter-spacing:-.01em;text-wrap:balance}
+  .trio-list{display:flex;flex-direction:column;gap:1px;background:var(--line);
+    border:1px solid var(--line);border-radius:var(--radius);overflow:hidden}
+  .tl{background:var(--panel);padding:13px 15px 14px;border-left:3px solid var(--line)}
+  .tl-1{border-left-color:var(--sin)} .tl-2{border-left-color:var(--arc)}
+  .tl-3{border-left-color:var(--cos)}
+  .tl h3{margin:0 0 3px;font-family:var(--font-display);font-weight:500;font-size:15.5px;
+    letter-spacing:var(--track)}
+  .tl p{margin:0;font-size:13.5px;line-height:1.5;color:var(--ink-2)}
+  .tl p b{color:var(--ink);font-weight:600}
+  .tl code{font-size:.92em}
+
+  .defs{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--line);border:1px solid var(--line);border-radius:var(--radius);overflow:hidden}
+  @media (max-width:880px){.defs{grid-template-columns:repeat(2,1fr)}}
+  @media (max-width:560px){.defs{grid-template-columns:1fr}}
+  .def{background:var(--panel);padding:16px 17px 18px;display:flex;flex-direction:column;gap:7px}
+  .def h3{margin:0;font-size:14.5px;font-weight:600;display:flex;align-items:baseline;gap:8px;flex-wrap:wrap}
+  .def h3 em{font-style:normal;font-family:"IBM Plex Mono",monospace;font-size:11.5px;color:var(--ink-3);font-weight:400}
+  .def p{margin:0;font-size:13.8px;color:var(--ink-2);line-height:1.55}
+  .def p b{color:var(--ink);font-weight:600}
+  code{font-family:"IBM Plex Mono",monospace;font-size:.9em;background:var(--panel-2);border:1px solid var(--line-2);padding:1px 5px;border-radius:var(--radius-s)}
+
+  .lang{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--line);border:1px solid var(--line);border-radius:var(--radius);overflow:hidden}
+  @media (max-width:1000px){.lang{grid-template-columns:repeat(2,1fr)}}
+  @media (max-width:560px){.lang{grid-template-columns:1fr}}
+  .lg{background:var(--panel);padding:16px 17px 18px;display:flex;flex-direction:column;gap:8px}
+  .lg-top{display:flex;align-items:baseline;justify-content:space-between;gap:8px}
+  .lg h3{margin:0;font-size:14.5px;font-weight:600}
+  .lg .unit{font-family:"IBM Plex Mono",monospace;font-size:11px;color:var(--ink-3)}
+  .lg p{margin:0;font-size:13.8px;color:var(--ink-2);line-height:1.55}
+  .lg .music{margin-top:2px;font-size:12.5px;color:var(--ink);border-left:2px solid var(--brass);padding-left:9px}
+  .lg .music b{font-weight:600}
+
+  .stage{padding:0;overflow:hidden}
+  .stage-top,.stage-head{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px;padding:13px 16px;border-bottom:1px solid var(--line-2)}
+  .modes{display:flex;flex-wrap:wrap;border:1px solid var(--line);border-radius:var(--radius);overflow:hidden}
+  .modes button{border:0;border-left:1px solid var(--line);border-radius:0;background:var(--panel-2);font-size:13px;padding:8px 15px;color:var(--ink-2);font-weight:500}
+  .modes button:first-child{border-left:0}
+  .modes button:hover{color:var(--ink)}
+  .modes button[aria-pressed="true"]{background:var(--sin);color:var(--on-sin)}
+  .readout{display:flex;flex-wrap:wrap;font-family:"IBM Plex Mono",ui-monospace,monospace;font-variant-numeric:tabular-nums;font-size:13px}
+  .readout div{padding:0 13px;border-left:1px solid var(--line-2)}
+  .readout div:first-child{border-left:0;padding-left:0}
+  .readout b{font-weight:500}
+  .readout span{color:var(--ink-3);font-size:11px;letter-spacing:.06em;text-transform:uppercase;display:block;line-height:1.3}
+  .v-sin{color:var(--sin)} .v-cos{color:var(--cos)} .v-arc{color:var(--arc)}
+
+  .canvas-wrap{background:var(--panel-2);border-bottom:1px solid var(--line-2)}
+  #board{display:block;width:100%;height:var(--board-h);touch-action:none;cursor:crosshair}
+  .stage[data-scene="mod"] #board{height:var(--board-mod)}
+  .stage[data-scene="sch"] #board{height:var(--board-sch)}
+  .stage[data-scene="cin"] #board{height:var(--board-cin)}
+  .stage[data-scene="sbir"] #board{height:var(--board-sbir)}
+  .stage[data-scene="yer"] #board{height:var(--board-yer)}
+  #board.tut{cursor:grab}
+  #board.tut:active{cursor:grabbing}
+
+  .controls{padding:15px 16px 17px;display:flex;flex-direction:column;gap:14px}
+  .ctl-row{display:flex;flex-wrap:wrap;gap:14px 20px;align-items:center}
+  .ctl-row[hidden]{display:none}
+  .field[hidden]{display:none}
+  .ctl-label{font-size:11px;font-weight:600;letter-spacing:.09em;text-transform:uppercase;color:var(--ink-3);flex:0 0 auto}
+  .field{display:flex;flex-direction:column;gap:5px;min-width:172px;flex:1 1 172px;max-width:300px}
+  .field label{font-size:11px;font-weight:600;letter-spacing:.09em;text-transform:uppercase;color:var(--ink-3);display:flex;justify-content:space-between;gap:10px}
+  .field label em{font-style:normal;font-family:"IBM Plex Mono",monospace;font-variant-numeric:tabular-nums;letter-spacing:0;text-transform:none;font-size:12px;color:var(--ink-2)}
+
+  input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:20px;background:transparent;margin:0}
+  input[type=range]::-webkit-slider-runnable-track{height:4px;background:var(--line);border-radius:2px}
+  input[type=range]::-moz-range-track{height:4px;background:var(--line);border-radius:2px}
+  input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;width:16px;height:16px;border-radius:50%;background:var(--arc);border:2px solid var(--panel);margin-top:-6px;box-shadow:0 0 0 1px var(--arc)}
+  input[type=range]::-moz-range-thumb{width:14px;height:14px;border-radius:50%;background:var(--arc);border:2px solid var(--panel);box-shadow:0 0 0 1px var(--arc)}
+  input[type=range]:focus-visible{outline:2px solid var(--arc);outline-offset:4px}
+
+  button{font:inherit;font-size:13.5px;color:var(--ink);background:var(--panel-2);border:1px solid var(--line);padding:7px 13px;border-radius:var(--radius-s);cursor:pointer;transition:background .13s,border-color .13s,color .13s}
+  button:hover{border-color:var(--ink-3)}
+  button:focus-visible{outline:2px solid var(--arc);outline-offset:2px}
+  button:disabled{opacity:.42;cursor:default}
+  button.on{background:var(--ink);border-color:var(--ink);color:var(--panel)}
+  .ctl-note{font-size:12px;color:var(--ink-3);font-family:"IBM Plex Mono",monospace;
+    letter-spacing:.01em;min-width:0;flex:1 1 138px;line-height:1.35}
+  .btn-group{display:flex;flex-wrap:wrap;gap:6px}
+  .btn-group.sm button{font-size:12.5px;padding:5px 9px}
+
+  .cols{display:grid;grid-template-columns:1.3fr 1fr;gap:16px;align-items:start}
+  @media (max-width:880px){.cols{grid-template-columns:1fr}}
+  .panel-head{display:flex;align-items:baseline;justify-content:space-between;gap:12px;padding:13px 18px 11px;border-bottom:1px solid var(--line-2)}
+  .panel-head h3{margin:0;font-family:var(--font-display);font-weight:500;font-size:19px;letter-spacing:var(--track)}
+  .panel-head .count{font-family:"IBM Plex Mono",monospace;font-size:12px;color:var(--ink-3);font-variant-numeric:tabular-nums}
+  .panel-body{padding:16px 18px 18px;display:flex;flex-direction:column;gap:13px}
+  .step-title{font-family:var(--font-display);font-size:21px;font-weight:500;line-height:1.22;margin:0;letter-spacing:var(--track);text-wrap:balance}
+  .step-body{margin:0;color:var(--ink-2)}
+  .step-body strong{color:var(--ink);font-weight:600}
+  .step-nav{display:flex;gap:8px;align-items:center;margin-top:auto;padding-top:4px;flex-wrap:wrap}
+  .dots{display:flex;gap:5px;margin-left:auto}
+  .dot{width:7px;height:7px;border-radius:50%;background:var(--line);border:0;padding:0;cursor:pointer}
+  .dot:hover{background:var(--ink-3)}
+  .dot[aria-current="true"]{background:var(--arc)}
+
+  table{width:100%;border-collapse:collapse;font-family:"IBM Plex Mono",monospace;font-size:12.5px;font-variant-numeric:tabular-nums}
+  th,td{text-align:right;padding:6px 8px;border-bottom:1px solid var(--line-2)}
+  th:first-child,td:first-child{text-align:left}
+  th:last-child,td:last-child{text-align:left}
+  thead th{font-family:"IBM Plex Sans",sans-serif;font-size:10.5px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-3);border-bottom:1px solid var(--line)}
+  tbody tr{cursor:pointer}
+  tbody tr:hover{background:var(--panel-2)}
+  tbody tr[aria-selected="true"]{background:color-mix(in srgb,var(--arc) 13%,var(--panel))}
+  tbody tr:last-child td{border-bottom:0}
+  td.c-cmp{font-family:"IBM Plex Sans",sans-serif;font-size:12px;color:var(--ink-2)}
+  tr.unitrow td:first-child{color:var(--brass);font-weight:500}
+  .tbl-note{margin:10px 18px 16px;font-size:12.5px;color:var(--ink-3);line-height:1.5}
+  .tbl-note b{color:var(--ink-2);font-weight:600}
+  .tbl-note + .tbl-note{margin-top:-4px}
+
+  .quiz-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;align-items:start}
+  @media (max-width:820px){.quiz-grid{grid-template-columns:1fr}}
+  .q-text{margin:0;font-size:16px;font-weight:500;text-wrap:pretty}
+  .q-opts{display:flex;flex-direction:column;gap:7px}
+  .q-opts button{text-align:left;padding:9px 12px}
+  .q-opts button.correct{border-color:var(--ok);background:color-mix(in srgb,var(--ok) 12%,var(--panel))}
+  .q-opts button.wrong{border-color:var(--no);background:color-mix(in srgb,var(--no) 12%,var(--panel))}
+  .q-feedback{margin:0;font-size:14px;color:var(--ink-2);min-height:1.6em}
+  .q-feedback b.y{color:var(--ok);font-weight:600}
+  .q-feedback b.n{color:var(--no);font-weight:600}
+  .recap ul{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:8px}
+  .recap li{color:var(--ink-2);font-size:14px}
+  .recap b{color:var(--ink);font-weight:600}
+
+  /* ---- video bloğu (yeni video eklemek için bu kalıbı kopyala) ---- */
+  .vid{display:grid;grid-template-columns:1.25fr 1fr;gap:16px;align-items:start}
+  @media (max-width:900px){.vid{grid-template-columns:1fr}}
+  .vid-main{display:flex;flex-direction:column;gap:9px;min-width:0}
+  .vid-frame{position:relative;aspect-ratio:16/9;width:100%;background:var(--panel-2);
+    border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);
+    overflow:hidden}
+  .vid-frame iframe{position:absolute;inset:0;z-index:1;width:100%;height:100%;border:0;display:block}
+  .vid-play{position:absolute;inset:0;z-index:0;width:100%;height:100%;
+    display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;
+    text-align:center;padding:20px;border:0;border-radius:0;background:transparent;
+    cursor:pointer;color:inherit}
+  .vid-play:hover{background:color-mix(in srgb,var(--sin) 7%,transparent);border-color:transparent}
+  .vid-play:focus-visible{outline:2px solid var(--arc);outline-offset:-4px}
+  .vid-tri{width:62px;height:62px;border-radius:50%;background:var(--sin);
+    display:block;margin-bottom:6px;position:relative;box-shadow:var(--shadow);
+    transition:transform .14s}
+  .vid-tri::after{content:"";position:absolute;top:50%;left:54%;transform:translate(-50%,-50%);
+    border-style:solid;border-width:11px 0 11px 18px;
+    border-color:transparent transparent transparent var(--on-sin)}
+  .vid-play:hover .vid-tri{transform:scale(1.07)}
+  .vid-play b{font-family:var(--font-display);font-weight:500;font-size:18px;
+    letter-spacing:var(--track);color:var(--ink);line-height:1.2;text-wrap:balance}
+  .vid-play .vid-ch{font-size:13px;color:var(--ink-3)}
+  .vid-play .vid-hint{font-style:normal;font-family:"IBM Plex Mono",monospace;
+    font-size:11.5px;color:var(--ink-3);margin-top:5px}
+  .vid-meta{margin:0;font-size:13px;color:var(--ink-2);line-height:1.5}
+  .vid-meta b{color:var(--ink);font-weight:600}
+  .vid-meta a{color:var(--cos);font-weight:600;text-underline-offset:3px}
+  .vid-meta span{display:block;margin-top:3px;font-size:12px;color:var(--ink-3)}
+  .vid-guide{background:var(--panel);border:1px solid var(--line);
+    border-left:3px solid var(--brass);border-radius:var(--radius);
+    box-shadow:var(--shadow);padding:15px 18px 17px}
+  .vid-guide h3{margin:0 0 9px;font-family:var(--font-display);font-weight:500;
+    font-size:17px;letter-spacing:var(--track)}
+  .vid-guide ol{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:9px}
+  .vid-guide li{font-size:13.5px;line-height:1.5;color:var(--ink-2)}
+  .vid-guide li b{color:var(--ink);font-weight:600}
+  .vid-guide li::marker{color:var(--brass);font-weight:600}
+  .vid-note{margin:13px 0 0;padding-top:11px;border-top:1px solid var(--line-2);
+    font-size:13px;color:var(--ink-3);line-height:1.5}
+  .vid-note b{color:var(--ink-2);font-weight:600}
+
+  .spec{display:grid;grid-template-columns:1.05fr 1fr;gap:16px;align-items:start}
+  @media (max-width:880px){.spec{grid-template-columns:1fr}}
+  .spec-card{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);
+    box-shadow:var(--shadow);padding:16px 18px 18px;font-family:"IBM Plex Mono",monospace;font-size:13px}
+  .spec-card h3{margin:0 0 10px;font-family:var(--font-display);font-size:17px;font-weight:500;letter-spacing:var(--track)}
+  .spec-row{display:flex;justify-content:space-between;gap:14px;padding:6px 0;border-bottom:1px solid var(--line-2)}
+  .spec-row:last-child{border-bottom:0}
+  .spec-row span{color:var(--ink-3)}
+  .spec-row b{font-weight:500;color:var(--ink)}
+  .spec-row.q{background:color-mix(in srgb,var(--arc) 9%,transparent);margin:0 -8px;padding:6px 8px;border-radius:2px}
+  .ask{display:flex;flex-direction:column;gap:12px}
+  .ask .a{background:var(--panel);border:1px solid var(--line);border-left:3px solid var(--arc);
+    border-radius:var(--radius);box-shadow:var(--shadow);padding:12px 15px 13px}
+  .ask .a h4{margin:0 0 3px;font-size:14px;font-weight:600}
+  .ask .a p{margin:0;font-size:13.5px;color:var(--ink-2);line-height:1.5}
+  .ask .a b{color:var(--ink);font-weight:600}
+  footer{color:var(--ink-3);font-size:12.5px;border-top:1px solid var(--line);padding-top:14px;margin-top:26px;display:flex;flex-wrap:wrap;gap:6px 18px}
+  footer b{color:var(--ink-2);font-weight:600}
+  @media (max-width:760px){
+    button{font-size:14.5px;padding:9px 14px}
+    .btn-group.sm button{font-size:13px;padding:7px 11px}
+    .theme button{padding:8px 9px;font-size:12px}
+    .modes button{padding:9px 12px;font-size:13px}
+    .q-opts button{padding:12px 14px}
+    input[type=range]{height:30px}
+    input[type=range]::-webkit-slider-thumb{width:22px;height:22px;margin-top:-9px}
+    input[type=range]::-moz-range-thumb{width:20px;height:20px}
+    .readout{width:100%}
+    .readout div{padding:0 11px 0 0;border-left:0}
+    .wrap{padding:22px 16px 44px}
+  }
+
+  /* ---- 16. atolyeye ozel ---- */
+  .modlist{max-height:268px;overflow:auto;border:1px solid var(--line);border-radius:var(--radius);background:var(--panel)}
+  .modlist table{font-size:12px}
+  .modlist thead th{position:sticky;top:0;background:var(--panel);z-index:1}
+  .modlist td.tp{font-family:"IBM Plex Sans",sans-serif;font-size:11.5px}
+  .tag{display:inline-block;padding:1px 6px;border-radius:2px;font-size:10.5px;font-weight:600;
+    letter-spacing:.04em;border:1px solid}
+  .tag-ax{color:var(--sin);border-color:color-mix(in srgb,var(--sin) 45%,transparent);
+    background:color-mix(in srgb,var(--sin) 11%,transparent)}
+  .tag-tg{color:var(--cos);border-color:color-mix(in srgb,var(--cos) 45%,transparent);
+    background:color-mix(in srgb,var(--cos) 11%,transparent)}
+  .tag-ob{color:var(--ink-3);border-color:var(--line);background:var(--panel-2)}
+  .yuz{display:flex;flex-direction:column;gap:1px;background:var(--line);
+    border:1px solid var(--line);border-radius:var(--radius);overflow:hidden}
+  .yz{background:var(--panel);display:grid;grid-template-columns:1fr auto;gap:4px 12px;
+    padding:9px 13px 11px;align-items:center}
+  .yz > .yz-ad{font-size:13px;font-weight:600}
+  .yz > .yz-val{font-family:"IBM Plex Mono",monospace;font-size:12px;color:var(--ink-2);
+    font-variant-numeric:tabular-nums;text-align:right}
+  .yz select{grid-column:1/-1;font:inherit;font-size:12.5px;width:100%;padding:5px 7px;
+    color:var(--ink);background:var(--panel-2);border:1px solid var(--line);border-radius:var(--radius-s)}
+  .yz select:focus-visible{outline:2px solid var(--arc);outline-offset:1px}
+  .hint{margin:0;font-size:12.5px;color:var(--ink-3);line-height:1.5}
+  .hint b{color:var(--ink-2);font-weight:600}
+  .cks{display:flex;flex-direction:column;gap:1px;background:var(--line);
+    border:1px solid var(--line);border-radius:var(--radius);overflow:hidden}
+  .ck{background:var(--panel);display:grid;grid-template-columns:auto 1fr;gap:3px 10px;
+    padding:10px 13px 11px;align-items:start}
+  .ck .mk{grid-row:1/3;width:20px;height:20px;border-radius:50%;display:flex;
+    align-items:center;justify-content:center;font-size:12px;font-weight:700;
+    font-family:"IBM Plex Mono",monospace;margin-top:1px}
+  .ck.ok .mk{background:color-mix(in srgb,var(--ok) 18%,var(--panel));color:var(--ok)}
+  .ck.no .mk{background:color-mix(in srgb,var(--sin) 20%,var(--panel));color:var(--sin)}
+  .ck b{font-size:13.2px;font-weight:600;line-height:1.35}
+  .ck span{font-size:12.4px;color:var(--ink-2);line-height:1.45}
+  .ck.ok b{color:var(--ink)} .ck.no b{color:var(--ink)}
+  .yans{margin:0}
+  .yans table{font-size:12px}
+  .yans tr.hot td{color:var(--sin)}
+  .yans tr.hot td:first-child{font-weight:600}
+  @media (prefers-reduced-motion: reduce){*{transition:none!important}}
+</style>
+<div class="wrap">
+  <div class="topbar">
+    <header>
+      <p class="eyebrow">Müzik Teknolojisine Giriş · Sınıf atölyesi</p>
+      <h1>Kapalı Mekânda Ses</h1>
+      <p class="lede">Açık havada ses kaynaktan çıkar ve gider. Kapalı bir odada ise
+        <b>hiçbir zaman gitmez</b>: duvarlara çarpar, geri döner, kendisiyle toplanır.
+        Duyduğunuz şey artık hoparlörün sesi değil, <b>hoparlör ile odanın toplamıdır</b>.
+        Bu atölye o toplamın beş yüzünü ayrı ayrı açıyor: <b>modlar</b>, <b>Schroeder
+        frekansı</b>, <b>çınlama süresi</b>, <b>duvar çukuru</b> ve hoparlörlerin
+        <b>odaya nasıl yerleştirileceği</b>.</p>
+    </header>
+    <div class="theme" role="group" aria-label="Görünüm">
+      <button type="button" data-t="light">Açık</button>
+      <button type="button" data-t="dark">Koyu</button>
+      <button type="button" data-t="proj">Projeksiyon</button>
+    </div>
+  </div>
+
+  <section class="sec">
+    <div class="sec-head"><span class="num">01</span><h2>Oda neden sesin bir parçasıdır?</h2>
+      <span class="kicker">Duyduğunuz şey hoparlör artı oda</span></div>
+
+    <div class="cols">
+      <div class="intro-col">
+        <p class="pull">Aynı hoparlör, aynı kayıt, aynı seviye. Sınıfta bir türlü, stüdyoda
+          başka türlü. Değişen tek şey <b>oda</b>. Ve oda, hoparlörden çok daha fazla
+          değiştirir.</p>
+        <p>Kapalı bir mekânda kulağınıza iki şey ulaşır. Birincisi <b>doğrudan ses</b>:
+          hoparlörden kulağa düz çizgi. İkincisi <b>yansımalar</b>: aynı ses, duvara
+          çarpıp geç gelen kopyaları. Doğrudan ses bir tanedir; yansımalar binlercedir ve
+          hepsi farklı gecikmeyle gelir. Toplamda bazı frekanslar güçlenir, bazıları
+          silinir.</p>
+        <p class="pull">Bu davranış frekansa göre <b>ikiye ayrılır</b> ve sınır çizgisi
+          <b>Schroeder frekansıdır</b>. Altında oda birkaç <b>ayrık mod</b>dan ibarettir:
+          her konumda başka bir tını duyarsınız. Üstünde modlar o kadar sıkışır ki tek tek
+          ayırt edilemezler; oda <b>istatistiksel bir alana</b> döner ve tek soru
+          "<b>ne kadar çınlıyor</b>" olur.</p>
+        <p>Bu yüzden odayla ilgili her sorunun cevabı iki ayrı yerdedir: <b>basta konum ve
+          boyut</b>, <b>orta-tizde soğurma</b>. Basa sünger yapıştırmak işe yaramaz;
+          çınlamayı odanın ölçülerini değiştirerek düzeltmek de mümkün değildir.</p>
+      </div>
+      <div class="trio-list">
+        <div class="tl tl-1">
+          <h3>Bas: sayılı mod, konuma bağlı</h3>
+          <p>Düşük frekanslarda dalga boyu odayla aynı mertebededir. Odaya yalnız
+            <b>birkaç</b> duran dalga sığar ve her birinin kendi düğüm–karın deseni vardır.
+            Bir adım yürüdüğünüzde bas <b>10–20 dB</b> değişebilir. Bu bir arıza değil,
+            odanın normal davranışıdır.</p>
+        </div>
+        <div class="tl tl-2">
+          <h3>Orta ve tiz: yoğun alan</h3>
+          <p>Frekans yükseldikçe odaya sığan mod sayısı <b>f³</b> ile artar. 1 kHz
+            civarında bir odada on binlerce mod vardır. Artık tek tek modlardan söz edilmez;
+            geriye <b>çınlama süresi</b> ve <b>erken yansımalar</b> kalır.</p>
+        </div>
+        <div class="tl tl-3">
+          <h3>Duvar, ikinci bir hoparlördür</h3>
+          <p>Hoparlörün arkasındaki duvar sesi geri yollar. Bu, duvarın arkasında
+            <b>aynadaki görüntü</b> gibi ikinci bir hoparlör varmış gibidir. İki kaynağın
+            toplamı 16. atölyedeki <b>tarak filtresinin</b> ta kendisidir — ve çukuru
+            hoparlörün duvara uzaklığı belirler.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="cols3">
+      <p><b>Oda, hoparlörden daha büyük bir ekolayzırdır.</b> İyi bir hoparlörün frekans
+        tepkisi ±3 dB olabilir. Aynı hoparlörün <b>odadaki</b> tepkisi bas bölgede rahatça
+        ±15 dB'dir. Hangi hoparlörü aldığınızdan çok, onu <b>nereye koyduğunuz</b> belirler.</p>
+      <p><b>Ölçüler kaderdir, ama akort edilemez.</b> Tel gerilir, boru kısaltılır; oda ne
+        gerilir ne kısalır. Odanın <b>en–boy–yükseklik oranı</b> mod dizisinin ne kadar
+        düzgün dağıldığını belirler. Küp en kötüsüdür: üç eksen de aynı frekansları verir.</p>
+      <p><b>Gözenekli malzeme bası yutmaz.</b> Sünger ve halı tizi kolay yutar, basa neredeyse
+        dokunmaz — çünkü soğurma, malzeme <b>kalınlığının dalga boyuna oranıyla</b> ilgilidir.
+        40 Hz'in dalga boyu 8,6 metredir. Bas için kalınlık, hacim ve tuzak gerekir.</p>
+    </div>
+  </section>
+
+  <section class="sec">
+    <div class="sec-head"><span class="num">02</span><h2>Altı kavram</h2>
+      <span class="kicker">Moddan çınlamaya</span></div>
+    <div class="defs">
+      <div class="def">
+        <h3>Oda modu <span>room mode</span></h3>
+        <p>Odaya sığan bir duran dalga deseni. Dikdörtgen bir odada üç sayıyla adlanır:
+          <b>(n<sub>x</sub>, n<sub>y</sub>, n<sub>z</sub>)</b>. Frekansı
+          <b>f = (c/2)·√((n<sub>x</sub>/L<sub>x</sub>)² + (n<sub>y</sub>/L<sub>y</sub>)² +
+          (n<sub>z</sub>/L<sub>z</sub>)²)</b>. 09. atölyedeki <code>f = n·c/2L</code>
+          bunun tek eksenli hâlidir.</p>
+      </div>
+      <div class="def">
+        <h3>Üç mod tipi <span>axial / tangential / oblique</span></h3>
+        <p>İki sayı sıfırsa <b>aksiyel</b>: iki duvar arasında gider gelir, en güçlüsüdür.
+          Bir sayı sıfırsa <b>tanjansiyel</b>: dört yüzeyi kullanır, daha zayıftır.
+          Hiçbiri sıfır değilse <b>oblik</b>: altı yüzeye de çarpar, en zayıfıdır.</p>
+      </div>
+      <div class="def">
+        <h3>Schroeder frekansı <span>Schroeder frequency</span></h3>
+        <p>Modların birbirine karışmaya başladığı sınır: <b>f<sub>S</sub> ≈ 2000·√(T/V)</b>
+          (T saniye, V m³). Altında oda <b>ayrık modlar</b>, üstünde <b>istatistiksel
+          alan</b>. Küçük oda ve uzun çınlama bu sınırı <b>yukarı</b> iter.</p>
+      </div>
+      <div class="def">
+        <h3>Çınlama süresi <span>T<sub>60</sub>, reverberation time</span></h3>
+        <p>Kaynak sustuktan sonra sesin <b>60 dB</b> azalması için geçen süre. Sabine:
+          <b>T<sub>60</sub> = 0,161 · V / A</b>. Hacim uzatır, soğurma kısaltır.
+          Frekansa göre değişir — bu yüzden tek sayı yetmez, <b>eğri</b> gerekir.</p>
+      </div>
+      <div class="def">
+        <h3>Soğurma alanı <span>A, sabin</span></h3>
+        <p>Her yüzeyin alanı ile soğurma katsayısının çarpımlarının toplamı:
+          <b>A = Σ S<sub>i</sub>·α<sub>i</sub></b>. Birimi <b>m² sabin</b>. 10 m²'lik
+          <code>α = 0,9</code> panel, 100 m²'lik <code>α = 0,09</code> duvarla aynı şeyi yapar.</p>
+      </div>
+      <div class="def">
+        <h3>Duvar çukuru <span>SBIR</span></h3>
+        <p>Hoparlörün <b>arkasındaki</b> duvardan dönen yansıma, doğrudan sesle ters fazda
+          buluşunca açılan çukur. İlk çukur <b>f = c / 4d</b>'dedir (d: duvara uzaklık).
+          Kaçınılamaz; yalnız <b>taşınabilir</b> ya da soğurulabilir.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="sec">
+    <div class="sec-head"><span class="num">03</span><h2>Atölye: beş sahne</h2>
+      <span class="kicker">Mod · Schroeder · çınlama · duvar · yerleşim</span></div>
+
+    <div class="stage" id="stage">
+      <div class="stage-head">
+        <div class="modes" role="group" aria-label="Sahne">
+          <button type="button" data-m="mod">Odanın modları</button>
+          <button type="button" data-m="sch">Schroeder sınırı</button>
+          <button type="button" data-m="cin">Çınlama süresi</button>
+          <button type="button" data-m="sbir">Duvar çukuru</button>
+          <button type="button" data-m="yer">Yerleşim</button>
+        </div>
+        <div class="readout" id="readout"></div>
+      </div>
+
+      <div class="canvas-wrap"><canvas id="board"></canvas></div>
+
+      <div class="controls">
+        <div class="ctl-row" id="row-mod">
+          <div class="field">
+            <label for="f-lx">Oda eni · x <em id="v-lx"></em></label>
+            <input id="f-lx" type="range" min="2.4" max="12" step="0.1" value="6.4">
+          </div>
+          <div class="field">
+            <label for="f-ly">Oda boyu · y <em id="v-ly"></em></label>
+            <input id="f-ly" type="range" min="2.2" max="10" step="0.1" value="4.8">
+          </div>
+          <div class="field">
+            <label for="f-lz">Tavan yüksekliği · z <em id="v-lz"></em></label>
+            <input id="f-lz" type="range" min="2.1" max="5" step="0.05" value="2.9">
+          </div>
+          <div class="field">
+            <label for="f-yuk">Dinleme yüksekliği <em id="v-yuk"></em></label>
+            <input id="f-yuk" type="range" min="0" max="100" value="41">
+          </div>
+          <span class="ctl-note" id="m-note"></span>
+        </div>
+
+        <div class="ctl-row" id="row-sch" hidden>
+          <span class="ctl-label">Oda</span>
+          <div class="btn-group sm" id="odapre"></div>
+          <div class="field">
+            <label for="f-st">Çınlama süresi <em id="v-st"></em></label>
+            <input id="f-st" type="range" min="0.2" max="2.4" step="0.05" value="0.6">
+          </div>
+          <div class="field">
+            <label for="f-sf">İmleç frekansı <em id="v-sf"></em></label>
+            <input id="f-sf" type="range" min="0" max="100" value="52">
+          </div>
+          <span class="ctl-note" id="s-note"></span>
+        </div>
+
+        <div class="ctl-row" id="row-cin" hidden>
+          <div class="field">
+            <label for="f-ins">Oturan dinleyici <em id="v-ins"></em></label>
+            <input id="f-ins" type="range" min="0" max="40" step="1" value="0">
+          </div>
+          <span class="ctl-label">Hedef</span>
+          <div class="btn-group sm" id="hdf"></div>
+          <button id="cin-sifir" type="button">Yüzeyleri sıfırla</button>
+          <span class="ctl-note" id="c-note"></span>
+        </div>
+
+        <div class="ctl-row" id="row-yer" hidden>
+          <span class="ctl-label">Tür</span>
+          <div class="btn-group sm" id="tur"></div>
+          <div class="field">
+            <label for="f-ack">Hoparlör açıklığı <em id="v-ack"></em></label>
+            <input id="f-ack" type="range" min="0.6" max="4" step="0.05" value="2">
+          </div>
+          <div class="field">
+            <label for="f-dw">Duvara uzaklık <em id="v-dw"></em></label>
+            <input id="f-dw" type="range" min="0.05" max="2.5" step="0.05" value="0.5">
+          </div>
+          <div class="field">
+            <label for="f-hz">Hoparlör yüksekliği <em id="v-hz"></em></label>
+            <input id="f-hz" type="range" min="0.5" max="2.2" step="0.01" value="1.19">
+          </div>
+          <div class="btn-group sm">
+            <button id="yer-38" type="button">%38 noktasına götür</button>
+            <button id="yer-cev" type="button">Odayı çevir</button>
+          </div>
+          <span class="ctl-note" id="y-note"></span>
+        </div>
+
+        <div class="ctl-row" id="row-sbir" hidden>
+          <div class="field">
+            <label for="f-d">Duvara uzaklık d <em id="v-d"></em></label>
+            <input id="f-d" type="range" min="0.05" max="2.5" step="0.01" value="0.5">
+          </div>
+          <div class="field">
+            <label for="f-dl">Dinleyici uzaklığı <em id="v-dl"></em></label>
+            <input id="f-dl" type="range" min="1" max="6" step="0.1" value="3">
+          </div>
+          <div class="field">
+            <label for="f-r">Duvar yansıması <em id="v-r"></em></label>
+            <input id="f-r" type="range" min="0" max="1" step="0.02" value="1">
+          </div>
+          <button id="zem" type="button">Zemin yansımasını ekle</button>
+          <span class="ctl-note" id="b-note"></span>
+        </div>
+      </div>
+    </div>
+
+    <div class="cols">
+      <section class="panel">
+        <div class="panel-head">
+          <h3>Ders adımları</h3>
+          <span class="count" id="step-count">1 / 28</span>
+        </div>
+        <div class="panel-body">
+          <h4 class="step-title" id="step-title"></h4>
+          <p class="step-body" id="step-body"></p>
+          <div class="step-nav">
+            <button id="prev" type="button">◀ Geri</button>
+            <button id="next" type="button">İleri ▶</button>
+            <div class="dots" id="dots"></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="panel" id="yan-mod">
+        <div class="panel-head">
+          <h3>Mod listesi</h3>
+          <span class="count" id="mod-count"></span>
+        </div>
+        <div class="panel-body nopad">
+          <div class="modlist">
+            <table id="mtable">
+              <thead><tr><th>n<sub>x</sub>,n<sub>y</sub>,n<sub>z</sub></th><th>Hz</th><th>Tip</th></tr></thead>
+              <tbody></tbody>
+            </table>
+          </div>
+          <p class="tbl-note">200 Hz altındaki bütün modlar, frekans sırasıyla. Bir satıra
+            tıklayınca o modun <b>basınç deseni</b> sahnede çizilir. Aksiyel modlar en
+            güçlüleridir; listenin başındakiler odanın karakterini belirler.</p>
+        </div>
+      </section>
+
+      <section class="panel" id="yan-yer" hidden>
+        <div class="panel-head">
+          <h3>Denetimler</h3>
+          <span class="count" id="yer-count"></span>
+        </div>
+        <div class="panel-body nopad">
+          <div class="cks" id="cks"></div>
+          <div class="yans">
+            <table id="ytable">
+              <thead><tr><th>Yansıma</th><th>ms</th><th>dB</th></tr></thead>
+              <tbody></tbody>
+            </table>
+          </div>
+          <p class="tbl-note">Sol hoparlörün <b>ilk yansımaları</b>: doğrudan sese göre
+            gecikme ve seviye (1 kHz). <b>20 ms'den erken</b> ve <b>−15 dB'den güçlü</b>
+            olanlar turuncu — görüntüyü bulandıran, tınıyı değiştiren yansımalar bunlardır.
+            Çınlama sahnesinde o yüzeye soğurucu koyduğunuzda satır aşağı iner.</p>
+        </div>
+      </section>
+
+      <section class="panel" id="yan-cin" hidden>
+        <div class="panel-head">
+          <h3>Yüzeyler ve malzeme</h3>
+          <span class="count" id="cin-count"></span>
+        </div>
+        <div class="panel-body nopad">
+          <div class="yuz" id="yuzler"></div>
+          <p class="tbl-note">Her yüzeye bir malzeme seçin. Soğurma <b>frekansa göre</b>
+            değişir: gözenekli malzemeler tizi yutar, bası bırakır. 05. atölyedeki
+            <b>α</b> tablosu buraya <b>altı oktav bandıyla</b> geri geliyor.</p>
+        </div>
+      </section>
+    </div>
+  </section>
+
+  <section class="sec">
+    <div class="sec-head"><span class="num">04</span><h2>Sayılarla bir oda</h2>
+      <span class="kicker">6,4 × 4,8 × 2,9 m'lik bir sınıf</span></div>
+
+    <div class="spec">
+      <div class="spec-card">
+        <h3>Oda künyesi · hesaplanmış</h3>
+        <div class="spec-row"><span>Ölçüler</span><b>6,4 × 4,8 × 2,9 m</b></div>
+        <div class="spec-row"><span>Hacim V</span><b>89,1 m³</b></div>
+        <div class="spec-row"><span>Toplam yüzey S</span><b>126,4 m²</b></div>
+        <div class="spec-row q"><span>İlk mod (1,0,0)</span><b>26,8 Hz</b></div>
+        <div class="spec-row"><span>(0,1,0)</span><b>35,7 Hz</b></div>
+        <div class="spec-row"><span>(1,1,0) tanjansiyel</span><b>44,7 Hz</b></div>
+        <div class="spec-row"><span>(0,0,1) tavan–taban</span><b>59,1 Hz</b></div>
+        <div class="spec-row"><span>(1,1,1) oblik</span><b>74,1 Hz</b></div>
+        <div class="spec-row"><span>200 Hz altındaki mod sayısı</span><b>114</b></div>
+        <div class="spec-row"><span>Çıplak beton: A (500 Hz)</span><b>2,5 sabin</b></div>
+        <div class="spec-row"><span>… T<sub>60</sub> (500 Hz)</span><b>5,67 s</b></div>
+        <div class="spec-row"><span>Halı + perde: 500 Hz</span><b>0,41 s</b></div>
+        <div class="spec-row q"><span>… aynı odada 125 Hz'de</span><b>2,63 s</b></div>
+        <div class="spec-row"><span>+ taş yünü tavan: 500 Hz</span><b>0,23 s</b></div>
+        <div class="spec-row"><span>… 125 Hz'de</span><b>0,92 s</b></div>
+        <div class="spec-row q"><span>Schroeder (T = 0,6 s)</span><b>164 Hz</b></div>
+      </div>
+      <div class="ask">
+        <div class="a">
+          <h4>1 · Neden 26,8 Hz?</h4>
+          <p>En uzun kenar 6,4 m. Oraya yarım dalga boyu sığan frekans
+            <b>343 / (2 × 6,4) = 26,8 Hz</b>. Odanın verebileceği <b>en pes</b> moddur;
+            bunun altında oda basınç odası gibi davranır.</p>
+        </div>
+        <div class="a">
+          <h4>2 · 114 mod, ama ilk beşi önemli</h4>
+          <p>200 Hz altında 114 mod var; ama duyulan tepe ve çukurları belirleyen,
+            aralarındaki <b>boşlukların büyük olduğu</b> ilk birkaç aksiyel moddur.
+            100 Hz üstünde modlar sıklaşır ve tek tek fark edilmez.</p>
+        </div>
+        <div class="a">
+          <h4>3 · Soğurma bası bırakıyor</h4>
+          <p>Tabana halı, duvarlara perde: 500 Hz <b>0,41 s</b>'ye iniyor — ama 125 Hz'de
+            hâlâ <b>2,63 s</b>, yani altı buçuk katı. Konuşma netleşti, bas hâlâ gümbürtülü.
+            Bu, gerçek sınıfların tipik hatasıdır.</p>
+        </div>
+        <div class="a">
+          <h4>4 · 20 kişi bir akustik paneldir</h4>
+          <p>Oturan bir dinleyici kişi başı yaklaşık <b>0,42 m² sabin</b> (500 Hz)
+            soğurur. 20 kişi = 8,4 sabin: döşenmiş bu odada 125 Hz'deki çınlamayı
+            <b>0,92 s</b>'den <b>0,70 s</b>'ye indirir. Boş provada ve dolu konserde
+            salonun başka duyulmasının sebebi budur.</p>
+        </div>
+        <div class="a">
+          <h4>5 · Schroeder 164 Hz ne demek?</h4>
+          <p>164 Hz'in <b>altında</b> bu odada tek tek modlar duyulur: dinleme noktasını
+            değiştirmek bası değiştirir. <b>Üstünde</b> modlar iç içe geçer; artık konum
+            değil <b>soğurma</b> ve <b>erken yansımalar</b> önemlidir. Küçülen odada bu
+            sınır yukarı, büyüyen salonda aşağı kayar.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="sec">
+    <div class="sec-head"><span class="num">05</span><h2>Pratikte ne yapılır?</h2>
+      <span class="kicker">Sırasıyla ve bedelsiz olandan başlayarak</span></div>
+    <div class="defs">
+      <div class="def">
+        <h3>1 · Önce konum, sonra para</h3>
+        <p>Hoparlörü ve dinleme noktasını kaydırmak <b>bedavadır</b> ve basta hiçbir panelin
+          yapamayacağını yapar. Odanın tam ortasına oturmayın: tek numaralı bütün modların
+          <b>düğümü</b> oradadır, bas kaybolur.</p>
+      </div>
+      <div class="def">
+        <h3>2 · Simetriyi koru</h3>
+        <p>İki hoparlör yan duvarlara <b>eşit</b> uzaklıkta olmalı. Değilse iki kulağa
+          farklı duvar çukuru gelir, stereo görüntü dağılır. Aynı sebeple dinleyici de
+          odanın orta ekseninde durmalıdır.</p>
+      </div>
+      <div class="def">
+        <h3>3 · Duvara ya çok yakın ya uzak</h3>
+        <p>Arka duvara <b>çok yakın</b> (&lt; 10 cm) koymak çukuru duyulabilir bandın
+          üstüne iter ve bas bindirmesi kazanç verir; <b>uzak</b> (&gt; 1 m) koymak çukuru
+          aşağı, bas bölgesine indirir. Kötü olan <b>ara mesafedir</b> — 40 cm ile 70 cm
+          çukuru tam vokal ve bas gövde bölgesine oturtur.</p>
+      </div>
+      <div class="def">
+        <h3>4 · İlk yansıma noktalarını bul</h3>
+        <p>Dinleme noktasında oturun, bir arkadaşınız yan duvarda ayna gezdirsin.
+          Aynada <b>hoparlörü gördüğünüz</b> nokta ilk yansıma noktasıdır. Soğurucu ya da
+          difüzör oraya gelir; tavan ve zemin için de aynı yöntem geçerlidir.</p>
+      </div>
+      <div class="def">
+        <h3>5 · Bas için köşe</h3>
+        <p>Köşe bütün modların <b>basınç karnıdır</b>: en çok enerji oradadır, dolayısıyla
+          bas tuzağı en verimli oraya konur. Aynı sebeple subwoofer köşede en gür çalar —
+          ama odanın tepe-çukur deseni de belirginleşir.</p>
+      </div>
+      <div class="def">
+        <h3>6 · Kulaklıkla kontrol et</h3>
+        <p>Odadan şüphelendiğinizde aynı kaydı kulaklıkla dinleyin. Kulaklıkta kaybolan
+          bir bas tümseği <b>odanındır</b>, kaydın değil. Bu, en hızlı ve en ucuz teşhis
+          yöntemidir.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="sec">
+    <div class="sec-head"><span class="num">06</span><h2>Bu kavramların dili</h2>
+      <span class="kicker">Sahnede ve stüdyoda duyacağınız sözler</span></div>
+    <div class="defs lang">
+      <div class="def">
+        <h3>"Oda çok canlı"</h3>
+        <p>Çınlama süresi uzun, soğurma az. Konuşma anlaşılmaz, davul kuyruk bırakır.
+          Çözüm <b>soğurma alanı eklemek</b>tir; seviye kısmak değil.</p>
+      </div>
+      <div class="def">
+        <h3>"Bas bir yerde var, bir yerde yok"</h3>
+        <p>Schroeder altındasınız ve dinleme noktası bir modun <b>düğümüne</b> ya da
+          <b>karnına</b> denk geliyor. Çözüm konum değiştirmek; ekolayzır bunu ancak tek bir
+          noktada düzeltir.</p>
+      </div>
+      <div class="def">
+        <h3>"Gövde çekilmiş, içi boş"</h3>
+        <p>Klasik <b>duvar çukuru</b> tarifi. Hoparlörün arka duvara uzaklığı 40–80 cm
+          aralığındaysa çukuk 100–200 Hz'e oturur ve enstrümanların gövdesini alır.</p>
+      </div>
+      <div class="def">
+        <h3>"Salon doldu, ses oturdu"</h3>
+        <p>İnsanlar soğurucudur. Dolu salonda <b>A</b> büyür, <b>T<sub>60</sub></b> kısalır;
+          prova ile konser arasındaki fark çoğu zaman budur. Ses mühendisi bunu bilerek
+          provada biraz cansız bir ayar bırakır.</p>
+      </div>
+      <div class="def">
+        <h3>"Flutter / çırpınma ekosu"</h3>
+        <p>İki <b>paralel ve sert</b> yüzey arasında sesin ileri geri sekmesi. El çırpınca
+          "zırrr" gibi metalik bir kuyruk duyulur. Bir yüzeye soğurucu ya da difüzör
+          koymak, ya da yüzeyi hafifçe eğmek çözer.</p>
+      </div>
+      <div class="def">
+        <h3>"Bu oda küp, en kötüsü"</h3>
+        <p>Üç kenar eşitse üç eksen <b>aynı</b> mod frekanslarını verir: modlar üst üste
+          biner, aralarında büyük boşluklar kalır. Bazı notalar gümbürder, bazıları
+          kaybolur. Oran ne kadar <b>düzensizse</b> mod dağılımı o kadar düzgün olur.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="sec">
+    <div class="sec-head"><span class="num">07</span><h2>Alıştırma</h2>
+      <span class="kicker">On altı soru</span></div>
+    <div class="quiz">
+      <div class="q-head"><span class="q-text" id="q-text"></span><span class="count" id="q-count">0 / 0 doğru</span></div>
+      <div class="q-opts" id="q-opts"></div>
+      <p class="q-feedback" id="q-fb"></p>
+      <button id="q-next" type="button">Sonraki soru</button>
+    </div>
+  </section>
+
+  <footer>
+    <span>Dikdörtgen odada mod frekansı <b>f = (c/2)·√((n<sub>x</sub>/L<sub>x</sub>)²+(n<sub>y</sub>/L<sub>y</sub>)²+(n<sub>z</sub>/L<sub>z</sub>)²)</b>. İki sayı sıfırsa <b>aksiyel</b>, biri sıfırsa <b>tanjansiyel</b>, hiçbiri değilse <b>oblik</b>.</span>
+    <span>Schroeder frekansı <b>f<sub>S</sub> ≈ 2000·√(T/V)</b>: altında ayrık modlar ve konuma bağlı tını, üstünde istatistiksel alan. Küçük oda ve uzun çınlama sınırı yukarı iter.</span>
+    <span>Sabine <b>T<sub>60</sub> = 0,161·V/A</b>, <b>A = Σ S·α</b>. Gözenekli malzeme tizi yutar, bası bırakır: aynı odada 500 Hz'de 0,43 s iken 125 Hz'de 1,59 s olabilir.</span>
+    <span>Yerleşim: eşkenar üçgen (<b>60°</b>), yan duvarlara eşit uzaklık, dinleyici oda ortasında değil <b>%38</b>'inde, tweeter kulak hizasında. Doğrudan ses yankılı alanın önüne <b>kritik mesafenin</b> içinde geçer — yakın alan monitörün bütün mantığı budur.</span>
+    <span>Duvar çukuru (SBIR) <b>f = c/4d</b>'de açılır ve <b>3c/4d</b>, <b>5c/4d</b>… diye tekrar eder. Kaçınılamaz; d'yi değiştirerek taşınır ya da duvar soğurularak sığlaştırılır.</span>
+  </footer>
+</div>
+
+<script>
+(function(){
+  "use strict";
+  var TAU = Math.PI*2, L10 = Math.LN10;
+  var root = document.documentElement;
+  function lg(x){ return Math.log(x)/L10; }
+  var CS = 343;
+
+  var S = {
+    mode:'mod',
+    lx:6.4, ly:4.8, lz:2.9,          /* oda olculeri (m) */
+    px:3.2, py:2.4, pz:1.19,         /* dinleyici konumu */
+    sel:0,                           /* secili mod (MODS icindeki sira) */
+    t60:0.6, sfq:150,                /* Schroeder sahnesi */
+    ins:0, hdf:'konusma',            /* cinlama sahnesi */
+    mat:{ taban:'beton', tavan:'beton', on:'beton', arka:'beton', yanA:'beton', yanB:'beton' },
+    d:0.5, dl:3, r:1, zemin:false,   /* duvar cukuru sahnesi */
+    tur:'yakin', ack:1.9, dw:0.15, hz:1.19  /* yerlesim sahnesi */
+  };
+
+  /* ---------- tema ---------- */
+  var C = {}, K = { lw:1, fs:1, glow:0, faint:.32 };
+  function readColors(){
+    var s = getComputedStyle(root);
+    ['ink','ink-2','ink-3','line','line-2','sin','cos','arc','brass','panel','panel-2','ok','no'].forEach(function(k){
+      C[k.replace('-','')] = s.getPropertyValue('--'+k).trim();
+    });
+    var proj = root.getAttribute('data-mode') === 'proj';
+    var attr = root.getAttribute('data-theme');
+    var isDark = attr === 'dark' ||
+                 (!attr && window.matchMedia('(prefers-color-scheme: dark)').matches);
+    K.glow  = (isDark && !proj) ? 0.7 : 0;
+    K.lw    = proj ? 1.5 : 1;
+    K.fs    = proj ? 1.24 : 1;
+    K.faint = proj ? 0.42 : (K.glow ? 0.34 : 0.32);
+  }
+  readColors();
+
+  var MODES = { proj:'light' };
+  var themeBtns = document.querySelectorAll('.theme button');
+  function markTheme(t){
+    Array.prototype.forEach.call(themeBtns, function(b){
+      b.setAttribute('aria-pressed', b.dataset.t === t ? 'true':'false');
+    });
+  }
+  function applyTheme(t, save){
+    if (MODES[t]){ root.setAttribute('data-theme', MODES[t]); root.setAttribute('data-mode', t); }
+    else { root.setAttribute('data-theme', t); root.removeAttribute('data-mode'); }
+    if (save) { try { localStorage.setItem('dalga-tema', t); } catch(e){} }
+    markTheme(t);
+  }
+  Array.prototype.forEach.call(themeBtns, function(b){
+    b.addEventListener('click', function(){ applyTheme(b.dataset.t, true); });
+  });
+  var sysDark = window.matchMedia('(prefers-color-scheme: dark)');
+  var stored = null;
+  try { stored = localStorage.getItem('dalga-tema'); } catch(e){}
+  if (stored === 'light' || stored === 'dark' || MODES[stored]) applyTheme(stored, false);
+  else markTheme(sysDark.matches ? 'dark' : 'light');
+  sysDark.addEventListener('change', function(){
+    readColors(); render();
+    if (!root.hasAttribute('data-theme')) markTheme(sysDark.matches ? 'dark' : 'light');
+  });
+  new MutationObserver(function(){ readColors(); render(); })
+    .observe(root, {attributes:true, attributeFilter:['data-theme','data-mode']});
+
+  /* ---------- sayilar ---------- */
+  function n(v,d){
+    var x = v.toFixed(d===undefined?2:d);
+    if (/^-0[.,]?0*$/.test(x)) x = x.slice(1);
+    return x.replace('.',',').replace('-','−');
+  }
+  function fTxt(f){
+    return f >= 1000 ? n(f/1000, f >= 10000 ? 0 : 1).replace(',0','')+' kHz' : n(f,0)+' Hz';
+  }
+  function sgn(v,d){ return (v>0?'+':'')+n(v,d); }
+
+  /* ---------- canvas ---------- */
+  var board = document.getElementById('board');
+  var ctx = null, MONO = '"IBM Plex Mono", monospace', SANS = '"IBM Plex Sans", sans-serif';
+  function dash(a){ ctx.setLineDash(a ? a.map(function(v){ return v*K.lw; }) : []); }
+  function LW(v){ ctx.lineWidth = v*K.lw; }
+  function glowOn(col,amt){ if (K.glow){ ctx.shadowColor = col; ctx.shadowBlur = (amt||9)*K.lw; } }
+  function glowOff(){ ctx.shadowBlur = 0; }
+  function line(x1,y1,x2,y2){ ctx.beginPath(); ctx.moveTo(x1,y1); ctx.lineTo(x2,y2); ctx.stroke(); }
+  function dot(x,y,r,col){
+    ctx.beginPath(); ctx.arc(x,y,r*K.fs,0,TAU);
+    ctx.fillStyle = col; glowOn(col,10); ctx.fill(); glowOff();
+    LW(1.6); ctx.strokeStyle = C.panel2; ctx.stroke();
+  }
+  function txt(s,x,y,col,size,align,fam,weight){
+    ctx.fillStyle = col;
+    ctx.font = (weight||400)+' '+((size||12)*K.fs).toFixed(2)+'px '+(fam||MONO);
+    ctx.textAlign = align||'left'; ctx.textBaseline='middle';
+    ctx.fillText(s,x,y);
+  }
+  function tw(s,size,fam,weight){
+    ctx.font = (weight||400)+' '+((size||12)*K.fs).toFixed(2)+'px '+(fam||MONO);
+    return ctx.measureText(s).width;
+  }
+  function chip(s2,x,y,col,size,weight,fam){
+    var w = tw(s2,size,fam||MONO,weight||400), ph = (size+7)*K.fs;
+    ctx.fillStyle = C.panel2; ctx.globalAlpha = .92;
+    ctx.fillRect(x - w/2 - 4*K.fs, y - ph/2, w + 8*K.fs, ph);
+    ctx.globalAlpha = 1;
+    txt(s2, x, y, col, size, 'center', fam||MONO, weight||400);
+  }
+  function wrap(s, x, y, maxw, col, size, lh, weight){
+    var words = s.split(' '), ln = '', out = [];
+    words.forEach(function(w){
+      var t = ln ? ln+' '+w : w;
+      if (tw(t, size, SANS, weight) > maxw){ out.push(ln); ln = w; } else ln = t;
+    });
+    if (ln) out.push(ln);
+    out.forEach(function(l,k){ txt(l, x, y + k*lh, col, size, 'left', SANS, weight); });
+    return out.length;
+  }
+  var cw = 0, ch = 0;
+  function sized(cv){
+    var dpr = Math.min(window.devicePixelRatio||1, 2);
+    var r = cv.getBoundingClientRect();
+    if (r.width < 10) return null;
+    var W = Math.round(r.width*dpr), H = Math.round(r.height*dpr);
+    if (W !== cw || H !== ch){ cv.width = W; cv.height = H; cw = W; ch = H; }
+    var c = cv.getContext('2d');
+    c.setTransform(dpr,0,0,dpr,0,0);
+    c.clearRect(0,0,r.width,r.height);
+    c.lineJoin='round'; c.lineCap='round';
+    return { c:c, w:r.width, h:r.height };
+  }
+  function logAxis(x0, x1, f0, f1){
+    return { X: function(f){ return x0 + (lg(f) - lg(f0))/(lg(f1) - lg(f0))*(x1 - x0); },
+             F: function(x){ return f0*Math.pow(f1/f0, (x - x0)/(x1 - x0)); },
+             f0:f0, f1:f1, x0:x0, x1:x1 };
+  }
+  function drawTicks(A, y, list, fmt){
+    ctx.strokeStyle = C.line; LW(1.3);
+    line(A.x0, y, A.x1, y);
+    var dec, d;
+    for (dec = Math.floor(lg(A.f0)); dec <= Math.ceil(lg(A.f1)); dec++){
+      for (d = 1; d <= 9; d++){
+        var f = Math.pow(10, dec)*d;
+        if (f < A.f0 || f > A.f1) continue;
+        line(A.X(f), y, A.X(f), y + 2.6*K.fs);
+      }
+    }
+    list.forEach(function(v){
+      if (v < A.f0 || v > A.f1) return;
+      line(A.X(v), y, A.X(v), y + 6*K.fs);
+      txt((fmt||fTxt)(v), A.X(v), y + 16*K.fs, C.ink3, 9.5, 'center', MONO);
+    });
+  }
+  /* Hizli salinan yanitlar: her PIKSEL SUTUNU icin birkac ara deger alinip en kucuk
+     ile en buyuk arasina dikey cizgi cekiliyor. Seyrek ornekleme sahte desen uretmez. */
+  function bandCurve(A, yOf, fn, col, lw, lo, hi){
+    var px = Math.max(2, Math.round(A.x1 - A.x0)), x, k, ALT = 7;
+    ctx.strokeStyle = col; LW(lw||2.4); glowOn(col, 6);
+    ctx.beginPath();
+    for (x = 0; x <= px; x++){
+      var fa = A.f0*Math.pow(A.f1/A.f0, x/px);
+      var fb = A.f0*Math.pow(A.f1/A.f0, (x+1)/px);
+      var mn = 1e9, mx = -1e9;
+      for (k = 0; k < ALT; k++){
+        var v = fn(fa*Math.pow(fb/fa, k/(ALT-1)));
+        if (!isFinite(v)) v = lo;
+        if (v < lo) v = lo; else if (v > hi) v = hi;
+        if (v < mn) mn = v;
+        if (v > mx) mx = v;
+      }
+      ctx.moveTo(A.x0 + x, yOf(mx)); ctx.lineTo(A.x0 + x, yOf(mn));
+    }
+    ctx.stroke(); glowOff();
+  }
+
+  /* ================= fizik ================= */
+
+  /* --- 1) dikdortgen odanin modlari ---
+     f(nx,ny,nz) = (c/2) sqrt((nx/Lx)^2 + (ny/Ly)^2 + (nz/Lz)^2)
+     iki sayi sifir -> aksiyel, biri sifir -> tanjansiyel, hicbiri -> oblik      */
+  function modF(a,b,c2,Lx,Ly,Lz){
+    return (CS/2)*Math.sqrt(a*a/(Lx*Lx) + b*b/(Ly*Ly) + c2*c2/(Lz*Lz));
+  }
+  function modTip(a,b,c2){
+    var z = (a===0?1:0)+(b===0?1:0)+(c2===0?1:0);
+    return z===2 ? 'ax' : (z===1 ? 'tg' : 'ob');
+  }
+  var TIPAD = { ax:'aksiyel', tg:'tanjansiyel', ob:'oblik' };
+  var MODS = [], FLIST = 200;
+  function buildMods(){
+    MODS = [];
+    var NX = Math.min(14, Math.floor(2*S.lx*FLIST/CS)),
+        NY = Math.min(14, Math.floor(2*S.ly*FLIST/CS)),
+        NZ = Math.min(14, Math.floor(2*S.lz*FLIST/CS));
+    for (var a=0;a<=NX;a++) for (var b=0;b<=NY;b++) for (var c2=0;c2<=NZ;c2++){
+      if (a+b+c2 === 0) continue;
+      var f = modF(a,b,c2,S.lx,S.ly,S.lz);
+      if (f <= FLIST) MODS.push({ n:[a,b,c2], f:f, t:modTip(a,b,c2) });
+    }
+    MODS.sort(function(p,q){ return p.f - q.f; });
+    if (S.sel >= MODS.length) S.sel = 0;
+  }
+  /* mod bicimi: psi = cos(nx pi x/Lx) cos(ny pi y/Ly) cos(nz pi z/Lz), tepe deger 1 */
+  function psi3(m, x, y, z){
+    return Math.cos(m.n[0]*Math.PI*x/S.lx)
+         * Math.cos(m.n[1]*Math.PI*y/S.ly)
+         * Math.cos(m.n[2]*Math.PI*z/S.lz);
+  }
+  /* oda oraninin kalitesi: aksiyel modlarin ust uste binmesi ve en buyuk bosluk */
+  function oranKalite(){
+    var F = [], i;
+    for (i=1;i<=10;i++){
+      F.push(i*CS/(2*S.lx)); F.push(i*CS/(2*S.ly)); F.push(i*CS/(2*S.lz));
+    }
+    F = F.filter(function(f){ return f <= 200; }).sort(function(p,q){ return p-q; });
+    var ust = 0, bos = 0;
+    for (i=1;i<F.length;i++){
+      var g = F[i]-F[i-1];
+      if (g < 2) ust++;
+      if (g > bos) bos = g;
+    }
+    return { n:F.length, ust:ust, bos:bos };
+  }
+
+  /* --- 2) Schroeder ---
+     modal bant genisligi B = 2.2/T60
+     mod yogunlugu dN/df = 4 pi V f^2 / c^3   ->  bant basina mod sayisi = yogunluk*B
+     bu sayi 3'e ulastiginda modlar ayirt edilemez  ->  fS ~ 2000 sqrt(T/V)         */
+  function hacim(){ return S.lx*S.ly*S.lz; }
+  function yuzeyAlan(){ return 2*(S.lx*S.ly + S.ly*S.lz + S.lx*S.lz); }
+  function bantGen(){ return 2.2/S.t60; }
+  function modYog(f){ return 4*Math.PI*hacim()*f*f/(CS*CS*CS); }
+  function bandaMod(f){ return modYog(f)*bantGen(); }
+  function fSchroeder(){ return 2000*Math.sqrt(S.t60/hacim()); }
+  /* gercek sayim: [f-B/2, f+B/2] araliginda kac mod var (sirali SMODS uzerinden) */
+  var SMODS = [], SFMAX = 1200;
+  function buildSMods(){
+    SMODS = [];
+    var NX = Math.floor(2*S.lx*SFMAX/CS), NY = Math.floor(2*S.ly*SFMAX/CS),
+        NZ = Math.floor(2*S.lz*SFMAX/CS);
+    for (var a=0;a<=NX;a++) for (var b=0;b<=NY;b++) for (var c2=0;c2<=NZ;c2++){
+      if (a+b+c2 === 0) continue;
+      var f = modF(a,b,c2,S.lx,S.ly,S.lz);
+      if (f <= SFMAX) SMODS.push(f);
+    }
+    SMODS.sort(function(p,q){ return p-q; });
+  }
+  function sayimBantta(f){
+    var B = bantGen(), lo = f - B/2, hi = f + B/2, i, k = 0;
+    for (i=0;i<SMODS.length;i++){
+      if (SMODS[i] > hi) break;
+      if (SMODS[i] >= lo) k++;
+    }
+    return k;
+  }
+
+  /* --- 3) Sabine ---
+     T60 = 0,161 V / A ,  A = SUM S_i alpha_i   (oktav bandi basina)               */
+  var BANT = [125,250,500,1000,2000,4000];
+  var MALZ = {
+    beton:  { ad:'Sıvalı beton',           a:[0.02,0.02,0.02,0.03,0.04,0.05] },
+    ahsap:  { ad:'Ahşap panel (boşluklu)', a:[0.28,0.20,0.10,0.08,0.08,0.08] },
+    cam:    { ad:'Pencere camı',           a:[0.18,0.10,0.06,0.04,0.03,0.02] },
+    hali:   { ad:'Kalın halı',             a:[0.04,0.12,0.35,0.50,0.58,0.62] },
+    perde:  { ad:'Ağır kıvrımlı perde',    a:[0.07,0.28,0.50,0.72,0.70,0.62] },
+    sunger: { ad:'Akustik sünger 5 cm',    a:[0.14,0.35,0.75,0.90,0.92,0.92] },
+    tasyun: { ad:'Taş yünü panel 10 cm',   a:[0.35,0.70,0.95,1.00,1.00,1.00] }
+  };
+  var MSIRA = ['beton','cam','ahsap','hali','perde','sunger','tasyun'];
+  var INSAN = [0.25,0.35,0.42,0.46,0.50,0.50];       /* oturan kisi basina m2 sabin */
+  var YUZEY = [
+    { k:'taban', ad:'Taban',        s:function(){ return S.lx*S.ly; } },
+    { k:'tavan', ad:'Tavan',        s:function(){ return S.lx*S.ly; } },
+    { k:'on',    ad:'Ön duvar',     s:function(){ return S.lx*S.lz; } },
+    { k:'arka',  ad:'Arka duvar',   s:function(){ return S.lx*S.lz; } },
+    { k:'yanA',  ad:'Yan duvar (sol)',  s:function(){ return S.ly*S.lz; } },
+    { k:'yanB',  ad:'Yan duvar (sağ)',  s:function(){ return S.ly*S.lz; } }
+  ];
+  function sogurmaA(i){
+    var A = 0;
+    YUZEY.forEach(function(u){ A += u.s()*MALZ[S.mat[u.k]].a[i]; });
+    A += S.ins*INSAN[i];
+    return A;
+  }
+  function T60band(i){
+    var A = sogurmaA(i);
+    return A <= 0.01 ? 99 : 0.161*hacim()/A;
+  }
+  var HEDEF = {
+    konusma: { ad:'Sınıf / konuşma', lo:0.5,  hi:0.7 },
+    prova:   { ad:'Prova odası',     lo:0.7,  hi:0.9 },
+    kayit:   { ad:'Kayıt / kontrol', lo:0.25, hi:0.35 }
+  };
+
+  /* --- 4) duvar cukuru (SBIR) ---
+     dogrudan yol r1 = D - d,  arka duvar yansimasi r2 = D + d  (ayna kaynagi)
+     genlik ~ 1/r, referans yansimasiz dogrudan ses                              */
+  var HK = 1.2;                                  /* hoparlor ve kulak yuksekligi (m) */
+  function sbirDb(f){
+    var r1 = S.dl - S.d, r2 = S.dl + S.d, k = TAU*f/CS;
+    var re = Math.cos(-k*r1)/r1 + S.r*Math.cos(-k*r2)/r2;
+    var im = Math.sin(-k*r1)/r1 + S.r*Math.sin(-k*r2)/r2;
+    if (S.zemin){
+      var yat = S.dl - S.d;                       /* yatay mesafe */
+      var r3 = Math.sqrt(yat*yat + (2*HK)*(2*HK));
+      re += S.r*Math.cos(-k*r3)/r3; im += S.r*Math.sin(-k*r3)/r3;
+    }
+    return 20*lg(Math.hypot(re,im)*r1);
+  }
+  function sbirCukur(){ return CS/(4*S.d); }
+  /* Cukurun derinligi dogrudan egriden okunur; zemin yansimasi acikken de dogru kalir.
+     Yalnizca arka duvar varken bu deger 20log(1 - R r1/r2) ile birebir aynidir. */
+  function sbirDerin(){ return sbirDb(sbirCukur()); }
+
+  /* --- 5) yerlesim: ayna kaynak yontemiyle ILK YANSIMALAR ---
+     Oda [0,Lx]x[0,Ly]x[0,Lz]. Her yuzey icin bir ayna kaynak; genlik R(f)/r, faz -kr.
+     Referans: yansimasiz iki hoparlorun dogrudan sesi. Bu model YALNIZ BIRINCI
+     MERTEBE yansimalari kapsiyor — Schroeder altindaki mod davranisi 1. sahnenin isi. */
+  var TUR = {
+    yakin: { ad:'Yakın alan', lo:0.9, hi:2.0, Q:4,
+             not:'Doğrudan ses baskın; oda en az karışır. Stüdyo referans monitörü.' },
+    orta:  { ad:'Orta alan',  lo:2.0, hi:3.5, Q:5,
+             not:'Oda karışmaya başlar; ilk yansıma noktaları önem kazanır.' },
+    uzak:  { ad:'Uzak alan',  lo:3.5, hi:7.0, Q:8,
+             not:'Oda baskın. Ancak çınlaması denetlenmiş bir mekânda anlamlı.' },
+    hifi:  { ad:'Hi-fi',      lo:2.0, hi:4.0, Q:3,
+             not:'Oda kasten karıştırılır: daha geniş, daha zarflayıcı bir alan istenir.' }
+  };
+  var YUZAD = { yanA:'Sol duvar', yanB:'Sağ duvar', on:'Hoparlör arkası',
+                arka:'Dinleyici arkası', taban:'Zemin', tavan:'Tavan' };
+  function alfaF(k, f){                       /* oktav bandlari arasinda log ara deger */
+    var a = MALZ[S.mat[k]].a;
+    if (f <= BANT[0]) return a[0];
+    if (f >= BANT[5]) return a[5];
+    for (var i = 0; i < 5; i++){
+      if (f <= BANT[i+1]){
+        var t = Math.log(f/BANT[i])/Math.log(BANT[i+1]/BANT[i]);
+        return a[i] + (a[i+1]-a[i])*t;
+      }
+    }
+    return a[5];
+  }
+  function Rf(k, f){ return Math.sqrt(Math.max(0, 1 - alfaF(k, f))); }
+  function hopKonum(){
+    var cx = S.lx/2, yarim = Math.min(S.ack, S.lx - 0.3)/2;
+    return [[cx - yarim, S.dw, S.hz], [cx + yarim, S.dw, S.hz]];
+  }
+  function dinKonum(){ return [S.px, S.py, S.pz]; }
+  function aynalar(h){
+    return [
+      { p:[-h[0], h[1], h[2]],        k:'yanA' },
+      { p:[2*S.lx-h[0], h[1], h[2]],  k:'yanB' },
+      { p:[h[0], -h[1], h[2]],        k:'on'   },
+      { p:[h[0], 2*S.ly-h[1], h[2]],  k:'arka' },
+      { p:[h[0], h[1], -h[2]],        k:'taban'},
+      { p:[h[0], h[1], 2*S.lz-h[2]],  k:'tavan'}
+    ];
+  }
+  function uzak3(a, b){
+    var dx = a[0]-b[0], dy = a[1]-b[1], dz = a[2]-b[2];
+    return Math.sqrt(dx*dx + dy*dy + dz*dz);
+  }
+  function tekYer(h, d, f){                   /* tek hoparlorun karmasik basinci */
+    var k = TAU*f/CS, r = uzak3(h, d);
+    var re = Math.cos(-k*r)/r, im = Math.sin(-k*r)/r, A = aynalar(h), i;
+    for (i = 0; i < A.length; i++){
+      var rr = uzak3(A[i].p, d), g = Rf(A[i].k, f)/rr;
+      re += g*Math.cos(-k*rr); im += g*Math.sin(-k*rr);
+    }
+    return { re:re, im:im, r:r };
+  }
+  function yerGuc(f){                         /* iki hoparlorun toplami, bagil guc */
+    var H = hopKonum(), d = dinKonum();
+    var A = tekYer(H[0], d, f), B = tekYer(H[1], d, f);
+    var m = Math.hypot(A.re+B.re, A.im+B.im)/(1/A.r + 1/B.r);
+    return m*m;
+  }
+  function yerDb(f){ return 10*lg(yerGuc(f)); }
+  /* 1/3 oktav yumusatma: bandin GUC ortalamasi (dB ortalamasi degil) */
+  function yerYumusak(f){
+    var lo = f/Math.pow(2, 1/6), hi = f*Math.pow(2, 1/6), N = 21, s2 = 0, i;
+    for (i = 0; i < N; i++) s2 += yerGuc(lo*Math.pow(hi/lo, i/(N-1)));
+    return 10*lg(s2/N);
+  }
+  function kanalFark(f){                      /* sol-sag seviye farki (simetri olcutu) */
+    var H = hopKonum(), d = dinKonum();
+    var A = tekYer(H[0], d, f), B = tekYer(H[1], d, f);
+    return 20*lg(Math.hypot(A.re,A.im)*A.r) - 20*lg(Math.hypot(B.re,B.im)*B.r);
+  }
+  function erkenYansimalar(){                 /* sol hoparlor, 1 kHz */
+    var H = hopKonum(), d = dinKonum(), r0 = uzak3(H[0], d), out = [], A = aynalar(H[0]), i;
+    for (i = 0; i < A.length; i++){
+      var rr = uzak3(A[i].p, d), g = Rf(A[i].k, 1000);
+      out.push({ ad:YUZAD[A[i].k], k:A[i].k,
+                 ms:(rr - r0)/CS*1000,
+                 db: g <= 1e-4 ? -60 : Math.max(-60, 20*lg(g*r0/rr)) });
+    }
+    out.sort(function(a,b){ return b.db - a.db; });
+    return out;
+  }
+  /* 1 ms'den erken gelen yansima dogrudan sesle KAYNASIR: ayri bir ses gibi duyulmaz,
+     etkisi yalnizca frekans yanitindaki genis cukurdur (duvar denetimi onu zaten olcuyor).
+     Goruntuyu ve tiniyi bozan pencere 1-20 ms arasidir. */
+  function enErken(){
+    var L = erkenYansimalar().filter(function(e){ return e.ms >= 1; });
+    return L.length ? L[0] : null;
+  }
+  function enKotuKanalFark(){
+    var en = 0;
+    [125,250,500,1000,2000].forEach(function(f){
+      var v = Math.abs(kanalFark(f)); if (v > en) en = v;
+    });
+    return en;
+  }
+  /* yan duvardaki ilk yansima noktasi: ayna kaynak -> dinleyici dogrusunun duvari kestigi yer */
+  function yansimaNoktasi(h, d, tarafX){
+    var im = tarafX ? [-h[0], h[1], h[2]] : [2*S.lx-h[0], h[1], h[2]];
+    var hedef = tarafX ? 0 : S.lx;
+    var t = (hedef - im[0])/(d[0] - im[0]);
+    if (!isFinite(t) || t < 0 || t > 1) return null;
+    return { x:hedef, y: im[1] + t*(d[1]-im[1]), z: im[2] + t*(d[2]-im[2]) };
+  }
+  /* kritik mesafe: dogrudan ses ile yankili alanin esitlendigi uzaklik
+     R = A/(1-abar) oda sabiti, r_c = 0,141*sqrt(Q*R)  (1 kHz sogurmasindan) */
+  function kritikMesafe(){
+    var A = sogurmaA(3), Sx = yuzeyAlan(), ab = Math.min(0.97, A/Sx);
+    return 0.141*Math.sqrt(TUR[S.tur].Q*A/(1-ab));
+  }
+  function dinMesafe(){
+    var H = hopKonum(), d = dinKonum();
+    return (uzak3(H[0],d) + uzak3(H[1],d))/2;
+  }
+  function acikAci(){
+    var H = hopKonum(), d = dinKonum();
+    var ileri = Math.max(0.2, d[1] - S.dw), yarim = (H[1][0] - H[0][0])/2;
+    return 2*Math.atan(yarim/ileri)*180/Math.PI;
+  }
+
+  /* ================= cizim ================= */
+  function frame(x0,y0,w,h){
+    ctx.fillStyle = C.panel; ctx.fillRect(x0,y0,w,h);
+    ctx.strokeStyle = C.line; LW(1.2); ctx.strokeRect(x0+0.5,y0+0.5,w-1,h-1);
+  }
+  /* Yari saydam hucreler bitisik cizilince kenarlarda dikis izi birakiyor.
+     Bu yuzden renkler ONCEDEN panel rengiyle karistirilip TAM OPAK doldurulur. */
+  var RGBC = {};
+  function rgbOf(hx){
+    if (RGBC[hx]) return RGBC[hx];
+    var s2 = String(hx).trim(), r, g, b, m;
+    if (s2.charAt(0) === '#'){
+      if (s2.length === 4){
+        r = parseInt(s2.charAt(1)+s2.charAt(1),16);
+        g = parseInt(s2.charAt(2)+s2.charAt(2),16);
+        b = parseInt(s2.charAt(3)+s2.charAt(3),16);
+      } else {
+        r = parseInt(s2.substr(1,2),16); g = parseInt(s2.substr(3,2),16); b = parseInt(s2.substr(5,2),16);
+      }
+    } else {
+      m = s2.match(/(\d+)[,\s]+(\d+)[,\s]+(\d+)/);
+      r = m ? +m[1] : 128; g = m ? +m[2] : 128; b = m ? +m[3] : 128;
+    }
+    return (RGBC[hx] = [r||0, g||0, b||0]);
+  }
+  function mixc(a, b, t){
+    var A = rgbOf(a), B = rgbOf(b);
+    return 'rgb(' + Math.round(A[0]+(B[0]-A[0])*t) + ',' +
+                    Math.round(A[1]+(B[1]-A[1])*t) + ',' +
+                    Math.round(A[2]+(B[2]-A[2])*t) + ')';
+  }
+  function basincRenk(v){
+    var a = Math.min(1, Math.abs(v));
+    return mixc(C.panel, v >= 0 ? C.sin : C.cos, 0.05 + 0.84*a);
+  }
+  /* bir kesitin basinc haritasi: fu(u,v) -> [-1,1], u ve v 0..1 */
+  function harita(x0,y0,w,h,fu,NU,NV){
+    var i, j;
+    for (i=0;i<NU;i++){
+      var xa = Math.round(x0 + i*w/NU), xb = Math.round(x0 + (i+1)*w/NU);
+      for (j=0;j<NV;j++){
+        var ya = Math.round(y0 + j*h/NV), yb = Math.round(y0 + (j+1)*h/NV);
+        ctx.fillStyle = basincRenk(fu((i+0.5)/NU, (j+0.5)/NV));
+        ctx.fillRect(xa, ya, Math.max(1, xb-xa), Math.max(1, yb-ya));
+      }
+    }
+  }
+
+  /* Dar ekranda sol alt baslik ile sag ozet carpisiyordu: dar ekranda sol metin dusuyor. */
+  function sahneBaslik(w, sol, sag, sagCol, sagDar){
+    var pad = 16*K.fs, y = 16*K.fs, dar = w < 700;
+    if (!dar) txt(sol, pad, y, C.ink3, 10.5, 'left', MONO, 500);
+    var t = (dar && sagDar) ? sagDar : sag;
+    txt(t, dar ? pad : w - pad, y, sagCol, dar ? 11 : 11.5, dar ? 'left' : 'right', MONO, 600);
+  }
+
+  /* ---------- SAHNE 1: odanin modlari ---------- */
+  var PLAN = null;                    /* dinleyiciyi surukleyebilmek icin */
+  function drawMod(w,h){
+    var small = w < 640;
+    var pad = 16*K.fs, ty = 16*K.fs;
+    var m = MODS[S.sel];
+    if (!m){ txt('Bu oda için 200 Hz altında mod yok.', pad, 60, C.ink2, 13, 'left', SANS); return; }
+    var ad = '(' + m.n.join(', ') + ')  ' + n(m.f,1) + ' Hz  ·  ' + TIPAD[m.t];
+    sahneBaslik(w, 'ODANIN MODLARI  ·  seçili modun basınç deseni', ad,
+                m.t==='ax' ? C.sin : (m.t==='tg' ? C.cos : C.ink2));
+
+    var top = ty + 20*K.fs;
+    var combH = 54*K.fs;
+    var bodyH = h - top - combH - 26*K.fs;
+    var gap = 16*K.fs;
+    var colW = small ? (w - 2*pad) : (w - 2*pad - gap);
+    var pw, ph2, sw, sh;
+
+    /* plan: Lx x Ly ; kesit: Lx x Lz  — ikisi de ayni x olceginde (TEK OLCEK) */
+    var wA = small ? colW : colW*0.58, wB = small ? colW : colW*0.42;
+    var olc = Math.min(wA/S.lx, (bodyH - 24*K.fs)/S.ly);
+    var olc2 = Math.min(wB/S.lx, (bodyH*0.62)/S.lz);
+    var olcek = Math.min(olc, olc2);
+    pw = S.lx*olcek; ph2 = S.ly*olcek;
+    sw = S.lx*olcek; sh = S.lz*olcek;
+
+    var ax0 = pad, ay0 = top + 16*K.fs;
+    var bx0 = small ? pad : pad + wA + gap, by0 = small ? ay0 + ph2 + 34*K.fs : ay0;
+    if (small){ bodyH = h - top - combH - 26*K.fs; }
+
+    /* --- plan (ustten) --- */
+    txt('ÜSTTEN GÖRÜNÜŞ  ·  z = '+n(S.pz,2)+' m', ax0, ay0 - 9*K.fs, C.ink3, 9.5, 'left', MONO);
+    frame(ax0, ay0, pw, ph2);
+    harita(ax0, ay0, pw, ph2, function(u,v){
+      return psi3(m, u*S.lx, v*S.ly, S.pz);
+    }, 58, 44);
+    ctx.strokeStyle = C.line; LW(1.2); ctx.strokeRect(ax0+0.5, ay0+0.5, pw-1, ph2-1);
+    PLAN = { x0:ax0, y0:ay0, w:pw, h:ph2 };
+    /* dinleyici */
+    var lx2 = ax0 + S.px/S.lx*pw, ly2 = ay0 + S.py/S.ly*ph2;
+    ctx.strokeStyle = C.arc; LW(1.3); dash([3,3]);
+    line(ax0, ly2, ax0+pw, ly2); line(lx2, ay0, lx2, ay0+ph2); dash(null);
+    dot(lx2, ly2, 5.6, C.arc);
+    var sev = psi3(m, S.px, S.py, S.pz);
+    var sdb = 20*lg(Math.max(1e-3, Math.abs(sev)));
+    var etk = 'dinleyici  '+n(sdb,1)+' dB', ehw = tw(etk, 10, MONO, 600)/2 + 6*K.fs;
+    chip(etk, Math.max(ax0 + ehw, Math.min(lx2, ax0 + pw - ehw)),
+         ly2 - 15*K.fs, C.arc, 10, 600);
+    txt(n(S.lx,1)+' × '+n(S.ly,1)+' m', ax0 + pw - 2*K.fs, ay0 + ph2 + 11*K.fs,
+        C.ink3, 9.5, 'right', MONO);
+
+    /* --- kesit (yandan) --- */
+    txt('YANDAN KESİT  ·  y = '+n(S.py,2)+' m', bx0, by0 - 9*K.fs, C.ink3, 9.5, 'left', MONO);
+    frame(bx0, by0, sw, sh);
+    harita(bx0, by0, sw, sh, function(u,v){
+      return psi3(m, u*S.lx, S.py, (1-v)*S.lz);
+    }, 58, 30);
+    ctx.strokeStyle = C.line; LW(1.2); ctx.strokeRect(bx0+0.5, by0+0.5, sw-1, sh-1);
+    var kz = by0 + (1 - S.pz/S.lz)*sh, kx = bx0 + S.px/S.lx*sw;
+    ctx.strokeStyle = C.arc; LW(1.3); dash([3,3]);
+    line(bx0, kz, bx0+sw, kz); dash(null);
+    dot(kx, kz, 5.0, C.arc);
+    txt(n(S.lz,2)+' m', bx0 + sw - 5*K.fs, by0 + sh + 11*K.fs, C.ink3, 9.5, 'right', MONO);
+
+    /* renk anahtari */
+    var ky = Math.max(ay0 + ph2, by0 + sh) + 20*K.fs;
+    var kw = 108*K.fs;
+    txt('BASINÇ', pad, ky, C.ink3, 9.5, 'left', MONO);
+    var kx0 = pad + 46*K.fs, i2;
+    for (i2=0;i2<36;i2++){
+      ctx.fillStyle = basincRenk(-1 + 2*i2/35);
+      ctx.fillRect(Math.round(kx0 + i2*(kw/36)), ky - 5*K.fs,
+                   Math.ceil(kw/36) + 1, 10*K.fs);
+    }
+    ctx.strokeStyle = C.line; LW(1); ctx.strokeRect(kx0, ky - 5*K.fs, kw, 10*K.fs);
+    txt('− karın', kx0 - 3*K.fs, ky + 15*K.fs, C.cos, 9, 'left', MONO);
+    txt('düğüm', kx0 + kw/2, ky + 15*K.fs, C.ink3, 9, 'center', MONO);
+    txt('+ karın', kx0 + kw + 3*K.fs, ky + 15*K.fs, C.sin, 9, 'right', MONO);
+
+    /* --- mod tarağı --- */
+    var cy = h - 24*K.fs;
+    var gx0 = pad + 6*K.fs, gx1 = w - pad;
+    var A = logAxis(gx0, gx1, 18, 210);
+    var topY = cy - 30*K.fs;
+    txt('200 Hz ALTINDAKİ BÜTÜN MODLAR', gx0, topY - 11*K.fs, C.ink3, 9.5, 'left', MONO);
+    MODS.forEach(function(mm, ix){
+      var col = mm.t==='ax' ? C.sin : (mm.t==='tg' ? C.cos : C.ink3);
+      var hh = mm.t==='ax' ? 24 : (mm.t==='tg' ? 15 : 9);
+      ctx.globalAlpha = ix === S.sel ? 1 : (mm.t==='ob' ? 0.4 : 0.66);
+      ctx.strokeStyle = col; LW(ix === S.sel ? 2.6 : 1.3);
+      line(A.X(mm.f), cy, A.X(mm.f), cy - hh*K.fs);
+      ctx.globalAlpha = 1;
+    });
+    drawTicks(A, cy, [20,30,40,60,80,100,150,200], function(v){ return n(v,0); });
+    var selx = A.X(m.f);
+    dot(selx, cy - (m.t==='ax'?24:(m.t==='tg'?15:9))*K.fs, 4.2, C.arc);
+  }
+
+  /* ---------- SAHNE 2: Schroeder ---------- */
+  function drawSch(w,h){
+    var pad = 16*K.fs, small = w < 640;
+    var fS = fSchroeder(), B = bantGen(), V = hacim();
+    sahneBaslik(w, 'SCHROEDER SINIRI  ·  modlar ne zaman birbirine karışır?',
+                'V = '+n(V,1)+' m³   T₆₀ = '+n(S.t60,2)+' s   f_S = '+n(fS,0)+' Hz', C.arc,
+                'V '+n(V,0)+' m³ · T₆₀ '+n(S.t60,2)+' s · f_S '+n(fS,0)+' Hz');
+
+    var gx0 = pad + 34*K.fs, gx1 = w - pad - 6*K.fs;
+    var A = logAxis(gx0, gx1, 20, 1000);
+    var topY = 42*K.fs;
+    var combH = Math.max(72, (h - topY - 150*K.fs)*0.44);
+    var cy = topY + combH;
+
+    /* ---- ust: mod tarağı ---- */
+    txt('MOD FREKANSLARI', gx0, topY - 10*K.fs, C.ink3, 9.5, 'left', MONO);
+    /* Schroeder altinda/ustunde ayri renk */
+    var i;
+    for (i=0;i<SMODS.length;i++){
+      var f = SMODS[i];
+      if (f < 20 || f > 1000) continue;
+      var alti = f < fS;
+      ctx.strokeStyle = alti ? C.sin : C.ink3;
+      ctx.globalAlpha = alti ? 0.72 : 0.20;
+      LW(alti ? 1.4 : 0.9);
+      line(A.X(f), cy, A.X(f), cy - (alti ? combH*0.82 : combH*0.5));
+    }
+    ctx.globalAlpha = 1;
+    /* imlec ve bant genisligi */
+    var fc = Math.max(20, Math.min(1000, S.sfq));
+    var xl = A.X(Math.max(20, fc - B/2)), xr = A.X(Math.min(1000, fc + B/2));
+    ctx.fillStyle = C.arc; ctx.globalAlpha = 0.18;
+    ctx.fillRect(xl, cy - combH, Math.max(2, xr - xl), combH);
+    ctx.globalAlpha = 1;
+    ctx.strokeStyle = C.arc; LW(1.6);
+    line(A.X(fc), cy - combH, A.X(fc), cy + 4*K.fs);
+    var say = sayimBantta(fc);
+    chip(n(fc,0)+' Hz · bantta '+say+' mod',
+         Math.max(gx0 + 70*K.fs, Math.min(A.X(fc), gx1 - 70*K.fs)),
+         cy - combH - 10*K.fs, C.arc, 10.5, 600);
+    drawTicks(A, cy, [20,50,100,200,500,1000], function(v){ return n(v,0); });
+
+    /* ---- alt: bant basina mod sayisi ---- */
+    var gy0 = cy + 52*K.fs, gy1 = h - 30*K.fs;
+    var M1 = 20;                                 /* dikey olcek: 0..20 mod */
+    function YM(v){ return gy1 - Math.max(0, Math.min(M1, v))/M1*(gy1 - gy0); }
+    ctx.strokeStyle = C.line2; LW(1);
+    [0,5,10,15,20].forEach(function(v){
+      dash(v===0?null:[2,4]); line(gx0, YM(v), gx1, YM(v)); dash(null);
+      txt(n(v,0), gx0 - 7*K.fs, YM(v), C.ink3, 9.5, 'right', MONO);
+    });
+    txt('BİR BANT GENİŞLİĞİNE DÜŞEN MOD SAYISI', gx0, gy0 - 13*K.fs, C.ink3, 9.5, 'left', MONO);
+    /* 3 cizgisi */
+    ctx.strokeStyle = C.brass; LW(1.8); dash([5,4]);
+    line(gx0, YM(3), gx1, YM(3)); dash(null);
+    txt('3 mod = karışma sınırı', gx1 - 3*K.fs, YM(3) - 10*K.fs, C.brass, 10, 'right', MONO, 600);
+    /* egri — olcegi asinca KESILIR, tavana yapistirilmaz */
+    ctx.strokeStyle = C.cos; LW(2.6); glowOn(C.cos,6); ctx.beginPath();
+    var px2 = Math.round(gx1 - gx0), started = false;
+    for (i=0;i<=px2;i++){
+      var vv = bandaMod(A.F(gx0 + i));
+      if (vv > M1){ started = false; continue; }
+      if (!started){ ctx.moveTo(gx0+i, YM(vv)); started = true; } else ctx.lineTo(gx0+i, YM(vv));
+    }
+    ctx.stroke(); glowOff();
+    /* gercek sayim noktalari */
+    [25,40,63,100,160,250,400,630,1000].forEach(function(f2){
+      if (f2 < 20 || f2 > 1000) return;
+      var v2 = sayimBantta(f2);
+      if (v2 > M1) return;
+      ctx.beginPath(); ctx.arc(A.X(f2), YM(v2), 2.8*K.fs, 0, TAU);
+      ctx.fillStyle = C.ink3; ctx.fill();
+    });
+    /* fS cizgisi (iki grafikte de) */
+    if (fS >= 20 && fS <= 1000){
+      ctx.strokeStyle = C.arc; LW(2); dash([6,4]);
+      line(A.X(fS), topY - 4*K.fs, A.X(fS), cy); line(A.X(fS), gy0, A.X(fS), gy1);
+      dash(null);
+      chip('f_S = '+n(fS,0)+' Hz',
+           Math.max(gx0 + 48*K.fs, Math.min(A.X(fS), gx1 - 48*K.fs)),
+           gy0 + 14*K.fs, C.arc, 10.5, 600);
+    }
+    /* etiketler */
+    if (!small && fS > 30){
+      txt('AYRIK MODLAR', gx0 + 4*K.fs, cy - combH + 12*K.fs, C.sin, 10, 'left', MONO, 600);
+      txt('İSTATİSTİKSEL ALAN', gx1 - 4*K.fs, cy - combH + 12*K.fs, C.ink3, 10, 'right', MONO, 600);
+    }
+    txt('nokta: gerçek sayım   ·   eğri: 4πVf²/c³ × B', gx1, gy1 + 16*K.fs, C.ink3, 9.5, 'right', MONO);
+  }
+
+  /* ---------- SAHNE 3: cinlama suresi ---------- */
+  function drawCin(w,h){
+    var pad = 16*K.fs;
+    var V = hacim();
+    sahneBaslik(w, 'ÇINLAMA SÜRESİ  ·  Sabine: T₆₀ = 0,161 · V / A',
+                'V = '+n(V,1)+' m³   S = '+n(yuzeyAlan(),1)+' m²', C.ink2,
+                'V '+n(V,0)+' m³ · S '+n(yuzeyAlan(),0)+' m²');
+
+    var gx0 = pad + 40*K.fs, gx1 = w - pad - 6*K.fs;
+    var gy0 = 52*K.fs, gy1 = h - 112*K.fs;
+    var T1 = 3.2;                                  /* SABIT EKSEN: 0..3,2 s */
+    function YT(v){ return gy1 - Math.max(0, Math.min(T1, v))/T1*(gy1 - gy0); }
+    /* hedef bandi */
+    var hd = HEDEF[S.hdf];
+    ctx.fillStyle = C.brass; ctx.globalAlpha = 0.14;
+    ctx.fillRect(gx0, YT(hd.hi), gx1 - gx0, YT(hd.lo) - YT(hd.hi));
+    ctx.globalAlpha = 1;
+    ctx.strokeStyle = C.brass; LW(1.2); dash([4,4]);
+    line(gx0, YT(hd.lo), gx1, YT(hd.lo)); line(gx0, YT(hd.hi), gx1, YT(hd.hi)); dash(null);
+    chip(hd.ad+'  '+n(hd.lo,2)+'–'+n(hd.hi,2)+' s',
+         gx0 + tw(hd.ad+'  '+n(hd.lo,2)+'–'+n(hd.hi,2)+' s', 10, MONO, 600)/2 + 6*K.fs,
+         YT(hd.hi) - 10*K.fs, C.brass, 10, 600);
+    /* izgara */
+    ctx.strokeStyle = C.line2; LW(1);
+    [0,0.5,1,1.5,2,2.5,3].forEach(function(v){
+      dash(v===0?null:[2,4]);
+      ctx.strokeStyle = v===0 ? C.line : C.line2;
+      line(gx0, YT(v), gx1, YT(v)); dash(null);
+      txt(n(v,1)+' s', gx0 - 8*K.fs, YT(v), C.ink3, 9.5, 'right', MONO);
+    });
+    /* cubuklar */
+    var bw = (gx1 - gx0)/BANT.length;
+    BANT.forEach(function(b, i){
+      var t = T60band(i), kirp = t > T1;
+      var x = gx0 + i*bw + bw*0.18, ww = bw*0.64;
+      var y = YT(t);
+      ctx.fillStyle = (t >= hd.lo && t <= hd.hi) ? C.brass : C.sin;
+      ctx.globalAlpha = 0.80; glowOn(ctx.fillStyle, 8);
+      ctx.fillRect(x, y, ww, gy1 - y);
+      glowOff(); ctx.globalAlpha = 1;
+      ctx.strokeStyle = C.panel; LW(1); ctx.strokeRect(x+0.5, y+0.5, ww-1, gy1-y-1);
+      chip(kirp ? '>'+n(T1,1) : n(t,2), x + ww/2, y - 10*K.fs,
+           (t >= hd.lo && t <= hd.hi) ? C.brass : C.sin, 10.5, 600);
+      txt(b >= 1000 ? n(b/1000,0)+'k' : n(b,0), x + ww/2, gy1 + 14*K.fs,
+          C.ink2, 10.5, 'center', MONO, 500);
+      txt(n(sogurmaA(i),1), x + ww/2, gy1 + 28*K.fs, C.ink3, 9.5, 'center', MONO);
+    });
+    txt('Hz', gx0 - 8*K.fs, gy1 + 14*K.fs, C.ink3, 9.5, 'right', MONO);
+    txt('A, sabin', gx0 - 8*K.fs, gy1 + 28*K.fs, C.ink3, 9.5, 'right', MONO);
+
+    /* alt satir: en buyuk katkilar */
+    var yy = h - 44*K.fs;
+    var pay = [];
+    YUZEY.forEach(function(u){ pay.push({ ad:u.ad, v:u.s()*MALZ[S.mat[u.k]].a[2], m:MALZ[S.mat[u.k]].ad }); });
+    if (S.ins > 0) pay.push({ ad:S.ins+' dinleyici', v:S.ins*INSAN[2], m:'insan' });
+    pay.sort(function(p,q){ return q.v - p.v; });
+    var tot = pay.reduce(function(s2,p){ return s2 + p.v; }, 0) || 1;
+    txt('500 Hz’DE SOĞURMANIN KAYNAĞI', pad, yy - 15*K.fs, C.ink3, 9.5, 'left', MONO);
+    var bx = pad, bw2 = w - 2*pad, cur = bx;
+    var PALET = [C.sin, C.cos, C.brass, C.arc, C.ink3, C.ink2, C.ok];
+    pay.forEach(function(p, i){
+      var ww = bw2*p.v/tot;
+      ctx.fillStyle = PALET[i % PALET.length]; ctx.globalAlpha = 0.72;
+      ctx.fillRect(cur, yy - 5*K.fs, Math.max(0, ww - 1), 13*K.fs);
+      ctx.globalAlpha = 1;
+      if (ww > 62*K.fs){
+        txt(p.ad+' '+n(100*p.v/tot,0)+'%', cur + ww/2, yy + 1.5*K.fs,
+            C.panel, 9.5, 'center', MONO, 600);
+      }
+      cur += ww;
+    });
+    ctx.strokeStyle = C.line; LW(1); ctx.strokeRect(bx+0.5, yy - 5*K.fs + 0.5, bw2-1, 13*K.fs-1);
+    txt('Toplam A = '+n(tot,1)+' m² sabin  ·  T₆₀ = '+n(T60band(2),2)+' s',
+        pad, yy + 22*K.fs, C.ink2, 10.5, 'left', MONO, 500);
+  }
+
+  /* ---------- SAHNE 4: duvar cukuru ---------- */
+  function drawSbir(w,h){
+    var pad = 16*K.fs, small = w < 640;
+    sahneBaslik(w, 'DUVAR ÇUKURU (SBIR)  ·  duvar, aynadaki ikinci hoparlördür',
+                'ilk çukur f = c / 4d = '+n(sbirCukur(),0)+' Hz   derinlik '+n(sbirDerin(),1)+' dB',
+                C.arc, 'çukur '+n(sbirCukur(),0)+' Hz · '+n(sbirDerin(),1)+' dB');
+
+    /* --- ust: geometri --- */
+    var gy = 36*K.fs, gh = Math.min(150*K.fs, (h - 150*K.fs)*0.46);
+    var x0 = pad + 44*K.fs, x1 = w - pad - 10*K.fs;
+    var maxD = 6.6;                                  /* SABIT OLCEK: 6,6 m genislik */
+    var duvX = x0 + (x1 - x0)*0.20;                  /* duvar bu x'te */
+    var mpx = (x1 - duvX)/maxD;
+    var zem = gy + gh;
+    /* duvar */
+    ctx.fillStyle = C.ink3; ctx.globalAlpha = 0.18;
+    ctx.fillRect(duvX - 9*K.fs, gy, 9*K.fs, gh);
+    ctx.globalAlpha = 1;
+    ctx.strokeStyle = C.ink2; LW(2); line(duvX, gy, duvX, zem);
+    ctx.save(); ctx.translate(duvX - 15*K.fs, gy + gh*0.62); ctx.rotate(-Math.PI/2);
+    txt('ARKA DUVAR', 0, 0, C.ink3, 9.5, 'center', MONO); ctx.restore();
+    /* zemin */
+    ctx.strokeStyle = C.line; LW(1.4); line(x0 - 8*K.fs, zem, x1, zem);
+    /* ayna kaynagi */
+    var hy = gy + gh*0.46;
+    var hx = duvX + S.d*mpx, dx = duvX + Math.min(maxD, S.dl)*mpx;
+    var ax2 = duvX - S.d*mpx;
+    ctx.globalAlpha = 0.5;
+    dot(ax2, hy, 5, C.cos); ctx.globalAlpha = 1;
+    txt('ayna', ax2, hy - 15*K.fs, C.cos, 9.5, 'center', MONO, 600);
+    /* isinlar: dogrudan duz, yansiyan gorunur bir kamburla */
+    var bend = gh*0.26;
+    ctx.strokeStyle = C.sin; LW(2.4); glowOn(C.sin,6);
+    line(hx, hy, dx, hy); glowOff();
+    chip('doğrudan', (hx+dx)/2, hy + 11*K.fs, C.sin, 9.5, 600);
+    ctx.strokeStyle = C.cos; LW(1.9); dash([5,4]);
+    line(hx, hy, duvX, hy - bend); line(duvX, hy - bend, dx, hy);
+    ctx.globalAlpha = 0.42; line(ax2, hy, duvX, hy - bend); ctx.globalAlpha = 1;
+    dash(null);
+    chip('yansıyan', (duvX + dx)*0.5, hy - bend*0.72, C.cos, 9.5, 600);
+    if (S.zemin){
+      ctx.strokeStyle = C.brass; LW(1.8); dash([4,3]);
+      line(hx, hy, (hx+dx)/2, zem - 3*K.fs); line((hx+dx)/2, zem - 3*K.fs, dx, hy);
+      dash(null);
+      chip('zemin', (hx+dx)/2, zem - 13*K.fs, C.brass, 9.5, 600);
+    }
+    /* hoparlor ve dinleyici */
+    ctx.fillStyle = C.sin;
+    ctx.fillRect(hx - 5*K.fs, hy - 11*K.fs, 10*K.fs, 22*K.fs);
+    dot(dx, hy, 6, C.arc);
+    txt('hoparlör', hx, hy + 22*K.fs, C.sin, 9.5, 'center', MONO, 600);
+    txt('dinleyici', dx, hy + 20*K.fs, C.arc, 9.5, 'center', MONO, 600);
+    /* olculer */
+    ctx.strokeStyle = C.ink3; LW(1); dash([2,3]);
+    line(duvX, zem - 8*K.fs, hx, zem - 8*K.fs); dash(null);
+    chip('d = '+n(S.d,2)+' m', (duvX + hx)/2, zem - 8*K.fs, C.ink2, 9.5, 600);
+    /* dinleyici uzakligi icin olcu cizgisi */
+    var oy = gy + 9*K.fs;
+    ctx.strokeStyle = C.ink3; LW(1); ctx.globalAlpha = 0.75;
+    line(duvX, oy, dx, oy);
+    line(duvX, oy - 3.5*K.fs, duvX, oy + 3.5*K.fs);
+    line(dx, oy - 3.5*K.fs, dx, oy + 3.5*K.fs);
+    ctx.globalAlpha = 1;
+    chip('dinleyici '+n(S.dl,1)+' m',
+         Math.max(duvX + 46*K.fs, Math.min((duvX + dx)/2, x1 - 46*K.fs)), oy, C.ink2, 9.5, 500);
+    /* zemin taramasi */
+    ctx.strokeStyle = C.ink3; LW(1.1); ctx.globalAlpha = 0.5;
+    for (var zi = 0; zi < 34; zi++){
+      var zx = x0 - 8*K.fs + zi*((x1 - x0 + 8*K.fs)/34);
+      line(zx, zem + 7*K.fs, zx + 7*K.fs, zem);
+    }
+    ctx.globalAlpha = 1;
+    txt('ZEMİN', x0 - 8*K.fs, zem + 15*K.fs, C.ink3, 9, 'left', MONO);
+
+    /* --- alt: frekans yaniti --- */
+    var gx0 = pad + 40*K.fs, gx1 = w - pad - 6*K.fs;
+    var by0 = zem + 46*K.fs, by1 = h - 30*K.fs;
+    var D0 = -22, D1 = 10;                            /* SABIT EKSEN */
+    function YD(v){ return by1 - (Math.max(D0, Math.min(D1, v)) - D0)/(D1 - D0)*(by1 - by0); }
+    var A = logAxis(gx0, gx1, 20, 2000);
+    ctx.strokeStyle = C.line2; LW(1);
+    [-20,-15,-10,-5,0,5,10].forEach(function(v){
+      ctx.strokeStyle = v===0 ? C.line : C.line2;
+      dash(v===0?null:[2,4]); line(gx0, YD(v), gx1, YD(v)); dash(null);
+      txt(sgn(v,0), gx0 - 8*K.fs, YD(v), C.ink3, 9.5, 'right', MONO);
+    });
+    txt('dB', gx0 - 30*K.fs, by0 - 12*K.fs, C.ink3, 9.5, 'left', MONO);
+    drawTicks(A, by1, [20,50,100,200,500,1000,2000], function(v){ return n(v,0); });
+    /* cukur ve tepe isaretleri */
+    var k2;
+    for (k2=1; k2<=9; k2+=2){
+      var fc2 = k2*CS/(4*S.d);
+      if (fc2 < 20 || fc2 > 2000) continue;
+      ctx.strokeStyle = C.arc; LW(1.1); ctx.globalAlpha = k2===1?0.85:0.35; dash([3,4]);
+      line(A.X(fc2), by0, A.X(fc2), by1); dash(null); ctx.globalAlpha = 1;
+    }
+    bandCurve(A, YD, sbirDb, C.sin, 2.6, D0, D1);
+    var f1 = sbirCukur();
+    if (f1 >= 20 && f1 <= 2000){
+      var v1 = Math.max(D0, Math.min(D1, sbirDb(f1)));
+      dot(A.X(f1), YD(v1), 5, C.arc);
+      chip(n(f1,0)+' Hz  '+n(sbirDb(f1),1)+' dB',
+           Math.max(gx0 + 64*K.fs, Math.min(A.X(f1), gx1 - 64*K.fs)),
+           YD(v1) + 15*K.fs, C.arc, 10, 600);
+    }
+  }
+
+  /* ---------- SAHNE 5: yerlesim ---------- */
+  var YPLAN = null;                            /* dinleyiciyi surukleyebilmek icin */
+  function drawYer(w,h){
+    var pad = 16*K.fs, small = w < 700;
+    var H = hopKonum(), d = dinKonum();
+    var T = TUR[S.tur], mes = dinMesafe(), rc = kritikMesafe();
+    sahneBaslik(w, 'YERLEŞİM  ·  doğrudan ses + ilk yansımalar',
+      T.ad+'  ·  '+n(mes,2)+' m  ·  '+n(acikAci(),0)+'°  ·  doğrudan/yankılı '+
+      sgn(20*lg(rc/Math.max(0.2,mes)),1)+' dB', C.arc,
+      T.ad+' · '+n(mes,2)+' m · '+n(acikAci(),0)+'°');
+
+    var top = 40*K.fs;
+    var egriH = Math.max(150*K.fs, (h - top)*0.40);
+    var ustH = h - top - egriH - 30*K.fs;
+    var gap = 18*K.fs;
+    var wA = small ? (w - 2*pad) : (w - 2*pad - gap)*0.56;
+    var wB = small ? (w - 2*pad) : (w - 2*pad - gap)*0.44;
+
+    /* ---- PLAN: yatay = oda eni x, dikey = oda boyu y (on duvar ustte) ---- */
+    var oP = Math.min(wA/S.lx, (small ? ustH*0.56 : ustH)/S.ly);
+    var pw = S.lx*oP, ph2 = S.ly*oP;
+    var ax0 = pad, ay0 = top + 12*K.fs;
+    function PX(x){ return ax0 + x/S.lx*pw; }
+    function PY(y){ return ay0 + y/S.ly*ph2; }
+    txt('ÜSTTEN GÖRÜNÜŞ', ax0, ay0 - 8*K.fs, C.ink3, 9.5, 'left', MONO);
+    frame(ax0, ay0, pw, ph2);
+    /* on duvar kalin */
+    ctx.strokeStyle = C.ink2; LW(3); line(ax0, ay0, ax0+pw, ay0);
+    /* orta eksen ve %38 cizgisi */
+    ctx.strokeStyle = C.line; LW(1); dash([3,4]);
+    line(PX(S.lx/2), ay0, PX(S.lx/2), ay0+ph2);
+    ctx.strokeStyle = C.brass; LW(1.4);
+    line(ax0, PY(0.38*S.ly), ax0+pw, PY(0.38*S.ly)); dash(null);
+    txt('%38', ax0 + 4*K.fs, PY(0.38*S.ly) - 7*K.fs, C.brass, 9, 'left', MONO, 600);
+    /* ucgen */
+    ctx.strokeStyle = C.arc; LW(1.4); ctx.globalAlpha = 0.65; dash([4,3]);
+    ctx.beginPath();
+    ctx.moveTo(PX(H[0][0]), PY(H[0][1])); ctx.lineTo(PX(d[0]), PY(d[1]));
+    ctx.lineTo(PX(H[1][0]), PY(H[1][1])); ctx.lineTo(PX(H[0][0]), PY(H[0][1]));
+    ctx.stroke(); dash(null); ctx.globalAlpha = 1;
+    /* yan duvar ilk yansima yollari */
+    [[H[0], true], [H[1], false]].forEach(function(pr){
+      var q = yansimaNoktasi(pr[0], d, pr[1]);
+      if (!q) return;
+      ctx.strokeStyle = C.cos; LW(1.3); ctx.globalAlpha = 0.85; dash([5,4]);
+      line(PX(pr[0][0]), PY(pr[0][1]), PX(q.x), PY(q.y));
+      line(PX(q.x), PY(q.y), PX(d[0]), PY(d[1])); dash(null); ctx.globalAlpha = 1;
+      ctx.fillStyle = C.cos;
+      ctx.fillRect(PX(q.x) - (pr[1] ? 0 : 5*K.fs), PY(q.y) - 5*K.fs, 5*K.fs, 10*K.fs);
+    });
+    /* hoparlorler (dinleyiciye donuk) */
+    H.forEach(function(hp){
+      var hx = PX(hp[0]), hy = PY(hp[1]);
+      var ang = Math.atan2(PY(d[1]) - hy, PX(d[0]) - hx);
+      ctx.save(); ctx.translate(hx, hy); ctx.rotate(ang);
+      ctx.fillStyle = C.sin; glowOn(C.sin, 7);
+      ctx.fillRect(-7*K.fs, -6*K.fs, 14*K.fs, 12*K.fs); glowOff();
+      ctx.fillStyle = C.panel; ctx.beginPath();
+      ctx.arc(3.5*K.fs, 0, 3.2*K.fs, 0, TAU); ctx.fill();
+      ctx.restore();
+    });
+    dot(PX(d[0]), PY(d[1]), 5.6, C.arc);
+    chip(n(acikAci(),0)+'°', PX(d[0]), PY(d[1]) + 15*K.fs, C.arc, 10, 600);
+    /* olcu etiketleri */
+    txt(n(S.lx,1)+' m', ax0 + pw - 2*K.fs, ay0 + ph2 + 11*K.fs, C.ink3, 9.5, 'right', MONO);
+    txt('d = '+n(S.dw,2)+' m', ax0 + 4*K.fs, PY(S.dw) + 11*K.fs, C.ink3, 9, 'left', MONO);
+
+    /* ---- KESİT: yatay = oda boyu y, dikey = tavan z ---- */
+    var bx0 = small ? pad : pad + wA + gap;
+    var by0 = small ? ay0 + ph2 + 30*K.fs : ay0;
+    var oS = Math.min(wB/S.ly, (small ? ustH*0.34 : ustH*0.56)/S.lz);
+    var sw = S.ly*oS, sh = S.lz*oS;
+    function SX(y){ return bx0 + y/S.ly*sw; }
+    function SZ(z){ return by0 + (1 - z/S.lz)*sh; }
+    txt('YANDAN KESİT', bx0, by0 - 8*K.fs, C.ink3, 9.5, 'left', MONO);
+    frame(bx0, by0, sw, sh);
+    ctx.strokeStyle = C.ink2; LW(3); line(bx0, by0, bx0, by0+sh);
+    /* zemin ve tavan sekmeleri */
+    [[-S.hz, C.brass, 'zemin'], [2*S.lz - S.hz, C.cos, 'tavan']].forEach(function(pr){
+      var zi = pr[0];
+      var t = (zi === -S.hz) ? (S.hz)/(S.hz + (S.pz)) : 0;
+      /* ayna kaynak (S.dw, zi) ile dinleyici (S.py, S.pz) arasindaki dogrunun z sinirini kestigi y */
+      var zs = (zi < 0) ? 0 : S.lz;
+      var tt = (zs - zi)/(S.pz - zi);
+      var yv = S.dw + tt*(S.py - S.dw);
+      ctx.strokeStyle = pr[1]; LW(1.4); ctx.globalAlpha = 0.9; dash([5,4]);
+      line(SX(S.dw), SZ(S.hz), SX(yv), SZ(zs));
+      line(SX(yv), SZ(zs), SX(S.py), SZ(S.pz)); dash(null); ctx.globalAlpha = 1;
+      ctx.fillStyle = pr[1];        /* isaret kutunun ICINDE kalsin */
+      ctx.fillRect(SX(yv) - 5*K.fs, SZ(zs) - (zi < 0 ? 5*K.fs : 0), 10*K.fs, 5*K.fs);
+    });
+    /* dogrudan ses */
+    ctx.strokeStyle = C.sin; LW(2.2); glowOn(C.sin,6);
+    line(SX(S.dw), SZ(S.hz), SX(S.py), SZ(S.pz)); glowOff();
+    /* hoparlor ve kulak */
+    ctx.fillStyle = C.sin;
+    ctx.fillRect(SX(S.dw) - 5*K.fs, SZ(S.hz) - 11*K.fs, 10*K.fs, 22*K.fs);
+    dot(SX(S.py), SZ(S.pz), 5, C.arc);
+    ctx.strokeStyle = C.arc; LW(1); dash([2,3]);
+    line(bx0, SZ(S.pz), bx0+sw, SZ(S.pz)); dash(null);
+    chip('kulak '+n(S.pz,2)+' m', Math.min(bx0 + sw - 40*K.fs, SX(S.py) + 3*K.fs),
+         SZ(S.pz) - 13*K.fs, C.arc, 9.5, 600);
+    chip('hoparlör '+n(S.hz,2)+' m', Math.max(bx0 + 42*K.fs, SX(S.dw)),
+         SZ(S.hz) + 22*K.fs, C.sin, 9.5, 600);
+    if (!small) txt(n(S.lz,2)+' m', bx0 + sw - 4*K.fs, by0 + sh + 11*K.fs, C.ink3, 9.5, 'right', MONO);
+
+    YPLAN = { x0:ax0, y0:ay0, w:pw, h:ph2 };
+
+    /* ---- EGRİ ---- */
+    var gx0 = pad + 40*K.fs, gx1 = w - pad - 6*K.fs;
+    var gy0 = h - egriH + 10*K.fs, gy1 = h - 30*K.fs;
+    var D0 = -24, D1 = 12;                       /* SABİT EKSEN */
+    function YD(v){ return gy1 - (Math.max(D0, Math.min(D1, v)) - D0)/(D1 - D0)*(gy1 - gy0); }
+    var A = logAxis(gx0, gx1, 50, 5000);
+    ctx.strokeStyle = C.line2; LW(1);
+    [-24,-18,-12,-6,0,6,12].forEach(function(v){
+      ctx.strokeStyle = v===0 ? C.line : C.line2;
+      dash(v===0?null:[2,4]); line(gx0, YD(v), gx1, YD(v)); dash(null);
+      txt(sgn(v,0), gx0 - 8*K.fs, YD(v), C.ink3, 9.5, 'right', MONO);
+    });
+    txt('dB', gx0 - 32*K.fs, gy0 + 14*K.fs, C.ink3, 9.5, 'left', MONO);
+    if (!small) txt('soluk: ham   ·   kalın: 1/3 oktav yumuşatılmış   ·   yalnız ilk yansımalar',
+        gx1, gy0 - 8*K.fs, C.ink3, 9.5, 'right', MONO);
+    else txt('soluk: ham · kalın: 1/3 oktav', gx0, gy0 - 8*K.fs, C.ink3, 9, 'left', MONO);
+    drawTicks(A, gy1, [50,100,200,500,1000,2000,5000], function(v){ return n(v,0); });
+    /* ham yanit soluk bant */
+    ctx.globalAlpha = 0.38;
+    bandCurve(A, YD, yerDb, C.cos, 1.6, D0, D1);
+    ctx.globalAlpha = 1;
+    /* 1/3 oktav yumusatilmis kalin cizgi */
+    ctx.strokeStyle = C.sin; LW(2.8); glowOn(C.sin, 7); ctx.beginPath();
+    var px2 = Math.round(gx1 - gx0), i2, bas = false;
+    for (i2 = 0; i2 <= px2; i2 += 4){
+      var vv = yerYumusak(A.F(gx0 + i2));
+      var yy = YD(vv);
+      if (!bas){ ctx.moveTo(gx0+i2, yy); bas = true; } else ctx.lineTo(gx0+i2, yy);
+    }
+    ctx.stroke(); glowOff();
+    /* duvar cukuru isareti */
+    var fc = CS/(4*Math.max(0.05, S.dw));
+    if (fc >= 50 && fc <= 5000){
+      ctx.strokeStyle = C.arc; LW(1.2); dash([3,4]);
+      line(A.X(fc), gy0, A.X(fc), gy1); dash(null);
+      chip('duvar '+n(fc,0)+' Hz',
+           Math.max(gx0 + 44*K.fs, Math.min(A.X(fc), gx1 - 44*K.fs)),
+           gy0 + 10*K.fs, C.arc, 9.5, 600);
+    }
+  }
+
+  /* ---------- yonetici ---------- */
+  function drawBoard(){
+    var g = sized(board); if (!g) return;
+    ctx = g.c;
+    if (S.mode === 'mod')       drawMod(g.w, g.h);
+    else if (S.mode === 'sch')  drawSch(g.w, g.h);
+    else if (S.mode === 'cin')  drawCin(g.w, g.h);
+    else if (S.mode === 'sbir') drawSbir(g.w, g.h);
+    else                        drawYer(g.w, g.h);
+  }
+  function render(){ drawBoard(); }
+  if (window.ResizeObserver){ new ResizeObserver(function(){ render(); }).observe(board); }
+  window.addEventListener('resize', render);
+
+  /* ---------- dinleyiciyi surukleme (mod sahnesi) ---------- */
+  var tutuyor = false;
+  function planTut(ev){
+    var B = S.mode === 'yer' ? YPLAN : PLAN;
+    if (!B) return false;
+    var r = board.getBoundingClientRect();
+    var t = ev.touches ? ev.touches[0] : ev;
+    var x = t.clientX - r.left, y = t.clientY - r.top;
+    if (x < B.x0 - 20 || x > B.x0 + B.w + 20) return false;
+    if (y < B.y0 - 20 || y > B.y0 + B.h + 20) return false;
+    var u = Math.max(0, Math.min(1, (x - B.x0)/B.w));
+    var v = Math.max(0, Math.min(1, (y - B.y0)/B.h));
+    S.px = Math.round(u*S.lx*100)/100;
+    S.py = Math.round(v*S.ly*100)/100;
+    if (S.mode === 'yer') S.py = Math.max(S.dw + 0.3, S.py);
+    return true;
+  }
+  board.addEventListener('mousedown', function(ev){
+    if (S.mode !== 'mod' && S.mode !== 'yer') return;
+    if (planTut(ev)){ tutuyor = true; board.classList.add('tut'); sync(); render();
+      if (ev.cancelable) ev.preventDefault(); }
+  });
+  window.addEventListener('mousemove', function(ev){
+    if (!tutuyor) return;
+    if (planTut(ev)){ sync(); render(); }
+  });
+  window.addEventListener('mouseup', function(){ tutuyor = false; board.classList.remove('tut'); });
+  board.addEventListener('touchstart', function(ev){
+    if (S.mode !== 'mod' && S.mode !== 'yer') return;
+    if (planTut(ev)){ tutuyor = true; sync(); render(); if (ev.cancelable) ev.preventDefault(); }
+  }, {passive:false});
+  board.addEventListener('touchmove', function(ev){
+    if (!tutuyor) return;
+    if (planTut(ev)){ sync(); render(); if (ev.cancelable) ev.preventDefault(); }
+  }, {passive:false});
+  window.addEventListener('touchend', function(){ tutuyor = false; });
+
+  /* ================= gosterge ve senkron ================= */
+  var ro = document.getElementById('readout');
+  function cell(lab,val,cls){
+    return '<div><span>'+lab+'</span><b'+(cls?' class="'+cls+'"':'')+'>'+val+'</b></div>';
+  }
+  function mark(sel, key, val){
+    Array.prototype.forEach.call(document.querySelectorAll(sel+' button'), function(b){
+      b.classList.toggle('on', b.dataset[key] === String(val));
+    });
+  }
+  function sync(){
+    /* oda olculeri her sahnede degisebiliyor (yerlesimdeki "Odayi cevir"), etiketler
+       sahneden bagimsiz guncellensin */
+    document.getElementById('v-lx').textContent = n(S.lx,1)+' m';
+    document.getElementById('v-ly').textContent = n(S.ly,1)+' m';
+    document.getElementById('v-lz').textContent = n(S.lz,2)+' m';
+    document.getElementById('v-yuk').textContent = n(S.pz,2)+' m';
+    if (S.mode === 'mod'){
+      var m = MODS[S.sel];
+      var kal = oranKalite();
+      var sev = m ? 20*lg(Math.max(1e-3, Math.abs(psi3(m, S.px, S.py, S.pz)))) : 0;
+      ro.innerHTML =
+        cell('hacim', n(hacim(),1)+' m³') +
+        cell('ilk mod', m ? n(MODS[0].f,1)+' Hz' : '—','v-sin') +
+        cell('seçili', m ? '('+m.n.join(',')+')  '+n(m.f,1)+' Hz' : '—','v-cos') +
+        cell('dinleyicide', m ? n(sev,1)+' dB' : '—','v-arc');
+      document.getElementById('m-note').textContent =
+        kal.ust > 6 ? 'Bu oranda '+kal.ust+' aksiyel mod üst üste biniyor — kötü oran.'
+        : (sev < -12 ? 'Dinleyici bu modun düğümünde: bu frekans burada duyulmaz.'
+        : (sev > -2 ? 'Dinleyici bu modun karnında: bu frekans burada en gür.'
+        : 'Dinleyiciyi plan üzerinde sürükleyin, listeden başka mod seçin.'));
+    } else if (S.mode === 'sch'){
+      var fS = fSchroeder();
+      ro.innerHTML =
+        cell('hacim', n(hacim(),1)+' m³') +
+        cell('T₆₀', n(S.t60,2)+' s') +
+        cell('bant genişliği', n(bantGen(),2)+' Hz','v-cos') +
+        cell('Schroeder', n(fS,0)+' Hz','v-arc');
+      document.getElementById('v-st').textContent = n(S.t60,2)+' s';
+      document.getElementById('v-sf').textContent = n(S.sfq,0)+' Hz';
+      document.getElementById('s-note').textContent =
+        S.sfq < fS ? 'İmleç Schroeder altında: modlar tek tek ayırt edilebiliyor.'
+                   : 'İmleç Schroeder üstünde: bant içinde çok mod var, tek tek ayırt edilemez.';
+      mark('#odapre','o', ODAAD());
+    } else if (S.mode === 'cin'){
+      var t5 = T60band(2), hd = HEDEF[S.hdf];
+      ro.innerHTML =
+        cell('A (500 Hz)', n(sogurmaA(2),1)+' sabin') +
+        cell('T₆₀ 125 Hz', n(T60band(0),2)+' s','v-sin') +
+        cell('T₆₀ 500 Hz', n(t5,2)+' s','v-cos') +
+        cell('Schroeder', n(2000*Math.sqrt(t5/hacim()),0)+' Hz','v-arc');
+      document.getElementById('v-ins').textContent = S.ins === 0 ? 'yok' : S.ins+' kişi';
+      document.getElementById('c-note').textContent =
+        t5 > hd.hi*1.6 ? 'Çok canlı: konuşma anlaşılmaz, davul kuyruk bırakır.'
+        : (T60band(0) > 2.2*t5 ? 'Tiz düzeldi ama bas hâlâ uzun — gözenekli malzeme bası bırakır.'
+        : (t5 >= hd.lo && t5 <= hd.hi ? 'Bu hedef için 500 Hz uygun. Diğer bantlara da bakın.'
+        : 'Yan panelden malzeme değiştirin, dinleyici ekleyin.'));
+      mark('#hdf','h',S.hdf);
+      cinSync();
+    } else if (S.mode === 'yer'){
+      var mes = dinMesafe(), rc = kritikMesafe(), ey = enErken();
+      ro.innerHTML =
+        cell('dinleme mesafesi', n(mes,2)+' m') +
+        cell('açı', n(acikAci(),0)+'°','v-sin') +
+        cell('doğrudan/yankılı', sgn(20*lg(rc/Math.max(0.2,mes)),1)+' dB','v-cos') +
+        cell('en güçlü yansıma', ey ? ey.ad.toLowerCase()+' '+n(ey.db,1)+' dB' : '—','v-arc');
+      document.getElementById('v-ack').textContent = n(S.ack,2)+' m';
+      document.getElementById('v-dw').textContent  = n(S.dw,2)+' m';
+      document.getElementById('v-hz').textContent  = n(S.hz,2)+' m';
+      mark('#tur','t',S.tur);
+      yerSync();
+    } else {
+      ro.innerHTML =
+        cell('d', n(S.d,2)+' m') +
+        cell('ilk çukur', n(sbirCukur(),0)+' Hz','v-sin') +
+        cell('derinlik', n(sbirDerin(),1)+' dB','v-arc') +
+        cell('ilk tepe', n(CS/(2*S.d),0)+' Hz','v-cos');
+      document.getElementById('v-d').textContent = n(S.d,2)+' m';
+      document.getElementById('v-dl').textContent = n(S.dl,1)+' m';
+      document.getElementById('v-r').textContent = n(S.r,2);
+      var f1 = sbirCukur();
+      document.getElementById('b-note').textContent =
+        f1 > 900 ? 'Çukur duyulabilir bandın üstüne çıktı; altta bas bindirmesi kazanç veriyor.'
+        : (f1 >= 90 && f1 <= 300 ? 'Çukur tam gövde bölgesinde — en kötü aralık burasıdır.'
+        : 'Hoparlörü duvara yaklaştırıp uzaklaştırın: çukur kayıyor, kaybolmuyor.');
+      var zb = document.getElementById('zem');
+      zb.textContent = S.zemin ? 'Zemin yansımasını kaldır' : 'Zemin yansımasını ekle';
+      zb.classList.toggle('on', S.zemin);
+      zb.setAttribute('aria-pressed', S.zemin ? 'true':'false');
+    }
+  }
+
+  /* ================= mod listesi ================= */
+  var mtb = document.querySelector('#mtable tbody');
+  function modTablo(){
+    mtb.innerHTML = '';
+    MODS.forEach(function(m, ix){
+      var tr = document.createElement('tr');
+      tr.setAttribute('aria-selected', ix === S.sel ? 'true':'false');
+      tr.innerHTML = '<td>'+m.n.join(', ')+'</td><td>'+n(m.f,1)+'</td>' +
+        '<td class="tp"><span class="tag tag-'+m.t+'">'+TIPAD[m.t]+'</span></td>';
+      tr.addEventListener('click', function(){
+        S.sel = ix;
+        Array.prototype.forEach.call(mtb.children, function(r2,k){
+          r2.setAttribute('aria-selected', k === ix ? 'true':'false');
+        });
+        sync(); render();
+      });
+      mtb.appendChild(tr);
+    });
+    var say = { ax:0, tg:0, ob:0 };
+    MODS.forEach(function(m){ say[m.t]++; });
+    document.getElementById('mod-count').textContent =
+      MODS.length+' mod · '+say.ax+' aksiyel';
+  }
+  function odaDegisti(){
+    S.px = Math.min(S.px, S.lx); S.py = Math.min(S.py, S.ly);
+    S.pz = Math.min(S.pz, S.lz);
+    S.ack = Math.min(S.ack, S.lx - 0.4);
+    S.dw  = Math.min(S.dw, S.ly*0.4);
+    S.hz  = Math.min(S.hz, S.lz - 0.12);
+    if (S.py < S.dw + 0.3) S.py = S.dw + 0.3;
+    buildMods(); buildSMods(); modTablo();
+  }
+
+  /* ================= yuzey secicileri ================= */
+  var yuzHost = document.getElementById('yuzler');
+  YUZEY.forEach(function(u){
+    var d = document.createElement('div'); d.className = 'yz';
+    d.innerHTML = '<span class="yz-ad">'+u.ad+'</span><span class="yz-val" id="yv-'+u.k+'"></span>';
+    var sel = document.createElement('select');
+    sel.id = 'ys-'+u.k;
+    sel.setAttribute('aria-label', u.ad+' malzemesi');
+    MSIRA.forEach(function(k){
+      var o = document.createElement('option');
+      o.value = k; o.textContent = MALZ[k].ad; sel.appendChild(o);
+    });
+    sel.value = S.mat[u.k];
+    sel.addEventListener('change', function(){ S.mat[u.k] = sel.value; sync(); render(); });
+    d.appendChild(sel);
+    yuzHost.appendChild(d);
+  });
+  function cinSync(){
+    YUZEY.forEach(function(u){
+      document.getElementById('yv-'+u.k).textContent =
+        n(u.s(),1)+' m²  α='+n(MALZ[S.mat[u.k]].a[2],2);
+      document.getElementById('ys-'+u.k).value = S.mat[u.k];
+    });
+    document.getElementById('cin-count').textContent = 'α değerleri 500 Hz';
+  }
+
+  /* ================= yerlesim: denetimler ================= */
+  var cksHost = document.getElementById('cks');
+  var ytb = document.querySelector('#ytable tbody');
+  function denetimler(){
+    var T = TUR[S.tur], mes = dinMesafe(), aci = acikAci(), rc = kritikMesafe();
+    var sap = Math.abs(S.px - S.lx/2);
+    var oran = S.py/S.ly, fc = CS/(4*Math.max(0.05,S.dw));
+    var kf = enKotuKanalFark();
+    var ey = enErken();
+    var dyo = 20*lg(rc/Math.max(0.2, mes));
+    return [
+      { ok: Math.abs(aci - 60) <= 6,
+        b:'Eşkenar üçgen · '+n(aci,0)+'°',
+        s: Math.abs(aci-60) <= 6
+           ? 'Hoparlörler ve kulak eşkenar üçgen kuruyor; stereo görüntü en kararlı burada.'
+           : (aci > 66 ? 'Açı geniş: görüntü ortada boşalır, enstrümanlar iki yana yapışır. '+
+                         'Dinleyiciyi geri çekin ya da açıklığı küçültün.'
+                       : 'Açı dar: görüntü ortaya sıkışır, genişlik kaybolur. '+
+                         'Dinleyiciyi yaklaştırın ya da açıklığı büyütün.') },
+      { ok: sap <= 0.15 && kf < 3,
+        b:'Simetri · yan farkı '+n(kf,1)+' dB',
+        s: sap <= 0.15
+           ? 'Dinleyici orta eksende; iki kulak aynı odayı duyuyor.'
+           : 'Dinleyici eksenden '+n(sap,2)+' m yanda. İki kanal farklı duvar çukuru '+
+             'alıyor, seviye farkı '+n(kf,1)+' dB — stereo görüntü kayar. En ucuz düzeltme budur.' },
+      { ok: S.dw <= 0.2 || S.dw >= 0.9,
+        b:'Duvara uzaklık · çukur '+n(fc,0)+' Hz',
+        s: S.dw <= 0.2
+           ? 'Hoparlör duvara çok yakın: çukur yukarı, duyulan banda göre zararsız bölgeye çıktı.'
+           : (S.dw >= 0.9
+              ? 'Hoparlör duvardan uzak: çukur aşağı indi, bas bölgesinde ama dar kaldı.'
+              : 'En kötü aralık: çukur '+n(fc,0)+' Hz\u2019de, tam enstrüman gövdesinde. '+
+                'Duvara yanaştırın ya da daha ileri alın.') },
+      { ok: Math.abs(oran - 0.38) <= 0.06,
+        b:'Dinleyici konumu · oda boyunun %'+n(oran*100,0),
+        s: Math.abs(oran - 0.5) <= 0.05
+           ? 'Tam ortada: tek numaralı bütün modların düğümü burada, bas kaybolur.'
+           : (Math.abs(oran - 0.38) <= 0.06
+              ? '%38 noktası: ilk modların ne düğümü ne karnı — en dengeli koltuk.'
+              : 'Kaba ölçüt %38\u2019dir. 1. sahnede bu koltukta hangi modun düştüğünü görebilirsiniz.') },
+      { ok: Math.abs(S.hz - S.pz) <= 0.10,
+        b:'Yükseklik · tweeter '+n(S.hz,2)+' m, kulak '+n(S.pz,2)+' m',
+        s: Math.abs(S.hz - S.pz) <= 0.10
+           ? 'Tweeter kulak hizasında. Dikeyde sürücüler arası faz en düzgün burada.'
+           : 'Aradaki '+n(Math.abs(S.hz-S.pz),2)+' m fark hem crossover bölgesinde dikey '+
+             'lobing yaratır hem zemin\u2013tavan çukurlarını kaydırır.' },
+      { ok: mes >= T.lo && mes <= T.hi && dyo > 0,
+        b: T.ad+' · '+n(mes,2)+' m (önerilen '+n(T.lo,1)+'\u2013'+n(T.hi,1)+' m)',
+        s: (mes < T.lo ? 'Çok yakın: sürücüler tek kaynak gibi kaynaşmaz, tını değişir. '
+           : mes > T.hi ? 'Çok uzak: bu tür için oda fazla karışıyor. '
+           : '')+'Kritik mesafe '+n(rc,2)+' m; bu koltukta doğrudan ses yankılı alandan '+
+           sgn(dyo,1)+' dB '+(dyo>0?'önde':'geride')+'. '+T.not },
+      { ok: !(ey && ey.ms < 20 && ey.db > -15),
+        b:'En güçlü erken yansıma · '+(ey ? ey.ad.toLowerCase() : 'yok'),
+        s: !ey ? 'Bütün yansımalar ya 1 ms’den erken (doğrudan sese karışıyor) ya da çok uzakta.'
+           : ((ey.ms < 20 && ey.db > -15)
+              ? n(ey.ms,1)+' ms sonra, yalnız '+n(ey.db,1)+' dB altta. Bu pencerede (1–20 ms) '+
+                've bu güçte bir yansıma tınıyı değiştirir, görüntüyü bulandırır; o yüzeye '+
+                'soğurucu gerekir.'
+              : n(ey.ms,1)+' ms sonra '+n(ey.db,1)+' dB altta — zararsız sayılır.') }
+    ];
+  }
+  function yerSync(){
+    var D = denetimler(), iyi = 0;
+    cksHost.innerHTML = '';
+    D.forEach(function(c){
+      if (c.ok) iyi++;
+      var el = document.createElement('div');
+      el.className = 'ck ' + (c.ok ? 'ok' : 'no');
+      el.innerHTML = '<span class="mk">' + (c.ok ? '✓' : '!') + '</span>' +
+                     '<b>' + c.b + '</b><span>' + c.s + '</span>';
+      cksHost.appendChild(el);
+    });
+    document.getElementById('yer-count').textContent = iyi + ' / ' + D.length + ' uygun';
+    ytb.innerHTML = '';
+    erkenYansimalar().forEach(function(e){
+      var tr = document.createElement('tr');
+      if (e.ms < 20 && e.db > -15) tr.className = 'hot';
+      tr.innerHTML = '<td>'+e.ad+'</td><td>'+n(e.ms,1)+'</td><td>'+
+                     (e.db <= -59.9 ? '&lt;\u221260' : n(e.db,1))+'</td>';
+      ytb.appendChild(tr);
+    });
+    var en = enErken();
+    document.getElementById('y-note').textContent =
+      iyi === D.length ? 'Yedi denetim de uygun. Şimdi dinleyiciyi kaydırıp neyin bozulduğuna bakın.'
+      : (Math.abs(S.px - S.lx/2) > 0.15 ? 'Önce simetriyi düzeltin — en ucuz ve en büyük kazanç.'
+      : (en && en.ms < 20 && en.db > -15
+         ? en.ad+' yansıması baskın: çınlama sahnesinde o yüzeye soğurucu koyun.'
+         : 'Dinleyiciyi plan üzerinde sürükleyin, kaydırıcılarla yerleşimi değiştirin.'));
+  }
+
+  /* ================= mod secimi ================= */
+  var modeBtns = document.querySelectorAll('.modes button[data-m]');
+  var yerIlk = true;
+  function setMode(m){
+    if (m === 'yer' && yerIlk){          /* yerlesim sahnesine ilk girişte makul bir koltuk */
+      yerIlk = false;
+      S.px = Math.round(S.lx/2*100)/100;
+      S.py = Math.round(0.38*S.ly*100)/100;
+      if (S.py < S.dw + 0.3) S.py = S.dw + 0.3;
+    }
+    S.mode = m;
+    Array.prototype.forEach.call(modeBtns, function(b){
+      b.setAttribute('aria-pressed', b.dataset.m === m ? 'true':'false');
+    });
+    ['mod','sch','cin','sbir','yer'].forEach(function(k){
+      document.getElementById('row-'+k).hidden = (k !== m);
+    });
+    document.getElementById('yan-mod').hidden = !(m === 'mod' || m === 'sch');
+    document.getElementById('yan-cin').hidden = !(m === 'cin' || m === 'sbir');
+    document.getElementById('yan-yer').hidden =  (m !== 'yer');
+    document.getElementById('stage').dataset.scene = m;
+    sync(); render();
+  }
+  Array.prototype.forEach.call(modeBtns, function(b){
+    b.addEventListener('click', function(){ setMode(b.dataset.m); });
+  });
+
+  /* ================= kontroller ================= */
+  function group(host, items, set){
+    var g = document.getElementById(host);
+    items.forEach(function(o){
+      var b = document.createElement('button');
+      b.type='button'; b.textContent = o[0];
+      if (o[2]) b.dataset[o[2]] = o[1];
+      b.addEventListener('click', function(){ set(o[1]); sync(); render(); });
+      g.appendChild(b);
+    });
+  }
+  var ODALAR = {
+    kucuk: { ad:'Küçük oda',  d:[3.5,3.0,2.5] },
+    sinif: { ad:'Sınıf',      d:[6.4,4.8,2.9] },
+    salon: { ad:'Salon',      d:[12,9,4] },
+    kup:   { ad:'Küp',        d:[4,4,4] }
+  };
+  function ODAAD(){
+    var k;
+    for (k in ODALAR){
+      var d = ODALAR[k].d;
+      if (Math.abs(d[0]-S.lx)<0.06 && Math.abs(d[1]-S.ly)<0.06 && Math.abs(d[2]-S.lz)<0.04) return k;
+    }
+    return '';
+  }
+  function odaKur(k){
+    var d = ODALAR[k].d;
+    S.lx = d[0]; S.ly = d[1]; S.lz = d[2];
+    S.px = Math.round(S.lx*0.5*100)/100; S.py = Math.round(S.ly*0.5*100)/100;
+    S.pz = Math.min(1.19, S.lz*0.41);
+    fLx.value = S.lx; fLy.value = S.ly; fLz.value = S.lz;
+    fYuk.value = Math.round(S.pz/S.lz*100);
+    odaDegisti();
+    fAck.value = S.ack; fDw.value = S.dw; fHz.value = S.hz;
+  }
+  group('odapre', Object.keys(ODALAR).map(function(k){ return [ODALAR[k].ad, k, 'o']; }), odaKur);
+  group('hdf', Object.keys(HEDEF).map(function(k){ return [HEDEF[k].ad, k, 'h']; }),
+        function(v){ S.hdf = v; });
+  group('tur', Object.keys(TUR).map(function(k){ return [TUR[k].ad, k, 't']; }),
+        function(v){ S.tur = v; });
+
+  var fLx = document.getElementById('f-lx'), fLy = document.getElementById('f-ly'),
+      fLz = document.getElementById('f-lz'), fYuk = document.getElementById('f-yuk'),
+      fSt = document.getElementById('f-st'), fSf = document.getElementById('f-sf'),
+      fIns = document.getElementById('f-ins'),
+      fD = document.getElementById('f-d'), fDl = document.getElementById('f-dl'),
+      fR = document.getElementById('f-r'),
+      fAck = document.getElementById('f-ack'), fDw = document.getElementById('f-dw'),
+      fHz = document.getElementById('f-hz');
+
+  fLx.addEventListener('input', function(){ S.lx = +fLx.value; odaDegisti(); sync(); render(); });
+  fLy.addEventListener('input', function(){ S.ly = +fLy.value; odaDegisti(); sync(); render(); });
+  fLz.addEventListener('input', function(){
+    S.lz = +fLz.value; S.pz = S.lz*(+fYuk.value)/100; odaDegisti(); sync(); render();
+  });
+  fYuk.addEventListener('input', function(){
+    S.pz = Math.round(S.lz*(+fYuk.value)/100*100)/100; sync(); render();
+  });
+  fSt.addEventListener('input', function(){ S.t60 = +fSt.value; sync(); render(); });
+  fSf.addEventListener('input', function(){
+    S.sfq = Math.round(Math.pow(10, lg(20) + (lg(1000)-lg(20))*(+fSf.value)/100));
+    sync(); render();
+  });
+  fIns.addEventListener('input', function(){ S.ins = +fIns.value; sync(); render(); });
+  fD.addEventListener('input', function(){
+    S.d = +fD.value; if (S.dl < S.d + 0.8){ S.dl = S.d + 0.8; fDl.value = S.dl; }
+    sync(); render();
+  });
+  fDl.addEventListener('input', function(){
+    S.dl = Math.max(+fDl.value, S.d + 0.8); fDl.value = S.dl; sync(); render();
+  });
+  fR.addEventListener('input', function(){ S.r = +fR.value; sync(); render(); });
+  document.getElementById('zem').addEventListener('click', function(){
+    S.zemin = !S.zemin; sync(); render();
+  });
+  fAck.addEventListener('input', function(){
+    S.ack = Math.min(+fAck.value, S.lx - 0.4); sync(); render();
+  });
+  fDw.addEventListener('input', function(){
+    S.dw = Math.min(+fDw.value, S.ly*0.4);
+    if (S.py < S.dw + 0.3) S.py = S.dw + 0.3;
+    sync(); render();
+  });
+  fHz.addEventListener('input', function(){
+    S.hz = Math.min(+fHz.value, S.lz - 0.12); sync(); render();
+  });
+  document.getElementById('yer-38').addEventListener('click', function(){
+    S.px = Math.round(S.lx/2*100)/100;
+    S.py = Math.round(0.38*S.ly*100)/100;
+    if (S.py < S.dw + 0.3) S.py = S.dw + 0.3;
+    sync(); render();
+  });
+  document.getElementById('yer-cev').addEventListener('click', function(){
+    var t = S.lx; S.lx = S.ly; S.ly = t;
+    fLx.value = S.lx; fLy.value = S.ly;
+    S.px = Math.round(S.lx/2*100)/100;
+    S.py = Math.min(S.py, S.ly - 0.3);
+    S.ack = Math.min(S.ack, S.lx - 0.4);
+    S.dw = Math.min(S.dw, S.ly*0.4);
+    if (S.py < S.dw + 0.3) S.py = S.dw + 0.3;
+    odaDegisti(); sync(); render();
+  });
+  document.getElementById('cin-sifir').addEventListener('click', function(){
+    YUZEY.forEach(function(u){ S.mat[u.k] = 'beton'; });
+    S.ins = 0; fIns.value = 0; sync(); render();
+  });
+
+  /* ================= ders adimlari ================= */
+  var STEPS = [
+    { t:'Odanın en pes modu',
+      b:'Sınıf ölçüsündeki odaya bakıyoruz: 6,4 × 4,8 × 2,9 m. Listenin en başındaki mod ' +
+        '(1, 0, 0) ve 26,8 Hz. En uzun kenara bir yarım dalga sığan frekans budur. ' +
+        'Planda iki uzun duvarda kırmızı ve mavi karınlar, ortada bir düğüm çizgisi var.',
+      a:{ mode:'mod', oda:'sinif', sel:0 } },
+    { t:'Rijit duvar basınç karnıdır',
+      b:'Haritada renk en koyu yerler duvarların dibi. Duvar havanın hareketini durdurur, ' +
+        'hareket durunca basınç en büyük değerine çıkar. Bu yüzden bas köşelerde en gür ' +
+        'duyulur — 09. atölyede iki duvar arasında gördüğümüz şeyin aynısı.',
+      a:{ mode:'mod', oda:'sinif', sel:0 } },
+    { t:'Odanın ortası en kötü nokta',
+      b:'Dinleyiciyi planın tam ortasına sürükleyin. Gösterge çok büyük bir eksi değer ' +
+        'gösteriyor: tek numaralı bütün modların düğümü oradadır. Bu noktada 26,8 Hz ' +
+        'neredeyse hiç duyulmaz ve seviyeyi açmak bunu düzeltmez.',
+      a:{ mode:'mod', oda:'sinif', sel:0, px:3.2, py:2.4 } },
+    { t:'Bir adım yürüyün, bas geri gelsin',
+      b:'Dinleyiciyi kenara doğru sürükleyin. Aynı mod, aynı hoparlör, aynı seviye — ama ' +
+        'okunan değer onlarca desibel değişti. Odada <b>konum bir ayardır</b>; basta ' +
+        'elinizdeki en güçlü ayardır.',
+      a:{ mode:'mod', oda:'sinif', sel:0, px:1.1, py:1.0 } },
+    { t:'Üç mod tipi',
+      b:'Listede üç renk var. Aksiyel modlar iki duvar arasında gider gelir ve en güçlüdür; ' +
+        'tanjansiyel dört yüzeyi, oblik altı yüzeyi kullanır ve her yansımada enerji ' +
+        'kaybettiği için daha zayıftır. Tablodan bir tanjansiyel mod seçin: desen iki ' +
+        'yönde birden dalgalanıyor.',
+      a:{ mode:'mod', oda:'sinif', sel:2 } },
+    { t:'Tavan modu ayrı bir eksendir',
+      b:'(0, 0, 1) modu 59,1 Hz. Planda hiçbir desen yok çünkü bu mod yatayda düz; bütün ' +
+        'iş kesitte, tavan ile taban arasında oluyor. Dinleme yüksekliğini kaydırın: ' +
+        'yerden 1,45 m tam ortadır ve bu modun düğümüdür.',
+      a:{ mode:'mod', oda:'sinif', sel:4 } },
+    { t:'Küp: oranın en kötüsü',
+      b:'Odayı Küp yapın. Üç kenar eşit olduğu için üç eksen de <b>aynı</b> frekansları ' +
+        'veriyor: tarakta modlar üst üste biniyor ve aralarında büyük boşluklar kalıyor. ' +
+        'Bazı notalar gümbürder, bazıları kaybolur. Oran ne kadar düzensizse dağılım o ' +
+        'kadar düzgün olur.',
+      a:{ mode:'mod', oda:'kup', sel:0 } },
+    { t:'Küçük oda, yukarıdan başlayan dizi',
+      b:'Küçük odaya geçin. İlk mod artık 49 Hz civarında ve modlar seyrek. Küçük odanın ' +
+        'bas sorunu tam olarak budur: dizinin başı yukarıda ve aralar geniş. Büyük salonda ' +
+        'ise ilk mod çok pestir, modlar sıktır ve tek tek fark edilmez.',
+      a:{ mode:'mod', oda:'kucuk', sel:0 } },
+    { t:'Modlar ne zaman karışır?',
+      b:'Schroeder sahnesine geçin. Üstteki tarak, odanın bütün modları. Solda tek tek ' +
+        'ayırt edilebiliyorlar; sağa gidildikçe sıklaşıp tek bir kütleye dönüşüyorlar. ' +
+        'Alttaki eğri, bir mod genişliğine kaç mod düştüğünü söylüyor.',
+      a:{ mode:'sch', oda:'sinif', t60:0.6 } },
+    { t:'Sınır: bant başına üç mod',
+      b:'Yeşil çizgi 3 modda. Eğri oraya değdiği frekans <b>Schroeder frekansıdır</b>. ' +
+        'Bu odada 0,6 saniyelik çınlamayla 164 Hz. Noktalar gerçek sayımdır; eğri ise ' +
+        '4πVf²/c³ × B yaklaşımı. İkisi üst üste oturuyor.',
+      a:{ mode:'sch', oda:'sinif', t60:0.6, sfq:164 } },
+    { t:'Çınlamayı uzatın, sınır yukarı çıkar',
+      b:'Çınlama süresini 2 saniyeye çekin. Bant genişliği daralıyor (B = 2,2/T), ' +
+        'aynı bant içine daha az mod düşüyor ve sınır 300 Hz’e kadar tırmanıyor. ' +
+        'Canlı bir oda, daha geniş bir bantta "konuma bağlı" davranır.',
+      a:{ mode:'sch', oda:'sinif', t60:2.0, sfq:164 } },
+    { t:'Büyük salon, düşük sınır',
+      b:'Odayı Salon yapın (432 m³). Hacim büyüyünce mod yoğunluğu arttı ve sınır 75 Hz’e ' +
+        'indi. Büyük salonlarda bas modları neredeyse duyulabilir bandın altında kalır; ' +
+        'küçük kayıt odalarında ise sınır 200–300 Hz’e kadar çıkar.',
+      a:{ mode:'sch', oda:'salon', t60:0.6, sfq:164 } },
+    { t:'Çıplak beton bir oda',
+      b:'Çınlama sahnesine geçin. Bütün yüzeyler sıvalı beton: α = 0,02. Toplam soğurma ' +
+        '5 sabin, çınlama 5,7 saniye. Böyle bir odada konuşma anlaşılmaz; her hece ' +
+        'bir öncekinin üstüne biner.',
+      a:{ mode:'cin', oda:'sinif', mat:'beton', ins:0, hdf:'konusma' } },
+    { t:'Halı ve perde: tiz düzeldi, bas durdu',
+      b:'Tabanı kalın halı, yan ve arka duvarları ağır perde yapın. 500 Hz 0,41 saniyeye ' +
+        'indi — ama <b>125 Hz hâlâ 2,6 saniye</b>. Gözenekli malzeme, kalınlığı dalga ' +
+        'boyunun yanında küçük kaldığı için bası tutamaz.',
+      a:{ mode:'cin', oda:'sinif', mat:'halıperde', ins:0, hdf:'konusma' } },
+    { t:'Kalın panel basa dokunur',
+      b:'Tavanı 10 cm taş yünü panel yapın. 125 Hz’deki α 0,02’den 0,35’e çıkıyor ve bas ' +
+        'çınlaması 2,6 saniyeden 0,92 saniyeye düşüyor. Bas için gereken şey yüzey değil ' +
+        '<b>kalınlık ve hacimdir</b>; bu yüzden bas tuzakları büyüktür.',
+      a:{ mode:'cin', oda:'sinif', mat:'panel', ins:0, hdf:'konusma' } },
+    { t:'Yirmi dinleyici bir akustik paneldir',
+      b:'Dinleyici sayısını 20’ye çekin. Kişi başı yaklaşık 0,42 sabin, toplamda 8,4 sabin ' +
+        'ekleniyor; 125 Hz 0,92’den 0,70 saniyeye iniyor. Boş provada gür duyulan salonun ' +
+        'konserde oturmasının sebebi budur.',
+      a:{ mode:'cin', oda:'sinif', mat:'panel', ins:20, hdf:'konusma' } },
+    { t:'Duvar, ikinci bir hoparlör gibi',
+      b:'Duvar çukuru sahnesine geçin. Duvarın arkasındaki soluk daire, aynadaki görüntü ' +
+        'kaynağı. Dinleyiciye iki ses geliyor: doğrudan ve 2d kadar uzun yoldan geçen ' +
+        'yansıma. Bu, 16. atölyedeki iki hoparlör tarağının aynısı.',
+      a:{ mode:'sbir', d:0.5, dl:3, r:1, zemin:false } },
+    { t:'Çukur kaybolmaz, taşınır',
+      b:'Duvara uzaklığı 0,05 m’den 2,5 m’ye kadar süpürün. İlk çukur c/4d ile hareket ' +
+        'ediyor: çok yakında duyulur bandın üstünde, uzakta bas bölgesinde. En kötüsü ' +
+        '40–80 cm arasıdır — çukur tam gövde bölgesine oturur. Yansımayı kısarak ' +
+        '(soğurucu duvar) çukuru sığlaştırabilirsiniz, yok edemezsiniz.',
+      a:{ mode:'sbir', d:0.6, dl:3, r:1, zemin:false } },
+    { t:'Yerleşim: aynı odaya iki hoparlör',
+      b:'Yerleşim sahnesine geçin. Oda 3. sahnedeki gibi halı ve perdeyle döşenmiş durumda. ' +
+        'Üstte plan, yanında yandan kesit, altta o koltukta ölçülen yanıt: soluk eğri ham ' +
+        'hâli, kalın eğri <b>1/3 oktav yumuşatılmış</b> hâli — ölçüm cihazları da böyle ' +
+        'gösterir. Model yalnız <b>ilk yansımaları</b> içeriyor; Schroeder altındaki mod ' +
+        'işi 1. sahnenin konusu. Yedi denetimin altısı yeşil; tek uyarı tavan yansıması.',
+      a:{ mode:'yer', mat:'halıperde', tur:'yakin', ack:1.9, dw:0.15, hz:1.19, px:3.2, py:1.82, pz:1.19 } },
+    { t:'Eşkenar üçgen',
+      b:'Dinleyici geriye kaçtı: açı <b>42°</b>’ye düştü, görüntü ortaya sıkıştı. Planda ' +
+        'dinleyiciyi hoparlörlere doğru sürükleyin; 59–60° civarında satır yeşile döner. ' +
+        'Eşkenar üçgende hoparlör aralığı ile dinleme mesafesi eşittir ve stereo görüntü ' +
+        'en kararlı hâlini alır. Çok yaklaşırsanız bu kez orta boşalır.',
+      a:{ mode:'yer', mat:'halıperde', tur:'yakin', ack:1.9, dw:0.15, hz:1.19, px:3.2, py:2.6 } },
+    { t:'Simetri — en ucuz düzeltme',
+      b:'Dinleyici yalnızca <b>20 cm</b> yana kaydırıldı. Açı ve mesafe neredeyse aynı, ama ' +
+        'simetri satırı uyarıya döndü: iki kanal arasında <b>4,8 dB</b> seviye farkı var, ' +
+        'çünkü sol ve sağ artık yan duvarlara farklı uzaklıkta. Stereo görüntü o yöne kayar. ' +
+        'Hiçbir ekolayzır bunu düzeltemez — iki kanalın hatası farklıdır; koltuğu orta ' +
+        'eksene almak düzeltir.',
+      a:{ mode:'yer', mat:'halıperde', tur:'yakin', ack:1.9, dw:0.15, hz:1.19, px:3.4, py:1.82 } },
+    { t:'Duvara uzaklık: orta mesafe en kötüsü',
+      b:'Hoparlör duvardan <b>0,5 m</b> açıldı: çukur 572 Hz’den <b>172 Hz</b>’e indi, tam ' +
+        'enstrüman gövdesine oturdu ve yumuşatılmış eğride bile derin bir oyuk bıraktı. ' +
+        'Kaydırıcıyı 0,05’ten 2,5 m’ye süpürün ve mor çizgiyi izleyin: çukur c/4d ile ' +
+        'geziyor. Duvara yapışıkken bandın üstüne çıkıyor, uzakta bas bölgesine iniyor — ' +
+        '"ya çok yakın ya çok uzak" kuralı budur. Arada dinleyici de %45’e kaydı.',
+      a:{ mode:'yer', mat:'halıperde', tur:'yakin', ack:1.9, dw:0.5, hz:1.19, px:3.2, py:2.17 } },
+    { t:'%38 noktası',
+      b:'Dinleyici şu anda odanın <b>tam ortasında</b> ve açı 46°’ye düşmüş. "%38 noktasına ' +
+        'götür" düğmesine basın: koltuk oda boyunun %38’ine gidiyor. Orta en kötüsüdür — ' +
+        'tek numaralı bütün modların düğümü oradadır. %38’de ilk modların hiçbirinin ne ' +
+        'düğümü ne karnı vardır; bunu 1. sahnede basınç haritasında doğrulayabilirsiniz.',
+      a:{ mode:'yer', mat:'halıperde', tur:'yakin', ack:1.9, dw:0.15, hz:1.19, px:3.2, py:2.4 } },
+    { t:'Tweeter kulak hizasında',
+      b:'Hoparlör <b>1,70 m</b>’ye çıkarıldı, kulak 1,19 m’de kaldı. Kesitte doğrudan ses ' +
+        'eğildi, zemin ve tavan sekmeleri yer değiştirdi. Asıl sorun bu modelde görünmeyen ' +
+        'kısımdadır: crossover bölgesinde woofer ile tweeter dikeyde faz farkına girer, ' +
+        'tını dinleme açısına göre değişir. Bu yüzden <b>tweeter kulak hizasına</b> kurulur. ' +
+        'Kaydırıcıyı 1,19’a geri getirin.',
+      a:{ mode:'yer', mat:'halıperde', tur:'yakin', ack:1.9, dw:0.15, hz:1.7, px:3.2, py:1.82 } },
+    { t:'Erken yansımalar tablosu',
+      b:'Yan paneldeki tabloda sol hoparlörün altı ilk yansıması var: gecikme ve doğrudan ' +
+        'sese göre seviye. Hoparlör arkası yalnız <b>0,8 ms</b> sonra geliyor — bu kadar ' +
+        'erken gelen ses ayrı bir yansıma gibi duyulmaz, doğrudan sesle kaynaşır; etkisi ' +
+        'zaten eğrideki çukurdur. Asıl zararlı pencere <b>1–20 ms</b> arası: burada ' +
+        '<b>tavan</b> 5,8 ms sonra ve yalnız −6,3 dB altta.',
+      a:{ mode:'yer', mat:'halıperde', tur:'yakin', ack:1.9, dw:0.15, hz:1.19, px:3.2, py:1.82 } },
+    { t:'İlk yansıma noktasını bulmak ve kapatmak',
+      b:'Planda yan duvarlara giden kesikli çizgiler ve üzerlerindeki küçük kareler <b>ilk ' +
+        'yansıma noktalarıdır</b>; kesitte de zemin ve tavan sekme noktaları var. Sınıfta ' +
+        'aynayla bulunan noktalar tam buralarıdır. Çınlama sahnesine gidip <b>tavanı</b> ' +
+        'taş yünü yapın, sonra buraya dönün: tavan satırı tablonun en altına düşüyor ve ' +
+        'yedinci denetim de yeşile dönüyor.',
+      a:{ mode:'yer', mat:'halıperde', tur:'yakin', ack:1.9, dw:0.15, hz:1.19, px:3.2, py:1.82 } },
+    { t:'Yakın alan neden işe yarar: kritik mesafe',
+      b:'Göstergedeki <b>doğrudan/yankılı</b> oranına bakın. Kritik mesafe, doğrudan sesin ' +
+        'yankılı alanla eşitlendiği uzaklıktır; bu döşenmiş odada yaklaşık <b>2,6 m</b>. ' +
+        '1,36 m’lik yakın alan koltuğunda doğrudan ses yankılı alandan <b>5,5 dB önde</b>. ' +
+        'Odanın payı küçük kalıyor — yakın alan monitörünün bütün mantığı budur.',
+      a:{ mode:'yer', mat:'halıperde', tur:'yakin', ack:1.3, dw:0.15, hz:1.19, px:3.2, py:1.35 } },
+    { t:'Uzak alan: aynı oda, başka sonuç',
+      b:'Aynı oda, aynı hoparlörler; dinleyici <b>4,25 m</b>’de. Mesafe kritik mesafeyi ' +
+        'aştı ve doğrudan/yankılı oranı <b>−1,3 dB</b>’ye döndü: artık ağırlıklı olarak ' +
+        '<b>odayı</b> dinliyorsunuz. Mesafe tür aralığında olmasına rağmen denetim uyarı ' +
+        'veriyor, sebebi bu. Uzak alan ancak çınlaması denetlenmiş bir mekânda anlamlıdır — ' +
+        'çınlama sahnesinde soğurma ekleyin, oran geri yükselir.',
+      a:{ mode:'yer', mat:'halıperde', tur:'uzak', ack:4, dw:0.15, hz:1.19, px:3.2, py:3.9, pz:1.19 } }
+  ];
+  var MATSET = {
+    beton:  { taban:'beton', tavan:'beton', on:'beton', arka:'beton', yanA:'beton', yanB:'beton' },
+    'halıperde': { taban:'hali', tavan:'beton', on:'beton', arka:'perde', yanA:'perde', yanB:'perde' },
+    panel:  { taban:'hali', tavan:'tasyun', on:'beton', arka:'perde', yanA:'perde', yanB:'perde' }
+  };
+  var si = 0;
+  var stT = document.getElementById('step-title'), stB = document.getElementById('step-body'),
+      stC = document.getElementById('step-count'), dots = document.getElementById('dots');
+  STEPS.forEach(function(_, i){
+    var d = document.createElement('button');
+    d.type = 'button'; d.className = 'dot';
+    d.setAttribute('aria-label', (i+1)+'. adım');
+    d.addEventListener('click', function(){ setStep(i, true); });
+    dots.appendChild(d);
+  });
+  function setStep(i, apply){
+    si = Math.max(0, Math.min(STEPS.length-1, i));
+    var s2 = STEPS[si];
+    stT.textContent = (si+1)+'. '+s2.t;
+    stB.innerHTML = s2.b;
+    stC.textContent = (si+1)+' / '+STEPS.length;
+    Array.prototype.forEach.call(dots.children, function(d,k){
+      d.setAttribute('aria-current', k === si ? 'true':'false');
+    });
+    document.getElementById('prev').disabled = si === 0;
+    document.getElementById('next').disabled = si === STEPS.length-1;
+    if (apply && s2.a){
+      var a = s2.a;
+      if (a.oda) odaKur(a.oda);
+      if (a.mat) { var mm = MATSET[a.mat]; Object.keys(mm).forEach(function(k){ S.mat[k] = mm[k]; }); }
+      ['sel','t60','sfq','ins','d','dl','r','px','py','pz','tur','ack','dw','hz']
+        .forEach(function(k){ if (a[k] !== undefined) S[k] = a[k]; });
+      if (a.zemin !== undefined) S.zemin = a.zemin;
+      if (S.sel >= MODS.length) S.sel = 0;
+      fSt.value = S.t60; fIns.value = S.ins;
+      fD.value = S.d; fDl.value = S.dl; fR.value = S.r;
+      fAck.value = S.ack; fDw.value = S.dw; fHz.value = S.hz;
+      fYuk.value = Math.round(S.pz/S.lz*100);
+      fSf.value = Math.round((lg(S.sfq)-lg(20))/(lg(1000)-lg(20))*100);
+      Array.prototype.forEach.call(mtb.children, function(r2,k){
+        r2.setAttribute('aria-selected', k === S.sel ? 'true':'false');
+      });
+      if (a.mode) setMode(a.mode); else { sync(); render(); }
+    }
+  }
+  document.getElementById('prev').addEventListener('click', function(){ setStep(si-1, true); });
+  document.getElementById('next').addEventListener('click', function(){ setStep(si+1, true); });
+
+  /* ================= alistirma ================= */
+  var QS = [
+    { q:'Dikdörtgen bir odada (2, 0, 0) modu hangi tiptir?',
+      o:['Aksiyel','Tanjansiyel','Oblik','Hiçbiri, böyle bir mod yok'], c:0,
+      e:'İki sayı sıfır olduğu için mod yalnız bir eksende, iki duvar arasında çalışır: aksiyeldir. Aksiyel modlar en az yüzeye çarptığı için en güçlü, en uzun çınlayan modlardır.' },
+    { q:'6,4 m uzunluğundaki bir odanın bu yöndeki ilk modu kaç Hz’dir?',
+      o:['13,4 Hz','26,8 Hz','53,6 Hz','107 Hz'], c:1,
+      e:'f = c / 2L = 343 / 12,8 = 26,8 Hz. Kenara tam bir yarım dalga boyu sığan frekanstır; odanın verebileceği en pes moddur.' },
+    { q:'Odanın tam ortasında bas neden kaybolur?',
+      o:['Hoparlörden uzak olduğu için','Tek numaralı bütün modların düğümü orada olduğu için',
+         'Tavan çok alçak olduğu için','Hava orada daha yoğun olduğu için'], c:1,
+      e:'cos(nπ·0,5) her tek n için sıfırdır. Odanın merkezi, tek numaralı modların hepsinde basınç düğümüdür — en kötü dinleme noktalarından biridir.' },
+    { q:'Rijit bir duvarın hemen dibinde ne vardır?',
+      o:['Basınç düğümü','Basınç karnı','Ne düğüm ne karın','Frekansa göre değişir'], c:1,
+      e:'Duvar hava parçacıklarının hareketini durdurur; hareket sıfırlanınca basınç en büyük değerine çıkar. Bu yüzden bas köşelerde en gür duyulur, bas tuzakları köşeye konur.' },
+    { q:'Schroeder frekansının altında odanın davranışı nasıldır?',
+      o:['Her konumda aynı, düz','Ayrık modlardan ibaret, konuma göre çok değişir',
+         'Yalnızca çınlama süresi önemlidir','Hiç yansıma yoktur'], c:1,
+      e:'Altında modlar tek tek ayırt edilebilir: her dinleme noktasında başka bir tepe-çukur deseni duyulur. Üstünde modlar iç içe geçer ve oda istatistiksel bir alana döner.' },
+    { q:'Oda küçülürse Schroeder frekansı ne olur?',
+      o:['Düşer','Yükselir','Değişmez','Sıfır olur'], c:1,
+      e:'f_S ≈ 2000·√(T/V): hacim paydadadır. Küçük odada mod yoğunluğu düşüktür, modlar geç karışır, sınır yukarı çıkar. 26 m³’lük bir odada 300 Hz’i geçebilir.' },
+    { q:'Sabine formülünde soğurma alanı A iki katına çıkarsa T₆₀ ne olur?',
+      o:['İki katına çıkar','Yarıya iner','Değişmez','Dört katına çıkar'], c:1,
+      e:'T₆₀ = 0,161·V/A. A paydada olduğu için iki katı soğurma, yarı çınlama demektir. 60 dB’lik düşüşü yarı sürede tamamlar.' },
+    { q:'10 m²’lik α = 0,90 panel ile 100 m²’lik α = 0,09 duvar soğurma bakımından nasıldır?',
+      o:['Panel çok daha etkili','Duvar çok daha etkili','İkisi de 9 sabin, eşit',
+         'Karşılaştırılamaz'], c:2,
+      e:'A = S·α. 10 × 0,90 = 9 ve 100 × 0,09 = 9. Soğurmada tek başına alan da tek başına katsayı da anlam taşımaz; çarpımları taşır.' },
+    { q:'Halı ve perde döşenmiş bir odada 500 Hz’de 0,5 s, 125 Hz’de 3,5 s ölçülüyor. Sebep nedir?',
+      o:['Ölçüm hatası','Gözenekli malzemeler bası yutmaz','Bas daha hızlı yayılır',
+         'Basta çınlama hep uzundur, yapılacak bir şey yoktur'], c:1,
+      e:'Soğurma, malzeme kalınlığının dalga boyuna oranıyla ilgilidir. 125 Hz’in dalga boyu 2,7 m; birkaç santimlik halı ona göre yok gibidir. Bas için kalın panel, hacimli tuzak ya da rezonatör gerekir.' },
+    { q:'Bir salon 20 dinleyiciyle dolunca ne olur?',
+      o:['Çınlama uzar','Çınlama kısalır','Modların frekansı değişir','Hiçbir şey'], c:1,
+      e:'Oturan bir dinleyici 500 Hz’de yaklaşık 0,42 m² sabin soğurur. 20 kişi 8,4 sabin ekler; A büyür, T₆₀ kısalır. Boş prova ile dolu konser arasındaki farkın büyük kısmı budur.' },
+    { q:'Hoparlör arka duvardan 0,5 m uzaktaysa ilk duvar çukuru kaç Hz’dedir?',
+      o:['86 Hz','172 Hz','343 Hz','686 Hz'], c:1,
+      e:'f = c / 4d = 343 / 2 = 171,5 Hz. Yansıyan ses 2d = 1 m fazla yol alır; bu yol yarım dalga boyuna eşit olunca iki ses ters fazda buluşur.' },
+    { q:'Duvar çukurundan kurtulmanın yolu nedir?',
+      o:['Hoparlörü daha güçlü bir modelle değiştirmek','Ekolayzırdan o frekansı yükseltmek',
+         'Yok edilemez; uzaklığı değiştirerek taşınır ya da duvar soğurularak sığlaştırılır',
+         'Hoparlörün kutusunu değiştirmek'], c:2,
+      e:'Çukur, iki yolun faz farkından doğar; kaynak ne olursa olsun geometri aynıysa çukur aynıdır. d’yi değiştirmek çukuru başka frekansa taşır, duvarı soğurmak yansımayı zayıflatıp çukuru sığlaştırır. Ekolayzırla doldurmak ise yalnızca hoparlörü zorlar.' },
+    { q:'İki hoparlör ile dinleyici arasındaki önerilen açı kaç derecedir?',
+      o:['30°','45°','60°','90°'], c:2,
+      e:'Eşkenar üçgen, yani 60°. Bu geometride hoparlör aralığı ile dinleme mesafesi eşittir ve stereo görüntü en kararlı hâlini alır. Daha geniş açıda orta boşalır, daha darda genişlik kaybolur.' },
+    { q:'Dinleyici orta eksenden 20 cm yana kayarsa asıl sorun nedir?',
+      o:['Ses seviyesi düşer','İki kanal farklı yansıma deseni alır, stereo görüntü kayar',
+         'Çınlama süresi uzar','Modların frekansı değişir'], c:1,
+      e:'Simetri bozulunca sol ve sağ kanal artık aynı duvar mesafelerine sahip değildir; 1 kHz civarında 10 dB’ye varan seviye farkı çıkabilir. Ekolayzır bunu düzeltemez çünkü iki kanalın hatası farklıdır — koltuğu ortaya almak düzeltir.' },
+    { q:'Yakın alan monitörün odaya daha az bağlı olmasının sebebi nedir?',
+      o:['Daha az güç çekmesi','Dinleme noktasının kritik mesafenin içinde kalması',
+         'Tweeterının küçük olması','Bas üretmemesi'], c:1,
+      e:'Kritik mesafe, doğrudan sesin yankılı alanla eşitlendiği uzaklıktır. Onun içinde doğrudan ses baskındır, dolayısıyla odanın payı küçülür. Aynı hoparlörü 4 metreye koyarsanız ağırlıklı olarak odayı dinlersiniz.' },
+    { q:'İlk yansıma noktası sınıfta nasıl bulunur?',
+      o:['Ses seviyesi ölçerle','Dinleme noktasında otururken yan duvarda ayna gezdirilerek',
+         'Metreyle duvarın ortası ölçülerek','Hoparlörün tam karşısı işaretlenerek'], c:1,
+      e:'Dinleme noktasından bakıldığında aynada hoparlörün göründüğü nokta, ayna kaynak geometrisinin tam olarak kestiği noktadır: gelme açısı yansıma açısına eşittir. Soğurucu oraya konur; tavan ve zemin için de aynı yöntem geçerlidir.' }
+  ];
+  var qi = 0, qok = 0, qDone = [];
+  var qT=document.getElementById('q-text'), qO=document.getElementById('q-opts'),
+      qF=document.getElementById('q-fb'), qC=document.getElementById('q-count'),
+      qN=document.getElementById('q-next');
+  function renderQ(){
+    var Q = QS[qi];
+    qT.textContent = (qi+1)+'. '+Q.q;
+    qF.innerHTML = ''; qO.innerHTML = '';
+    Q.o.forEach(function(s2,ix){
+      var b = document.createElement('button');
+      b.type='button'; b.textContent = s2;
+      b.addEventListener('click', function(){
+        if (qDone[qi]) return;
+        qDone[qi] = true;
+        var right = ix === Q.c;
+        if (right) qok++;
+        b.classList.add(right ? 'correct' : 'wrong');
+        Array.prototype.forEach.call(qO.children, function(bb,k){
+          if (k === Q.c) bb.classList.add('correct');
+        });
+        qF.innerHTML = (right ? '<b class="y">Doğru.</b> ' : '<b class="n">Değil.</b> ') + Q.e;
+        qC.textContent = qok+' / '+qDone.filter(Boolean).length+' doğru';
+      });
+      qO.appendChild(b);
+    });
+    qN.textContent = (qi === QS.length-1) ? 'Baştan başla' : 'Sonraki soru';
+  }
+  qN.addEventListener('click', function(){ qi = (qi+1)%QS.length; renderQ(); });
+
+  /* ================= baslangic ================= */
+  fSf.value = Math.round((lg(S.sfq)-lg(20))/(lg(1000)-lg(20))*100);
+  odaDegisti();
+  fAck.value = S.ack; fDw.value = S.dw; fHz.value = S.hz;
+  setMode('mod');
+  setStep(0, false);
+  renderQ();
+  sync();
+  render();
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(render);
+})();
+</script>
