@@ -1,0 +1,2303 @@
+<!DOCTYPE html>
+<html lang="tr">
+<meta charset="utf-8">
+<title>Mikrofonlama Teknikleri</title>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400..600;1,6..72,400&family=Chakra+Petch:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+  :root{
+    --ground:#E5ECF3; --panel:#FFFFFF; --panel-2:#F1F6FA;
+    --ink:#0B1620; --ink-2:#3F5265; --ink-3:#697E92;
+    --line:#C7D4E0; --line-2:#DEE7EF;
+    --sin:#A8600A; --cos:#0F5F80; --arc:#A81E6E; --brass:#4A7A12;
+    --on-sin:#FFFFFF; --ok:#1E6B45; --no:#A8203C;
+    --shadow:0 1px 2px rgba(11,22,32,.06), 0 8px 20px -14px rgba(11,22,32,.26);
+    --fs:15px;
+    --board-h:clamp(430px,43vw,520px);
+    --board-yak:clamp(520px,52vw,600px);
+    --board-cft:clamp(360px,34vw,430px);
+    --board-mon:clamp(530px,53vw,610px);
+    --board-ms:clamp(540px,54vw,625px);
+    --font-display:"Chakra Petch","IBM Plex Sans",sans-serif;
+    --h1:clamp(30px,4.5vw,46px);
+    --h2:clamp(21px,2.5vw,28px);
+    --track:.02em; --radius:2px; --radius-s:2px;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --ground:#070F17; --panel:#0E1720; --panel-2:#13202C;
+      --ink:#E7F2FB; --ink-2:#9FB6C9; --ink-3:#6B8296;
+      --line:#213240; --line-2:#182533;
+      --sin:#FFB01F; --cos:#4FD3FF; --arc:#FF6AC1; --brass:#A8FF60;
+      --on-sin:#0A1017; --ok:#3EE59B; --no:#FF5F86;
+      --shadow:0 0 0 1px rgba(79,211,255,.07), 0 12px 30px -18px rgba(0,0,0,.9);
+    }
+  }
+  :root[data-theme="dark"]{
+    --ground:#070F17; --panel:#0E1720; --panel-2:#13202C;
+    --ink:#E7F2FB; --ink-2:#9FB6C9; --ink-3:#6B8296;
+    --line:#213240; --line-2:#182533;
+    --sin:#FFB01F; --cos:#4FD3FF; --arc:#FF6AC1; --brass:#A8FF60;
+    --on-sin:#0A1017; --ok:#3EE59B; --no:#FF5F86;
+    --shadow:0 0 0 1px rgba(79,211,255,.07), 0 12px 30px -18px rgba(0,0,0,.9);
+  }
+  :root[data-mode="proj"]{
+    --ground:#F3F8FC; --panel:#FFFFFF; --panel-2:#EDF4F9;
+    --ink:#040B12; --ink-2:#2A3A49; --ink-3:#546678;
+    --line:#ADBFCE; --line-2:#D2DEE9;
+    --sin:#8A4D00; --cos:#084A66; --arc:#8A1258; --brass:#3A6208;
+    --on-sin:#FFFFFF; --ok:#14512F; --no:#8A1428;
+    --shadow:0 1px 2px rgba(11,22,32,.09), 0 8px 20px -14px rgba(11,22,32,.3);
+    --fs:17px;
+    --board-h:clamp(470px,47vw,572px);
+    --board-yak:clamp(572px,57vw,660px);
+    --board-cft:clamp(396px,37vw,473px);
+    --board-mon:clamp(583px,58vw,671px);
+    --board-ms:clamp(594px,59vw,688px);
+  }
+  @media (max-width:820px){
+    :root, :root[data-mode="proj"]{ --board-r:580px; }
+  }
+  @media (max-width:760px){
+    :root, :root[data-mode="proj"]{
+      --board-h:520px;
+      --board-yak:560px; --board-cft:640px; --board-mon:660px; --board-ms:700px;
+    }
+  }
+
+  *{box-sizing:border-box}
+  body{
+    background:var(--ground);color:var(--ink);
+    font-family:"IBM Plex Sans","Helvetica Neue",Arial,sans-serif;
+    font-size:var(--fs);line-height:1.6;-webkit-font-smoothing:antialiased;
+  }
+  .wrap{max-width:1160px;margin:0 auto;padding:34px 20px 60px;display:flex;flex-direction:column;gap:14px}
+
+  .topbar{display:flex;gap:28px;justify-content:space-between;align-items:flex-start;margin-bottom:12px}
+  @media (max-width:640px){.topbar{flex-direction:column-reverse;align-items:flex-start;gap:16px}}
+  .theme{display:flex;flex:0 0 auto;flex-wrap:wrap;border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;background:var(--panel);box-shadow:var(--shadow)}
+  .theme button{border:0;border-left:1px solid var(--line);border-radius:0;background:transparent;font-size:12.5px;padding:8px 12px;color:var(--ink-2)}
+  .theme button:first-child{border-left:0}
+  .theme button:hover{background:var(--panel-2);color:var(--ink)}
+  .theme button[aria-pressed="true"]{background:var(--ink);color:var(--panel);font-weight:500}
+  .theme button:focus-visible{outline:2px solid var(--arc);outline-offset:-2px}
+  header{display:flex;flex-direction:column;gap:9px;max-width:66ch}
+  .eyebrow{margin:0;font-size:11.5px;font-weight:600;letter-spacing:.13em;text-transform:uppercase;color:var(--ink-3)}
+  h1{margin:0;font-family:var(--font-display);font-weight:500;font-size:var(--h1);line-height:1.06;letter-spacing:var(--track);text-wrap:balance}
+  .lede{margin:2px 0 0;color:var(--ink-2);font-size:16.5px;text-wrap:pretty}
+  .lede b{color:var(--ink);font-weight:600}
+
+  section.sec{display:flex;flex-direction:column;gap:14px;padding-top:22px}
+  .sec-head{display:flex;align-items:baseline;gap:14px;border-bottom:1px solid var(--line);padding-bottom:9px}
+  .sec-num,.num{font-family:"IBM Plex Mono",monospace;font-size:12px;font-weight:500;color:var(--brass);letter-spacing:.06em;flex:0 0 auto;padding-top:5px}
+  .sec-head h2{margin:0;font-family:var(--font-display);font-weight:500;font-size:var(--h2);letter-spacing:var(--track);line-height:1.15;text-wrap:balance}
+  .sec-head p{margin:0;color:var(--ink-3);font-size:13px;margin-left:auto;flex:0 0 auto;text-align:right}
+  @media (max-width:620px){.sec-head p{display:none}}
+
+  .panel{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow)}
+
+  .why{display:grid;grid-template-columns:1fr 1.12fr;gap:20px 28px;align-items:center}
+  @media (max-width:860px){.why{grid-template-columns:1fr;align-items:start}}
+  .why-lead{display:flex;flex-direction:column;gap:13px;padding-bottom:4px}
+  .why-more{display:grid;grid-template-columns:repeat(auto-fit,minmax(255px,1fr));gap:16px 28px;margin-top:6px}
+  .why-lead p,.why-more p{margin:0;color:var(--ink-2)}
+  .why-lead p b,.why-more p b{color:var(--ink);font-weight:600}
+  .cols3{display:grid;grid-template-columns:repeat(3,1fr);gap:16px 28px}
+  @media (max-width:900px){.cols3{grid-template-columns:1fr}}
+  .cols3 p{margin:0;color:var(--ink-2);font-size:14px;line-height:1.6}
+  .cols3 p b{color:var(--ink);font-weight:600}
+  .cols .intro-col{display:flex;flex-direction:column;gap:12px}
+  .cols .intro-col p{margin:0;color:var(--ink-2)}
+  .cols .intro-col p b{color:var(--ink);font-weight:600}
+  p.pull{font-size:16px;color:var(--ink)!important;border-left:3px solid var(--sin);
+    padding-left:13px}
+  .panel-body.nopad{padding:0;gap:0}
+  .quiz{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);
+    box-shadow:var(--shadow);padding:16px 18px 18px;display:flex;flex-direction:column;gap:12px}
+  .q-head{display:flex;align-items:baseline;justify-content:space-between;gap:14px}
+  .q-head .count{font-family:"IBM Plex Mono",monospace;font-size:12px;color:var(--ink-3);
+    font-variant-numeric:tabular-nums;flex:0 0 auto}
+  .q-head .q-text{font-size:16px;font-weight:500;text-wrap:pretty}
+  .quiz > button{align-self:flex-start}
+  .kicker{font-family:"Newsreader",Georgia,serif;font-size:clamp(21px,2.2vw,26px);line-height:1.28;color:var(--ink);font-style:italic;max-width:29ch;letter-spacing:-.01em;text-wrap:balance}
+  .trio-list{display:flex;flex-direction:column;gap:1px;background:var(--line);
+    border:1px solid var(--line);border-radius:var(--radius);overflow:hidden}
+  .tl{background:var(--panel);padding:13px 15px 14px;border-left:3px solid var(--line)}
+  .tl-1{border-left-color:var(--sin)} .tl-2{border-left-color:var(--arc)}
+  .tl-3{border-left-color:var(--cos)}
+  .tl h3{margin:0 0 3px;font-family:var(--font-display);font-weight:500;font-size:15.5px;
+    letter-spacing:var(--track)}
+  .tl p{margin:0;font-size:13.5px;line-height:1.5;color:var(--ink-2)}
+  .tl p b{color:var(--ink);font-weight:600}
+  .tl code{font-size:.92em}
+
+  .defs{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--line);border:1px solid var(--line);border-radius:var(--radius);overflow:hidden}
+  @media (max-width:880px){.defs{grid-template-columns:repeat(2,1fr)}}
+  @media (max-width:560px){.defs{grid-template-columns:1fr}}
+  .def{background:var(--panel);padding:16px 17px 18px;display:flex;flex-direction:column;gap:7px}
+  .def h3{margin:0;font-size:14.5px;font-weight:600;display:flex;align-items:baseline;gap:8px;flex-wrap:wrap}
+  .def h3 em{font-style:normal;font-family:"IBM Plex Mono",monospace;font-size:11.5px;color:var(--ink-3);font-weight:400}
+  .def p{margin:0;font-size:13.8px;color:var(--ink-2);line-height:1.55}
+  .def p b{color:var(--ink);font-weight:600}
+  code{font-family:"IBM Plex Mono",monospace;font-size:.9em;background:var(--panel-2);border:1px solid var(--line-2);padding:1px 5px;border-radius:var(--radius-s)}
+
+  .lang{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--line);border:1px solid var(--line);border-radius:var(--radius);overflow:hidden}
+  @media (max-width:1000px){.lang{grid-template-columns:repeat(2,1fr)}}
+  @media (max-width:560px){.lang{grid-template-columns:1fr}}
+  .lg{background:var(--panel);padding:16px 17px 18px;display:flex;flex-direction:column;gap:8px}
+  .lg-top{display:flex;align-items:baseline;justify-content:space-between;gap:8px}
+  .lg h3{margin:0;font-size:14.5px;font-weight:600}
+  .lg .unit{font-family:"IBM Plex Mono",monospace;font-size:11px;color:var(--ink-3)}
+  .lg p{margin:0;font-size:13.8px;color:var(--ink-2);line-height:1.55}
+  .lg .music{margin-top:2px;font-size:12.5px;color:var(--ink);border-left:2px solid var(--brass);padding-left:9px}
+  .lg .music b{font-weight:600}
+
+  .stage{padding:0;overflow:hidden}
+  .stage-top,.stage-head{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px;padding:13px 16px;border-bottom:1px solid var(--line-2)}
+  .modes{display:flex;flex-wrap:wrap;border:1px solid var(--line);border-radius:var(--radius);overflow:hidden}
+  .modes button{border:0;border-left:1px solid var(--line);border-radius:0;background:var(--panel-2);font-size:13px;padding:8px 15px;color:var(--ink-2);font-weight:500}
+  .modes button:first-child{border-left:0}
+  .modes button:hover{color:var(--ink)}
+  .modes button[aria-pressed="true"]{background:var(--sin);color:var(--on-sin)}
+  .readout{display:flex;flex-wrap:wrap;font-family:"IBM Plex Mono",ui-monospace,monospace;font-variant-numeric:tabular-nums;font-size:13px}
+  .readout div{padding:0 13px;border-left:1px solid var(--line-2)}
+  .readout div:first-child{border-left:0;padding-left:0}
+  .readout b{font-weight:500}
+  .readout span{color:var(--ink-3);font-size:11px;letter-spacing:.06em;text-transform:uppercase;display:block;line-height:1.3}
+  .v-sin{color:var(--sin)} .v-cos{color:var(--cos)} .v-arc{color:var(--arc)}
+
+  .canvas-wrap{background:var(--panel-2);border-bottom:1px solid var(--line-2)}
+  #board{display:block;width:100%;height:var(--board-h);touch-action:none;cursor:crosshair}
+  .stage[data-scene="yak"] #board{height:var(--board-yak)}
+  .stage[data-scene="cft"] #board{height:var(--board-cft)}
+  .stage[data-scene="mon"] #board{height:var(--board-mon)}
+  .stage[data-scene="ms"]  #board{height:var(--board-ms)}
+
+  #board.tut{cursor:grab}
+  #board.tut:active{cursor:grabbing}
+
+  .controls{padding:15px 16px 17px;display:flex;flex-direction:column;gap:14px}
+  .ctl-row{display:flex;flex-wrap:wrap;gap:14px 20px;align-items:center}
+  .ctl-row[hidden]{display:none}
+  .field[hidden]{display:none}
+  .ctl-label{font-size:11px;font-weight:600;letter-spacing:.09em;text-transform:uppercase;color:var(--ink-3);flex:0 0 auto}
+  .field{display:flex;flex-direction:column;gap:5px;min-width:172px;flex:1 1 172px;max-width:300px}
+  .field label{font-size:11px;font-weight:600;letter-spacing:.09em;text-transform:uppercase;color:var(--ink-3);display:flex;justify-content:space-between;gap:10px}
+  .field label em{font-style:normal;font-family:"IBM Plex Mono",monospace;font-variant-numeric:tabular-nums;letter-spacing:0;text-transform:none;font-size:12px;color:var(--ink-2)}
+
+  input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:20px;background:transparent;margin:0}
+  input[type=range]::-webkit-slider-runnable-track{height:4px;background:var(--line);border-radius:2px}
+  input[type=range]::-moz-range-track{height:4px;background:var(--line);border-radius:2px}
+  input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;width:16px;height:16px;border-radius:50%;background:var(--arc);border:2px solid var(--panel);margin-top:-6px;box-shadow:0 0 0 1px var(--arc)}
+  input[type=range]::-moz-range-thumb{width:14px;height:14px;border-radius:50%;background:var(--arc);border:2px solid var(--panel);box-shadow:0 0 0 1px var(--arc)}
+  input[type=range]:focus-visible{outline:2px solid var(--arc);outline-offset:4px}
+
+  button{font:inherit;font-size:13.5px;color:var(--ink);background:var(--panel-2);border:1px solid var(--line);padding:7px 13px;border-radius:var(--radius-s);cursor:pointer;transition:background .13s,border-color .13s,color .13s}
+  button:hover{border-color:var(--ink-3)}
+  button:focus-visible{outline:2px solid var(--arc);outline-offset:2px}
+  button:disabled{opacity:.42;cursor:default}
+  button.on{background:var(--ink);border-color:var(--ink);color:var(--panel)}
+  .ctl-note{font-size:12px;color:var(--ink-3);font-family:"IBM Plex Mono",monospace;
+    letter-spacing:.01em;min-width:0;flex:1 1 138px;line-height:1.35}
+  .btn-group{display:flex;flex-wrap:wrap;gap:6px}
+  .btn-group.sm button{font-size:12.5px;padding:5px 9px}
+
+  .cols{display:grid;grid-template-columns:1.3fr 1fr;gap:16px;align-items:start}
+  @media (max-width:880px){.cols{grid-template-columns:1fr}}
+  .panel-head{display:flex;align-items:baseline;justify-content:space-between;gap:12px;padding:13px 18px 11px;border-bottom:1px solid var(--line-2)}
+  .panel-head h3{margin:0;font-family:var(--font-display);font-weight:500;font-size:19px;letter-spacing:var(--track)}
+  .panel-head .count{font-family:"IBM Plex Mono",monospace;font-size:12px;color:var(--ink-3);font-variant-numeric:tabular-nums}
+  .panel-body{padding:16px 18px 18px;display:flex;flex-direction:column;gap:13px}
+  .step-title{font-family:var(--font-display);font-size:21px;font-weight:500;line-height:1.22;margin:0;letter-spacing:var(--track);text-wrap:balance}
+  .step-body{margin:0;color:var(--ink-2)}
+  .step-body strong{color:var(--ink);font-weight:600}
+  .step-nav{display:flex;gap:8px;align-items:center;margin-top:auto;padding-top:4px;flex-wrap:wrap}
+  .dots{display:flex;gap:5px;margin-left:auto}
+  .dot{width:7px;height:7px;border-radius:50%;background:var(--line);border:0;padding:0;cursor:pointer}
+  .dot:hover{background:var(--ink-3)}
+  .dot[aria-current="true"]{background:var(--arc)}
+
+  table{width:100%;border-collapse:collapse;font-family:"IBM Plex Mono",monospace;font-size:12.5px;font-variant-numeric:tabular-nums}
+  th,td{text-align:right;padding:6px 8px;border-bottom:1px solid var(--line-2)}
+  th:first-child,td:first-child{text-align:left}
+  th:last-child,td:last-child{text-align:left}
+  thead th{font-family:"IBM Plex Sans",sans-serif;font-size:10.5px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-3);border-bottom:1px solid var(--line)}
+  tbody tr{cursor:pointer}
+  tbody tr:hover{background:var(--panel-2)}
+  tbody tr[aria-selected="true"]{background:color-mix(in srgb,var(--arc) 13%,var(--panel))}
+  tbody tr:last-child td{border-bottom:0}
+  td.c-cmp{font-family:"IBM Plex Sans",sans-serif;font-size:12px;color:var(--ink-2)}
+  tr.unitrow td:first-child{color:var(--brass);font-weight:500}
+  /* Dar ekranda tablo tasiyordu: en az gerekli sutun gizleniyor, kalani kayabiliyor. */
+  .tbl-scroll{overflow-x:auto;-webkit-overflow-scrolling:touch}
+  @media (max-width:620px){
+    th.c-cmp,td.c-cmp{display:none}
+    table{font-size:11.5px}
+    th,td{padding:6px 5px}
+  }
+  .tbl-note{margin:10px 18px 16px;font-size:12.5px;color:var(--ink-3);line-height:1.5}
+  .tbl-note b{color:var(--ink-2);font-weight:600}
+  .tbl-note + .tbl-note{margin-top:-4px}
+
+  .quiz-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;align-items:start}
+  @media (max-width:820px){.quiz-grid{grid-template-columns:1fr}}
+  .q-text{margin:0;font-size:16px;font-weight:500;text-wrap:pretty}
+  .q-opts{display:flex;flex-direction:column;gap:7px}
+  .q-opts button{text-align:left;padding:9px 12px}
+  .q-opts button.correct{border-color:var(--ok);background:color-mix(in srgb,var(--ok) 12%,var(--panel))}
+  .q-opts button.wrong{border-color:var(--no);background:color-mix(in srgb,var(--no) 12%,var(--panel))}
+  .q-feedback{margin:0;font-size:14px;color:var(--ink-2);min-height:1.6em}
+  .q-feedback b.y{color:var(--ok);font-weight:600}
+  .q-feedback b.n{color:var(--no);font-weight:600}
+  .recap ul{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:8px}
+  .recap li{color:var(--ink-2);font-size:14px}
+  .recap b{color:var(--ink);font-weight:600}
+
+  /* ---- video bloğu (yeni video eklemek için bu kalıbı kopyala) ---- */
+  .vid{display:grid;grid-template-columns:1.25fr 1fr;gap:16px;align-items:start}
+  @media (max-width:900px){.vid{grid-template-columns:1fr}}
+  .vid-main{display:flex;flex-direction:column;gap:9px;min-width:0}
+  .vid-frame{position:relative;aspect-ratio:16/9;width:100%;background:var(--panel-2);
+    border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);
+    overflow:hidden}
+  .vid-frame iframe{position:absolute;inset:0;z-index:1;width:100%;height:100%;border:0;display:block}
+  .vid-play{position:absolute;inset:0;z-index:0;width:100%;height:100%;
+    display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;
+    text-align:center;padding:20px;border:0;border-radius:0;background:transparent;
+    cursor:pointer;color:inherit}
+  .vid-play:hover{background:color-mix(in srgb,var(--sin) 7%,transparent);border-color:transparent}
+  .vid-play:focus-visible{outline:2px solid var(--arc);outline-offset:-4px}
+  .vid-tri{width:62px;height:62px;border-radius:50%;background:var(--sin);
+    display:block;margin-bottom:6px;position:relative;box-shadow:var(--shadow);
+    transition:transform .14s}
+  .vid-tri::after{content:"";position:absolute;top:50%;left:54%;transform:translate(-50%,-50%);
+    border-style:solid;border-width:11px 0 11px 18px;
+    border-color:transparent transparent transparent var(--on-sin)}
+  .vid-play:hover .vid-tri{transform:scale(1.07)}
+  .vid-play b{font-family:var(--font-display);font-weight:500;font-size:18px;
+    letter-spacing:var(--track);color:var(--ink);line-height:1.2;text-wrap:balance}
+  .vid-play .vid-ch{font-size:13px;color:var(--ink-3)}
+  .vid-play .vid-hint{font-style:normal;font-family:"IBM Plex Mono",monospace;
+    font-size:11.5px;color:var(--ink-3);margin-top:5px}
+  .vid-meta{margin:0;font-size:13px;color:var(--ink-2);line-height:1.5}
+  .vid-meta b{color:var(--ink);font-weight:600}
+  .vid-meta a{color:var(--cos);font-weight:600;text-underline-offset:3px}
+  .vid-meta span{display:block;margin-top:3px;font-size:12px;color:var(--ink-3)}
+  .vid-guide{background:var(--panel);border:1px solid var(--line);
+    border-left:3px solid var(--brass);border-radius:var(--radius);
+    box-shadow:var(--shadow);padding:15px 18px 17px}
+  .vid-guide h3{margin:0 0 9px;font-family:var(--font-display);font-weight:500;
+    font-size:17px;letter-spacing:var(--track)}
+  .vid-guide ol{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:9px}
+  .vid-guide li{font-size:13.5px;line-height:1.5;color:var(--ink-2)}
+  .vid-guide li b{color:var(--ink);font-weight:600}
+  .vid-guide li::marker{color:var(--brass);font-weight:600}
+  .vid-note{margin:13px 0 0;padding-top:11px;border-top:1px solid var(--line-2);
+    font-size:13px;color:var(--ink-3);line-height:1.5}
+  .vid-note b{color:var(--ink-2);font-weight:600}
+
+  .spec{display:grid;grid-template-columns:1.05fr 1fr;gap:16px;align-items:start}
+  @media (max-width:880px){.spec{grid-template-columns:1fr}}
+  .spec-card{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);
+    box-shadow:var(--shadow);padding:16px 18px 18px;font-family:"IBM Plex Mono",monospace;font-size:13px}
+  .spec-card h3{margin:0 0 10px;font-family:var(--font-display);font-size:17px;font-weight:500;letter-spacing:var(--track)}
+  .spec-row{display:flex;justify-content:space-between;gap:14px;padding:6px 0;border-bottom:1px solid var(--line-2)}
+  .spec-row:last-child{border-bottom:0}
+  .spec-row span{color:var(--ink-3)}
+  .spec-row b{font-weight:500;color:var(--ink)}
+  .spec-row.q{background:color-mix(in srgb,var(--arc) 9%,transparent);margin:0 -8px;padding:6px 8px;border-radius:2px}
+  .ask{display:flex;flex-direction:column;gap:12px}
+  .ask .a{background:var(--panel);border:1px solid var(--line);border-left:3px solid var(--arc);
+    border-radius:var(--radius);box-shadow:var(--shadow);padding:12px 15px 13px}
+  .ask .a h4{margin:0 0 3px;font-size:14px;font-weight:600}
+  .ask .a p{margin:0;font-size:13.5px;color:var(--ink-2);line-height:1.5}
+  .ask .a b{color:var(--ink);font-weight:600}
+  footer{color:var(--ink-3);font-size:12.5px;border-top:1px solid var(--line);padding-top:14px;margin-top:26px;display:flex;flex-wrap:wrap;gap:6px 18px}
+  footer b{color:var(--ink-2);font-weight:600}
+  @media (max-width:760px){
+    button{font-size:14.5px;padding:9px 14px}
+    .btn-group.sm button{font-size:13px;padding:7px 11px}
+    .theme button{padding:8px 9px;font-size:12px}
+    .modes button{padding:9px 12px;font-size:13px}
+    .q-opts button{padding:12px 14px}
+    input[type=range]{height:30px}
+    input[type=range]::-webkit-slider-thumb{width:22px;height:22px;margin-top:-9px}
+    input[type=range]::-moz-range-thumb{width:20px;height:20px}
+    .readout{width:100%}
+    .readout div{padding:0 11px 0 0;border-left:0}
+    .wrap{padding:22px 16px 44px}
+  }
+
+  /* ---- 18. atolyeye ozel ---- */
+  .cks{display:flex;flex-direction:column;gap:1px;background:var(--line);
+    border:1px solid var(--line);border-radius:var(--radius);overflow:hidden}
+  .ck{background:var(--panel);display:grid;grid-template-columns:auto 1fr;gap:3px 10px;
+    padding:10px 13px 11px;align-items:start}
+  .ck .mk{grid-row:1/3;width:20px;height:20px;border-radius:50%;display:flex;
+    align-items:center;justify-content:center;font-size:12px;font-weight:700;
+    font-family:"IBM Plex Mono",monospace;margin-top:1px}
+  .ck.ok .mk{background:color-mix(in srgb,var(--ok) 18%,var(--panel));color:var(--ok)}
+  .ck.no .mk{background:color-mix(in srgb,var(--sin) 20%,var(--panel));color:var(--sin)}
+  .ck b{font-size:13.2px;font-weight:600;line-height:1.35;color:var(--ink)}
+  .ck span{font-size:12.4px;color:var(--ink-2);line-height:1.45}
+  /* Tur seridi: sahne dugmelerinin altinda, tuvalin hemen ustunde. Tur degisince
+     yukaridaki sahne aninda degistigi icin secici gorus alaninda duruyor. */
+  .turbar{display:flex;align-items:center;gap:10px;padding:10px 16px;
+    border-bottom:1px solid var(--line-2);background:var(--panel-2)}
+  .turbar>.tb-lab{font-family:"IBM Plex Mono",monospace;font-size:10.5px;font-weight:500;
+    letter-spacing:.09em;text-transform:uppercase;color:var(--ink-3);flex:0 0 auto}
+  .turbar .tb-scroll{display:flex;gap:6px;overflow-x:auto;flex:1 1 auto;
+    scrollbar-width:thin;padding-bottom:1px}
+  .tb{flex:0 0 auto;border:1px solid var(--line);border-radius:var(--radius);
+    background:var(--panel);padding:6px 12px 7px;display:flex;flex-direction:column;
+    gap:1px;text-align:left;cursor:pointer;line-height:1.25}
+  .tb:hover{background:var(--panel-2);color:var(--ink)}
+  .tb b{font-size:12.8px;font-weight:600;color:var(--ink)}
+  .tb em{font-style:normal;font-family:"IBM Plex Mono",monospace;font-size:10.8px;
+    color:var(--ink-3);white-space:nowrap}
+  .tb[aria-pressed="true"]{border-color:var(--sin);
+    background:color-mix(in srgb,var(--sin) 12%,var(--panel))}
+  .tb[aria-pressed="true"] em{color:var(--ink-2)}
+  @media (max-width:760px){
+    .turbar{flex-direction:column;align-items:stretch;gap:6px;padding:9px 12px}
+    .tb{padding:6px 10px}
+    .tb b{font-size:12.4px}
+  }
+  .pick{display:flex;flex-direction:column;gap:1px;background:var(--line);
+    border:1px solid var(--line);border-radius:var(--radius);overflow:hidden}
+  .pk{background:var(--panel);border:0;border-left:3px solid transparent;border-radius:0;
+    text-align:left;padding:11px 14px 12px;display:flex;flex-direction:column;gap:3px;
+    cursor:pointer;width:100%}
+  .pk:hover{background:var(--panel-2)}
+  .pk[aria-pressed="true"]{border-left-color:var(--sin);
+    background:color-mix(in srgb,var(--sin) 8%,var(--panel))}
+  .pk b{font-size:13.4px;font-weight:600;color:var(--ink)}
+  .pk span{font-size:12.4px;color:var(--ink-2);line-height:1.45;font-weight:400}
+  .pk em{font-style:normal;font-family:"IBM Plex Mono",monospace;font-size:11.5px;
+    color:var(--ink-3)}
+  .tag{display:inline-block;padding:1px 6px;border-radius:2px;font-size:10.5px;font-weight:600;
+    letter-spacing:.04em;border:1px solid}
+  .tag-a{color:var(--brass);border-color:color-mix(in srgb,var(--brass) 45%,transparent);
+    background:color-mix(in srgb,var(--brass) 11%,transparent)}
+  .tag-b{color:var(--sin);border-color:color-mix(in srgb,var(--sin) 45%,transparent);
+    background:color-mix(in srgb,var(--sin) 11%,transparent)}
+  .hint{margin:0;font-size:12.5px;color:var(--ink-3);line-height:1.5}
+  .hint b{color:var(--ink-2);font-weight:600}
+  @media (prefers-reduced-motion: reduce){*{transition:none!important}}
+</style>
+<div class="wrap">
+  <div class="topbar">
+    <header>
+      <p class="eyebrow">Müzik Teknolojisine Giriş · Sınıf atölyesi</p>
+      <h1>Mikrofonlama Teknikleri</h1>
+      <p class="lede">Bir mikrofonu nereye koyacağınız, hangi mikrofonu seçtiğinizden çoğu
+        zaman daha önemlidir. İki mikrofon kullandığınız anda ise iş değişir: artık iki
+        yoldan gelen <b>aynı ses</b> vardır ve aralarındaki <b>seviye farkı</b> ile
+        <b>zaman farkı</b> her şeyi belirler. Bu atölye o iki sayının ne yaptığını açıyor.</p>
+    </header>
+    <div class="theme" role="group" aria-label="Görünüm">
+      <button type="button" data-t="light">Açık</button>
+      <button type="button" data-t="dark">Koyu</button>
+      <button type="button" data-t="proj">Projeksiyon</button>
+    </div>
+  </div>
+
+  <section class="sec">
+    <div class="sec-head"><span class="num">01</span><h2>İki mikrofon, tek kaynak</h2>
+      <span class="kicker">Bütün tekniklerin altındaki tek mesele</span></div>
+    <div class="cols">
+      <div class="intro-col">
+        <p>01. atölyede mikrofonun sesi elektriğe nasıl çevirdiğini, 02. atölyede hangi
+          yönü ne kadar duyduğunu gördük. Şimdi sıra <b>kullanmaya</b> geldi. Ve kullanmak
+          demek neredeyse her zaman <b>birden fazla mikrofon</b> demektir: davulda sekiz,
+          koroda iki, orkestrada yirmi.</p>
+        <p>Birden fazla mikrofon açtığınız anda ortaya tek bir sorun çıkar: <b>aynı ses
+          kaynağı hepsine girer</b>. Trampete koyduğunuz mikrofon hi-hat'i de duyar;
+          hi-hat mikrofonu trampeteyi de duyar. İki mikrofonun sinyali toplandığında aynı
+          ses iki kere, üstelik <b>farklı zamanlarda</b> gelir. Bu toplama bazı
+          frekansları güçlendirir, bazılarını siler: <b>tarak filtresi</b>.</p>
+        <p class="pull">Tek mikrofonda ton vardır; iki mikrofonda <b>girişim</b> vardır.
+          Bu atölyenin tamamı girişimi yönetmekle ilgili.</p>
+      </div>
+      <div class="intro-col">
+        <p>Ama girişim yalnız bir sorun değil, aynı zamanda <b>araç</b>tır. Stereo kayıt
+          tam olarak bunun üzerine kuruludur: iki mikrofon arasındaki seviye ve zaman
+          farkını <b>kontrollü</b> üretirseniz, dinleyici sesi iki hoparlör arasında
+          belirli bir yerde duyar. XY, AB, ORTF, Blumlein — hepsi bu iki sayıyı farklı
+          oranlarda karan tariflerdir.</p>
+        <p>Dört sahne var. İlkinde sızıntıyı ve <b>3:1 kuralını</b> ölçeceğiz. İkincisinde
+          bir stereo çifti kurup <b>kayıt açısını</b> göreceğiz. Üçüncüsünde aynı kaydı
+          mono'ya toplayıp ne kaybettiğimize bakacağız. Dördüncüsünde <b>M‑S matrisini</b>
+          kurup stereo genişliğini kayıttan sonra değiştireceğiz.</p>
+        <p>Telsiz mikrofonlar ve mikrofon önyükselteçleri bu atölyeye girmiyor; onlar
+          ayrı bir konu.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="sec">
+    <div class="sec-head"><span class="num">02</span><h2>Altı kavram</h2>
+      <span class="kicker">Atölyeye girmeden önce</span></div>
+    <div class="cards">
+      <div class="ck">
+        <h3>Sızıntı <span>leakage, bleed</span></h3>
+        <p>Bir mikrofonun, kendisi için ayrılmamış kaynağı da duyması. Tamamen
+          engellenemez; <b>ne kadar aşağıda</b> olduğu önemlidir. Mesafe iki katına
+          çıkınca 6 dB azalır (ters kare yasası), desenin sıfır açısına denk gelirse
+          çok daha fazla.</p>
+      </div>
+      <div class="ck">
+        <h3>3:1 kuralı <span>three-to-one rule</span></h3>
+        <p>İki mikrofon arasındaki mesafe, her birinin kendi kaynağına olan mesafesinin
+          <b>en az üç katı</b> olsun. O zaman sızıntı <b>−9,5 dB</b>'ye iner ve toplamdaki
+          tarak dalgalanması <b>6 dB</b>'yi geçmez. Sihirli bir sayı değil, bir
+          <b>eşik seçimi</b>dir.</p>
+      </div>
+      <div class="ck">
+        <h3>Tarak filtresi <span>comb filter</span></h3>
+        <p>Aynı sesin gecikmeli kopyasıyla toplanması. Tepe ve çukurlar frekans ekseninde
+          <b>eşit aralıkla</b> dizilir: ilk çukur <b>1/(2Δt)</b>'de. Δt = 0,5 ms ise ilk
+          çukur 1 kHz'de, sonrakiler 3 kHz, 5 kHz… Kulağa içi boş, telefonvari gelir.</p>
+      </div>
+      <div class="ck">
+        <h3>Stereo kayıt açısı <span>SRA</span></h3>
+        <p>Bir stereo çiftin <b>iki hoparlör arasına sığdırdığı</b> sahne genişliği. Bu
+          açının dışındaki kaynaklar tam sağda ya da tam solda yığılır. XY 90° kardioidde
+          yaklaşık <b>±98°</b>, ORTF'te <b>±48°</b>, 1 metre aralıklı AB'de <b>±22°</b>.</p>
+      </div>
+      <div class="ck">
+        <h3>Seviye ve zaman farkı <span>ΔL ve Δt</span></h3>
+        <p>Görüntüyü yana atan iki sebep. Tek başına <b>18 dB</b> seviye farkı ya da
+          <b>1,1 ms</b> zaman farkı görüntüyü tam hoparlöre yapıştırır. İkisi birlikte
+          olduğunda etkileri <b>toplamdan biraz fazla</b> olur.</p>
+      </div>
+      <div class="ck">
+        <h3>M‑S matrisi <span>mid-side</span></h3>
+        <p>Öne bakan bir mikrofon (M) ile yana bakan bir sekiz (S) kaydedilir; L ve R
+          sonradan <b>L = M + k·S</b>, <b>R = M − k·S</b> ile üretilir (S’nin artı kolu
+          sola bakar). Genişlik k ile
+          kayıttan sonra ayarlanır ve mono uyumluluğu <b>garantidir</b>.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="sec">
+    <div class="sec-head"><span class="num">03</span><h2>Atölye: dört sahne</h2>
+      <span class="kicker">Sızıntı · stereo çift · mono · M‑S</span></div>
+
+    <div class="stage" id="stage">
+      <div class="stage-head">
+        <div class="modes" role="group" aria-label="Sahne">
+          <button type="button" data-m="yak">Yakın çekim ve 3:1</button>
+          <button type="button" data-m="cft">Stereo çift</button>
+          <button type="button" data-m="mon">Mono uyumluluğu</button>
+          <button type="button" data-m="ms">M‑S matrisi</button>
+        </div>
+        <div class="readout" id="readout"></div>
+      </div>
+
+      <div class="turbar">
+        <span class="tb-lab">Teknik</span>
+        <div class="tb-scroll" id="tekbar" role="group" aria-label="Stereo teknik"></div>
+      </div>
+
+      <div class="canvas-wrap"><canvas id="board"></canvas></div>
+
+      <div class="controls">
+        <div class="ctl-row" id="row-yak">
+          <div class="field">
+            <label for="f-a">Yakın mesafe a <em id="v-a"></em></label>
+            <input id="f-a" type="range" min="5" max="30" step="1" value="20">
+          </div>
+          <div class="field">
+            <label for="f-oran">Mesafe oranı b / a <em id="v-oran"></em></label>
+            <input id="f-oran" type="range" min="120" max="600" step="5" value="300">
+          </div>
+          <span class="ctl-note" id="a-note"></span>
+        </div>
+
+        <div class="ctl-row" id="row-cft" hidden>
+          <div class="field">
+            <label for="f-s">Kapsül aralığı s <em id="v-s"></em></label>
+            <input id="f-s" type="range" min="0" max="100" step="1" value="17">
+          </div>
+          <div class="field">
+            <label for="f-alfa">Açıklık açısı α <em id="v-alfa"></em></label>
+            <input id="f-alfa" type="range" min="0" max="180" step="1" value="110">
+          </div>
+          <div class="field">
+            <label for="f-phi">Kaynak açısı φ <em id="v-phi"></em></label>
+            <input id="f-phi" type="range" min="-90" max="90" step="1" value="30">
+          </div>
+          <span class="ctl-note" id="c-note"></span>
+        </div>
+
+        <div class="ctl-row" id="row-mon" hidden>
+          <div class="field">
+            <label for="f-mphi">Kaynak açısı φ <em id="v-mphi"></em></label>
+            <input id="f-mphi" type="range" min="-90" max="90" step="1" value="30">
+          </div>
+          <div class="btn-group sm" id="mgos"></div>
+          <span class="ctl-note" id="m-note"></span>
+        </div>
+
+        <div class="ctl-row" id="row-ms" hidden>
+          <div class="field">
+            <label for="f-k">S'nin katsayısı k <em id="v-k"></em></label>
+            <input id="f-k" type="range" min="0" max="250" step="1" value="100">
+          </div>
+          <div class="btn-group sm" id="sgos"></div>
+          <span class="ctl-note" id="s-note"></span>
+        </div>
+      </div>
+    </div>
+
+    <div class="cols">
+      <section class="panel">
+        <div class="panel-head">
+          <h3>Ders akışı</h3>
+          <span class="count" id="step-count">1 / 26</span>
+        </div>
+        <div class="panel-body">
+          <h4 id="step-title"></h4>
+          <p id="step-body"></p>
+          <div class="steps">
+            <button type="button" id="prev">Önceki</button>
+            <button type="button" id="next">Sonraki</button>
+          </div>
+          <div class="dots" id="dots"></div>
+        </div>
+      </section>
+
+      <section class="panel">
+        <div class="panel-head">
+          <h3>Seçili teknik</h3>
+          <span class="count" id="tek-count"></span>
+        </div>
+        <div class="panel-body">
+          <p class="tbl-note" id="tek-not"></p>
+          <p class="tbl-note">Teknik şeridi tuvalin hemen üstünde: seçtiğiniz teknik
+            <b>stereo çift</b> ve <b>mono uyumluluğu</b> sahnelerinde geçerli. Aralık ya da
+            açıklık kaydıracını oynatırsanız şerit <b>Serbest</b>'e geçer — yani artık
+            kitaptaki bir tarif değil, sizin kurduğunuz bir dizidir.</p>
+        </div>
+      </section>
+    </div>
+  </section>
+
+  <section class="sec">
+    <div class="sec-head"><span class="num">04</span><h2>Sekiz teknik yan yana</h2>
+      <span class="kicker">Aynı iki sayının farklı karışımları</span></div>
+    <div class="panel">
+      <div class="tbl-scroll">
+      <table id="ttable">
+        <thead><tr><th>Teknik</th><th>Desen</th><th>Aralık s</th><th>Açıklık α</th><th>SRA</th>
+          <th>Kenarda ΔL</th><th>Kenarda Δt</th><th class="c-cmp">Mono dalgalanma</th></tr></thead>
+        <tbody></tbody>
+      </table>
+      </div>
+      <p class="tbl-note">Satıra tıklayın: sahne o tekniğe geçer. <b>SRA</b> sütunu
+        tabloya elle yazılmadı; her satır sahnedeki motorun hesapladığı değerdir.
+        Mono dalgalanma sütunu 30°'lik bir kaynak için mono toplamındaki en yüksek tepe
+        ile en derin çukur arasındaki farktır.</p>
+      <p class="tbl-note">Dikkat edin: <b>çakışık</b> tekniklerde (XY, Blumlein) kenarda
+        zaman farkı <b>tam sıfırdır</b>, görüntüyü yalnız seviye farkı taşır. <b>Aralıklı</b>
+        tekniklerde (AB) seviye farkı sıfırdır, görüntüyü yalnız zaman farkı taşır.
+        Aradaki üçü (DIN, ORTF, NOS) ikisini birden kullanır — bu yüzden onlara
+        <b>yakın çakışık</b> denir.</p>
+    </div>
+  </section>
+
+  <section class="sec">
+    <div class="sec-head"><span class="num">05</span><h2>Pratikte ne yapılır?</h2>
+      <span class="kicker">Altı karar</span></div>
+    <div class="cards">
+      <div class="ck">
+        <h3>Önce mesafeyi, sonra EQ'yu ayarlayın</h3>
+        <p>Yakın çekimde tonu değiştiren en güçlü araç mikrofonun <b>yeri</b>dir:
+          birkaç santim, en pahalı ekolayzırdan daha çok iş görür. Üstelik yakınlık
+          etkisi (02. atölye) mesafeyle doğrudan bağlıdır.</p>
+      </div>
+      <div class="ck">
+        <h3>3:1'i alışkanlık yapın</h3>
+        <p>Her mikrofonu kaynağına yaklaştırın, mikrofonları birbirinden uzaklaştırın.
+          Oran 3'ün altına düştüğünde tarak dalgalanması hızla büyür: 2:1'de
+          <b>9,5 dB</b>, 1,5:1'de <b>14 dB</b>. Fader'ı kısmak da sızıntıyı azaltır —
+          aynı kural bunun için de geçerlidir.</p>
+      </div>
+      <div class="ck">
+        <h3>Tekniği sahnenin genişliğine göre seçin</h3>
+        <p>Dar bir yaylı dörtlüsüne <b>±22°</b>'lik bir AB fazla geniştir: her şey
+          kenarlara yığılır. Geniş bir orkestraya <b>±98°</b>'lik bir XY fazla dardır:
+          her şey ortada toplanır. Önce sahneyi ölçün, sonra tekniği seçin.</p>
+      </div>
+      <div class="ck">
+        <h3>Yayın işi yapıyorsanız mono'yu dinleyin</h3>
+        <p>Aralıklı çiftler mono'ya toplandığında <b>çöker</b>: 50 cm AB'de 30°'lik bir
+          kaynakta dalgalanma <b>57 dB</b>'yi bulur. Çakışık çiftlerde ise <b>tam
+          sıfır</b>dır. Kararınızı kaydı kimin dinleyeceği belirlemeli.</p>
+      </div>
+      <div class="ck">
+        <h3>Kararsızsanız M‑S kaydedin</h3>
+        <p>Genişliği kayıttan sonra değiştirebilirsiniz ve mono uyumluluğu garantidir —
+          mono toplamı <b>sadece M</b>'dir. Tek koşul: S mikrofonunun <b>sekiz</b> olması
+          ve tam yana bakması.</p>
+      </div>
+      <div class="ck">
+        <h3>Çifti ölçerek kurun</h3>
+        <p>"Kulakla yaklaşık 17 cm" diye bir şey yoktur: ORTF <b>17 cm / 110°</b>'dir,
+          NOS <b>30 cm / 90°</b>'dir. Birkaç santim aralık ya da on derece açıklık
+          kayıt açısını gözle görülür biçimde değiştirir — atölyede kaydıraçları oynatıp
+          görebilirsiniz.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="sec">
+    <div class="sec-head"><span class="num">06</span><h2>Bu kavramların dili</h2>
+      <span class="kicker">Künyede ve konsolda ne yazıyor</span></div>
+    <div class="panel">
+      <div class="tbl-scroll">
+      <table id="ltable">
+        <thead><tr><th>Terim</th><th>Türkçe</th><th class="c-cmp">Ne demek</th></tr></thead>
+        <tbody>
+          <tr><td>Close miking</td><td>Yakın çekim</td>
+            <td class="c-cmp">Kaynağa birkaç santim–birkaç karış mesafe</td></tr>
+          <tr><td>Leakage / bleed / spill</td><td>Sızıntı</td>
+            <td class="c-cmp">Başka kaynağın aynı mikrofona girmesi</td></tr>
+          <tr><td>Three-to-one rule</td><td>3:1 kuralı</td>
+            <td class="c-cmp">Mikrofonlar arası mesafe ≥ 3 × kaynak mesafesi</td></tr>
+          <tr><td>Comb filtering</td><td>Tarak filtresi</td>
+            <td class="c-cmp">Gecikmeli kopyayla toplamanın tepe–çukur deseni</td></tr>
+          <tr><td>Coincident pair</td><td>Çakışık çift</td>
+            <td class="c-cmp">İki kapsül aynı noktada — yalnız seviye farkı</td></tr>
+          <tr><td>Spaced pair (A‑B)</td><td>Aralıklı çift</td>
+            <td class="c-cmp">Ayrı noktalarda — yalnız zaman farkı</td></tr>
+          <tr><td>Near-coincident (ORTF, NOS, DIN)</td><td>Yakın çakışık</td>
+            <td class="c-cmp">Hem seviye hem zaman farkı</td></tr>
+          <tr><td>Blumlein pair</td><td>Blumlein çifti</td>
+            <td class="c-cmp">±45°'de iki sekiz</td></tr>
+          <tr><td>Stereo recording angle (SRA)</td><td>Stereo kayıt açısı</td>
+            <td class="c-cmp">Hoparlörler arasına sığan sahne genişliği</td></tr>
+          <tr><td>Mid-side (M‑S)</td><td>Orta‑yan</td>
+            <td class="c-cmp">M ± k·S ile L/R üretme</td></tr>
+          <tr><td>Matrix / decoding</td><td>Matris, çözme</td>
+            <td class="c-cmp">M ve S'den L ve R'yi hesaplama işlemi</td></tr>
+          <tr><td>Mono compatibility</td><td>Mono uyumluluğu</td>
+            <td class="c-cmp">L + R toplandığında sesin bozulmaması</td></tr>
+          <tr><td>Phantom image</td><td>Hayalet görüntü</td>
+            <td class="c-cmp">İki hoparlör arasında duyulan, olmayan kaynak</td></tr>
+          <tr><td>Precedence / Haas effect</td><td>Öncelik etkisi</td>
+            <td class="c-cmp">Önce gelen sesin yönü belirlemesi</td></tr>
+        </tbody>
+      </table>
+      </div>
+    </div>
+  </section>
+
+  <section class="sec">
+    <div class="sec-head"><span class="num">07</span><h2>Alıştırma</h2>
+      <span class="kicker">On dört soru</span></div>
+    <div class="panel quiz">
+      <div class="q-head">
+        <span class="count" id="q-count">0 / 0 doğru</span>
+      </div>
+      <div class="panel-body">
+        <p id="q-text"></p>
+        <div class="q-opts" id="q-opts"></div>
+        <p id="q-exp" class="tbl-note"></p>
+        <div class="steps"><button type="button" id="q-next">Sonraki soru</button></div>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <span>Aynı kaynak iki mikrofona girdiğinde toplam bir <b>tarak filtresi</b>dir. Sızıntı ana sinyalin r katıysa dalgalanma <b>20 log((1+r)/(1−r))</b> kadardır: r = 1/3 iken 6,0 dB, r = 1/2 iken 9,5 dB.</span>
+    <span><b>3:1 kuralı</b> sihirli değil, bir eşik seçimidir: oran 3 olduğunda sızıntı −9,5 dB'ye, dalgalanma 6 dB'ye iner. 3 dB'lik dalgalanma istenseydi oran 5,8:1 olurdu.</span>
+    <span>Görüntüyü yana atan iki sayı: <b>ΔL</b> ve <b>Δt</b>. Tek başına 18 dB ya da 1,1 ms tam yana atar. Çakışık çiftte Δt = 0, aralıklı çiftte ΔL = 0, yakın çakışık çiftte ikisi birden vardır.</span>
+    <span><b>Mono uyumluluğu:</b> çakışık çiftlerde Δt = 0 olduğu için toplam pürüzsüzdür. 50 cm aralıklı AB'de 30°'lik bir kaynakta mono toplamı 57 dB dalgalanır — ilk çukur 686 Hz'dedir.</span>
+    <span><b>M‑S:</b> L = M + k·S, R = M − k·S. Mono toplamı L + R = 2M olduğu için S ne olursa olsun mono bozulmaz. k büyüdükçe eşdeğer desenler daralır ve nişan açısı ±63° (k = 1), ±72° (k = 1,5) olur.</span>
+  </footer>
+</div>
+
+<script>
+(function(){
+  "use strict";
+  var TAU = Math.PI*2, L10 = Math.LN10;
+  var root = document.documentElement;
+  function lg(x){ return Math.log(x)/L10; }
+  var CS = 343;
+
+  /* 20. ATOLYENIN KENDI DURUM NESNESI.
+     Onbellek uyarisi: bu blok her atolyeye KOPYALANIR, paylasilmaz. 18. atolyede
+     onceki atolyenin S nesnesi kullanilinca butun sahneler cokmustu.            */
+  var S = {
+    mode:'yak',
+    a:0.20, oran:3,                                /* yakin cekim ve 3:1 */
+    tek:'ortf', s:0.17, alfa:110, des:'kardio',    /* stereo cift */
+    phi:30,
+    mPhi:30, mGos:'mono',                          /* mono uyumlulugu */
+    k:1.0, sGos:'ikisi'                               /* M-S matrisi */
+  };
+
+  /* ---------- tema ---------- */
+  var C = {}, K = { lw:1, fs:1, glow:0, faint:.32 };
+  function readColors(){
+    var s = getComputedStyle(root);
+    ['ink','ink-2','ink-3','line','line-2','sin','cos','arc','brass','panel','panel-2','ok','no'].forEach(function(k){
+      C[k.replace('-','')] = s.getPropertyValue('--'+k).trim();
+    });
+    var proj = root.getAttribute('data-mode') === 'proj';
+    var attr = root.getAttribute('data-theme');
+    var isDark = attr === 'dark' ||
+                 (!attr && window.matchMedia('(prefers-color-scheme: dark)').matches);
+    K.glow  = (isDark && !proj) ? 0.7 : 0;
+    K.lw    = proj ? 1.5 : 1;
+    K.fs    = proj ? 1.24 : 1;
+    K.faint = proj ? 0.42 : (K.glow ? 0.34 : 0.32);
+  }
+  readColors();
+
+  var MODES = { proj:'light' };
+  var themeBtns = document.querySelectorAll('.theme button');
+  function markTheme(t){
+    Array.prototype.forEach.call(themeBtns, function(b){
+      b.setAttribute('aria-pressed', b.dataset.t === t ? 'true':'false');
+    });
+  }
+  function applyTheme(t, save){
+    if (MODES[t]){ root.setAttribute('data-theme', MODES[t]); root.setAttribute('data-mode', t); }
+    else { root.setAttribute('data-theme', t); root.removeAttribute('data-mode'); }
+    if (save) { try { localStorage.setItem('dalga-tema', t); } catch(e){} }
+    markTheme(t);
+  }
+  Array.prototype.forEach.call(themeBtns, function(b){
+    b.addEventListener('click', function(){ applyTheme(b.dataset.t, true); });
+  });
+  var sysDark = window.matchMedia('(prefers-color-scheme: dark)');
+  var stored = null;
+  try { stored = localStorage.getItem('dalga-tema'); } catch(e){}
+  if (stored === 'light' || stored === 'dark' || MODES[stored]) applyTheme(stored, false);
+  else markTheme(sysDark.matches ? 'dark' : 'light');
+  sysDark.addEventListener('change', function(){
+    readColors(); render();
+    if (!root.hasAttribute('data-theme')) markTheme(sysDark.matches ? 'dark' : 'light');
+  });
+  new MutationObserver(function(){ readColors(); render(); })
+    .observe(root, {attributes:true, attributeFilter:['data-theme','data-mode']});
+
+  /* ---------- sayilar ---------- */
+  function n(v,d){
+    var x = v.toFixed(d===undefined?2:d);
+    if (/^-0[.,]?0*$/.test(x)) x = x.slice(1);
+    return x.replace('.',',').replace('-','−');
+  }
+  function fTxt(f){
+    return f >= 1000 ? n(f/1000, f >= 10000 ? 0 : 1).replace(',0','')+' kHz' : n(f,0)+' Hz';
+  }
+  function sgn(v,d){ return (v>0?'+':'')+n(v,d); }
+
+  /* ---------- canvas ---------- */
+  var board = document.getElementById('board');
+  var ctx = null, MONO = '"IBM Plex Mono", monospace', SANS = '"IBM Plex Sans", sans-serif';
+  function dash(a){ ctx.setLineDash(a ? a.map(function(v){ return v*K.lw; }) : []); }
+  function LW(v){ ctx.lineWidth = v*K.lw; }
+  function glowOn(col,amt){ if (K.glow){ ctx.shadowColor = col; ctx.shadowBlur = (amt||9)*K.lw; } }
+  function glowOff(){ ctx.shadowBlur = 0; }
+  function line(x1,y1,x2,y2){ ctx.beginPath(); ctx.moveTo(x1,y1); ctx.lineTo(x2,y2); ctx.stroke(); }
+  function dot(x,y,r,col){
+    ctx.beginPath(); ctx.arc(x,y,r*K.fs,0,TAU);
+    ctx.fillStyle = col; glowOn(col,10); ctx.fill(); glowOff();
+    LW(1.6); ctx.strokeStyle = C.panel2; ctx.stroke();
+  }
+  function txt(s,x,y,col,size,align,fam,weight){
+    ctx.fillStyle = col;
+    ctx.font = (weight||400)+' '+((size||12)*K.fs).toFixed(2)+'px '+(fam||MONO);
+    ctx.textAlign = align||'left'; ctx.textBaseline='middle';
+    ctx.fillText(s,x,y);
+  }
+  function tw(s,size,fam,weight){
+    ctx.font = (weight||400)+' '+((size||12)*K.fs).toFixed(2)+'px '+(fam||MONO);
+    return ctx.measureText(s).width;
+  }
+  function chip(s2,x,y,col,size,weight,fam){
+    var w = tw(s2,size,fam||MONO,weight||400), ph = (size+7)*K.fs;
+    ctx.fillStyle = C.panel2; ctx.globalAlpha = .92;
+    ctx.fillRect(x - w/2 - 4*K.fs, y - ph/2, w + 8*K.fs, ph);
+    ctx.globalAlpha = 1;
+    txt(s2, x, y, col, size, 'center', fam||MONO, weight||400);
+  }
+  function wrap(s, x, y, maxw, col, size, lh, weight){
+    var words = s.split(' '), ln = '', out = [];
+    words.forEach(function(w){
+      var t = ln ? ln+' '+w : w;
+      if (tw(t, size, SANS, weight) > maxw){ out.push(ln); ln = w; } else ln = t;
+    });
+    if (ln) out.push(ln);
+    out.forEach(function(l,k){ txt(l, x, y + k*lh, col, size, 'left', SANS, weight); });
+    return out.length;
+  }
+  var cw = 0, ch = 0;
+  function sized(cv){
+    var dpr = Math.min(window.devicePixelRatio||1, 2);
+    var r = cv.getBoundingClientRect();
+    if (r.width < 10) return null;
+    var W = Math.round(r.width*dpr), H = Math.round(r.height*dpr);
+    if (W !== cw || H !== ch){ cv.width = W; cv.height = H; cw = W; ch = H; }
+    var c = cv.getContext('2d');
+    c.setTransform(dpr,0,0,dpr,0,0);
+    c.clearRect(0,0,r.width,r.height);
+    c.lineJoin='round'; c.lineCap='round';
+    return { c:c, w:r.width, h:r.height };
+  }
+  function logAxis(x0, x1, f0, f1){
+    return { X: function(f){ return x0 + (lg(f) - lg(f0))/(lg(f1) - lg(f0))*(x1 - x0); },
+             F: function(x){ return f0*Math.pow(f1/f0, (x - x0)/(x1 - x0)); },
+             f0:f0, f1:f1, x0:x0, x1:x1 };
+  }
+  function drawTicks(A, y, list, fmt){
+    ctx.strokeStyle = C.line; LW(1.3);
+    line(A.x0, y, A.x1, y);
+    var dec, d;
+    for (dec = Math.floor(lg(A.f0)); dec <= Math.ceil(lg(A.f1)); dec++){
+      for (d = 1; d <= 9; d++){
+        var f = Math.pow(10, dec)*d;
+        if (f < A.f0 || f > A.f1) continue;
+        line(A.X(f), y, A.X(f), y + 2.6*K.fs);
+      }
+    }
+    list.forEach(function(v){
+      if (v < A.f0 || v > A.f1) return;
+      line(A.X(v), y, A.X(v), y + 6*K.fs);
+      txt((fmt||fTxt)(v), A.X(v), y + 16*K.fs, C.ink3, 9.5, 'center', MONO);
+    });
+  }
+  /* Hizli salinan yanitlar: her PIKSEL SUTUNU icin birkac ara deger alinip en kucuk
+     ile en buyuk arasina dikey cizgi cekiliyor. Seyrek ornekleme sahte desen uretmez. */
+  function bandCurve(A, yOf, fn, col, lw, lo, hi){
+    var px = Math.max(2, Math.round(A.x1 - A.x0)), x, k, ALT = 7;
+    ctx.strokeStyle = col; LW(lw||2.4); glowOn(col, 6);
+    ctx.beginPath();
+    for (x = 0; x <= px; x++){
+      var fa = A.f0*Math.pow(A.f1/A.f0, x/px);
+      var fb = A.f0*Math.pow(A.f1/A.f0, (x+1)/px);
+      var mn = 1e9, mx = -1e9;
+      for (k = 0; k < ALT; k++){
+        var v = fn(fa*Math.pow(fb/fa, k/(ALT-1)));
+        if (!isFinite(v)) v = lo;
+        if (v < lo) v = lo; else if (v > hi) v = hi;
+        if (v < mn) mn = v;
+        if (v > mx) mx = v;
+      }
+      ctx.moveTo(A.x0 + x, yOf(mx)); ctx.lineTo(A.x0 + x, yOf(mn));
+    }
+    ctx.stroke(); glowOff();
+  }
+
+  /* ================= cizim ================= */
+  function frame(x0,y0,w,h){
+    ctx.fillStyle = C.panel; ctx.fillRect(x0,y0,w,h);
+    ctx.strokeStyle = C.line; LW(1.2); ctx.strokeRect(x0+0.5,y0+0.5,w-1,h-1);
+  }
+  /* Yari saydam hucreler bitisik cizilince kenarlarda dikis izi birakiyor.
+     Bu yuzden renkler ONCEDEN panel rengiyle karistirilip TAM OPAK doldurulur. */
+  var RGBC = {};
+  function rgbOf(hx){
+    if (RGBC[hx]) return RGBC[hx];
+    var s2 = String(hx).trim(), r, g, b, m;
+    if (s2.charAt(0) === '#'){
+      if (s2.length === 4){
+        r = parseInt(s2.charAt(1)+s2.charAt(1),16);
+        g = parseInt(s2.charAt(2)+s2.charAt(2),16);
+        b = parseInt(s2.charAt(3)+s2.charAt(3),16);
+      } else {
+        r = parseInt(s2.substr(1,2),16); g = parseInt(s2.substr(3,2),16); b = parseInt(s2.substr(5,2),16);
+      }
+    } else {
+      m = s2.match(/(\d+)[,\s]+(\d+)[,\s]+(\d+)/);
+      r = m ? +m[1] : 128; g = m ? +m[2] : 128; b = m ? +m[3] : 128;
+    }
+    return (RGBC[hx] = [r||0, g||0, b||0]);
+  }
+  function mixc(a, b, t){
+    var A = rgbOf(a), B = rgbOf(b);
+    return 'rgb(' + Math.round(A[0]+(B[0]-A[0])*t) + ',' +
+                    Math.round(A[1]+(B[1]-A[1])*t) + ',' +
+                    Math.round(A[2]+(B[2]-A[2])*t) + ')';
+  }
+  function basincRenk(v){
+    var a = Math.min(1, Math.abs(v));
+    return mixc(C.panel, v >= 0 ? C.sin : C.cos, 0.05 + 0.84*a);
+  }
+  /* bir kesitin basinc haritasi: fu(u,v) -> [-1,1], u ve v 0..1 */
+  function harita(x0,y0,w,h,fu,NU,NV){
+    var i, j;
+    for (i=0;i<NU;i++){
+      var xa = Math.round(x0 + i*w/NU), xb = Math.round(x0 + (i+1)*w/NU);
+      for (j=0;j<NV;j++){
+        var ya = Math.round(y0 + j*h/NV), yb = Math.round(y0 + (j+1)*h/NV);
+        ctx.fillStyle = basincRenk(fu((i+0.5)/NU, (j+0.5)/NV));
+        ctx.fillRect(xa, ya, Math.max(1, xb-xa), Math.max(1, yb-ya));
+      }
+    }
+  }
+
+  /* Dar ekranda sol alt baslik ile sag ozet carpisiyordu: dar ekranda sol metin dusuyor. */
+  function sahneBaslik(w, sol, sag, sagCol, sagDar){
+    var pad = 16*K.fs, y = 16*K.fs, dar = w < 700;
+    if (!dar) txt(sol, pad, y, C.ink3, 10.5, 'left', MONO, 500);
+    var t = (dar && sagDar) ? sagDar : sag;
+    txt(t, dar ? pad : w - pad, y, sagCol, dar ? 11 : 11.5, dar ? 'left' : 'right', MONO, 600);
+  }
+
+  /* ================= FIZIK =================
+     Butun degerler once node'da bagimsiz hesapla dogrulandi (_mfz.js).
+     Yayimlanmis degerlerle karsilastirma yorumlarda satir satir duruyor.      */
+
+  var RAD = Math.PI/180;
+
+  /* --- birinci mertebe desen (19. atolyeden) --- */
+  var DES = {
+    omni:   { ad:'Omni',      B:0 },
+    kardio: { ad:'Kardioid',  B:0.50 },
+    supr:   { ad:'Süper k.',  B:0.625 },
+    hipr:   { ad:'Hiper k.',  B:0.75 },
+    sekiz:  { ad:'Sekiz',     B:1 }
+  };
+  function gKaz(B, th){ return Math.abs((1 - B) + B*Math.cos(th)); }
+
+  /* ================= 1. YAKIN CEKIM / SIZINTI / TARAK ================= */
+  /* Ana mikrofon kaynagina a metre, ikinci mikrofon ayni kaynaga b metre.
+     Ters kare yasasi: sizinti orani r = a/b.                                   */
+  function sizOran(a, b){ return a/Math.max(1e-6, b); }
+  function sizDb(r){ return 20*lg(Math.max(1e-9, r)); }
+  /* Iki yoldan gelen ayni ses toplaninca en buyuk tepe (1+r), en derin cukur
+     (1-r) olur; tepe-tepe dalgalanma 20 log((1+r)/(1-r)).
+     Dogrulama: r=1/3 -> 6,02 dB · r=1/2 -> 9,54 dB · r=1/4 -> 4,44 dB.        */
+  function tarakDb(r){
+    if (r >= 0.999) return 99;
+    return 20*lg((1 + r)/(1 - r));
+  }
+  /* Yol farki b - a metre; ilk cukur 1/(2*dt).
+     a=30 cm, oran 3 -> b-a = 60 cm -> dt = 1,75 ms -> ilk cukur 286 Hz.       */
+  function yolDt(a, b){ return (b - a)/CS; }
+  function tarakYanit(r, dt, f){
+    var w = TAU*f*dt;
+    var re = 1 + r*Math.cos(w), im = r*Math.sin(w);
+    return 20*lg(Math.max(1e-6, Math.hypot(re, im)));
+  }
+
+  /* ================= 2. STEREO CIFT ================= */
+  /* Sol mikrofon x = -s/2, ekseni -alfa/2 ; sag x = +s/2, ekseni +alfa/2.
+     Kaynak onde phi acisinda (saga pozitif), uzak alan kabulu.
+     dt = (s/c) sin phi  (pozitifse SOL gec kalir)
+     dL = 20 log(gR/gL)                                                         */
+  function cift(B, s, alfaDeg, phiDeg){
+    var phi = phiDeg*RAD, alfa = alfaDeg*RAD;
+    var gL = gKaz(B, phi + alfa/2), gR = gKaz(B, phi - alfa/2);
+    var dt = (s/CS)*Math.sin(phi);
+    var dL = 20*lg(Math.max(1e-9, gR)/Math.max(1e-9, gL));
+    return { gL:gL, gR:gR, dt:dt, dL:dL };
+  }
+
+  /* --- gorunTUnun yer degistirmesi ---
+     Tek basina 18 dB seviye farki YA DA 1,1 ms zaman farki goruntuyu tam
+     hoparlore yapistirir. IKISI BIRLIKTEYKEN DOGRUSAL TOPLANMIYOR: dogrusal
+     toplam yakin cakisik dizilerde kayit acisini 10-15 derece fazla genis
+     veriyordu (ORTF hesap ±60,7 / yayimlanan ±48). p = 0,75 normuyla
+     birlestirince sekiz tarifin hepsi tutuyor ve saf seviye (XY, Blumlein) ile
+     saf zaman (AB) satirlari HIC degismiyor, cunku bir terim sifirken p normu
+     digerine esittir.
+        XY 90°  ±98,0 (yayin ±90-100)   ORTF  ±48,3 (±48)
+        XY 120° ±79,0 (±75-80)          NOS   ±39,8 (±40)
+        Blumlein ±37,8 (±35-40)         DIN   ±50,7 (±50)
+        AB 50cm ±49,0 (±45-50)          AB 1m ±22,2 (±22-25)
+     Bu Williams'in olcum egrilerine AMPIRIK bir uyumdur, turetilmis bir yasa
+     degil. Sayfada kesin sayi iddia edilmiyor.                                 */
+  var DL_TAM = 18, DT_TAM = 0.0011, P_NORM = 0.75;
+  function yerDeg(B, s, alfa, phi){
+    var c = cift(B, s, alfa, phi);
+    var u = c.dL/DL_TAM, v = c.dt/DT_TAM;
+    if (u*v < 0) return u + v;                    /* ters isaretli: birbirini goturur */
+    var m = Math.pow(Math.pow(Math.abs(u), P_NORM) +
+                     Math.pow(Math.abs(v), P_NORM), 1/P_NORM);
+    return (u + v >= 0 ? 1 : -1)*m;
+  }
+  /* Yarim stereo kayit acisi: yer degistirmenin ONDEN ITIBAREN ilk 1'e ulastigi
+     aci. IKILI ARAMA YANLIS: yer degistirme tek yonlu artmiyor, dizinin
+     arkasinda geri donuyor ve arama 180 derecede takiliyor. Ileri tarama dogru. */
+  function sra(B, s, alfa){
+    var onc = 0, i, ad = 0.1;
+    for (i = 1; i*ad <= 180; i++){
+      var phi = i*ad, v = Math.abs(yerDeg(B, s, alfa, phi));
+      if (v >= 1) return phi - ad*(v - 1)/Math.max(1e-9, v - onc);
+      onc = v;
+    }
+    return null;
+  }
+
+  /* --- mono toplami --- */
+  /* L ve R toplanir; aralarinda dt gecikme var. Toplama gore normalize edilir,
+     yani dalgalanmanin kendisi okunur, ortalama seviye degil.                  */
+  function monoDb(B, s, alfa, phi, f){
+    var c = cift(B, s, alfa, phi);
+    var w = TAU*f*c.dt;
+    var re = c.gR + c.gL*Math.cos(w), im = c.gL*Math.sin(w);
+    return 20*lg(Math.max(1e-6, Math.hypot(re, im)/Math.max(1e-9, c.gR + c.gL)));
+  }
+  /* Dalgalanmayi frekansi tarayarak olcmek YANLIS sonuc veriyordu: cukurun dibi
+     sonsuz derin olabiliyor ve okunan deger tamamen ornekleme adimina bagli
+     kaliyordu (ayni AB cifti icin 1,02 adimda 57 dB, 1,01 adimda 51 dB).
+     |gR + gL e^(jw)| ifadesinin ucnoktalari YALNIZ w = k*pi'de olur; oradaki
+     degerler tam olarak (gR+gL) ve |gR-gL| dir. Bu yuzden tarama yerine o
+     kritik frekanslar ile bant uclari uzerinden kesin hesap yapiliyor.        */
+  var F_LO = 100, F_HI = 16000;
+  function monoUc(B, s, alfa, phi){
+    var c = cift(B, s, alfa, phi), dt = Math.abs(c.dt);
+    var top = c.gR + c.gL, fark = Math.abs(c.gR - c.gL);
+    if (dt < 1e-9 || top < 1e-9)
+      return { dalga:0, cukur:null, tam:false, top:top, fark:fark };
+    var say = [F_LO, F_HI], k, f;
+    for (k = 0; ; k++){                                   /* cukurlar */
+      f = (2*k + 1)/(2*dt);
+      if (f > F_HI) break;
+      if (f >= F_LO) say.push(f);
+    }
+    for (k = 1; ; k++){                                   /* tepeler */
+      f = k/dt;
+      if (f > F_HI) break;
+      if (f >= F_LO) say.push(f);
+    }
+    var mn = 1e9, mx = -1e9, i;
+    for (i = 0; i < say.length; i++){
+      var v = monoDb(B, s, alfa, phi, say[i]);
+      if (v < mn) mn = v;
+      if (v > mx) mx = v;
+    }
+    var ilk = 1/(2*dt);
+    return { dalga: mx - mn, cukur: (ilk <= F_HI ? ilk : null),
+             tam: (fark/Math.max(1e-9, top) < 0.02 && ilk <= F_HI),
+             top:top, fark:fark };
+  }
+
+  /* --- tarifler --- */
+  /* s metre, alfa derece. Dogrulanmis SRA degerleri yorumda.                   */
+  var TEK = [
+    { id:'xy90',  ad:'XY 90°',     kis:'XY 90',   des:'kardio', s:0,    alfa:90,
+      not:'İki kardioid tam aynı noktada, ±45°. Zaman farkı yok.' },
+    { id:'xy120', ad:'XY 120°',    kis:'XY 120',  des:'kardio', s:0,    alfa:120,
+      not:'Açıklığı artırmak kayıt açısını daraltır: aynı sahne daha geniş duyulur.' },
+    { id:'blum',  ad:'Blumlein',   kis:'Blumlein',des:'sekiz',  s:0,    alfa:90,
+      not:'±45°’de iki sekiz. En dar kayıt açısı ve en keskin görüntü; arkayı da alır.' },
+    { id:'din',   ad:'DIN',        kis:'DIN',     des:'kardio', s:0.20, alfa:90,
+      not:'20 cm / 90°. Alman yayın standardı; ORTF’ten biraz geniş kayıt açısı.' },
+    { id:'ortf',  ad:'ORTF',       kis:'ORTF',    des:'kardio', s:0.17, alfa:110,
+      not:'17 cm / 110°. Kulaklar arası mesafeye yakın; en yaygın yakın çakışık tarif.' },
+    { id:'nos',   ad:'NOS',        kis:'NOS',     des:'kardio', s:0.30, alfa:90,
+      not:'30 cm / 90°. Hollanda yayın standardı; daha dar kayıt açısı, daha çok zaman farkı.' },
+    { id:'ab50',  ad:'AB 50 cm',   kis:'AB 50',   des:'omni',   s:0.50, alfa:0,
+      not:'İki omni, 50 cm arayla paralel. Seviye farkı sıfır; her şeyi zaman farkı taşır.' },
+    { id:'ab100', ad:'AB 100 cm',  kis:'AB 100',  des:'omni',   s:1.00, alfa:0,
+      not:'1 metre aralık. Çok dar kayıt açısı: dar bir topluluk kenarlara yığılır.' },
+    { id:'ser',   ad:'Serbest',    kis:'Serbest', des:'kardio', s:0.17, alfa:110,
+      not:'Kaydıraçlarla kurduğunuz dizi. Kitaptaki bir tarif değil — sayılar yine gerçek.' }
+  ];
+  var TEKI = {};
+  TEK.forEach(function(t){ TEKI[t.id] = t; });
+
+  /* ================= 3. M-S MATRISI ================= */
+  /* M = kardioid (0,5 + 0,5 cos phi) , S = sekiz yana bakan (sin phi)
+     L = M + k S = 0,5 + R cos(phi - psi)   ,  R' = 0,5 + R cos(phi + psi)
+     R = hypot(0,5 ; k) , psi = atan2(k ; 0,5)
+     Sayisal dogrulama: iki ifade arasindaki en buyuk fark 1e-16 (node).
+       k=0,25 -> ±26,6°   k=0,5 -> ±45,0°   k=0,71 -> ±54,8° (super)
+       k=1    -> ±63,4°   k=1,5 -> ±71,6° (hiper)                               */
+  function msCoz(k){
+    var Rr = Math.hypot(0.5, k), psi = Math.atan2(k, 0.5);
+    var top = 0.5 + Rr;
+    return { Rr:Rr, psi:psi, psiD:psi/RAD, A:0.5/top, B:Rr/top };
+  }
+  /* S'nin ARTI KOLU SOLA bakar (yaygin kural). Isaret ters alininca L kanali
+     saga nisan aliyordu — grafikte L etiketi sag lobun ustune dusuyordu.     */
+  function msS(phi){ return -Math.sin(phi); }
+  function msL(k, phi){ return 0.5 + 0.5*Math.cos(phi) + k*msS(phi); }
+  function msR(k, phi){ return 0.5 + 0.5*Math.cos(phi) - k*msS(phi); }
+  /* Esdeger desenin adi (B'ye en yakin klasik desen) */
+  function msAd(B){
+    var ad = 'ara desen', en = 0.035;
+    [['omni',0],['kardioid',0.50],['süper kardioid',0.625],
+     ['hiper kardioid',0.75],['sekiz',1]].forEach(function(d){
+      var f = Math.abs(d[1] - B);
+      if (f < en){ en = f; ad = d[0]; }
+    });
+    return ad;
+  }
+
+  /* ================= ortak polar grafik (19. atolyeden) =================
+     0° YUKARI (mikrofonun baktigi yon). Yarıcap dB ile: 0 dB cemberde,
+     DBMIN merkezde. Olcum grafikleri de boyle cizilir.                        */
+  var DBMIN = -30;
+  function rdb(R, db){ return R*Math.max(0, Math.min(1, 1 - db/DBMIN)); }
+  function polNok(cx, cy, R, th, db){
+    var rr = rdb(R, db);
+    return [cx + rr*Math.sin(th), cy - rr*Math.cos(th)];
+  }
+  function polarEksen(cx, cy, R, aciEtiket){
+    var i;
+    ctx.strokeStyle = C.line2; LW(1);
+    for (i = 0; i >= DBMIN; i -= 5){
+      var rr = rdb(R, i);
+      ctx.beginPath(); ctx.arc(cx, cy, rr, 0, TAU);
+      ctx.strokeStyle = (i === 0) ? C.line : C.line2; LW(i === 0 ? 1.4 : 1);
+      if (i !== 0) dash([2,4]);
+      ctx.stroke(); dash(null);
+      if (i < 0 && i % 10 === 0)
+        txt(n(i,0), cx + 3*K.fs, cy - rr, C.ink3, 8.5, 'left', MONO);
+    }
+    ctx.strokeStyle = C.line2; LW(1);
+    for (i = 0; i < 12; i++){
+      var th = i/12*TAU;
+      dash([2,4]);
+      line(cx, cy, cx + R*Math.sin(th), cy - R*Math.cos(th));
+      dash(null);
+    }
+    if (aciEtiket !== false){
+      [0,30,60,90,120,150,180,210,240,270,300,330].forEach(function(d){
+        var th = d*RAD, rr = R + 13*K.fs;
+        var e = d > 180 ? (360 - d) : d;
+        txt(n(e,0) + '°', cx + rr*Math.sin(th), cy - rr*Math.cos(th),
+            C.ink3, 9, 'center', MONO);
+      });
+    }
+    /* 0° aci etiketiyle ust uste binmesin diye ilk iki halkanin arasina alindi. */
+    txt('dB', cx + 3*K.fs, cy - rdb(R,-2.5), C.ink3, 8.5, 'left', MONO);
+  }
+  function polarEgri(cx, cy, R, fn, col, lw, dolgu){
+    var N = 360, i;
+    ctx.beginPath();
+    for (i = 0; i <= N; i++){
+      var th = i/N*TAU, p = polNok(cx, cy, R, th, fn(th));
+      if (i === 0) ctx.moveTo(p[0], p[1]); else ctx.lineTo(p[0], p[1]);
+    }
+    ctx.closePath();
+    if (dolgu){ ctx.fillStyle = col; ctx.globalAlpha = dolgu; ctx.fill(); ctx.globalAlpha = 1; }
+    ctx.strokeStyle = col; LW(lw || 2.6); glowOn(col, 6); ctx.stroke(); glowOff();
+  }
+  function dbOf(r){ return 20*lg(Math.max(1e-5, r)); }
+
+  /* ---------- ortak: dB ekseni olan bir cerceve ---------- */
+  function dbPanel(x0, y0, w, h, lo, hi, adimlar, birim){
+    frame(x0, y0, w, h);
+    var Y = function(v){ return y0 + h - (v - lo)/(hi - lo)*h; };
+    ctx.strokeStyle = C.line2; LW(1);
+    adimlar.forEach(function(v){
+      if (v < lo || v > hi) return;
+      dash(v === 0 ? null : [2,4]);
+      ctx.strokeStyle = v === 0 ? C.line : C.line2; LW(v === 0 ? 1.3 : 1);
+      line(x0, Y(v), x0 + w, Y(v));
+      dash(null);
+      /* En ustteki etiket cerceveden tasip sahne basligina biniyordu: iceri alindi. */
+      txt(sgn(v,0), x0 + 4*K.fs, Math.max(y0 + 8*K.fs, Y(v) - 6*K.fs),
+          C.ink3, 8.5, 'left', MONO);
+    });
+    if (birim) txt(birim, x0 + w - 5*K.fs, y0 + 9*K.fs, C.ink3, 8.5, 'right', MONO);
+    return Y;
+  }
+
+  /* ---------- mikrofon simgesi (tepeden gorunus) ----------
+     thDeg: baktigi yon, 0 = yukari. Kucuk bir kapsul + govde.               */
+  function mikSim(x, y, thDeg, r, col, desB){
+    var th = thDeg*RAD;
+    ctx.save();
+    ctx.translate(x, y); ctx.rotate(th);
+    /* govde */
+    ctx.fillStyle = mixc(C.panel2, col, 0.22);
+    ctx.strokeStyle = col; LW(1.6);
+    ctx.beginPath();
+    ctx.rect(-r*0.46, -r*0.15, r*0.92, r*1.5);
+    ctx.fill(); ctx.stroke();
+    /* kapsul */
+    ctx.beginPath(); ctx.arc(0, -r*0.15, r*0.52, 0, TAU);
+    ctx.fillStyle = mixc(C.panel, col, 0.55); ctx.fill();
+    ctx.strokeStyle = col; LW(1.6); ctx.stroke();
+    /* baktigi yonu gosteren kucuk cizgi */
+    ctx.strokeStyle = col; LW(1.8);
+    line(0, -r*0.62, 0, -r*1.05);
+    ctx.restore();
+    /* kucuk desen rozeti */
+    if (desB !== undefined && desB !== null){
+      var N = 48, i;
+      ctx.beginPath();
+      for (i = 0; i <= N; i++){
+        var a2 = th + i/N*TAU, g2 = gKaz(desB, i/N*TAU);
+        var rr = r*(0.55 + 1.5*g2);
+        var px = x + rr*Math.sin(a2), py = y - rr*Math.cos(a2);
+        if (i === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py);
+      }
+      ctx.closePath();
+      ctx.strokeStyle = col; LW(1.2); ctx.globalAlpha = 0.5; dash([3,3]);
+      ctx.stroke(); dash(null); ctx.globalAlpha = 1;
+    }
+  }
+
+  /* ---------- SAHNE 1: yakin cekim ve 3:1 ---------- */
+  /* Plan gorunusu SABIT OLCEKLI: alan her zaman 2,2 m x 0,38 m. Oran buyudukce
+     ikinci mikrofon uzaklasir — olcek degismedigi icin gozle karsilastirilir.
+     a en fazla 30 cm ve oran en fazla 6 oldugundan yatay acilim en fazla
+     sqrt(1,8² − 0,3²) = 1,78 m; 2,2 m'lik alan her ayari icine aliyor.       */
+  var AL_W = 2.2, AL_H = 0.38;
+  function drawYak(w, h){
+    var pad = 16*K.fs, dar = w < 760;
+    var a = S.a, oran = S.oran, b = a*oran;
+    var r = sizOran(a, b), dal = tarakDb(r), dt = yolDt(a, b);
+    var ilk = dt > 1e-9 ? 1/(2*dt) : null;
+
+    sahneBaslik(w,
+      'YAKIN ÇEKİM  ·  aynı kaynak iki mikrofona giriyor',
+      'oran ' + n(oran,1) + ':1  ·  sızıntı ' + n(sizDb(r),1) + ' dB  ·  dalgalanma ' +
+        n(dal,1) + ' dB',
+      oran >= 3 ? C.ok : C.no,
+      n(oran,1) + ':1 · ' + n(dal,1) + ' dB');
+
+    /* ---------- ust: plan ---------- */
+    /* Panel yuksekligi OLCEKTEN cikiyor: once genisligin izin verdigi olcek,
+       sonra o olcegin gerektirdigi yukseklik. Boylece panelin ustunde bos
+       bant kalmiyor (sabit yukseklik verilince alanin yarisi bos kaliyordu). */
+    var top = 34*K.fs;
+    var px0 = pad, pw = w - 2*pad;
+    var enCok = Math.min((h - top)*(dar ? 0.30 : 0.42), 210*K.fs);
+    var sc = Math.min((pw - 24*K.fs)/AL_W, (enCok - 46*K.fs)/AL_H);
+    var ph = sc*AL_H + 46*K.fs;
+    frame(px0, top, pw, ph);
+    var ox = px0 + (pw - AL_W*sc)/2, oy = top + ph - 22*K.fs;
+    var X = function(m){ return ox + m*sc; };
+    var Yq = function(m){ return oy - m*sc; };
+
+    /* sahne zemini */
+    ctx.strokeStyle = C.line; LW(1.3);
+    line(px0 + 8*K.fs, oy, px0 + pw - 8*K.fs, oy);
+
+    var xA = 0.34, yat = Math.sqrt(Math.max(0, b*b - a*a));
+    var xB = xA + yat;
+    var gorB = Math.min(xB, AL_W - 0.22);          /* alan disina tasmasin */
+    var tasti = xB > AL_W - 0.22;
+
+    /* sizinti yolu (kesikli) */
+    ctx.strokeStyle = C.no; LW(1.6); dash([5,4]);
+    line(X(xA), Yq(0), X(gorB), Yq(a));
+    dash(null);
+    /* dogrudan yollar */
+    ctx.strokeStyle = C.ok; LW(2.2);
+    line(X(xA), Yq(0), X(xA), Yq(a));
+    line(X(gorB), Yq(0), X(gorB), Yq(a));
+
+    /* kaynaklar */
+    [[xA, dar ? 'A' : 'kaynak A', C.sin], [gorB, dar ? 'B' : 'kaynak B', C.cos]]
+      .forEach(function(q){
+        dot(X(q[0]), Yq(0), 5.2, q[2]);
+        txt(q[1], X(q[0]), Yq(0) + 13*K.fs, q[2], 9.5, 'center', MONO, 600);
+      });
+    /* mikrofonlar */
+    var mr = (dar ? 10 : 13)*K.fs;
+    mikSim(X(xA), Yq(a), 180, mr, C.sin, null);
+    mikSim(X(gorB), Yq(a), 180, mr, C.cos, null);
+    txt(dar ? 'A' : 'mik A', X(xA) - mr - 5*K.fs, Yq(a) - 4*K.fs, C.sin, 9.5, 'right', MONO, 600);
+    txt(dar ? 'B' : 'mik B', X(gorB) + mr + 5*K.fs, Yq(a) - 4*K.fs, C.cos, 9.5, 'left', MONO, 600);
+
+    /* olcu etiketleri — "a" dikey cizginin SOLUNA, "b" kesikli yolun uzerine;
+       ikisi ayni yere yazilinca ust uste biniyordu.                          */
+    chip('a = ' + n(a*100,0) + ' cm', X(xA), Yq(a) + (Yq(0) - Yq(a))*0.5, C.ok, 9.5, 600);
+    var mx = X(xA) + (X(gorB) - X(xA))*0.62, my = Yq(0) + (Yq(a) - Yq(0))*0.62;
+    chip('b = ' + n(b*100,0) + ' cm' + (tasti ? ' ↦' : ''), mx, my - 11*K.fs, C.no, 9.5, 600);
+    txt(dar ? 'MİK B, KAYNAK A’YI DA DUYUYOR' : 'MİK B, KAYNAK A’YI DA DUYUYOR',
+        px0 + 10*K.fs, top + 12*K.fs, C.ink3, dar ? 8.5 : 9.5, 'left', MONO);
+    if (!dar) txt('ölçek sabit', px0 + pw - 10*K.fs, top + 12*K.fs, C.ink3, 9, 'right', MONO);
+    if (tasti)
+      txt('(çizim alanı 4 m; b bundan uzun)', X(gorB), Yq(0) + 27*K.fs, C.ink3, 9, 'center', MONO);
+
+    /* ---------- alt: tarak yaniti ---------- */
+    var ty = top + ph + 14*K.fs;
+    var th2 = Math.min(h - ty - (dar ? 96*K.fs : 74*K.fs), 330*K.fs);
+    var sayW = dar ? 0 : Math.min(230*K.fs, pw*0.30);
+    var gw = pw - (dar ? 0 : sayW + 14*K.fs);
+    var Y = dbPanel(px0, ty, gw, th2, -24, 8, [8,4,0,-4,-8,-12,-16,-20,-24], 'dB');
+    var A2 = logAxis(px0 + 30*K.fs, px0 + gw - 12*K.fs, 40, 16000);
+    drawTicks(A2, ty + th2 - 16*K.fs, [100,1000,10000]);
+    /* tarak egrisi: hizli salinim oldugu icin bant cizimi */
+    bandCurve(A2, Y, function(f){ return tarakYanit(r, dt, f); }, C.sin, 2.4, -24, 8);
+    /* sinirlar */
+    ctx.strokeStyle = C.ink3; LW(1.2); dash([4,4]);
+    line(A2.x0, Y(20*lg(1 + r)), A2.x1, Y(20*lg(1 + r)));
+    line(A2.x0, Y(20*lg(Math.max(1e-4, 1 - r))), A2.x1, Y(20*lg(Math.max(1e-4, 1 - r))));
+    dash(null);
+    chip('tepe ' + sgn(20*lg(1+r),1), A2.x1 - 46*K.fs, Y(20*lg(1+r)) - 9*K.fs, C.ink2, 9, 600);
+    chip('çukur ' + n(20*lg(Math.max(1e-4,1-r)),1),
+         A2.x1 - 46*K.fs, Y(20*lg(Math.max(1e-4,1-r))) + 9*K.fs, C.ink2, 9, 600);
+    if (ilk && ilk >= 40 && ilk <= 16000){
+      ctx.strokeStyle = C.arc; LW(1.4); dash([3,3]);
+      line(A2.X(ilk), ty + 8*K.fs, A2.X(ilk), ty + th2 - 18*K.fs);
+      dash(null);
+      chip('ilk çukur ' + fTxt(ilk), A2.X(ilk), ty + 32*K.fs, C.arc, 9.5, 600);
+    }
+    txt('MİK B’NİN ÇIKIŞI  ·  doğrudan ses + sızıntı', px0 + 32*K.fs, ty + 12*K.fs,
+        C.ink3, 9.5, 'left', MONO);
+
+    /* ---------- sayilar ---------- */
+    var sx = dar ? px0 : (px0 + gw + 14*K.fs);
+    var sy = dar ? (ty + th2 + 16*K.fs) : (ty + 16*K.fs);
+    var SAT = [
+      ['sızıntı', n(sizDb(r),1) + ' dB', r > 0.5 ? C.no : C.ink2],
+      ['yol farkı b − a', n((b - a)*100,0) + ' cm', C.ink2],
+      ['gecikme Δt', n(dt*1000,2) + ' ms', C.ink2],
+      ['ilk çukur', ilk ? fTxt(ilk) : '—', C.arc],
+      ['dalgalanma', n(dal,1) + ' dB', dal > 6.5 ? C.no : C.ok]
+    ];
+    if (dar){
+      SAT.forEach(function(s2, i){
+        var cx2 = sx + (i % 2)*(pw/2), cy2 = sy + Math.floor(i/2)*17*K.fs;
+        txt(s2[0], cx2, cy2, C.ink3, 9, 'left', MONO);
+        txt(s2[1], cx2 + pw/2 - 12*K.fs, cy2, s2[2], 10, 'right', MONO, 600);
+      });
+    } else {
+      txt('SAYILAR', sx, sy, C.ink3, 9.5, 'left', MONO);
+      SAT[0][0] = 'sızıntı seviyesi';
+      SAT[4][0] = 'tepe–çukur dalgalanma';
+      SAT.forEach(function(s2, i){
+        var yy = sy + 20*K.fs + i*17*K.fs;
+        txt(s2[0], sx, yy, C.ink3, 9.5, 'left', MONO);
+        txt(s2[1], sx + sayW, yy, s2[2], 10.5, 'right', MONO, 600);
+      });
+      var yy2 = sy + 20*K.fs + 5*17*K.fs + 6*K.fs;
+      ctx.strokeStyle = C.line2; LW(1); line(sx, yy2, sx + sayW, yy2);
+      wrap(oran >= 3
+        ? 'Oran 3’ün üstünde: sızıntı −9,5 dB’nin altında, dalgalanma 6 dB’yi geçmiyor.'
+        : 'Oran 3’ün altında: sızıntı yükseldi, tarak dalgalanması 6 dB’yi aştı.',
+        sx, yy2 + 14*K.fs, sayW, oran >= 3 ? C.ok : C.no, 10, 14*K.fs, 500);
+    }
+  }
+
+  /* ---------- SAHNE 2: stereo cift laboratuvari ----------
+     Plan gorunusu SABIT OLCEKLI: mikrofon alani her zaman ±0,55 m.
+     Kaynak, mikrofonlarin ortasindaki YARIM cemberde duruyor (uzak alan).
+     Tam cember cizilince alanin alt yarisi hep bos kaliyordu — kaynaklar
+     yalnizca onde (±90°) olabildigi icin yarim disk iki kat buyuk cizilir. */
+  var MIK_ALAN = 0.55;
+  function drawCft(w, h){
+    var pad = 16*K.fs, dar = w < 780;
+    var T = TEKI[S.tek], B = DES[S.des].B;
+    var s = S.s, alfa = S.alfa, phi = S.phi;
+    var c = cift(B, s, alfa, phi);
+    var yd = yerDeg(B, s, alfa, phi);
+    var yk = Math.max(-1, Math.min(1, yd));
+    var sr = sra(B, s, alfa);
+
+    sahneBaslik(w,
+      'STEREO ÇİFT  ·  ' + DES[S.des].ad + '  ·  s = ' + n(s*100,0) + ' cm  ·  α = ' + n(alfa,0) + '°',
+      T.ad + '  ·  kayıt açısı ±' + (sr === null ? '>180' : n(sr,0)) + '°',
+      C.arc, T.kis + ' · ±' + (sr === null ? '>180' : n(sr,0)) + '°');
+
+    var top = 34*K.fs;
+    var pw = dar ? (w - 2*pad) : (w - 2*pad)*0.48;
+    var Rc = Math.min(pw*0.46, (dar ? (h - top)*0.42 : (h - top - 18*K.fs)) - 100*K.fs);
+    /* Panel yuksekligi yarim diskin kendisinden cikiyor; sabit verilince ustte
+       kocaman bos bir bant kaliyordu.                                        */
+    var ph = dar ? (Rc + 100*K.fs) : (h - top - 18*K.fs);
+    var px0 = pad;
+    frame(px0, top, pw, ph);
+    var cx = px0 + pw/2, cy = top + ph - 62*K.fs;
+    var sc = Rc*0.60/MIK_ALAN;
+
+    /* kayit acisi kamasi */
+    if (sr !== null){
+      ctx.beginPath(); ctx.moveTo(cx, cy);
+      ctx.arc(cx, cy, Rc, -Math.PI/2 - sr*RAD, -Math.PI/2 + sr*RAD);
+      ctx.closePath();
+      ctx.fillStyle = C.brass; ctx.globalAlpha = 0.12; ctx.fill(); ctx.globalAlpha = 1;
+      ctx.strokeStyle = C.brass; LW(1.6); dash([5,4]);
+      [-1, 1].forEach(function(q){
+        var t2 = q*sr*RAD;
+        line(cx, cy, cx + Rc*Math.sin(t2), cy - Rc*Math.cos(t2));
+      });
+      dash(null);
+      chip('KAYIT AÇISI ±' + n(sr,0) + '°', cx, cy - Rc*0.80, C.brass, 9.5, 600);
+    }
+
+    /* yarim cember ve aci cizgileri */
+    ctx.strokeStyle = C.line2; LW(1); dash([2,4]);
+    ctx.beginPath(); ctx.arc(cx, cy, Rc, Math.PI, TAU); ctx.stroke();
+    dash(null);
+    ctx.strokeStyle = C.line; LW(1.2);
+    line(cx - Rc, cy, cx + Rc, cy);
+    [-90,-60,-30,0,30,60,90].forEach(function(d){
+      var t2 = d*RAD, rr = Rc + 13*K.fs;
+      txt((d === 0 ? '0' : (d > 0 ? '+' : '−') + Math.abs(d)) + '°',
+          cx + rr*Math.sin(t2), cy - rr*Math.cos(t2) - (Math.abs(d) === 90 ? 9*K.fs : 0),
+          C.ink3, 9, 'center', MONO);
+      ctx.strokeStyle = C.line2; LW(1); dash([2,4]);
+      line(cx + Rc*0.94*Math.sin(t2), cy - Rc*0.94*Math.cos(t2),
+           cx + Rc*Math.sin(t2), cy - Rc*Math.cos(t2));
+      dash(null);
+    });
+
+    /* mikrofonlar */
+    var xl = cx - (s/2)*sc, xr = cx + (s/2)*sc;
+    mikSim(xl, cy, -alfa/2, 15*K.fs, C.cos, B);
+    mikSim(xr, cy,  alfa/2, 15*K.fs, C.sin, B);
+    txt('SOL', xl - 30*K.fs, cy + 20*K.fs, C.cos, 9.5, 'center', MONO, 600);
+    txt('SAĞ', xr + 30*K.fs, cy + 20*K.fs, C.sin, 9.5, 'center', MONO, 600);
+    if (s > 0.01){
+      ctx.strokeStyle = C.ink3; LW(1.2);
+      line(xl, cy + 34*K.fs, xr, cy + 34*K.fs);
+      chip('s = ' + n(s*100,0) + ' cm', cx, cy + 34*K.fs, C.ink2, 9, 600);
+    } else {
+      chip('çakışık (s = 0)', cx, cy + 34*K.fs, C.ink2, 9, 600);
+    }
+
+    /* kaynak */
+    var tp = phi*RAD;
+    ctx.strokeStyle = C.arc; LW(1.8); dash([4,4]);
+    line(cx, cy, cx + Rc*Math.sin(tp), cy - Rc*Math.cos(tp));
+    dash(null);
+    var sxp = cx + Rc*Math.sin(tp), syp = cy - Rc*Math.cos(tp);
+    dot(sxp, syp, 6, C.arc);
+    chip('kaynak ' + sgn(phi,0) + '°', sxp, syp - 15*K.fs, C.arc, 9.5, 600);
+    txt('kaynağı sürükleyin', cx, top + ph - 13*K.fs, C.ink3, 9.5, 'center', MONO);
+
+    /* ---------- sag: egri + gorunTU cubugu ---------- */
+    var gx = dar ? pad : (px0 + pw + 14*K.fs);
+    var gy = dar ? (top + ph + 14*K.fs) : top;
+    var gw = dar ? (w - 2*pad) : (w - pad - gx);
+    var gh = dar ? (h - gy - 96*K.fs) : (ph*0.64);
+
+    frame(gx, gy, gw, gh);
+    var ax0 = gx + 34*K.fs, ax1 = gx + gw - 12*K.fs;
+    var ay0 = gy + 26*K.fs, ay1 = gy + gh - 24*K.fs;
+    var PX = function(d){ return ax0 + (d + 90)/180*(ax1 - ax0); };
+    var PY = function(v){ return ay1 - (v + 1)/2*(ay1 - ay0); };
+    /* SABIT EKSEN: -1 tam sol, +1 tam sag */
+    ctx.strokeStyle = C.line2; LW(1);
+    [-1,-0.5,0,0.5,1].forEach(function(v){
+      dash(v === 0 ? null : [2,4]);
+      ctx.strokeStyle = v === 0 ? C.line : C.line2; LW(v === 0 ? 1.3 : 1);
+      line(ax0, PY(v), ax1, PY(v)); dash(null);
+    });
+    [-1,1].forEach(function(v){
+      txt(v > 0 ? 'tam sağ' : 'tam sol', ax0 - 4*K.fs, PY(v), C.ink3, 8.5, 'right', MONO);
+    });
+    txt('orta', ax0 - 4*K.fs, PY(0), C.ink3, 8.5, 'right', MONO);
+    [-90,-60,-30,0,30,60,90].forEach(function(d){
+      ctx.strokeStyle = C.line2; LW(1);
+      line(PX(d), ay1, PX(d), ay1 + 4*K.fs);
+      txt(sgn(d,0) + '°', PX(d), ay1 + 13*K.fs, C.ink3, 8.5, 'center', MONO);
+    });
+    /* egri */
+    ctx.beginPath();
+    var i2;
+    for (i2 = 0; i2 <= 180; i2++){
+      var d2 = -90 + i2, v2 = Math.max(-1, Math.min(1, yerDeg(B, s, alfa, d2)));
+      if (i2 === 0) ctx.moveTo(PX(d2), PY(v2)); else ctx.lineTo(PX(d2), PY(v2));
+    }
+    ctx.strokeStyle = C.sin; LW(2.8); glowOn(C.sin, 6); ctx.stroke(); glowOff();
+    /* SRA kenarlari */
+    if (sr !== null && sr <= 90){
+      ctx.strokeStyle = C.brass; LW(1.4); dash([3,3]);
+      [-sr, sr].forEach(function(d3){ line(PX(d3), ay0, PX(d3), ay1); });
+      dash(null);
+      chip('±' + n(sr,0) + '°', PX(sr), ay0 + 8*K.fs, C.brass, 9, 600);
+    }
+    /* secili kaynak */
+    dot(PX(phi), PY(yk), 5.4, C.arc);
+    txt(dar ? 'GÖRÜNTÜ NEREDE DUYULUR?' : 'GÖRÜNTÜ NEREDE DUYULUR?  ·  kaynak açısına göre',
+        ax0, gy + 12*K.fs, C.ink3, 9.5, 'left', MONO);
+
+    /* ---------- hoparlor cubugu + sayilar ---------- */
+    var by = dar ? (gy + gh + 12*K.fs) : (gy + gh + 14*K.fs);
+    var bh = dar ? (h - by - 8*K.fs) : (top + ph - by);
+    frame(gx, by, gw, bh);
+    var bx0 = gx + 46*K.fs, bx1 = gx + gw - 46*K.fs, byy = by + 30*K.fs;
+    ctx.strokeStyle = C.line; LW(2);
+    line(bx0, byy, bx1, byy);
+    [[bx0, 'L', C.cos], [bx1, 'R', C.sin]].forEach(function(q){
+      ctx.fillStyle = mixc(C.panel2, q[2], 0.35);
+      ctx.strokeStyle = q[2]; LW(1.6);
+      ctx.beginPath(); ctx.rect(q[0] - 9*K.fs, byy - 11*K.fs, 18*K.fs, 22*K.fs);
+      ctx.fill(); ctx.stroke();
+      txt(q[1], q[0], byy, q[2], 10.5, 'center', MONO, 600);
+    });
+    var gxp = bx0 + (yk + 1)/2*(bx1 - bx0);
+    dot(gxp, byy, 7, C.arc);
+    /* Cip kenarda hoparlor kutusunun uzerine binmesin diye sinirlaniyor. */
+    var cw4 = tw('hayalet görüntü', 9.5, MONO, 600)/2 + 16*K.fs;
+    chip('hayalet görüntü',
+         Math.max(gx + cw4 + 4*K.fs, Math.min(gx + gw - cw4 - 4*K.fs, gxp)),
+         byy - 20*K.fs, C.arc, 9.5, 600);
+    txt('İKİ HOPARLÖR ARASINDA', gx + 10*K.fs, by + 12*K.fs, C.ink3, 9.5, 'left', MONO);
+
+    var ny = byy + 26*K.fs;
+    var SAT = [
+      ['ΔL seviye farkı', n(Math.abs(c.dL),1) + ' dB', C.cos],
+      ['Δt zaman farkı', n(Math.abs(c.dt)*1000,2) + ' ms', C.sin],
+      ['yer değiştirme', n(Math.abs(yd)*100,0) + ' %', Math.abs(yd) >= 1 ? C.no : C.arc]
+    ];
+    SAT.forEach(function(s3, i3){
+      var cw2 = (gw - 20*K.fs)/3, cx3 = gx + 10*K.fs + i3*cw2;
+      txt(s3[0], cx3, ny, C.ink3, 9, 'left', MONO);
+      txt(s3[1], cx3, ny + 15*K.fs, s3[2], 12, 'left', MONO, 600);
+    });
+    if (bh > 96*K.fs){
+      wrap(Math.abs(yd) >= 1
+        ? 'Bu kaynak kayıt açısının dışında: görüntü hoparlöre yapıştı, daha da yana gidemez.'
+        : 'Görüntü iki hoparlör arasında; kaynak kayıt açısının içinde.',
+        gx + 10*K.fs, ny + 38*K.fs, gw - 20*K.fs,
+        Math.abs(yd) >= 1 ? C.no : C.ink2, 10, 14*K.fs, 500);
+    }
+  }
+
+  /* ---------- SAHNE 3: mono uyumlulugu ---------- */
+  function drawMon(w, h){
+    var pad = 16*K.fs, dar = w < 760;
+    var T = TEKI[S.tek], B = DES[S.des].B;
+    var s = S.s, alfa = S.alfa, phi = S.mPhi;
+    var c = cift(B, s, alfa, phi), u = monoUc(B, s, alfa, phi);
+    var top2 = Math.max(1e-9, c.gL + c.gR);
+
+    sahneBaslik(w,
+      'MONO UYUMLULUĞU  ·  L + R toplandığında ne oluyor?',
+      T.ad + '  ·  kaynak ' + sgn(phi,0) + '°  ·  ' +
+        (u.tam ? 'TAM SÖNÜM' : 'dalgalanma ' + n(u.dalga,1) + ' dB'),
+      u.dalga > 6 ? C.no : C.ok,
+      T.kis + ' · ' + (u.tam ? 'tam sönüm' : n(u.dalga,1) + ' dB'));
+
+    /* ---------- ust: frekans yaniti ---------- */
+    var top = 34*K.fs;
+    var gh = Math.min((h - top)*0.52, 300*K.fs);
+    var gw = w - 2*pad;
+    var Y = dbPanel(pad, top, gw, gh, -30, 8, [8,4,0,-4,-8,-12,-16,-20,-24,-28], 'dB');
+    var A2 = logAxis(pad + 32*K.fs, pad + gw - 12*K.fs, 40, 16000);
+    drawTicks(A2, top + gh - 16*K.fs, [100,1000,10000]);
+
+    if (S.mGos === 'lr'){
+      /* Her mikrofon TEK BASINA duz: tarak yalniz TOPLAMDA doguyor. */
+      [[c.gL, C.cos, 'yalnız SOL'], [c.gR, C.sin, 'yalnız SAĞ']].forEach(function(q, i){
+        var v = 20*lg(Math.max(1e-5, q[0]/top2));
+        ctx.strokeStyle = q[1]; LW(2.8); glowOn(q[1], 6);
+        line(A2.x0, Y(Math.max(-30, v)), A2.x1, Y(Math.max(-30, v)));
+        glowOff();
+        chip(q[2] + '  ' + n(v,1) + ' dB', A2.x0 + (i ? 150 : 70)*K.fs,
+             Y(Math.max(-30, v)) - 10*K.fs, q[1], 9.5, 600);
+      });
+      ctx.strokeStyle = C.ink3; LW(1.6); dash([4,4]);
+      bandCurve(A2, Y, function(f){ return monoDb(B, s, alfa, phi, f); }, C.ink3, 1.6, -30, 8);
+      dash(null);
+      txt('TEK TEK DÜZ  ·  toplam soluk çizilen eğri', A2.x0, top + 12*K.fs,
+          C.ink3, 9.5, 'left', MONO);
+    } else {
+      /* stereo referansi: tek kanal, dumduz */
+      ctx.strokeStyle = C.cos; LW(2); dash([6,4]);
+      line(A2.x0, Y(0), A2.x1, Y(0)); dash(null);
+      chip('stereo dinlerken (dalgalanma yok)', A2.x0 + 130*K.fs, Y(0) - 11*K.fs,
+           C.cos, 9.5, 600);
+      bandCurve(A2, Y, function(f){ return monoDb(B, s, alfa, phi, f); }, C.sin, 2.6, -30, 8);
+      chip('mono toplamı', A2.x1 - 60*K.fs, Y(-26), C.sin, 10, 600);
+      txt('MONO TOPLAMININ FREKANS YANITI', A2.x0, top + 12*K.fs, C.ink3, 9.5, 'left', MONO);
+    }
+    if (u.cukur !== null && u.cukur >= 40){
+      ctx.strokeStyle = C.arc; LW(1.4); dash([3,3]);
+      line(A2.X(u.cukur), top + 20*K.fs, A2.X(u.cukur), top + gh - 18*K.fs);
+      dash(null);
+      chip('ilk çukur ' + fTxt(u.cukur), A2.X(u.cukur), top + 32*K.fs, C.arc, 9.5, 600);
+    }
+
+    /* ---------- alt: butun teknikler yan yana ---------- */
+    var by = top + gh + 14*K.fs;
+    var bh = h - by - 6*K.fs;
+    frame(pad, by, gw, bh);
+    txt(dar ? 'BÜTÜN TEKNİKLER  ·  dalgalanma, dB  ·  TEK ÖLÇEK'
+            : 'AYNI KAYNAK AÇISIYLA BÜTÜN TEKNİKLER  ·  mono dalgalanma, dB  ·  TEK ÖLÇEK 0–30',
+        pad + 10*K.fs, by + 12*K.fs, C.ink3, dar ? 8.5 : 9.5, 'left', MONO);
+    var lst = TEK.filter(function(t){ return t.id !== 'ser'; });
+    var n2 = lst.length, cw2 = (gw - 20*K.fs)/n2;
+    var bx = pad + 10*K.fs;
+    var b0 = by + 26*K.fs, b1 = by + bh - 26*K.fs;
+    /* SABIT EKSEN: 0-30 dB, tam sonum tavana dayanir */
+    ctx.strokeStyle = C.line2; LW(1);
+    [0,10,20,30].forEach(function(v){
+      var yy = b1 - v/30*(b1 - b0);
+      dash(v === 0 ? null : [2,4]);
+      ctx.strokeStyle = v === 0 ? C.line : C.line2;
+      line(bx, yy, bx + n2*cw2, yy); dash(null);
+      txt(n(v,0), bx - 4*K.fs, yy, C.ink3, 8.5, 'right', MONO);
+    });
+    lst.forEach(function(t, i){
+      var Bq = DES[t.des].B, uq = monoUc(Bq, t.s, t.alfa, phi);
+      var v = Math.min(30, uq.dalga);
+      var yy = b1 - v/30*(b1 - b0);
+      var sec = (t.id === S.tek);
+      var col = uq.tam ? C.no : (uq.dalga > 6 ? C.sin : C.ok);
+      ctx.fillStyle = sec ? col : mixc(C.panel, col, 0.42);
+      ctx.fillRect(bx + i*cw2 + cw2*0.18, yy, cw2*0.64, b1 - yy);
+      if (sec){ ctx.strokeStyle = C.ink; LW(1.6);
+        ctx.strokeRect(bx + i*cw2 + cw2*0.18, yy, cw2*0.64, b1 - yy); }
+      /* Tavana dayanan cubugun etiketi panel basligina biniyordu: iceri alindi. */
+      var ey = (yy - b0 < 12*K.fs) ? (yy + 10*K.fs) : (yy - 7*K.fs);
+      txt(uq.tam ? 'tam' : n(uq.dalga,0), bx + i*cw2 + cw2/2, ey,
+          (yy - b0 < 12*K.fs) ? C.panel : col, dar ? 8 : 9, 'center', MONO, 600);
+      txt(dar ? t.kis.replace(' ','') : t.kis, bx + i*cw2 + cw2/2, b1 + 12*K.fs,
+          sec ? C.ink : C.ink3, dar ? 7.4 : 8.8, 'center', MONO, sec ? 600 : 400);
+    });
+  }
+
+  /* ---------- SAHNE 4: M-S matrisi ----------
+     L ve R KENDI TEPESINE gore normalize ediliyor. Ham degerler cizilince
+     |L|'nin tepesi 0,5 + R = 1,618 oluyor ve egri 0 dB cemberine yapisip
+     desenin bicimi kayboluyordu. Normalize edilince tepe tam 0 dB'de.       */
+  function msNorm(k){ return 0.5 + Math.hypot(0.5, k); }
+
+  function msCizL(cx, cy, R, k){
+    var nz = msNorm(k);
+    polarEgri(cx, cy, R, function(th){ return dbOf(Math.abs(msL(k, th))/nz); },
+              C.cos, 2.8, 0.12);
+    polarEgri(cx, cy, R, function(th){ return dbOf(Math.abs(msR(k, th))/nz); },
+              C.sin, 2.4, 0.08);
+    var m = msCoz(k);
+    [[-m.psiD, C.cos, 'L'], [ m.psiD, C.sin, 'R']].forEach(function(q){
+      var t2 = q[0]*RAD;
+      ctx.strokeStyle = q[1]; LW(1.4); dash([3,3]);
+      line(cx, cy, cx + R*Math.sin(t2), cy - R*Math.cos(t2));
+      dash(null);
+      var p2 = polNok(cx, cy, R, t2, 0);
+      dot(p2[0], p2[1], 4.8, q[1]);
+      chip(q[2] + ' ' + sgn(q[0],0) + '°',
+           cx + R*0.70*Math.sin(t2), cy - R*0.70*Math.cos(t2), q[1], 9.5, 600);
+    });
+  }
+  function msCizMS(cx, cy, R){
+    polarEgri(cx, cy, R, function(th){ return dbOf(0.5 + 0.5*Math.cos(th)); },
+              C.cos, 2.8, 0.12);
+    polarEgri(cx, cy, R, function(th){ return dbOf(Math.abs(msS(th))); },
+              C.arc, 2.4, 0.08);
+    /* S'nin artisi SOLDA: L = M + k·S bu yuzden sola nisan aliyor. */
+    txt('−', cx + rdb(R,0)*0.55, cy, C.arc, 14, 'center', MONO, 600);
+    txt('+', cx - rdb(R,0)*0.55, cy, C.arc, 14, 'center', MONO, 600);
+  }
+
+  function drawMs(w, h){
+    var pad = 16*K.fs, dar = w < 820;
+    var k = S.k, m = msCoz(k), gos = S.sGos;
+    var sr = sra(m.B, 0, 2*m.psiD);
+
+    sahneBaslik(w,
+      'M‑S MATRİSİ  ·  L = M + k·S    R = M − k·S',
+      'k = ' + n(k,2) + '  ·  nişan ±' + n(m.psiD,1) + '°  ·  eşdeğer ' + msAd(m.B) +
+        '  ·  kayıt açısı ' + (sr === null ? '>±180°' : '±' + n(sr,0) + '°'),
+      C.arc, 'k ' + n(k,2) + ' · nişan ±' + n(m.psiD,0) + '°');
+
+    var top = 34*K.fs;
+    var alt = dar ? 116*K.fs : 92*K.fs;         /* alttaki sayi bandi */
+    var alan = h - top - alt;
+    var ikili = (gos === 'ikisi') && !dar;
+
+    if (ikili){
+      var R2 = Math.min((w - 2*pad)*0.21, (alan - 40*K.fs)*0.46);
+      var ax = pad + (w - 2*pad)*0.26, bx2 = pad + (w - 2*pad)*0.74;
+      var cy2 = top + 22*K.fs + R2 + 14*K.fs;
+      txt('KAYDEDİLEN', ax, top + 10*K.fs, C.ink3, 9.5, 'center', MONO, 600);
+      txt('ÜRETİLEN',  bx2, top + 10*K.fs, C.ink3, 9.5, 'center', MONO, 600);
+      polarEksen(ax, cy2, R2);  msCizMS(ax, cy2, R2);
+      polarEksen(bx2, cy2, R2); msCizL(bx2, cy2, R2, k);
+      chip('M kardioid  ·  S sekiz', ax, cy2 + R2 + 30*K.fs, C.ink2, 9.5, 600);
+      chip('eşdeğer: ' + msAd(m.B) + '  (B′ = ' + n(m.B,3) + ')',
+           bx2, cy2 + R2 + 30*K.fs, C.ink2, 9.5, 600);
+      /* ok: kaydedilen -> uretilen */
+      var oy2 = cy2, ox1 = ax + R2 + 22*K.fs, ox2 = bx2 - R2 - 22*K.fs;
+      if (ox2 - ox1 > 40*K.fs){
+        ctx.strokeStyle = C.ink3; LW(1.6);
+        line(ox1, oy2, ox2 - 6*K.fs, oy2);
+        ctx.beginPath();
+        ctx.moveTo(ox2, oy2); ctx.lineTo(ox2 - 9*K.fs, oy2 - 5*K.fs);
+        ctx.lineTo(ox2 - 9*K.fs, oy2 + 5*K.fs); ctx.closePath();
+        ctx.fillStyle = C.ink3; ctx.fill();
+        chip('matris', (ox1 + ox2)/2, oy2 - 12*K.fs, C.ink3, 9, 600);
+      }
+    } else if (dar && gos === 'ikisi'){
+      var R3 = Math.min((w - 2*pad)*0.32, (alan - 96*K.fs)*0.24);
+      var y1 = top + 34*K.fs + R3, y2 = y1 + 2*R3 + 62*K.fs;
+      txt('KAYDEDİLEN', w/2, top + 9*K.fs, C.ink3, 9, 'center', MONO, 600);
+      polarEksen(w/2, y1, R3); msCizMS(w/2, y1, R3);
+      txt('ÜRETİLEN', w/2, y1 + R3 + 31*K.fs, C.ink3, 9, 'center', MONO, 600);
+      polarEksen(w/2, y2, R3); msCizL(w/2, y2, R3, k);
+    } else {
+      var R4 = Math.min((w - 2*pad)*0.30, (alan - 46*K.fs)*0.46);
+      var cy4 = top + 24*K.fs + R4;
+      txt(gos === 'ms' ? 'KAYDEDİLEN İKİ SİNYAL' : 'MATRİSTEN ÇIKAN İKİ SANAL MİKROFON',
+          w/2, top + 10*K.fs, C.ink3, 9.5, 'center', MONO, 600);
+      polarEksen(w/2, cy4, R4);
+      if (gos === 'ms'){
+        msCizMS(w/2, cy4, R4);
+        chip('M  öne bakan kardioid  ·  S  yana bakan sekiz',
+             w/2, cy4 + R4 + 30*K.fs, C.ink2, 9.5, 600);
+      } else {
+        msCizL(w/2, cy4, R4, k);
+        chip('eşdeğer desen: ' + msAd(m.B) + '  (B′ = ' + n(m.B,3) + ')',
+             w/2, cy4 + R4 + 30*K.fs, C.ink2, 9.5, 600);
+      }
+    }
+
+    /* --- alt: sayilar --- */
+    var ny = h - alt + 12*K.fs, bw = w - 2*pad;
+    ctx.strokeStyle = C.line2; LW(1);
+    line(pad, ny - 10*K.fs, pad + bw, ny - 10*K.fs);
+    var SAT = [
+      ['S’nin katsayısı k', n(k,2), C.ink2],
+      ['nişan açısı ψ', '±' + n(m.psiD,1) + '°', C.arc],
+      ['eşdeğer B′', n(m.B,3), C.ink2],
+      ['eşdeğer desen', msAd(m.B), C.cos],
+      ['kayıt açısı', sr === null ? '>±180°' : '±' + n(sr,0) + '°', C.brass]
+    ];
+    var sut = dar ? 3 : 5, cw3 = bw/sut;
+    SAT.forEach(function(q, i){
+      var xx = pad + (i % sut)*cw3, yy = ny + Math.floor(i/sut)*32*K.fs;
+      txt(q[0], xx, yy, C.ink3, 9, 'left', MONO);
+      txt(q[1], xx, yy + 15*K.fs, q[2], 12, 'left', MONO, 600);
+    });
+    var ly = ny + Math.ceil(SAT.length/sut)*32*K.fs + 4*K.fs;
+    if (ly < h - 12*K.fs)
+      txt('Mono toplamı L + R = 2M’dir: k ne olursa olsun S düşer, mono bozulmaz.',
+          pad, ly, C.ok, 10, 'left', SANS, 500);
+  }
+
+  /* ---------- yonetici ---------- */
+  function drawBoard(){
+    var g = sized(board); if (!g) return;
+    ctx = g.c;
+    if (S.mode === 'yak')      drawYak(g.w, g.h);
+    else if (S.mode === 'cft') drawCft(g.w, g.h);
+    else if (S.mode === 'mon') drawMon(g.w, g.h);
+    else                       drawMs(g.w, g.h);
+  }
+  function render(){ drawBoard(); }
+  if (window.ResizeObserver){ new ResizeObserver(function(){ render(); }).observe(board); }
+  window.addEventListener('resize', render);
+
+  /* ================= gosterge ================= */
+  var ro = document.getElementById('readout');
+  function cell(lab, val, cls){
+    return '<div><span>'+lab+'</span><b'+(cls?' class="'+cls+'"':'')+'>'+val+'</b></div>';
+  }
+  function mark(sel, key, val){
+    Array.prototype.forEach.call(document.querySelectorAll(sel+' button'), function(b){
+      b.classList.toggle('on', b.dataset[key] === String(val));
+    });
+  }
+  function srTxt(v){ return v === null ? '>±180°' : '±' + n(v,0) + '°'; }
+
+  function sync(){
+    var B = DES[S.des].B;
+    if (S.mode === 'yak'){
+      var b = S.a*S.oran, r = sizOran(S.a, b), dal = tarakDb(r), dt = yolDt(S.a, b);
+      ro.innerHTML =
+        cell('oran b / a', n(S.oran,1) + ':1') +
+        cell('sızıntı', n(sizDb(r),1) + ' dB', 'v-cos') +
+        cell('ilk çukur', dt > 1e-9 ? fTxt(1/(2*dt)) : '—', 'v-arc') +
+        cell('dalgalanma', n(dal,1) + ' dB', dal > 6.5 ? 'v-no' : 'v-ok');
+      document.getElementById('v-a').textContent = n(S.a*100,0) + ' cm';
+      document.getElementById('v-oran').textContent = n(S.oran,1) + ':1  (b = ' + n(b*100,0) + ' cm)';
+      document.getElementById('a-note').textContent =
+        S.oran < 2 ? 'Mikrofonlar çok yakın: sızıntı ana sesin yarısından fazla, toplam tarak gibi.'
+        : (S.oran < 3 ? 'Henüz 3:1’in altında — dalgalanma 6 dB’yi aşıyor.'
+        : (S.oran > 4.5 ? 'Oran yükseldikçe kazanç azalıyor: 3’ten 6’ya çıkmak yalnızca 3 dB daha kazandırıyor.'
+        : '3:1 sağlandı: sızıntı −9,5 dB’de, dalgalanma 6 dB’de. Kuralın söylediği tam olarak bu.'));
+
+    } else if (S.mode === 'cft'){
+      var c = cift(B, S.s, S.alfa, S.phi), yd = yerDeg(B, S.s, S.alfa, S.phi);
+      var sr = sra(B, S.s, S.alfa);
+      ro.innerHTML =
+        cell('teknik', TEKI[S.tek].kis) +
+        cell('ΔL', n(Math.abs(c.dL),1) + ' dB', 'v-cos') +
+        cell('Δt', n(Math.abs(c.dt)*1000,2) + ' ms', 'v-sin') +
+        cell('kayıt açısı', srTxt(sr), 'v-arc');
+      document.getElementById('v-s').textContent = n(S.s*100,0) + ' cm';
+      document.getElementById('v-alfa').textContent = n(S.alfa,0) + '°';
+      document.getElementById('v-phi').textContent = sgn(S.phi,0) + '°';
+      document.getElementById('c-note').textContent =
+        S.s < 0.005 ? 'Çakışık çift: Δt tam sıfır. Görüntüyü yalnız seviye farkı taşıyor.'
+        : (S.alfa < 1 ? 'Paralel aralıklı çift: ΔL tam sıfır. Görüntüyü yalnız zaman farkı taşıyor.'
+        : (Math.abs(yd) >= 1 ? 'Bu kaynak kayıt açısının dışında: görüntü hoparlöre yapıştı.'
+        : 'Hem seviye hem zaman farkı var — yakın çakışık çalışma bölgesi.'));
+
+    } else if (S.mode === 'mon'){
+      var u = monoUc(B, S.s, S.alfa, S.mPhi), cm = cift(B, S.s, S.alfa, S.mPhi);
+      ro.innerHTML =
+        cell('teknik', TEKI[S.tek].kis) +
+        cell('Δt', n(Math.abs(cm.dt)*1000,2) + ' ms', 'v-sin') +
+        cell('ilk çukur', u.cukur === null ? 'yok' : fTxt(u.cukur), 'v-arc') +
+        cell('dalgalanma', u.tam ? 'tam sönüm' : n(u.dalga,1) + ' dB',
+             u.dalga > 6 ? 'v-no' : 'v-ok');
+      document.getElementById('v-mphi').textContent = sgn(S.mPhi,0) + '°';
+      mark('#mgos','g',S.mGos);
+      document.getElementById('m-note').textContent =
+        Math.abs(cm.dt) < 1e-9 ? 'Çakışık çift: gecikme yok, toplam dümdüz. Mono’da hiçbir şey kaybolmuyor.'
+        : (u.tam ? 'İki kanal eşit seviyede ve gecikmeli: çukurlarda tam sönüm var — o frekanslar mono’da yok oluyor.'
+        : 'Gecikme tarak filtresi üretiyor. Kaynağı ortaya (0°) getirin: Δt sıfırlanıyor.');
+
+    } else {
+      var m = msCoz(S.k);
+      ro.innerHTML =
+        cell('k', n(S.k,2)) +
+        cell('nişan açısı', '±' + n(m.psiD,1) + '°', 'v-arc') +
+        cell('eşdeğer desen', msAd(m.B), 'v-cos') +
+        cell('kayıt açısı', srTxt(sra(m.B, 0, 2*m.psiD)), 'v-sin');
+      document.getElementById('v-k').textContent = n(S.k,2);
+      mark('#sgos','g',S.sGos);
+      document.getElementById('s-note').textContent =
+        S.k < 0.02 ? 'k = 0: S hiç karışmıyor, L ve R birbirinin aynı — kayıt mono.'
+        : (S.k > 2 ? 'k çok büyük: eşdeğer desenler neredeyse sekiz, nişan açıları yanlara dayandı. Orta aşırı zayıflar.'
+        : 'k büyüdükçe iki eşdeğer desen birbirinden ayrılıyor: stereo genişliyor, kayıt açısı daralıyor.');
+    }
+    tekSync();
+  }
+
+  /* ================= teknik seridi ================= */
+  var tekHost = document.getElementById('tekbar');
+  function tekSec(id){
+    var t = TEKI[id];
+    S.tek = id; S.s = t.s; S.alfa = t.alfa; S.des = t.des;
+    fS.value = Math.round(S.s*100); fAlfa.value = Math.round(S.alfa);
+    sync(); render();
+  }
+  TEK.forEach(function(t){
+    var b = document.createElement('button');
+    b.type = 'button'; b.className = 'tb'; b.dataset.k = t.id;
+    b.innerHTML = '<b>' + t.kis + '</b><em>' +
+      (t.id === 'ser' ? 'kendiniz kurun'
+        : (t.s > 0 ? n(t.s*100,0) + ' cm' : 'çakışık') + ' · ' +
+          (t.alfa > 0 ? n(t.alfa,0) + '°' : 'paralel')) + '</em>';
+    b.addEventListener('click', function(){ tekSec(t.id); });
+    tekHost.appendChild(b);
+  });
+  function tekSync(){
+    Array.prototype.forEach.call(tekHost.children, function(b){
+      var on = b.dataset.k === S.tek;
+      b.setAttribute('aria-pressed', on ? 'true' : 'false');
+      if (on) b.scrollIntoView({ block:'nearest', inline:'nearest' });
+    });
+    var B = DES[S.des].B, sr = sra(B, S.s, S.alfa);
+    document.getElementById('tek-count').textContent = 'kayıt açısı ' + srTxt(sr);
+    var u = monoUc(B, S.s, S.alfa, 30);
+    document.getElementById('tek-not').innerHTML =
+      '<b>' + TEKI[S.tek].ad + ':</b> ' + TEKI[S.tek].not +
+      ' Desen <b>' + DES[S.des].ad + '</b>, aralık <b>' + n(S.s*100,0) + ' cm</b>, açıklık <b>' +
+      n(S.alfa,0) + '°</b>. Kayıt açısı <b>' + srTxt(sr) + '</b>; 30°’lik bir kaynakta mono ' +
+      'toplamının dalgalanması <b>' + (u.tam ? 'tam sönüme kadar iniyor' : n(u.dalga,1) + ' dB') + '</b>.';
+  }
+
+  /* ================= karsilastirma tablosu ================= */
+  var ttb = document.querySelector('#ttable tbody');
+  TEK.forEach(function(t){
+    if (t.id === 'ser') return;
+    var B = DES[t.des].B, sr = sra(B, t.s, t.alfa);
+    var ck = cift(B, t.s, t.alfa, sr === null ? 90 : sr);
+    var u = monoUc(B, t.s, t.alfa, 30);
+    var tr = document.createElement('tr');
+    tr.innerHTML =
+      '<td>' + t.ad + '</td>' +
+      '<td>' + DES[t.des].ad + '</td>' +
+      '<td>' + (t.s > 0 ? n(t.s*100,0) + ' cm' : '0') + '</td>' +
+      '<td>' + (t.alfa > 0 ? n(t.alfa,0) + '°' : '0°') + '</td>' +
+      '<td>' + srTxt(sr) + '</td>' +
+      '<td>' + n(Math.abs(ck.dL),1) + ' dB</td>' +
+      '<td>' + n(Math.abs(ck.dt)*1000,2) + ' ms</td>' +
+      '<td class="c-cmp">' + (u.tam ? 'tam sönüm' : n(u.dalga,1) + ' dB') + '</td>';
+    tr.addEventListener('click', function(){
+      if (S.mode !== 'cft' && S.mode !== 'mon') setMode('cft');
+      tekSec(t.id);
+    });
+    ttb.appendChild(tr);
+  });
+
+  /* ================= sahne secimi ================= */
+  var modeBtns = document.querySelectorAll('.modes button[data-m]');
+  function setMode(m){
+    S.mode = m;
+    Array.prototype.forEach.call(modeBtns, function(b){
+      b.setAttribute('aria-pressed', b.dataset.m === m ? 'true' : 'false');
+    });
+    ['yak','cft','mon','ms'].forEach(function(k){
+      document.getElementById('row-'+k).hidden = (k !== m);
+    });
+    /* teknik seridi yalniz stereo sahnelerinde is goruyor */
+    document.querySelector('.turbar').style.display =
+      (m === 'cft' || m === 'mon') ? '' : 'none';
+    document.getElementById('stage').dataset.scene = m;
+    sync(); render();
+  }
+  Array.prototype.forEach.call(modeBtns, function(b){
+    b.addEventListener('click', function(){ setMode(b.dataset.m); });
+  });
+
+  /* ================= kontroller ================= */
+  function group(host, items, set){
+    var g = document.getElementById(host);
+    items.forEach(function(o){
+      var b = document.createElement('button');
+      b.type = 'button'; b.textContent = o[0];
+      if (o[2]) b.dataset[o[2]] = o[1];
+      b.addEventListener('click', function(){ set(o[1]); sync(); render(); });
+      g.appendChild(b);
+    });
+  }
+  group('mgos', [['Mono toplamı','mono','g'],['Tek tek L ve R','lr','g']],
+        function(v){ S.mGos = v; });
+  group('sgos', [['M ve S','ms','g'],['L ve R','lr','g'],['İkisi birden','ikisi','g']],
+        function(v){ S.sGos = v; });
+
+  var fA = document.getElementById('f-a'), fOran = document.getElementById('f-oran'),
+      fS = document.getElementById('f-s'), fAlfa = document.getElementById('f-alfa'),
+      fPhi = document.getElementById('f-phi'), fMphi = document.getElementById('f-mphi'),
+      fK = document.getElementById('f-k');
+
+  fA.addEventListener('input', function(){ S.a = (+fA.value)/100; sync(); render(); });
+  fOran.addEventListener('input', function(){ S.oran = (+fOran.value)/100; sync(); render(); });
+  /* Aralik ya da acikligi elle degistirmek tarifi bozar: serit "Serbest"e gecer. */
+  function serbest(){
+    TEKI.ser.s = S.s; TEKI.ser.alfa = S.alfa; TEKI.ser.des = S.des;
+    S.tek = 'ser';
+  }
+  fS.addEventListener('input', function(){ S.s = (+fS.value)/100; serbest(); sync(); render(); });
+  fAlfa.addEventListener('input', function(){ S.alfa = +fAlfa.value; serbest(); sync(); render(); });
+  fPhi.addEventListener('input', function(){ S.phi = +fPhi.value; sync(); render(); });
+  fMphi.addEventListener('input', function(){ S.mPhi = +fMphi.value; sync(); render(); });
+  fK.addEventListener('input', function(){ S.k = (+fK.value)/100; sync(); render(); });
+
+  /* ---- stereo sahnesinde kaynagi surukleme ----
+     Merkez ve yaricap drawCft ile AYNI sekilde hesaplanmali; yoksa surukleme
+     cizimden kayar. Degisiklik yaparken iki yeri birlikte guncelleyin.        */
+  (function(){
+    var sur = false;
+    function aci(e){
+      var r = board.getBoundingClientRect();
+      var g = sized(board); if (!g) return null;
+      var pad = 16*K.fs, dar = g.w < 780;
+      var top = 34*K.fs;
+      var pw = dar ? (g.w - 2*pad) : (g.w - 2*pad)*0.48;
+      var Rc = Math.min(pw*0.46,
+        (dar ? (g.h - top)*0.42 : (g.h - top - 18*K.fs)) - 100*K.fs);
+      var ph = dar ? (Rc + 100*K.fs) : (g.h - top - 18*K.fs);
+      var cx = pad + pw/2, cy = top + ph - 62*K.fs;
+      var dx = (e.clientX - r.left) - cx, dy = (e.clientY - r.top) - cy;
+      if (Math.hypot(dx, dy) > Rc*1.6) return null;
+      var a = Math.atan2(dx, -dy)/RAD;
+      return Math.round(Math.max(-90, Math.min(90, a)));
+    }
+    board.addEventListener('pointerdown', function(e){
+      if (S.mode !== 'cft') return;
+      var a = aci(e); if (a === null) return;
+      sur = true; S.phi = a; fPhi.value = a; sync(); render();
+      if (board.setPointerCapture){ try { board.setPointerCapture(e.pointerId); } catch(_){} }
+      e.preventDefault();
+    });
+    window.addEventListener('pointermove', function(e){
+      if (!sur || S.mode !== 'cft') return;
+      var a = aci(e); if (a === null) return;
+      S.phi = a; fPhi.value = a; sync(); render();
+    });
+    window.addEventListener('pointerup', function(){ sur = false; });
+    window.addEventListener('pointercancel', function(){ sur = false; });
+  })();
+  /* ================= ders akisi ================= */
+  var STEPS = [
+    { t:'Aynı ses, iki mikrofon',
+      b:'Sahnede iki kaynak ve iki mikrofon var. <b>Mik A</b> kaynak A’ya <b>a</b> kadar ' +
+        'yakın; <b>mik B</b> ise kaynak A’yı <b>b</b> kadar uzaktan da duyuyor — kesikli ' +
+        'kırmızı yol. Yani kaynak A mikser kanallarına <b>iki kere</b> giriyor: bir kere ' +
+        'yakından, bir kere uzaktan ve <b>geç</b>.',
+      ap:{ mode:'yak', a:0.20, oran:3 } },
+    { t:'Önce sızıntıyı ölçelim',
+      b:'Oranı <b>1,2</b>’ye çekin. İki yol neredeyse eşit uzunlukta: sızıntı yalnız ' +
+        '<b>−1,6 dB</b> aşağıda, yani neredeyse ana ses kadar güçlü. Ters kare yasası ' +
+        'gereği sızıntı seviyesi tek bir şeye bağlı — <b>b’nin a’ya oranı</b>.',
+      ap:{ mode:'yak', a:0.20, oran:1.2 } },
+    { t:'Alttaki grafik neden dalgalı?',
+      b:'Mik B’nin çıkışında aynı ses iki kere toplanıyor ve aralarında gecikme var. ' +
+        'Bazı frekanslarda iki kopya <b>aynı fazda</b> gelip toplanıyor (tepe), bazılarında ' +
+        '<b>ters fazda</b> gelip birbirini götürüyor (çukur). Tepe ve çukurlar eşit ' +
+        'aralıklarla dizildiği için buna <b>tarak filtresi</b> deniyor.',
+      ap:{ mode:'yak', a:0.20, oran:1.5 } },
+    { t:'Çukurlar tam olarak nerede?',
+      b:'İlk çukur <b>1/(2Δt)</b>’de. Yakın mesafeyi <b>30 cm</b>, oranı <b>2</b> yapın: ' +
+        'yol farkı 30 cm, gecikme 0,87 ms, ilk çukur <b>572 Hz</b>. Mor kesikli çizgi tam ' +
+        'orada. Sonrakiler 1716 Hz, 2860 Hz… hep aynı aralıkla. Bu yüzden ses ' +
+        '<b>içi boş, telefonvari</b> duyulur.',
+      ap:{ mode:'yak', a:0.30, oran:2 } },
+    { t:'3:1 kuralı',
+      b:'Oranı <b>3</b>’e getirin. Sızıntı <b>−9,5 dB</b>’ye indi ve dalgalanma tam ' +
+        '<b>6,0 dB</b>. Kuralın söylediği bu: mikrofonlar arası mesafe, her mikrofonun ' +
+        'kendi kaynağına olan mesafesinin <b>en az üç katı</b> olsun. 3 sayısı doğadan ' +
+        'gelmiyor — <b>6 dB dalgalanmayı kabul edilebilir bulan bir seçim</b>.',
+      ap:{ mode:'yak', a:0.30, oran:3 } },
+    { t:'Peki daha da açsak?',
+      b:'Oranı <b>6</b>’ya çıkarın: dalgalanma 2,9 dB’ye iniyor. 3’ten 6’ya çıkmak ' +
+        'yalnızca 3 dB kazandırıyor — üstelik mikrofonları o kadar ayırmak çoğu sahnede ' +
+        'mümkün değil. 3:1 bu yüzden bir <b>uzlaşma</b>dır. Kuralın diğer yarısını da ' +
+        'unutmayın: bir kanalın <b>fader’ını kısmak</b> da sızıntıyı aynı şekilde azaltır.',
+      ap:{ mode:'yak', a:0.30, oran:6 } },
+    { t:'Yakın çekimin kendisi bir araçtır',
+      b:'Yakın mesafeyi <b>5 cm</b>’ye indirin, oran 3’te kalsın. Sayılar aynı — ama ' +
+        'çukurlar <b>çok daha yukarıda</b>, 1,7 kHz’de. Mikrofonu kaynağa yaklaştırmak ' +
+        'hem sızıntıyı düşürür hem tarağı kulağın daha az rahatsız olduğu bölgeye taşır. ' +
+        'Üstelik 02. atölyedeki <b>yakınlık etkisi</b> de burada devreye girer.',
+      ap:{ mode:'yak', a:0.05, oran:3 } },
+
+    { t:'Şimdi girişimi araç olarak kullanalım',
+      b:'Stereo çift sahnesine geçin. İki kardioid <b>tam aynı noktada</b>, ±45°’ye ' +
+        'bakıyor: <b>XY 90°</b>. Kaynak açısını değiştirin ya da mor noktayı sürükleyin. ' +
+        'Aralık sıfır olduğu için <b>Δt = 0,00 ms</b>; görüntüyü tamamen ' +
+        '<b>seviye farkı</b> taşıyor.',
+      ap:{ mode:'cft', tek:'xy90', phi:30 } },
+    { t:'Kayıt açısı ne demek?',
+      b:'Yeşil kama <b>kayıt açısı</b>nı gösteriyor: bu açının içindeki kaynaklar iki ' +
+        'hoparlör arasına dağılır, dışındakiler <b>kenara yapışır</b>. XY 90° kardioidde ' +
+        '<b>±98°</b>. Kaynağı 90°’ye götürün: görüntü henüz tam sağda değil. Sağdaki ' +
+        'eğri de bunu gösteriyor — 98°’den önce düzleşmiyor.',
+      ap:{ mode:'cft', tek:'xy90', phi:90 } },
+    { t:'Açıklığı artırınca ne oluyor?',
+      b:'<b>XY 120°</b>’ye geçin. İki kapsül birbirinden daha çok ayrıldığı için aynı ' +
+        'kaynak açısında seviye farkı büyüyor: kayıt açısı <b>±79°</b>’ye daralıyor. ' +
+        'Daraltmak demek <b>aynı sahneyi daha geniş duymak</b> demektir — dar bir ' +
+        'topluluk için doğru, geniş bir orkestra için fazla olabilir.',
+      ap:{ mode:'cft', tek:'xy120', phi:40 } },
+    { t:'Blumlein: en keskin çakışık çift',
+      b:'İki <b>sekiz</b>, ±45°. Sekizin yanları tam sessiz olduğu için seviye farkı çok ' +
+        'hızlı büyüyor: kayıt açısı <b>±38°</b>. En keskin görüntüyü bu verir. Bedeli: ' +
+        'sekizler <b>arkayı da</b> alır, yani odanın arka yarısı kayda ters fazlı girer. ' +
+        'Güzel bir salonda erdem, kötü bir salonda felakettir.',
+      ap:{ mode:'cft', tek:'blum', phi:30 } },
+    { t:'Şimdi tam tersi: aralıklı çift',
+      b:'<b>AB 50 cm</b>’ye geçin: iki <b>omni</b>, paralel, 50 cm arayla. Açıklık sıfır ' +
+        've omninin yönü olmadığı için <b>ΔL = 0,0 dB</b>. Görüntüyü tamamen ' +
+        '<b>zaman farkı</b> taşıyor. Kayıt açısı <b>±49°</b>.',
+      ap:{ mode:'cft', tek:'ab50', phi:30 } },
+    { t:'Aralığı açmak kayıt açısını daraltır',
+      b:'<b>AB 100 cm</b>: kayıt açısı <b>±22°</b>. Yaylı dörtlüsü gibi dar bir ' +
+        'topluluğun önüne bu çifti koyarsanız <b>her şey kenarlara yığılır</b> — ortada ' +
+        'çalgı kalmaz. Aralıklı çiftler geniş ve uzak topluluklar içindir.',
+      ap:{ mode:'cft', tek:'ab100', phi:30 } },
+    { t:'ORTF: ikisi birden',
+      b:'<b>17 cm / 110°</b>. Hem aralık hem açıklık var: kenarda <b>ΔL 8,3 dB</b> ve ' +
+        '<b>Δt 0,37 ms</b>. İkisi tek başına yetmez ama <b>birlikte</b> görüntüyü kenara ' +
+        'taşır. Kayıt açısı <b>±48°</b> — koro ve oda müziği için en yaygın tercih. ' +
+        'Aralık kulaklar arası mesafeye yakın olduğu için doğal duyulur.',
+      ap:{ mode:'cft', tek:'ortf', phi:30 } },
+    { t:'NOS ve DIN: aynı fikrin başka ayarları',
+      b:'<b>NOS</b> 30 cm / 90° → ±40°, <b>DIN</b> 20 cm / 90° → ±51°. Aralığı ' +
+        'büyütmek daraltıyor, açıklığı küçültmek genişletiyor. Bu üç tarif arasındaki ' +
+        'fark birkaç santim ve on derecedir — ama kayıt açısında <b>on derecelik</b> ' +
+        'fark yaratır. Çifti <b>ölçerek</b> kurmak bu yüzden önemli.',
+      ap:{ mode:'cft', tek:'nos', phi:30 } },
+    { t:'Kendiniz kurun',
+      b:'Aralık ve açıklık kaydıraçlarını oynatın: şerit <b>Serbest</b>’e geçiyor. ' +
+        'Aralığı sıfırda tutup açıklığı büyütün — saf seviye farkı. Açıklığı sıfırda ' +
+        'tutup aralığı büyütün — saf zaman farkı. Aradaki her ayar gerçek bir tekniktir; ' +
+        'kitaptaki isimler yalnızca <b>yaygınlaşmış duraklar</b>.',
+      ap:{ mode:'cft', tek:'ser', s:0.24, alfa:100, phi:30 } },
+
+    { t:'Ya dinleyici mono dinlerse?',
+      b:'Mono uyumluluğu sahnesine geçin; teknik <b>XY 90°</b>. L ve R toplandı ve ' +
+        'sonuç <b>dümdüz</b>: dalgalanma 0,0 dB. Sebep basit — çakışık çiftte ' +
+        '<b>Δt = 0</b>. İki kanal arasında gecikme yoksa toplama tarak üretmez.',
+      ap:{ mode:'mon', tek:'xy90', mPhi:30, mGos:'mono' } },
+    { t:'ORTF mono’da ne oluyor?',
+      b:'ORTF’e geçin. 30°’lik bir kaynakta Δt = <b>0,25 ms</b> ve mono toplamında ' +
+        '<b>2 kHz</b> civarında ilk çukur beliriyor; dalgalanma <b>11 dB</b>. Duyulur ' +
+        'ama yıkıcı değildir — yakın çakışık tekniklerin yayında hâlâ kullanılmasının ' +
+        'sebebi bu.',
+      ap:{ mode:'mon', tek:'ortf', mPhi:30, mGos:'mono' } },
+    { t:'AB mono’da çöküyor',
+      b:'<b>AB 50 cm</b>’ye geçin. İki omni aynı seviyede duyduğu için çukurlarda iki ' +
+        'kanal <b>birbirini tamamen siliyor</b>: 686 Hz, 2058 Hz, 3430 Hz… o frekanslar ' +
+        'mono toplamında <b>yok</b>. Alt satırdaki çubuklarda AB’ler tavana dayanıyor. ' +
+        'Yayın işi yapıyorsanız aralıklı çifti mono dinlemeden bırakmayın.',
+      ap:{ mode:'mon', tek:'ab50', mPhi:30, mGos:'mono' } },
+    { t:'Kaynağı ortaya getirin',
+      b:'Kaynak açısını <b>0°</b> yapın: Δt sıfırlanıyor ve eğri düzleşiyor. Demek ki ' +
+        'sorun tekniğin kendisinde değil, <b>yana kaymış</b> kaynaklarda. Tam ortadaki ' +
+        'solist mono’da temiz kalır; kenardaki çalgılar tarağa girer.',
+      ap:{ mode:'mon', tek:'ab50', mPhi:0, mGos:'mono' } },
+    { t:'Tek tek bakınca hepsi düz',
+      b:'Kaynağı 30°’ye geri alın ve <b>Tek tek L ve R</b>’ye geçin. İki kanal ayrı ayrı ' +
+        '<b>dümdüz</b> — hiçbirinde tarak yok. Tarak yalnız <b>toplamda</b> doğuyor. ' +
+        'Bu, iki mikrofonlu her kurulumda aklınızda tutmanız gereken cümledir: sorun ' +
+        'mikrofonlarda değil, <b>toplama</b>dadır.',
+      ap:{ mode:'mon', tek:'ab50', mPhi:30, mGos:'lr' } },
+
+    { t:'M ve S: iki mikrofon, ama başka türlü',
+      b:'M‑S sahnesine geçin. Soldaki grafik <b>kaydedilen</b> iki sinyali gösteriyor: ' +
+        '<b>M</b> öne bakan bir kardioid, <b>S</b> tam yana bakan bir sekiz. S’nin sol ' +
+        'kolu artı, sağ kolu eksi işaretli — yön bilgisini taşıyan şey bu ' +
+        '<b>işaret farkı</b>.',
+      ap:{ mode:'ms', k:1, sGos:'ms' } },
+    { t:'L ve R nereden çıkıyor?',
+      b:'<b>L ve R</b>’ye geçin. İkisi de kayıtta <b>yok</b>; sonradan hesaplanıyor: ' +
+        '<b>L = M + k·S</b>, <b>R = M − k·S</b>. Sonuç, sağa ve sola nişan almış iki ' +
+        'sanal mikrofon. k = 1’de nişan açıları <b>±63°</b> ve eşdeğer desen süper ' +
+        'ile hiper kardioid arasında (B′ = 0,691).',
+      ap:{ mode:'ms', k:1, sGos:'lr' } },
+    { t:'Genişliği kayıttan sonra ayarlayın',
+      b:'k’yi <b>0,25</b>’e indirin: nişan açıları ±27°’ye kapanıyor, iki sanal mikrofon ' +
+        'neredeyse üst üste — kayıt <b>dar</b>. k’yi <b>2</b>’ye çıkarın: açılar ±76°, ' +
+        'kayıt <b>geniş</b>. Bunu <b>kayıttan sonra</b>, hatta mikste yapabiliyorsunuz. ' +
+        'Hiçbir çakışık ya da aralıklı çift bunu veremez.',
+      ap:{ mode:'ms', k:0.25, sGos:'ikisi' } },
+    { t:'Aşırıya kaçmayın',
+      b:'k’yi <b>2,5</b>’e çıkarın: eşdeğer desenler neredeyse <b>sekiz</b>, kayıt açısı ' +
+        '<b>±18°</b>’ye düştü. Orta bölge çok zayıfladı; ortadaki solist kendi ' +
+        'yerinde durmakta zorlanır ve oda sesi öne çıkar. Genişlik bedava değildir.',
+      ap:{ mode:'ms', k:2.5, sGos:'ikisi' } },
+    { t:'Ve mono garantisi',
+      b:'Son olarak şunu toplayın: <b>L + R = (M + kS) + (M − kS) = 2M</b>. S ne olursa ' +
+        'olsun düşüyor. Yani M‑S kayıt mono’ya toplandığında geriye <b>yalnız M</b> ' +
+        'kalıyor: tarak yok, sönüm yok, renk değişimi yok. Genişlik ayarı ve mono ' +
+        'güvencesi — M‑S’in yayında bu kadar sevilmesinin iki sebebi.',
+      ap:{ mode:'ms', k:1, sGos:'ikisi' } }
+  ];
+  var si = 0;
+  var stT = document.getElementById('step-title'), stB = document.getElementById('step-body'),
+      stC = document.getElementById('step-count'), dots = document.getElementById('dots');
+  STEPS.forEach(function(_, i){
+    var d = document.createElement('button');
+    d.type = 'button'; d.className = 'dot';
+    d.setAttribute('aria-label', (i+1)+'. adım');
+    d.addEventListener('click', function(){ setStep(i, true); });
+    dots.appendChild(d);
+  });
+  function setStep(i, uygula){
+    si = Math.max(0, Math.min(STEPS.length-1, i));
+    var s2 = STEPS[si];
+    stT.textContent = (si+1)+'. '+s2.t;
+    stB.innerHTML = s2.b;
+    stC.textContent = (si+1)+' / '+STEPS.length;
+    Array.prototype.forEach.call(dots.children, function(d,k){
+      d.setAttribute('aria-current', k === si ? 'true':'false');
+    });
+    document.getElementById('prev').disabled = si === 0;
+    document.getElementById('next').disabled = si === STEPS.length-1;
+    if (uygula && s2.ap){
+      var q = s2.ap;
+      /* Once teknik, sonra tek tek alanlar: adim aralik/aciklik da yaziyorsa
+         tarifin degerlerinin uzerine YAZSIN diye sira boyle.                  */
+      if (q.tek){
+        var t = TEKI[q.tek];
+        S.tek = q.tek; S.s = t.s; S.alfa = t.alfa; S.des = t.des;
+      }
+      ['a','oran','s','alfa','des','phi','mPhi','mGos','k','sGos']
+        .forEach(function(k){ if (q[k] !== undefined) S[k] = q[k]; });
+      if (q.tek === 'ser'){ TEKI.ser.s = S.s; TEKI.ser.alfa = S.alfa; TEKI.ser.des = S.des; }
+      fA.value = Math.round(S.a*100);
+      fOran.value = Math.round(S.oran*100);
+      fS.value = Math.round(S.s*100);
+      fAlfa.value = Math.round(S.alfa);
+      fPhi.value = S.phi;
+      fMphi.value = S.mPhi;
+      fK.value = Math.round(S.k*100);
+      if (q.mode) setMode(q.mode); else { sync(); render(); }
+    }
+  }
+  document.getElementById('prev').addEventListener('click', function(){ setStep(si-1, true); });
+  document.getElementById('next').addEventListener('click', function(){ setStep(si+1, true); });
+
+  /* ================= alistirma ================= */
+  var QS = [
+    { q:'İki mikrofona aynı kaynak girdiğinde toplamda ortaya çıkan şeye ne denir?',
+      o:['Yakınlık etkisi','Tarak filtresi','Geri besleme','Eksen dışı renk'], c:1,
+      e:'Aynı sesin gecikmiş bir kopyasıyla toplanması, frekans ekseninde eşit aralıklı tepe ve çukurlar üretir. Tepe–çukur dizisi tarağın dişlerine benzediği için buna tarak filtresi denir.' },
+    { q:'3:1 kuralı tam olarak neyi söyler?',
+      o:['Mikrofon sayısı kaynak sayısının üç katı olsun',
+         'Mikrofonlar arası mesafe, her mikrofonun kendi kaynağına olan mesafesinin en az üç katı olsun',
+         'Kaynak mesafesi mikrofonlar arası mesafenin üç katı olsun',
+         'Kazanç üç kademe kısılsın'], c:1,
+      e:'Oran 3 olduğunda sızıntı −9,5 dB’ye iner ve tarak dalgalanması 6 dB’de kalır. Kural bu eşiği kabul edilebilir bulan bir uzlaşmadır; doğa yasası değildir.' },
+    { q:'Gecikme 0,5 ms ise ilk çukur hangi frekanstadır?',
+      o:['500 Hz','1 kHz','2 kHz','250 Hz'], c:1,
+      e:'İlk çukur 1/(2Δt)’dedir: 1/(2 × 0,0005) = 1000 Hz. Sonraki çukurlar 3 kHz, 5 kHz… şeklinde eşit aralıklarla dizilir.' },
+    { q:'Sızıntı ana sesin yarısı kadarsa (r = 1/2) toplamdaki dalgalanma ne kadardır?',
+      o:['3 dB','6 dB','9,5 dB','20 dB'], c:2,
+      e:'20·log((1+0,5)/(1−0,5)) = 20·log 3 ≈ 9,5 dB. Oran 3:1 sağlansaydı r = 1/3 olur ve dalgalanma 6,0 dB’ye inerdi.' },
+    { q:'Stereo kayıt açısı (SRA) neyi anlatır?',
+      o:['Mikrofonların birbirine göre açıklığını',
+         'Hoparlörlerin dinleyiciye göre açısını',
+         'İki hoparlör arasına dağılan sahne genişliğini',
+         'Mikrofonun sıfır açısını'], c:2,
+      e:'Bu açının içindeki kaynaklar iki hoparlör arasına yayılır; dışındakiler tam sağa ya da tam sola yapışır. Açıklık açısı (α) ise mikrofonların eksenleri arasındaki açıdır — ikisi farklı şeylerdir.' },
+    { q:'Çakışık bir çiftte (XY) görüntüyü ne taşır?',
+      o:['Yalnız zaman farkı','Yalnız seviye farkı','İkisi eşit oranda','Yakınlık etkisi'], c:1,
+      e:'İki kapsül aynı noktada olduğu için ses ikisine aynı anda varır: Δt = 0. Geriye yalnız desenlerin farklı yönlere bakmasından doğan seviye farkı kalır.' },
+    { q:'İki omni mikrofonu paralel olarak 50 cm arayla koyarsanız görüntüyü ne taşır?',
+      o:['Yalnız seviye farkı','Yalnız zaman farkı','Hiçbiri, kayıt mono olur','Yakınlık etkisi'], c:1,
+      e:'Omninin yönü olmadığı ve eksenler paralel olduğu için ΔL = 0’dır. Yana kaymış bir kaynak iki mikrofona farklı zamanlarda varır; görüntüyü tamamen bu zaman farkı taşır.' },
+    { q:'ORTF çiftinin ölçüleri nedir?',
+      o:['20 cm / 90°','30 cm / 90°','17 cm / 110°','çakışık / 90°'], c:2,
+      e:'ORTF 17 cm aralık ve 110° açıklıktır; kayıt açısı yaklaşık ±48°. NOS 30 cm / 90° (±40°), DIN 20 cm / 90° (±51°) ölçülerindedir.' },
+    { q:'Aralığı büyütmek kayıt açısına ne yapar?',
+      o:['Genişletir','Daraltır','Değiştirmez','Yalnız mono’yu etkiler'], c:1,
+      e:'Aralık büyüdükçe aynı kaynak açısında zaman farkı büyür, görüntü daha erken kenara varır. AB 50 cm ±49°, AB 100 cm ±22° verir — aralık iki katına çıkınca açı kabaca yarıya iner.' },
+    { q:'Hangi teknik mono’ya toplandığında hiç dalgalanma üretmez?',
+      o:['AB 50 cm','ORTF','NOS','XY 90°'], c:3,
+      e:'XY çakışık olduğu için Δt = 0’dır; gecikme yoksa toplama tarak üretemez. ORTF ve NOS 11–13 dB, 50 cm AB ise çukurlarda tam sönüme varan dalgalanma verir.' },
+    { q:'50 cm aralıklı AB çiftinde mono toplamı neden bu kadar kötüdür?',
+      o:['Omni mikrofonlar gürültülüdür',
+         'İki kanal eşit seviyededir, çukurlarda birbirini tamamen siler',
+         'Omninin bas yanıtı fazladır','Kablo faz çevirir'], c:1,
+      e:'Toplamın en küçük değeri |gR − gL|’dir. İki omni aynı seviyede duyduğu için bu fark sıfırdır: çukurlarda sinyal tamamen yok olur. Seviyeleri farklı olsaydı çukurun dibi sonlu kalırdı.' },
+    { q:'M‑S’te S mikrofonu ne olmalıdır?',
+      o:['Öne bakan kardioid','Yana bakan sekiz','Omni','Shotgun'], c:1,
+      e:'S, tam yana bakan bir sekizdir: sağ kolu artı, sol kolu eksi işaretlidir. Yön bilgisini taşıyan şey bu işaret farkıdır; M ise öne bakan herhangi bir desen olabilir.' },
+    { q:'M‑S kaydı mono’ya toplandığında ne olur?',
+      o:['S iki katına çıkar','Tarak filtresi oluşur','Geriye yalnız M kalır','Kayıt sessizleşir'], c:2,
+      e:'L + R = (M + kS) + (M − kS) = 2M. S terimi birbirini götürür. Bu yüzden M‑S mono uyumluluğu garanti olan tek stereo tekniktir.' },
+    { q:'M‑S’te k’yi büyütmek ne yapar?',
+      o:['Kaydı daraltır','Kaydı genişletir, kayıt açısını daraltır',
+         'Mono uyumluluğunu bozar','Yalnız seviyeyi artırır'], c:1,
+      e:'k büyüdükçe iki sanal mikrofonun nişan açıları açılır (k = 1’de ±63°, k = 1,5’te ±72°) ve eşdeğer desenler daralır. Kayıt genişler, kayıt açısı daralır; mono uyumluluğu ise k’den hiç etkilenmez.' }
+  ];
+  var qi = 0, qok = 0, qDone = [];
+  var qT = document.getElementById('q-text'), qO = document.getElementById('q-opts'),
+      qE = document.getElementById('q-exp'), qC = document.getElementById('q-count'),
+      qN = document.getElementById('q-next');
+  function renderQ(){
+    var q = QS[qi];
+    qT.textContent = (qi+1)+'. '+q.q;
+    qE.textContent = '';
+    qO.innerHTML = '';
+    q.o.forEach(function(o, k){
+      var b = document.createElement('button');
+      b.type='button'; b.textContent = o;
+      b.addEventListener('click', function(){
+        Array.prototype.forEach.call(qO.children, function(x){ x.disabled = true; });
+        b.classList.add(k === q.c ? 'correct' : 'wrong');
+        if (k !== q.c) qO.children[q.c].classList.add('correct');
+        qE.innerHTML = q.e;
+        if (!qDone[qi]){ qDone[qi] = true; if (k === q.c) qok++; }
+        qC.textContent = qok+' / '+qDone.filter(Boolean).length+' doğru';
+      });
+      qO.appendChild(b);
+    });
+    qN.textContent = (qi === QS.length-1) ? 'Baştan başla' : 'Sonraki soru';
+  }
+  qN.addEventListener('click', function(){ qi = (qi+1)%QS.length; renderQ(); });
+
+  /* ================= baslangic ================= */
+  fA.value = Math.round(S.a*100);
+  fOran.value = Math.round(S.oran*100);
+  fS.value = Math.round(S.s*100);
+  fAlfa.value = Math.round(S.alfa);
+  fPhi.value = S.phi;
+  fMphi.value = S.mPhi;
+  fK.value = Math.round(S.k*100);
+  setMode('yak');
+  setStep(0, false);
+  renderQ();
+  sync();
+  render();
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(render);
+})();
+</script>

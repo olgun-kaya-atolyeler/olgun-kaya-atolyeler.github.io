@@ -1,0 +1,2692 @@
+<!DOCTYPE html>
+<html lang="tr">
+<meta charset="utf-8">
+<title>Mikser: Şerit, Akış ve Kazanç</title>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400..600;1,6..72,400&family=Chakra+Petch:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+  :root{
+    --ground:#E5ECF3; --panel:#FFFFFF; --panel-2:#F1F6FA;
+    --ink:#0B1620; --ink-2:#3F5265; --ink-3:#697E92;
+    --line:#C7D4E0; --line-2:#DEE7EF;
+    --sin:#A8600A; --cos:#0F5F80; --arc:#A81E6E; --brass:#4A7A12;
+    --on-sin:#FFFFFF; --ok:#1E6B45; --no:#A8203C;
+    --shadow:0 1px 2px rgba(11,22,32,.06), 0 8px 20px -14px rgba(11,22,32,.26);
+    --fs:15px;
+    --board-h:clamp(430px,43vw,520px);
+    --board-serit:clamp(520px,52vw,600px);
+    --board-akis:clamp(438px,44vw,505px);
+    --board-kaz:clamp(490px,49vw,565px);
+    --font-display:"Chakra Petch","IBM Plex Sans",sans-serif;
+    --h1:clamp(30px,4.5vw,46px);
+    --h2:clamp(21px,2.5vw,28px);
+    --track:.02em; --radius:2px; --radius-s:2px;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --ground:#070F17; --panel:#0E1720; --panel-2:#13202C;
+      --ink:#E7F2FB; --ink-2:#9FB6C9; --ink-3:#6B8296;
+      --line:#213240; --line-2:#182533;
+      --sin:#FFB01F; --cos:#4FD3FF; --arc:#FF6AC1; --brass:#A8FF60;
+      --on-sin:#0A1017; --ok:#3EE59B; --no:#FF5F86;
+      --shadow:0 0 0 1px rgba(79,211,255,.07), 0 12px 30px -18px rgba(0,0,0,.9);
+    }
+  }
+  :root[data-theme="dark"]{
+    --ground:#070F17; --panel:#0E1720; --panel-2:#13202C;
+    --ink:#E7F2FB; --ink-2:#9FB6C9; --ink-3:#6B8296;
+    --line:#213240; --line-2:#182533;
+    --sin:#FFB01F; --cos:#4FD3FF; --arc:#FF6AC1; --brass:#A8FF60;
+    --on-sin:#0A1017; --ok:#3EE59B; --no:#FF5F86;
+    --shadow:0 0 0 1px rgba(79,211,255,.07), 0 12px 30px -18px rgba(0,0,0,.9);
+  }
+  :root[data-mode="proj"]{
+    --ground:#F3F8FC; --panel:#FFFFFF; --panel-2:#EDF4F9;
+    --ink:#040B12; --ink-2:#2A3A49; --ink-3:#546678;
+    --line:#ADBFCE; --line-2:#D2DEE9;
+    --sin:#8A4D00; --cos:#084A66; --arc:#8A1258; --brass:#3A6208;
+    --on-sin:#FFFFFF; --ok:#14512F; --no:#8A1428;
+    --shadow:0 1px 2px rgba(11,22,32,.09), 0 8px 20px -14px rgba(11,22,32,.3);
+    --fs:17px;
+    --board-h:clamp(470px,47vw,572px);
+    --board-serit:clamp(572px,57vw,660px);
+    --board-akis:clamp(482px,48vw,556px);
+    --board-kaz:clamp(539px,54vw,621px);
+  }
+  @media (max-width:820px){
+    :root, :root[data-mode="proj"]{ --board-r:580px; }
+  }
+  @media (max-width:760px){
+    :root, :root[data-mode="proj"]{
+      --board-h:520px;
+      --board-serit:800px; --board-akis:820px; --board-kaz:700px;
+    }
+  }
+
+  *{box-sizing:border-box}
+  body{
+    background:var(--ground);color:var(--ink);
+    font-family:"IBM Plex Sans","Helvetica Neue",Arial,sans-serif;
+    font-size:var(--fs);line-height:1.6;-webkit-font-smoothing:antialiased;
+  }
+  .wrap{max-width:1160px;margin:0 auto;padding:34px 20px 60px;display:flex;flex-direction:column;gap:14px}
+
+  .topbar{display:flex;gap:28px;justify-content:space-between;align-items:flex-start;margin-bottom:12px}
+  @media (max-width:640px){.topbar{flex-direction:column-reverse;align-items:flex-start;gap:16px}}
+  .theme{display:flex;flex:0 0 auto;flex-wrap:wrap;border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;background:var(--panel);box-shadow:var(--shadow)}
+  .theme button{border:0;border-left:1px solid var(--line);border-radius:0;background:transparent;font-size:12.5px;padding:8px 12px;color:var(--ink-2)}
+  .theme button:first-child{border-left:0}
+  .theme button:hover{background:var(--panel-2);color:var(--ink)}
+  .theme button[aria-pressed="true"]{background:var(--ink);color:var(--panel);font-weight:500}
+  .theme button:focus-visible{outline:2px solid var(--arc);outline-offset:-2px}
+  header{display:flex;flex-direction:column;gap:9px;max-width:66ch}
+  .eyebrow{margin:0;font-size:11.5px;font-weight:600;letter-spacing:.13em;text-transform:uppercase;color:var(--ink-3)}
+  h1{margin:0;font-family:var(--font-display);font-weight:500;font-size:var(--h1);line-height:1.06;letter-spacing:var(--track);text-wrap:balance}
+  .lede{margin:2px 0 0;color:var(--ink-2);font-size:16.5px;text-wrap:pretty}
+  .lede b{color:var(--ink);font-weight:600}
+
+  section.sec{display:flex;flex-direction:column;gap:14px;padding-top:22px}
+  .sec-head{display:flex;align-items:baseline;gap:14px;border-bottom:1px solid var(--line);padding-bottom:9px}
+  .sec-num,.num{font-family:"IBM Plex Mono",monospace;font-size:12px;font-weight:500;color:var(--brass);letter-spacing:.06em;flex:0 0 auto;padding-top:5px}
+  .sec-head h2{margin:0;font-family:var(--font-display);font-weight:500;font-size:var(--h2);letter-spacing:var(--track);line-height:1.15;text-wrap:balance}
+  .sec-head p{margin:0;color:var(--ink-3);font-size:13px;margin-left:auto;flex:0 0 auto;text-align:right}
+  @media (max-width:620px){.sec-head p{display:none}}
+
+  .panel{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow)}
+
+  .why{display:grid;grid-template-columns:1fr 1.12fr;gap:20px 28px;align-items:center}
+  @media (max-width:860px){.why{grid-template-columns:1fr;align-items:start}}
+  .why-lead{display:flex;flex-direction:column;gap:13px;padding-bottom:4px}
+  .why-more{display:grid;grid-template-columns:repeat(auto-fit,minmax(255px,1fr));gap:16px 28px;margin-top:6px}
+  .why-lead p,.why-more p{margin:0;color:var(--ink-2)}
+  .why-lead p b,.why-more p b{color:var(--ink);font-weight:600}
+  .cols3{display:grid;grid-template-columns:repeat(3,1fr);gap:16px 28px}
+  @media (max-width:900px){.cols3{grid-template-columns:1fr}}
+  .cols3 p{margin:0;color:var(--ink-2);font-size:14px;line-height:1.6}
+  .cols3 p b{color:var(--ink);font-weight:600}
+  .cols .intro-col{display:flex;flex-direction:column;gap:12px}
+  .cols .intro-col p{margin:0;color:var(--ink-2)}
+  .cols .intro-col p b{color:var(--ink);font-weight:600}
+  p.pull{font-size:16px;color:var(--ink)!important;border-left:3px solid var(--sin);
+    padding-left:13px}
+  .panel-body.nopad{padding:0;gap:0}
+  .quiz{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);
+    box-shadow:var(--shadow);padding:16px 18px 18px;display:flex;flex-direction:column;gap:12px}
+  .q-head{display:flex;align-items:baseline;justify-content:space-between;gap:14px}
+  .q-head .count{font-family:"IBM Plex Mono",monospace;font-size:12px;color:var(--ink-3);
+    font-variant-numeric:tabular-nums;flex:0 0 auto}
+  .q-head .q-text{font-size:16px;font-weight:500;text-wrap:pretty}
+  .quiz > button{align-self:flex-start}
+  .kicker{font-family:"Newsreader",Georgia,serif;font-size:clamp(21px,2.2vw,26px);line-height:1.28;color:var(--ink);font-style:italic;max-width:29ch;letter-spacing:-.01em;text-wrap:balance}
+  .trio-list{display:flex;flex-direction:column;gap:1px;background:var(--line);
+    border:1px solid var(--line);border-radius:var(--radius);overflow:hidden}
+  .tl{background:var(--panel);padding:13px 15px 14px;border-left:3px solid var(--line)}
+  .tl-1{border-left-color:var(--sin)} .tl-2{border-left-color:var(--arc)}
+  .tl-3{border-left-color:var(--cos)}
+  .tl h3{margin:0 0 3px;font-family:var(--font-display);font-weight:500;font-size:15.5px;
+    letter-spacing:var(--track)}
+  .tl p{margin:0;font-size:13.5px;line-height:1.5;color:var(--ink-2)}
+  .tl p b{color:var(--ink);font-weight:600}
+  .tl code{font-size:.92em}
+
+  .defs{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--line);border:1px solid var(--line);border-radius:var(--radius);overflow:hidden}
+  @media (max-width:880px){.defs{grid-template-columns:repeat(2,1fr)}}
+  @media (max-width:560px){.defs{grid-template-columns:1fr}}
+  .def{background:var(--panel);padding:16px 17px 18px;display:flex;flex-direction:column;gap:7px}
+  .def h3{margin:0;font-size:14.5px;font-weight:600;display:flex;align-items:baseline;gap:8px;flex-wrap:wrap}
+  .def h3 em{font-style:normal;font-family:"IBM Plex Mono",monospace;font-size:11.5px;color:var(--ink-3);font-weight:400}
+  .def p{margin:0;font-size:13.8px;color:var(--ink-2);line-height:1.55}
+  .def p b{color:var(--ink);font-weight:600}
+  code{font-family:"IBM Plex Mono",monospace;font-size:.9em;background:var(--panel-2);border:1px solid var(--line-2);padding:1px 5px;border-radius:var(--radius-s)}
+
+  .lang{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--line);border:1px solid var(--line);border-radius:var(--radius);overflow:hidden}
+  @media (max-width:1000px){.lang{grid-template-columns:repeat(2,1fr)}}
+  @media (max-width:560px){.lang{grid-template-columns:1fr}}
+  .lg{background:var(--panel);padding:16px 17px 18px;display:flex;flex-direction:column;gap:8px}
+  .lg-top{display:flex;align-items:baseline;justify-content:space-between;gap:8px}
+  .lg h3{margin:0;font-size:14.5px;font-weight:600}
+  .lg .unit{font-family:"IBM Plex Mono",monospace;font-size:11px;color:var(--ink-3)}
+  .lg p{margin:0;font-size:13.8px;color:var(--ink-2);line-height:1.55}
+  .lg .music{margin-top:2px;font-size:12.5px;color:var(--ink);border-left:2px solid var(--brass);padding-left:9px}
+  .lg .music b{font-weight:600}
+
+  .stage{padding:0;overflow:hidden}
+  .stage-top,.stage-head{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px;padding:13px 16px;border-bottom:1px solid var(--line-2)}
+  .modes{display:flex;flex-wrap:wrap;border:1px solid var(--line);border-radius:var(--radius);overflow:hidden}
+  .modes button{border:0;border-left:1px solid var(--line);border-radius:0;background:var(--panel-2);font-size:13px;padding:8px 15px;color:var(--ink-2);font-weight:500}
+  .modes button:first-child{border-left:0}
+  .modes button:hover{color:var(--ink)}
+  .modes button[aria-pressed="true"]{background:var(--sin);color:var(--on-sin)}
+  .readout{display:flex;flex-wrap:wrap;font-family:"IBM Plex Mono",ui-monospace,monospace;font-variant-numeric:tabular-nums;font-size:13px}
+  .readout div{padding:0 13px;border-left:1px solid var(--line-2)}
+  .readout div:first-child{border-left:0;padding-left:0}
+  .readout b{font-weight:500}
+  .readout span{color:var(--ink-3);font-size:11px;letter-spacing:.06em;text-transform:uppercase;display:block;line-height:1.3}
+  .v-sin{color:var(--sin)} .v-cos{color:var(--cos)} .v-arc{color:var(--arc)}
+
+  .canvas-wrap{background:var(--panel-2);border-bottom:1px solid var(--line-2)}
+  #board{display:block;width:100%;height:var(--board-h);touch-action:none;cursor:crosshair}
+  .stage[data-scene="serit"] #board{height:var(--board-serit)}
+  .stage[data-scene="akis"]  #board{height:var(--board-akis)}
+  .stage[data-scene="kaz"]   #board{height:var(--board-kaz)}
+
+  #board.tut{cursor:grab}
+  #board.tut:active{cursor:grabbing}
+
+  .controls{padding:15px 16px 17px;display:flex;flex-direction:column;gap:14px}
+  .ctl-row{display:flex;flex-wrap:wrap;gap:14px 20px;align-items:center}
+  .ctl-row[hidden]{display:none}
+  .field[hidden]{display:none}
+  .btn-group[hidden]{display:none}
+  .ctl-label{font-size:11px;font-weight:600;letter-spacing:.09em;text-transform:uppercase;color:var(--ink-3);flex:0 0 auto}
+  .field{display:flex;flex-direction:column;gap:5px;min-width:172px;flex:1 1 172px;max-width:300px}
+  .field label{font-size:11px;font-weight:600;letter-spacing:.09em;text-transform:uppercase;color:var(--ink-3);display:flex;justify-content:space-between;gap:10px}
+  .field label em{font-style:normal;font-family:"IBM Plex Mono",monospace;font-variant-numeric:tabular-nums;letter-spacing:0;text-transform:none;font-size:12px;color:var(--ink-2)}
+
+  input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:20px;background:transparent;margin:0}
+  input[type=range]::-webkit-slider-runnable-track{height:4px;background:var(--line);border-radius:2px}
+  input[type=range]::-moz-range-track{height:4px;background:var(--line);border-radius:2px}
+  input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;width:16px;height:16px;border-radius:50%;background:var(--arc);border:2px solid var(--panel);margin-top:-6px;box-shadow:0 0 0 1px var(--arc)}
+  input[type=range]::-moz-range-thumb{width:14px;height:14px;border-radius:50%;background:var(--arc);border:2px solid var(--panel);box-shadow:0 0 0 1px var(--arc)}
+  input[type=range]:focus-visible{outline:2px solid var(--arc);outline-offset:4px}
+
+  button{font:inherit;font-size:13.5px;color:var(--ink);background:var(--panel-2);border:1px solid var(--line);padding:7px 13px;border-radius:var(--radius-s);cursor:pointer;transition:background .13s,border-color .13s,color .13s}
+  button:hover{border-color:var(--ink-3)}
+  button:focus-visible{outline:2px solid var(--arc);outline-offset:2px}
+  button:disabled{opacity:.42;cursor:default}
+  button.on{background:var(--ink);border-color:var(--ink);color:var(--panel)}
+  .ctl-note{font-size:12px;color:var(--ink-3);font-family:"IBM Plex Mono",monospace;
+    letter-spacing:.01em;min-width:0;flex:1 1 138px;line-height:1.35}
+  .btn-group{display:flex;flex-wrap:wrap;gap:6px}
+  .btn-group.sm button{font-size:12.5px;padding:5px 9px}
+
+  .cols{display:grid;grid-template-columns:1.3fr 1fr;gap:16px;align-items:start}
+  @media (max-width:880px){.cols{grid-template-columns:1fr}}
+  .panel-head{display:flex;align-items:baseline;justify-content:space-between;gap:12px;padding:13px 18px 11px;border-bottom:1px solid var(--line-2)}
+  .panel-head h3{margin:0;font-family:var(--font-display);font-weight:500;font-size:19px;letter-spacing:var(--track)}
+  .panel-head .count{font-family:"IBM Plex Mono",monospace;font-size:12px;color:var(--ink-3);font-variant-numeric:tabular-nums}
+  .panel-body{padding:16px 18px 18px;display:flex;flex-direction:column;gap:13px}
+  .step-title{font-family:var(--font-display);font-size:21px;font-weight:500;line-height:1.22;margin:0;letter-spacing:var(--track);text-wrap:balance}
+  .step-body{margin:0;color:var(--ink-2)}
+  .step-body strong{color:var(--ink);font-weight:600}
+  .step-nav{display:flex;gap:8px;align-items:center;margin-top:auto;padding-top:4px;flex-wrap:wrap}
+  /* 34 nokta dar ekranda paneli tasiriyordu: sarmali ve sutunlar daralabilir. */
+  .dots{display:flex;flex-wrap:wrap;gap:5px;margin-left:auto;justify-content:flex-end}
+  .cols>*{min-width:0}
+  .dot{width:7px;height:7px;border-radius:50%;background:var(--line);border:0;padding:0;cursor:pointer}
+  .dot:hover{background:var(--ink-3)}
+  .dot[aria-current="true"]{background:var(--arc)}
+
+  table{width:100%;border-collapse:collapse;font-family:"IBM Plex Mono",monospace;font-size:12.5px;font-variant-numeric:tabular-nums}
+  th,td{text-align:right;padding:6px 8px;border-bottom:1px solid var(--line-2)}
+  th:first-child,td:first-child{text-align:left}
+  th:last-child,td:last-child{text-align:left}
+  thead th{font-family:"IBM Plex Sans",sans-serif;font-size:10.5px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-3);border-bottom:1px solid var(--line)}
+  tbody tr{cursor:pointer}
+  tbody tr:hover{background:var(--panel-2)}
+  tbody tr[aria-selected="true"]{background:color-mix(in srgb,var(--arc) 13%,var(--panel))}
+  tbody tr:last-child td{border-bottom:0}
+  td.c-cmp{font-family:"IBM Plex Sans",sans-serif;font-size:12px;color:var(--ink-2)}
+  tr.unitrow td:first-child{color:var(--brass);font-weight:500}
+  /* Dar ekranda tablo tasiyordu: en az gerekli sutun gizleniyor, kalani kayabiliyor. */
+  .tbl-scroll{overflow-x:auto;-webkit-overflow-scrolling:touch}
+  @media (max-width:620px){
+    th.c-cmp,td.c-cmp{display:none}
+    table{font-size:11.5px}
+    th,td{padding:6px 5px}
+  }
+  .tbl-note{margin:10px 18px 16px;font-size:12.5px;color:var(--ink-3);line-height:1.5}
+  .tbl-note b{color:var(--ink-2);font-weight:600}
+  .tbl-note + .tbl-note{margin-top:-4px}
+
+  .quiz-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;align-items:start}
+  @media (max-width:820px){.quiz-grid{grid-template-columns:1fr}}
+  .q-text{margin:0;font-size:16px;font-weight:500;text-wrap:pretty}
+  .q-opts{display:flex;flex-direction:column;gap:7px}
+  .q-opts button{text-align:left;padding:9px 12px}
+  .q-opts button.correct{border-color:var(--ok);background:color-mix(in srgb,var(--ok) 12%,var(--panel))}
+  .q-opts button.wrong{border-color:var(--no);background:color-mix(in srgb,var(--no) 12%,var(--panel))}
+  .q-feedback{margin:0;font-size:14px;color:var(--ink-2);min-height:1.6em}
+  .q-feedback b.y{color:var(--ok);font-weight:600}
+  .q-feedback b.n{color:var(--no);font-weight:600}
+  .recap ul{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:8px}
+  .recap li{color:var(--ink-2);font-size:14px}
+  .recap b{color:var(--ink);font-weight:600}
+
+  /* ---- video bloğu (yeni video eklemek için bu kalıbı kopyala) ---- */
+  .vid{display:grid;grid-template-columns:1.25fr 1fr;gap:16px;align-items:start}
+  @media (max-width:900px){.vid{grid-template-columns:1fr}}
+  .vid-main{display:flex;flex-direction:column;gap:9px;min-width:0}
+  .vid-frame{position:relative;aspect-ratio:16/9;width:100%;background:var(--panel-2);
+    border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);
+    overflow:hidden}
+  .vid-frame iframe{position:absolute;inset:0;z-index:1;width:100%;height:100%;border:0;display:block}
+  .vid-play{position:absolute;inset:0;z-index:0;width:100%;height:100%;
+    display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;
+    text-align:center;padding:20px;border:0;border-radius:0;background:transparent;
+    cursor:pointer;color:inherit}
+  .vid-play:hover{background:color-mix(in srgb,var(--sin) 7%,transparent);border-color:transparent}
+  .vid-play:focus-visible{outline:2px solid var(--arc);outline-offset:-4px}
+  .vid-tri{width:62px;height:62px;border-radius:50%;background:var(--sin);
+    display:block;margin-bottom:6px;position:relative;box-shadow:var(--shadow);
+    transition:transform .14s}
+  .vid-tri::after{content:"";position:absolute;top:50%;left:54%;transform:translate(-50%,-50%);
+    border-style:solid;border-width:11px 0 11px 18px;
+    border-color:transparent transparent transparent var(--on-sin)}
+  .vid-play:hover .vid-tri{transform:scale(1.07)}
+  .vid-play b{font-family:var(--font-display);font-weight:500;font-size:18px;
+    letter-spacing:var(--track);color:var(--ink);line-height:1.2;text-wrap:balance}
+  .vid-play .vid-ch{font-size:13px;color:var(--ink-3)}
+  .vid-play .vid-hint{font-style:normal;font-family:"IBM Plex Mono",monospace;
+    font-size:11.5px;color:var(--ink-3);margin-top:5px}
+  .vid-meta{margin:0;font-size:13px;color:var(--ink-2);line-height:1.5}
+  .vid-meta b{color:var(--ink);font-weight:600}
+  .vid-meta a{color:var(--cos);font-weight:600;text-underline-offset:3px}
+  .vid-meta span{display:block;margin-top:3px;font-size:12px;color:var(--ink-3)}
+  .vid-guide{background:var(--panel);border:1px solid var(--line);
+    border-left:3px solid var(--brass);border-radius:var(--radius);
+    box-shadow:var(--shadow);padding:15px 18px 17px}
+  .vid-guide h3{margin:0 0 9px;font-family:var(--font-display);font-weight:500;
+    font-size:17px;letter-spacing:var(--track)}
+  .vid-guide ol{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:9px}
+  .vid-guide li{font-size:13.5px;line-height:1.5;color:var(--ink-2)}
+  .vid-guide li b{color:var(--ink);font-weight:600}
+  .vid-guide li::marker{color:var(--brass);font-weight:600}
+  .vid-note{margin:13px 0 0;padding-top:11px;border-top:1px solid var(--line-2);
+    font-size:13px;color:var(--ink-3);line-height:1.5}
+  .vid-note b{color:var(--ink-2);font-weight:600}
+
+  .spec{display:grid;grid-template-columns:1.05fr 1fr;gap:16px;align-items:start}
+  @media (max-width:880px){.spec{grid-template-columns:1fr}}
+  .spec-card{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);
+    box-shadow:var(--shadow);padding:16px 18px 18px;font-family:"IBM Plex Mono",monospace;font-size:13px}
+  .spec-card h3{margin:0 0 10px;font-family:var(--font-display);font-size:17px;font-weight:500;letter-spacing:var(--track)}
+  .spec-row{display:flex;justify-content:space-between;gap:14px;padding:6px 0;border-bottom:1px solid var(--line-2)}
+  .spec-row:last-child{border-bottom:0}
+  .spec-row span{color:var(--ink-3)}
+  .spec-row b{font-weight:500;color:var(--ink)}
+  .spec-row.q{background:color-mix(in srgb,var(--arc) 9%,transparent);margin:0 -8px;padding:6px 8px;border-radius:2px}
+  .ask{display:flex;flex-direction:column;gap:12px}
+  .ask .a{background:var(--panel);border:1px solid var(--line);border-left:3px solid var(--arc);
+    border-radius:var(--radius);box-shadow:var(--shadow);padding:12px 15px 13px}
+  .ask .a h4{margin:0 0 3px;font-size:14px;font-weight:600}
+  .ask .a p{margin:0;font-size:13.5px;color:var(--ink-2);line-height:1.5}
+  .ask .a b{color:var(--ink);font-weight:600}
+  footer{color:var(--ink-3);font-size:12.5px;border-top:1px solid var(--line);padding-top:14px;margin-top:26px;display:flex;flex-wrap:wrap;gap:6px 18px}
+  footer b{color:var(--ink-2);font-weight:600}
+  @media (max-width:760px){
+    button{font-size:14.5px;padding:9px 14px}
+    .btn-group.sm button{font-size:13px;padding:7px 11px}
+    .theme button{padding:8px 9px;font-size:12px}
+    .modes button{padding:9px 12px;font-size:13px}
+    .q-opts button{padding:12px 14px}
+    input[type=range]{height:30px}
+    input[type=range]::-webkit-slider-thumb{width:22px;height:22px;margin-top:-9px}
+    input[type=range]::-moz-range-thumb{width:20px;height:20px}
+    .readout{width:100%}
+    .readout div{padding:0 11px 0 0;border-left:0}
+    .wrap{padding:22px 16px 44px}
+  }
+
+  /* ---- 26. atolyeye ozel ---- */
+  .cks{display:flex;flex-direction:column;gap:1px;background:var(--line);
+    border:1px solid var(--line);border-radius:var(--radius);overflow:hidden}
+  .ck{background:var(--panel);display:grid;grid-template-columns:auto 1fr;gap:3px 10px;
+    padding:10px 13px 11px;align-items:start}
+  .ck .mk{grid-row:1/3;width:20px;height:20px;border-radius:50%;display:flex;
+    align-items:center;justify-content:center;font-size:12px;font-weight:700;
+    font-family:"IBM Plex Mono",monospace;margin-top:1px}
+  .ck.ok .mk{background:color-mix(in srgb,var(--ok) 18%,var(--panel));color:var(--ok)}
+  .ck.no .mk{background:color-mix(in srgb,var(--sin) 20%,var(--panel));color:var(--sin)}
+  .ck b{font-size:13.2px;font-weight:600;line-height:1.35;color:var(--ink)}
+  .ck span{font-size:12.4px;color:var(--ink-2);line-height:1.45}
+  /* Tur seridi: sahne dugmelerinin altinda, tuvalin hemen ustunde. Tur degisince
+     yukaridaki sahne aninda degistigi icin secici gorus alaninda duruyor. */
+  .turbar{display:flex;align-items:center;gap:10px;padding:10px 16px;
+    border-bottom:1px solid var(--line-2);background:var(--panel-2)}
+  .turbar>.tb-lab{font-family:"IBM Plex Mono",monospace;font-size:10.5px;font-weight:500;
+    letter-spacing:.09em;text-transform:uppercase;color:var(--ink-3);flex:0 0 auto}
+  .turbar .tb-scroll{display:flex;gap:6px;overflow-x:auto;flex:1 1 auto;
+    scrollbar-width:thin;padding-bottom:1px}
+  .tb{flex:0 0 auto;border:1px solid var(--line);border-radius:var(--radius);
+    background:var(--panel);padding:6px 12px 7px;display:flex;flex-direction:column;
+    gap:1px;text-align:left;cursor:pointer;line-height:1.25}
+  .tb:hover{background:var(--panel-2);color:var(--ink)}
+  .tb b{font-size:12.8px;font-weight:600;color:var(--ink)}
+  .tb em{font-style:normal;font-family:"IBM Plex Mono",monospace;font-size:10.8px;
+    color:var(--ink-3);white-space:nowrap}
+  .tb[aria-pressed="true"]{border-color:var(--sin);
+    background:color-mix(in srgb,var(--sin) 12%,var(--panel))}
+  .tb[aria-pressed="true"] em{color:var(--ink-2)}
+  @media (max-width:760px){
+    .turbar{flex-direction:column;align-items:stretch;gap:6px;padding:9px 12px}
+    .tb{padding:6px 10px}
+    .tb b{font-size:12.4px}
+  }
+  .pick{display:flex;flex-direction:column;gap:1px;background:var(--line);
+    border:1px solid var(--line);border-radius:var(--radius);overflow:hidden}
+  .pk{background:var(--panel);border:0;border-left:3px solid transparent;border-radius:0;
+    text-align:left;padding:11px 14px 12px;display:flex;flex-direction:column;gap:3px;
+    cursor:pointer;width:100%}
+  .pk:hover{background:var(--panel-2)}
+  .pk[aria-pressed="true"]{border-left-color:var(--sin);
+    background:color-mix(in srgb,var(--sin) 8%,var(--panel))}
+  .pk b{font-size:13.4px;font-weight:600;color:var(--ink)}
+  .pk span{font-size:12.4px;color:var(--ink-2);line-height:1.45;font-weight:400}
+  .pk em{font-style:normal;font-family:"IBM Plex Mono",monospace;font-size:11.5px;
+    color:var(--ink-3)}
+  .tag{display:inline-block;padding:1px 6px;border-radius:2px;font-size:10.5px;font-weight:600;
+    letter-spacing:.04em;border:1px solid}
+  .tag-a{color:var(--brass);border-color:color-mix(in srgb,var(--brass) 45%,transparent);
+    background:color-mix(in srgb,var(--brass) 11%,transparent)}
+  .tag-b{color:var(--sin);border-color:color-mix(in srgb,var(--sin) 45%,transparent);
+    background:color-mix(in srgb,var(--sin) 11%,transparent)}
+  .hint{margin:0;font-size:12.5px;color:var(--ink-3);line-height:1.5}
+  .hint b{color:var(--ink-2);font-weight:600}
+  @media (prefers-reduced-motion: reduce){*{transition:none!important}}
+</style>
+<div class="wrap">
+  <div class="topbar">
+    <header>
+      <p class="eyebrow">Müzik Teknolojisine Giriş · Sınıf atölyesi</p>
+      <h1>Mikser: Şerit, Akış ve Kazanç</h1>
+      <p class="lede">Bir mikser karıştırmaz — <b>yönlendirir</b>. Her kanal aynı sırayı
+        izleyen bir <b>şerit</b>tir ve o sıra sesin nasıl duyulacağını belirler. Bu atölye
+        üç soruya bakıyor: <b>şeritte ne var</b>, <b>sinyal nereden nereye akıyor</b> ve
+        <b>kazanç nereye kurulur</b>. Üçü de tek bir düğmeye değil, <b>sıraya</b> dair.</p>
+    </header>
+    <div class="theme" role="group" aria-label="Görünüm">
+      <button type="button" data-t="light">Açık</button>
+      <button type="button" data-t="dark">Koyu</button>
+      <button type="button" data-t="proj">Projeksiyon</button>
+    </div>
+  </div>
+
+  <section class="sec">
+    <div class="sec-head"><span class="num">01</span><h2>Mikser ne işe yarar?</h2>
+      <span class="kicker">Karıştırmak değil, yönlendirmek</span></div>
+    <div class="cols">
+      <div class="intro-col">
+        <p>Adı yanıltıcı. Bir mikserin asıl işi sesleri “karıştırmak” değil, her kaynağı
+          <b>ayrı ayrı işleyip</b> sonra istediğiniz yerlere <b>kopyalayarak</b> göndermektir.
+          Bir konserde aynı vokal aynı anda üç ayrı yere gider: salona, şarkıcının
+          kulaklığına ve kayda. Üçünde de <b>farklı</b> seviyede, hatta farklı tonda.
+          Mikser bunu mümkün kılan makinedir.</p>
+        <p>Bunu yapabilmesi için her kanalın aynı düzeni tekrarlaması gerekir: <b>şerit</b>
+          (channel strip). Şeritteki sıra rastgele değildir. Kazanç en başta kurulur çünkü
+          sonraki her şey onun üzerine biner; süzgeç EQ’dan önce gelir çünkü atılacak şeyi
+          önce atmak gerekir; fader sondadır çünkü son sözü o söyler.</p>
+        <p class="pull">Mikserde hiçbir düğme tek başına anlamlı değildir. Anlamı veren
+          şey <b>sıradaki yeri</b>dir.</p>
+      </div>
+      <div class="intro-col">
+        <p>İkinci sahne bu sıranın en çok karıştırılan noktasını açıyor: <b>gönderi</b>
+          (aux send) şeridin neresinden alınıyor? Fader’dan <b>önce</b> alınırsa fader’ı
+          kısmak gönderiyi etkilemez — sahnedeki müzisyenin kulaklık miksi bu yüzden
+          kurulur. Fader’dan <b>sonra</b> alınırsa ikisi birlikte iner ve kuru/ıslak oranı
+          sabit kalır — reverb gönderisi bu yüzden böyle olmalıdır. İkisini karıştırmak,
+          canlı seste en sık yapılan hatadır ve <b>duyulur</b>.</p>
+        <p>Üçüncü sahne 22. ve 06. atölyelerin dBu/dBFS hesabını konsola oturtuyor:
+          <b>kazancı nereye kurmalı?</b> Cevap sezginize ters çıkabilir. Kazancı
+          yükseltmek elektriksel gürültüyü bir yere kadar iyileştirir — ama o yerden
+          <b>çok önce</b> odanın kendi gürültüsü devreye girer. Bunu ölçeceğiz.</p>
+        <p>Şerit ve akış <b>analog mantıkla</b> anlatılıyor, çünkü dijital konsol da aynı
+          mantığı taklit eder. Her sahnenin yanında <b>dijital konsolda neyin değiştiğini</b>
+          ayrıca göreceksiniz.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="sec">
+    <div class="sec-head"><span class="num">02</span><h2>Dokuz kavram</h2>
+      <span class="kicker">Atölyeye girmeden önce</span></div>
+    <div class="defs">
+      <div class="def">
+        <h3>Şerit <em>channel strip</em></h3>
+        <p>Bir kanalın baştan sona tekrarlanan düzeni: giriş, süzgeç, EQ, insert,
+          gönderi, pan, fader, yönlendirme. Konsolun <b>her</b> kanalında aynıdır —
+          bu yüzden bir kanalı öğrenmek hepsini öğrenmektir.</p>
+      </div>
+      <div class="def">
+        <h3>Kazanç <em>gain, trim</em></h3>
+        <p>Ön yükseltecin mikrofon seviyesini <b>hat seviyesine</b> çıkarması.
+          Şeridin ilk kararı ve en önemlisi: burada kurulan seviye sonraki her
+          şeyin üzerine biner. Fader’la <b>aynı şey değildir</b>.</p>
+      </div>
+      <div class="def">
+        <h3>Pad <em>attenuator</em></h3>
+        <p>Sinyali <b>ön yükselteçten önce</b> tipik olarak 20 dB kısan anahtar.
+          Girişin kendisi kırpıyorsa kazancı kısmak yetmez — sorun kazançtan
+          öncedir. Tek çare pad’dir.</p>
+      </div>
+      <div class="def">
+        <h3>Fantom besleme <em>+48V</em></h3>
+        <p>Kondansatör mikrofonun çalışması için kablodan gönderilen gerilim.
+          IEC 61938: <b>48 V</b>, iki adet <b>6,81 kΩ</b> üzerinden, mikrofon başına
+          en çok <b>10 mA</b>. Dinamik mikrofona zarar vermez ama gerekmez.</p>
+      </div>
+      <div class="def">
+        <h3>Insert <em>seri bağlantı</em></h3>
+        <p>Sinyali şeridin ortasında dışarı çıkarıp <b>aynı noktaya</b> geri alan
+          nokta. Kompresör, kapı, analog EQ gibi sinyalin <b>tamamının</b> içinden
+          geçmesi gereken cihazlar buraya girer.</p>
+      </div>
+      <div class="def">
+        <h3>Aux gönderi <em>send, paralel</em></h3>
+        <p>Sinyalin bir <b>kopyasını</b> başka bir yere yollar; asıl sinyal yoluna
+          devam eder. Reverb, delay ve kulaklık miksleri böyle kurulur. Alındığı
+          nokta <b>fader’dan önce mi sonra mı</b>, her şeyi değiştirir.</p>
+      </div>
+      <div class="def">
+        <h3>Pan ve pan yasası <em>pan law</em></h3>
+        <p>Kaynağı sol–sağ arasında yerleştirir. Ortadaki kaynak iki kanala birden
+          gittiği için <b>kısılması</b> gerekir: <b>−3 dB</b> (sabit güç),
+          <b>−4,5 dB</b> (uzlaşma, çoğu konsolun varsayılanı) ya da <b>−6 dB</b>
+          (mono toplam hiç değişmez).</p>
+      </div>
+      <div class="def">
+        <h3>Bus ve alt grup <em>bus, subgroup</em></h3>
+        <p>Birden çok kanalın toplandığı ortak yol. Bütün davul kanallarını bir alt
+          gruba yollayıp <b>tek fader’dan</b> kısarsınız. <b>VCA/DCA</b> ise sinyali
+          toplamaz, yalnızca faderleri birlikte sürer.</p>
+      </div>
+      <div class="def">
+        <h3>Kazanç yapısı <em>gain staging</em></h3>
+        <p>Zincirin her noktasında seviyenin <b>gürültünün üstünde, tavanın
+          altında</b> tutulması. Az kazanç gürültüyü, çok kazanç kırpmayı getirir —
+          ve aradaki pencere sandığınızdan geniştir.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="sec">
+    <div class="sec-head"><span class="num">03</span><h2>Atölye: üç sahne</h2>
+      <span class="kicker">Şerit · akış · kazanç</span></div>
+
+    <div class="stage" id="stage">
+      <div class="stage-head">
+        <div class="modes" role="group" aria-label="Sahne">
+          <button type="button" data-m="serit">Kanal şeridi</button>
+          <button type="button" data-m="akis">Sinyal akışı ve pre/post</button>
+          <button type="button" data-m="kaz">Kazanç yapısı</button>
+        </div>
+        <div class="readout" id="readout"></div>
+      </div>
+
+      <div class="turbar">
+        <span class="tb-lab">Kaynak</span>
+        <div class="tb-scroll" id="kaybar" role="group" aria-label="Kaynak"></div>
+      </div>
+
+      <div class="canvas-wrap"><canvas id="board"></canvas></div>
+
+      <div class="controls">
+        <div class="ctl-row" id="row-serit">
+          <div class="btn-group sm" id="gbolum"></div>
+          <div class="btn-group sm" id="ggiris"></div>
+          <div class="field" id="fld-hpf">
+            <label for="f-hpf">HPF kesimi <em id="v-hpf"></em></label>
+            <input id="f-hpf" type="range" min="0" max="100" step="1" value="40">
+          </div>
+          <div class="btn-group sm" id="ghpfe"></div>
+          <div class="btn-group sm" id="gbant"></div>
+          <div class="field" id="fld-bf">
+            <label for="f-bf">Bant frekansı <em id="v-bf"></em></label>
+            <input id="f-bf" type="range" min="0" max="100" step="1" value="50">
+          </div>
+          <div class="field" id="fld-bg">
+            <label for="f-bg">Bant kazancı <em id="v-bg"></em></label>
+            <input id="f-bg" type="range" min="-15" max="15" step="0.5" value="0">
+          </div>
+          <div class="field" id="fld-bq">
+            <label for="f-bq">Q (genişlik) <em id="v-bq"></em></label>
+            <input id="f-bq" type="range" min="0" max="100" step="1" value="40">
+          </div>
+          <span class="ctl-note" id="s-note"></span>
+        </div>
+
+        <div class="ctl-row" id="row-akis" hidden>
+          <div class="btn-group sm" id="gnokta"></div>
+          <div class="field">
+            <label for="f-fader">Fader <em id="v-fader"></em></label>
+            <input id="f-fader" type="range" min="0" max="100" step="1" value="80">
+          </div>
+          <div class="field">
+            <label for="f-gonderi">Gönderi seviyesi <em id="v-gonderi"></em></label>
+            <input id="f-gonderi" type="range" min="-30" max="6" step="0.5" value="-6">
+          </div>
+          <div class="field">
+            <label for="f-pan">Pan <em id="v-pan"></em></label>
+            <input id="f-pan" type="range" min="0" max="100" step="1" value="50">
+          </div>
+          <div class="btn-group sm" id="gpanyasa"></div>
+          <div class="btn-group sm" id="gyon"></div>
+          <div class="btn-group sm" id="akisses">
+            <button type="button" id="b-a1">Pre/post farkını duy</button>
+            <button type="button" id="b-dur1">Durdur</button>
+          </div>
+          <span class="ctl-note" id="a-note"></span>
+        </div>
+
+        <div class="ctl-row" id="row-kaz" hidden>
+          <div class="field">
+            <label for="f-gain">Ön yükselteç kazancı <em id="v-gain"></em></label>
+            <input id="f-gain" type="range" min="0" max="70" step="1" value="20">
+          </div>
+          <div class="btn-group sm" id="gtavan"></div>
+          <div class="field">
+            <label for="f-oda">Oda gürültüsü <em id="v-oda"></em></label>
+            <input id="f-oda" type="range" min="15" max="60" step="1" value="25">
+          </div>
+          <div class="btn-group sm" id="ghedef"></div>
+          <div class="btn-group sm" id="kazses">
+            <button type="button" id="b-k1">Kazanç yapısını duy</button>
+            <button type="button" id="b-dur2">Durdur</button>
+          </div>
+          <span class="ctl-note" id="k-note"></span>
+        </div>
+      </div>
+    </div>
+
+    <div class="cols">
+      <section class="panel">
+        <div class="panel-head">
+          <h3>Ders akışı</h3>
+          <span class="count" id="step-count">1 / 30</span>
+        </div>
+        <div class="panel-body">
+          <h4 id="step-title"></h4>
+          <p id="step-body"></p>
+          <div class="steps">
+            <button type="button" id="prev">Önceki</button>
+            <button type="button" id="next">Sonraki</button>
+          </div>
+          <div class="dots" id="dots"></div>
+        </div>
+      </section>
+
+      <section class="panel">
+        <div class="panel-head">
+          <h3>Dijital konsolda ne değişir?</h3>
+          <span class="count" id="dij-count"></span>
+        </div>
+        <div class="panel-body">
+          <p class="tbl-note" id="dij-not"></p>
+          <p class="tbl-note">Dijital konsol analog mantığı <b>taklit eder</b>: aynı şerit,
+            aynı sıra, aynı pan yasası. Değişen üç şey var — <b>katman</b> (aynı fader
+            farklı kanalları sürer), <b>sahne hafızası</b> (bütün ayarlar kaydedilip geri
+            çağrılır) ve <b>dahili yönlendirme</b> (insert ve bus için kablo gerekmez).
+            Ön yükselteç ise hâlâ analogdur ve çoğu zaman sahnedeki kutunun içindedir.</p>
+        </div>
+      </section>
+    </div>
+  </section>
+
+  <section class="sec">
+    <div class="sec-head"><span class="num">04</span><h2>Şeritteki sıra</h2>
+      <span class="kicker">Neden tam olarak bu sırayla</span></div>
+    <div class="panel">
+      <div class="tbl-scroll">
+      <table id="stable">
+        <thead><tr><th>Sıra</th><th>Bölüm</th><th>Ne yapar</th><th>Kaçırılırsa</th>
+          <th class="c-cmp">Dijital konsolda</th></tr></thead>
+        <tbody></tbody>
+      </table>
+      </div>
+      <p class="tbl-note">Satıra tıklayın: sahne o bölüme geçer. Sıra keyfî değil.
+        <b>Kazanç</b> en başta, çünkü sonraki her şey onun üzerine biner.
+        <b>Süzgeç EQ’dan önce</b>, çünkü atılacak şeyi önce atmak, sonra şekillendirmek
+        gerekir. <b>Insert EQ’dan sonra</b>, çünkü kompresörün duyduğu ses EQ’lanmış
+        sestir. <b>Fader sonda</b>, çünkü son sözü o söyler.</p>
+      <p class="tbl-note">Tek istisna <b>gönderi</b>dir: o, sıranın neresinden alınacağı
+        <b>seçilebilen</b> tek noktadır — ve ikinci sahnenin bütün konusu budur.</p>
+    </div>
+  </section>
+
+  <section class="sec">
+    <div class="sec-head"><span class="num">05</span><h2>Pratikte ne yapılır?</h2>
+      <span class="kicker">Altı kural</span></div>
+    <div class="cks">
+      <div class="ck ok">
+        <span class="mk">✓</span>
+        <b>Kazancı tepeye göre kurun, gürültüye göre değil</b>
+        <span>Kaynağın <b>en yüksek</b> anında tepe <b>−18 ile −10 dBFS</b> arasında
+          olsun. Ölçüldü: vokalde bu ayar <b>88 dB</b> elektriksel SNR veriyor, oysa
+          sessiz bir stüdyonun izin verdiği <b>75 dB</b>. Daha fazla kazanç duyulur bir
+          şey kazandırmaz, sadece kırpma riskini büyütür.</span>
+      </div>
+      <div class="ck no">
+        <span class="mk">!</span>
+        <b>Kazancı fader’la karıştırmayın</b>
+        <span>Fader’ı açmak zayıf bir sinyali <b>gürültüsüyle birlikte</b> açar; kazancı
+          doğru kurmak sinyali gürültünün üstüne çıkarır. Fader kısıkken kanal hâlâ
+          kırpıyorsa sorun kazançtadır — ve kırpma fader’dan <b>önce</b> olduğu için
+          fader onu düzeltemez.</span>
+      </div>
+      <div class="ck ok">
+        <span class="mk">✓</span>
+        <b>Efekt gönderisi post-fader, kulaklık gönderisi pre-fader</b>
+        <span>Post-fader’da fader inince efekt de iner: kuru/ıslak oranı <b>sabit</b>
+          kalır. Pre-fader’da gönderi fader’dan bağımsızdır: sahnedeki müzisyen sizin
+          salon miksinizden <b>etkilenmez</b>. İkisini karıştırmak, fader’ı kısınca
+          kanalın reverb’ün içinde boğulmasıdır.</span>
+      </div>
+      <div class="ck no">
+        <span class="mk">!</span>
+        <b>Süzgeci kaynağın içine sokmayın</b>
+        <span>HPF kesimini kaynağın <b>en pes notasının altına</b> koyun. 82 Hz’lik bir
+          akustik gitarda kesimi 120 Hz’e almak gürümeyi değil <b>gitarı</b> keser.
+          Kesim noktasında zaten <b>−3 dB</b> vardır; etki kesimin epey üstünde başlar.</span>
+      </div>
+      <div class="ck ok">
+        <span class="mk">✓</span>
+        <b>Önce kesin, sonra ekleyin</b>
+        <span>EQ’da bir şeyi öne çıkarmanın en temiz yolu, çevresine <b>yer açmak</b>tır.
+          Eklemek her zaman seviye de ekler ve tepe payını yer. Kalın toplam eğriye bakın:
+          üst üste binen bantlar beklediğinizden büyük bir tepe yapabilir.</span>
+      </div>
+      <div class="ck no">
+        <span class="mk">!</span>
+        <b>Fantom beslemeyi kablo takılıyken açıp kapatmayın</b>
+        <span>48 V bir anda gelip gittiğinde hoparlörde gürültü patlar; dinamik mikrofona
+          zarar vermez ama <b>şerit açıkken</b> yapılması iyi bir alışkanlık değildir.
+          Kondansatör mikrofonlar gerekli gerilimi alamazsa cılız ve bozuk çalar —
+          IEC 61938 sınırı mikrofon başına <b>10 mA</b>’dir.</span>
+      </div>
+    </div>
+  </section>
+
+  <section class="sec">
+    <div class="sec-head"><span class="num">06</span><h2>Bu kavramların dili</h2>
+      <span class="kicker">Konsolun üstünde ne yazıyor</span></div>
+    <div class="panel">
+      <div class="tbl-scroll">
+      <table id="ltable">
+        <thead><tr><th>Terim</th><th>Türkçe</th><th class="c-cmp">Ne demek</th></tr></thead>
+        <tbody>
+          <tr><td>Channel strip</td><td>Kanal şeridi</td>
+            <td class="c-cmp">Bir kanalın baştan sona tekrarlanan düzeni</td></tr>
+          <tr><td>Gain / Trim</td><td>Kazanç</td>
+            <td class="c-cmp">Ön yükseltecin mikrofonu hat seviyesine çıkarması</td></tr>
+          <tr><td>Pad</td><td>Zayıflatıcı</td>
+            <td class="c-cmp">Ön yükselteçten ÖNCE ~20 dB kısan anahtar</td></tr>
+          <tr><td>Phantom power / +48V</td><td>Fantom besleme</td>
+            <td class="c-cmp">Kondansatör mikrofonu kablodan besleyen gerilim</td></tr>
+          <tr><td>Polarity / Ø</td><td>Kutuplama</td>
+            <td class="c-cmp">Sinyali ters çevirir; çift mikrofonda kullanılır</td></tr>
+          <tr><td>HPF / Low cut</td><td>Yüksek geçiren süzgeç</td>
+            <td class="c-cmp">Kesimin altını atar; kesimde −3 dB</td></tr>
+          <tr><td>Shelf / Bell</td><td>Raf / çan</td>
+            <td class="c-cmp">Köşenin ötesini topluca / yalnız çevresini etkiler</td></tr>
+          <tr><td>Q</td><td>Genişlik</td>
+            <td class="c-cmp">Merkez frekans ÷ bant genişliği; büyük Q dar</td></tr>
+          <tr><td>Insert</td><td>Seri bağlantı</td>
+            <td class="c-cmp">Sinyalin TAMAMI dışarı çıkıp geri girer</td></tr>
+          <tr><td>Aux send</td><td>Yardımcı gönderi</td>
+            <td class="c-cmp">Sinyalin KOPYASI başka yere gider</td></tr>
+          <tr><td>Pre / post fader</td><td>Fader öncesi / sonrası</td>
+            <td class="c-cmp">Gönderinin şeridin neresinden alındığı</td></tr>
+          <tr><td>Wet / dry</td><td>Islak / kuru</td>
+            <td class="c-cmp">Efektli / efektsiz sinyal</td></tr>
+          <tr><td>Pan / pan law</td><td>Pan yasası</td>
+            <td class="c-cmp">Ortadaki kaynağın ne kadar kısılacağı</td></tr>
+          <tr><td>Fader / unity</td><td>Fader / birim nokta</td>
+            <td class="c-cmp">Kanal seviyesi; “U” işareti 0 dB’dir</td></tr>
+          <tr><td>Mute / Solo (PFL, AFL)</td><td>Sustur / yalnız dinle</td>
+            <td class="c-cmp">PFL fader öncesi, AFL fader sonrası dinler</td></tr>
+          <tr><td>Bus</td><td>Ortak yol</td>
+            <td class="c-cmp">Birden çok kanalın toplandığı hat</td></tr>
+          <tr><td>Subgroup</td><td>Alt grup</td>
+            <td class="c-cmp">Sinyal gerçekten oradan GEÇER</td></tr>
+          <tr><td>VCA / DCA</td><td>—</td>
+            <td class="c-cmp">Sinyal geçmez; yalnız faderleri birlikte sürer</td></tr>
+          <tr><td>Matrix</td><td>Matris</td>
+            <td class="c-cmp">Ana ve gruplardan ayrı bir karışım daha</td></tr>
+          <tr><td>Gain staging</td><td>Kazanç yapısı</td>
+            <td class="c-cmp">Seviyeyi gürültü ile tavan arasında tutmak</td></tr>
+          <tr><td>Headroom</td><td>Tepe payı</td>
+            <td class="c-cmp">Tepe ile 0 dBFS arasında kalan boşluk</td></tr>
+          <tr><td>EIN</td><td>Girişe indirgenmiş gürültü</td>
+            <td class="c-cmp">Ön yükseltecin kendi gürültüsü; iyisi −128 dBu</td></tr>
+          <tr><td>Layer / Scene</td><td>Katman / sahne</td>
+            <td class="c-cmp">Dijital konsolda fader takımı ve kayıtlı ayar</td></tr>
+        </tbody>
+      </table>
+      </div>
+    </div>
+  </section>
+
+  <section class="sec">
+    <div class="sec-head"><span class="num">07</span><h2>Alıştırma</h2>
+      <span class="kicker">On beş soru</span></div>
+    <div class="panel quiz">
+      <div class="q-head">
+        <span class="count" id="q-count">0 / 0 doğru</span>
+      </div>
+      <div class="panel-body">
+        <p id="q-text"></p>
+        <div class="q-opts" id="q-opts"></div>
+        <p id="q-exp" class="tbl-note"></p>
+        <div class="steps"><button type="button" id="q-next">Sonraki soru</button></div>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <span><b>Şeritteki sıra rastgele değil:</b> kazanç en başta (sonraki her şey üzerine biner), süzgeç EQ’dan önce (atılacak önce atılır), insert EQ’dan sonra (kompresör EQ’lanmış sesi duyar), fader sonda. Gönderi ise sıranın seçilebilen tek noktasıdır.</span>
+    <span><b>Kazanç fader değildir.</b> Kazanç sinyali gürültünün üstüne çıkarır, fader zaten dijitalleşmiş sinyali kısar. Kırpma fader’dan önce olduğu için fader onu düzeltemez; girişin kendisi kırpıyorsa çare pad’dir.</span>
+    <span><b>Kazancı tepeye göre kurun.</b> Ölçüldü: vokalde tepe −18 dBFS iken elektriksel SNR 88 dB, ama sessiz bir stüdyonun izin verdiği 75 dB. Çevirici tavanını +16, +22 ya da +24 dBu yapmak aynı dBFS hedefinde SNR’yi DEĞİŞTİRMİYOR — yalnız çevirdiğiniz kazanç sayısı değişiyor.</span>
+    <span><b>Pre-fader gönderi</b> fader’dan bağımsızdır: kulaklık ve sahne miksi. <b>Post-fader gönderi</b> fader’la birlikte iner: kuru/ıslak oranı sabit kalır, efekt gönderisi böyle olmalıdır. Ölçüldü: fader −15 dB’de post’ta oran 0 dB, pre’de −15 dB.</span>
+    <span><b>Pan yasası:</b> ortada sabit güç −3,01 dB, uzlaşma −4,52 dB, sabit genlik −6,02 dB. Mono’ya toplanınca sırasıyla +3,01 / +1,51 / 0,00 dB. Çoğu konsolun varsayılanı −4,5 dB’dir.</span>
+  </footer>
+</div>
+
+<script>
+(function(){
+  "use strict";
+  var TAU = Math.PI*2, L10 = Math.LN10;
+  var root = document.documentElement;
+  function lg(x){ return Math.log(x)/L10; }
+  var CS = 343;
+
+  /* 26. ATOLYENIN KENDI DURUM NESNESI.
+     Onbellek uyarisi: bu blok her atolyeye KOPYALANIR, paylasilmaz. 18. atolyede
+     onceki atolyenin S nesnesi kullanilinca butun sahneler cokmustu.            */
+  var S = {
+    mode:'serit',
+    /* --- ortak: hangi kaynak seride giriyor --- */
+    kaynak:'vokal', pad:false, fantom:true, faz:false,
+    /* --- kanal seridi --- */
+    bolum:'giris',                 /* seritte isaretli bolum */
+    hpfF:80, hpfE:12,              /* HPF frekansi ve egimi (0 = kapali) */
+    bant:'can1',                   /* secili EQ banti */
+    eq:{ altraf:{f:100, g:0,  q:0.7071},
+         can1:  {f:400, g:0,  q:1.0},
+         can2:  {f:3000,g:0,  q:1.0},
+         ustraf:{f:8000,g:0,  q:0.7071} },
+    /* --- sinyal akisi --- */
+    faderDb:0, gonderi:-6, gonderiNokta:'post', panPos:0.5, panYasa:'uzlasma',
+    yonlen:'ana',
+    /* --- kazanc yapisi --- */
+    gain:20, tavan:16, odaSpl:25, hedefTepe:-18,
+    cal:''              /* calan ses kimligi */
+  };
+
+  /* ---------- tema ---------- */
+  var C = {}, K = { lw:1, fs:1, glow:0, faint:.32 };
+  function readColors(){
+    var s = getComputedStyle(root);
+    ['ink','ink-2','ink-3','line','line-2','sin','cos','arc','brass','panel','panel-2','ok','no'].forEach(function(k){
+      C[k.replace('-','')] = s.getPropertyValue('--'+k).trim();
+    });
+    var proj = root.getAttribute('data-mode') === 'proj';
+    var attr = root.getAttribute('data-theme');
+    var isDark = attr === 'dark' ||
+                 (!attr && window.matchMedia('(prefers-color-scheme: dark)').matches);
+    K.glow  = (isDark && !proj) ? 0.7 : 0;
+    K.lw    = proj ? 1.5 : 1;
+    K.fs    = proj ? 1.24 : 1;
+    K.faint = proj ? 0.42 : (K.glow ? 0.34 : 0.32);
+  }
+  readColors();
+
+  var MODES = { proj:'light' };
+  var themeBtns = document.querySelectorAll('.theme button');
+  function markTheme(t){
+    Array.prototype.forEach.call(themeBtns, function(b){
+      b.setAttribute('aria-pressed', b.dataset.t === t ? 'true':'false');
+    });
+  }
+  function applyTheme(t, save){
+    if (MODES[t]){ root.setAttribute('data-theme', MODES[t]); root.setAttribute('data-mode', t); }
+    else { root.setAttribute('data-theme', t); root.removeAttribute('data-mode'); }
+    if (save) { try { localStorage.setItem('dalga-tema', t); } catch(e){} }
+    markTheme(t);
+  }
+  Array.prototype.forEach.call(themeBtns, function(b){
+    b.addEventListener('click', function(){ applyTheme(b.dataset.t, true); });
+  });
+  var sysDark = window.matchMedia('(prefers-color-scheme: dark)');
+  var stored = null;
+  try { stored = localStorage.getItem('dalga-tema'); } catch(e){}
+  if (stored === 'light' || stored === 'dark' || MODES[stored]) applyTheme(stored, false);
+  else markTheme(sysDark.matches ? 'dark' : 'light');
+  sysDark.addEventListener('change', function(){
+    readColors(); render();
+    if (!root.hasAttribute('data-theme')) markTheme(sysDark.matches ? 'dark' : 'light');
+  });
+  new MutationObserver(function(){ readColors(); render(); })
+    .observe(root, {attributes:true, attributeFilter:['data-theme','data-mode']});
+
+  /* ---------- sayilar ---------- */
+  function n(v,d){
+    var x = v.toFixed(d===undefined?2:d);
+    if (/^-0[.,]?0*$/.test(x)) x = x.slice(1);
+    return x.replace('.',',').replace('-','−');
+  }
+  function fTxt(f){
+    return f >= 1000 ? n(f/1000, f >= 10000 ? 0 : 1).replace(',0','')+' kHz' : n(f,0)+' Hz';
+  }
+  function sgn(v,d){ return (v>0?'+':'')+n(v,d); }
+
+  /* ---------- canvas ---------- */
+  var board = document.getElementById('board');
+  var ctx = null, MONO = '"IBM Plex Mono", monospace', SANS = '"IBM Plex Sans", sans-serif';
+  function dash(a){ ctx.setLineDash(a ? a.map(function(v){ return v*K.lw; }) : []); }
+  function LW(v){ ctx.lineWidth = v*K.lw; }
+  function glowOn(col,amt){ if (K.glow){ ctx.shadowColor = col; ctx.shadowBlur = (amt||9)*K.lw; } }
+  function glowOff(){ ctx.shadowBlur = 0; }
+  function line(x1,y1,x2,y2){ ctx.beginPath(); ctx.moveTo(x1,y1); ctx.lineTo(x2,y2); ctx.stroke(); }
+  function dot(x,y,r,col){
+    ctx.beginPath(); ctx.arc(x,y,r*K.fs,0,TAU);
+    ctx.fillStyle = col; glowOn(col,10); ctx.fill(); glowOff();
+    LW(1.6); ctx.strokeStyle = C.panel2; ctx.stroke();
+  }
+  function txt(s,x,y,col,size,align,fam,weight){
+    ctx.fillStyle = col;
+    ctx.font = (weight||400)+' '+((size||12)*K.fs).toFixed(2)+'px '+(fam||MONO);
+    ctx.textAlign = align||'left'; ctx.textBaseline='middle';
+    ctx.fillText(s,x,y);
+  }
+  function tw(s,size,fam,weight){
+    ctx.font = (weight||400)+' '+((size||12)*K.fs).toFixed(2)+'px '+(fam||MONO);
+    return ctx.measureText(s).width;
+  }
+  function chip(s2,x,y,col,size,weight,fam){
+    var w = tw(s2,size,fam||MONO,weight||400), ph = (size+7)*K.fs;
+    ctx.fillStyle = C.panel2; ctx.globalAlpha = .92;
+    ctx.fillRect(x - w/2 - 4*K.fs, y - ph/2, w + 8*K.fs, ph);
+    ctx.globalAlpha = 1;
+    txt(s2, x, y, col, size, 'center', fam||MONO, weight||400);
+  }
+  function wrap(s, x, y, maxw, col, size, lh, weight){
+    var words = s.split(' '), ln = '', out = [];
+    words.forEach(function(w){
+      var t = ln ? ln+' '+w : w;
+      if (tw(t, size, SANS, weight) > maxw){ out.push(ln); ln = w; } else ln = t;
+    });
+    if (ln) out.push(ln);
+    out.forEach(function(l,k){ txt(l, x, y + k*lh, col, size, 'left', SANS, weight); });
+    return out.length;
+  }
+  var cw = 0, ch = 0;
+  function sized(cv){
+    var dpr = Math.min(window.devicePixelRatio||1, 2);
+    var r = cv.getBoundingClientRect();
+    if (r.width < 10) return null;
+    var W = Math.round(r.width*dpr), H = Math.round(r.height*dpr);
+    if (W !== cw || H !== ch){ cv.width = W; cv.height = H; cw = W; ch = H; }
+    var c = cv.getContext('2d');
+    c.setTransform(dpr,0,0,dpr,0,0);
+    c.clearRect(0,0,r.width,r.height);
+    c.lineJoin='round'; c.lineCap='round';
+    return { c:c, w:r.width, h:r.height };
+  }
+  function logAxis(x0, x1, f0, f1){
+    return { X: function(f){ return x0 + (lg(f) - lg(f0))/(lg(f1) - lg(f0))*(x1 - x0); },
+             F: function(x){ return f0*Math.pow(f1/f0, (x - x0)/(x1 - x0)); },
+             f0:f0, f1:f1, x0:x0, x1:x1 };
+  }
+  function drawTicks(A, y, list, fmt){
+    ctx.strokeStyle = C.line; LW(1.3);
+    line(A.x0, y, A.x1, y);
+    var dec, d;
+    for (dec = Math.floor(lg(A.f0)); dec <= Math.ceil(lg(A.f1)); dec++){
+      for (d = 1; d <= 9; d++){
+        var f = Math.pow(10, dec)*d;
+        if (f < A.f0 || f > A.f1) continue;
+        line(A.X(f), y, A.X(f), y + 2.6*K.fs);
+      }
+    }
+    list.forEach(function(v){
+      if (v < A.f0 || v > A.f1) return;
+      line(A.X(v), y, A.X(v), y + 6*K.fs);
+      txt((fmt||fTxt)(v), A.X(v), y + 16*K.fs, C.ink3, 9.5, 'center', MONO);
+    });
+  }
+  /* Hizli salinan yanitlar: her PIKSEL SUTUNU icin birkac ara deger alinip en kucuk
+     ile en buyuk arasina dikey cizgi cekiliyor. Seyrek ornekleme sahte desen uretmez. */
+  function bandCurve(A, yOf, fn, col, lw, lo, hi){
+    var px = Math.max(2, Math.round(A.x1 - A.x0)), x, k, ALT = 7;
+    ctx.strokeStyle = col; LW(lw||2.4); glowOn(col, 6);
+    ctx.beginPath();
+    for (x = 0; x <= px; x++){
+      var fa = A.f0*Math.pow(A.f1/A.f0, x/px);
+      var fb = A.f0*Math.pow(A.f1/A.f0, (x+1)/px);
+      var mn = 1e9, mx = -1e9;
+      for (k = 0; k < ALT; k++){
+        var v = fn(fa*Math.pow(fb/fa, k/(ALT-1)));
+        if (!isFinite(v)) v = lo;
+        if (v < lo) v = lo; else if (v > hi) v = hi;
+        if (v < mn) mn = v;
+        if (v > mx) mx = v;
+      }
+      ctx.moveTo(A.x0 + x, yOf(mx)); ctx.lineTo(A.x0 + x, yOf(mn));
+    }
+    ctx.stroke(); glowOff();
+  }
+
+  /* ================= cizim ================= */
+  function frame(x0,y0,w,h){
+    ctx.fillStyle = C.panel; ctx.fillRect(x0,y0,w,h);
+    ctx.strokeStyle = C.line; LW(1.2); ctx.strokeRect(x0+0.5,y0+0.5,w-1,h-1);
+  }
+  /* Yari saydam hucreler bitisik cizilince kenarlarda dikis izi birakiyor.
+     Bu yuzden renkler ONCEDEN panel rengiyle karistirilip TAM OPAK doldurulur. */
+  var RGBC = {};
+  function rgbOf(hx){
+    if (RGBC[hx]) return RGBC[hx];
+    var s2 = String(hx).trim(), r, g, b, m;
+    if (s2.charAt(0) === '#'){
+      if (s2.length === 4){
+        r = parseInt(s2.charAt(1)+s2.charAt(1),16);
+        g = parseInt(s2.charAt(2)+s2.charAt(2),16);
+        b = parseInt(s2.charAt(3)+s2.charAt(3),16);
+      } else {
+        r = parseInt(s2.substr(1,2),16); g = parseInt(s2.substr(3,2),16); b = parseInt(s2.substr(5,2),16);
+      }
+    } else {
+      m = s2.match(/(\d+)[,\s]+(\d+)[,\s]+(\d+)/);
+      r = m ? +m[1] : 128; g = m ? +m[2] : 128; b = m ? +m[3] : 128;
+    }
+    return (RGBC[hx] = [r||0, g||0, b||0]);
+  }
+  function mixc(a, b, t){
+    var A = rgbOf(a), B = rgbOf(b);
+    return 'rgb(' + Math.round(A[0]+(B[0]-A[0])*t) + ',' +
+                    Math.round(A[1]+(B[1]-A[1])*t) + ',' +
+                    Math.round(A[2]+(B[2]-A[2])*t) + ')';
+  }
+  function basincRenk(v){
+    var a = Math.min(1, Math.abs(v));
+    return mixc(C.panel, v >= 0 ? C.sin : C.cos, 0.05 + 0.84*a);
+  }
+  /* bir kesitin basinc haritasi: fu(u,v) -> [-1,1], u ve v 0..1 */
+  function harita(x0,y0,w,h,fu,NU,NV){
+    var i, j;
+    for (i=0;i<NU;i++){
+      var xa = Math.round(x0 + i*w/NU), xb = Math.round(x0 + (i+1)*w/NU);
+      for (j=0;j<NV;j++){
+        var ya = Math.round(y0 + j*h/NV), yb = Math.round(y0 + (j+1)*h/NV);
+        ctx.fillStyle = basincRenk(fu((i+0.5)/NU, (j+0.5)/NV));
+        ctx.fillRect(xa, ya, Math.max(1, xb-xa), Math.max(1, yb-ya));
+      }
+    }
+  }
+
+  /* Dar ekranda sol alt baslik ile sag ozet carpisiyordu: dar ekranda sol metin dusuyor. */
+  function sahneBaslik(w, sol, sag, sagCol, sagDar){
+    var pad = 16*K.fs, y = 16*K.fs, dar = w < 700;
+    if (!dar) txt(sol, pad, y, C.ink3, 10.5, 'left', MONO, 500);
+    var t = (dar && sagDar) ? sagDar : sag;
+    txt(t, dar ? pad : w - pad, y, sagCol, dar ? 11 : 11.5, dar ? 'left' : 'right', MONO, 600);
+  }
+
+
+  /* ================= FIZIK =================
+     Butun degerler once node'da bagimsiz hesapla dogrulandi (_mkfz*.js).
+     Web'den dogrulanan sabitler:
+       · 150 Ω kaynagin termal gurultusu 20 Hz–20 kHz / 20 °C:
+         −131 dBu agirliksiz (hesap: −130,92), −136 dBu A-agirlikli.
+       · Gercek bir on yukseltecin EIN'i: −128 dBu agirliksiz.
+       · SSL 4000 E: mikrofon kazanci −20…+70 dB, pad −20 dB,
+         HPF 18 dB/okt, LPF 12 dB/okt, fader −∞…+10 dB.
+       · IEC 61938 P48: 48 V, iki adet 6,81 kΩ, mikrofon basina en cok 10 mA.
+       · Pan yasasi: −3 dB sabit guc, −4,5 dB uzlasma, −6 dB sabit genlik.     */
+
+  function db(x){ return 20*lg(Math.max(1e-30, x)); }
+
+  var V0_DBU = Math.sqrt(0.001*600);              /* 0 dBu = 0,774597 V */
+  function vToDbu(v){ return 20*lg(Math.max(1e-12, v)/V0_DBU); }
+  function dbuToV(d){ return V0_DBU*Math.pow(10, d/20); }
+  function gucTopla(a, b){ return 10*lg(Math.pow(10,a/10) + Math.pow(10,b/10)); }
+
+  /* ---------- KAYNAKLAR ----------
+     1 Pa = 94 dB SPL. Duyarlilik mV/Pa. Tepe payi (crest) 23. atolyede
+     olculen degerlerle uyumlu.                                              */
+  function micDbu(sensMvPa, spl){
+    return vToDbu(sensMvPa/1000*Math.pow(10, (spl - 94)/20));
+  }
+  var KAYNAK = {
+    vokal:   { ad:'Vokal', alt:'kondansatör 20 mV/Pa', sens:20,  spl:100, crest:12,
+               fantom:true,  not:'Yakın vokal: kondansatör mikrofon fantom besleme ister. Seviyesi rahat, asıl dikkat patlayıcı hecelerin tepesinde.' },
+    trampet: { ad:'Trampet', alt:'dinamik 1,6 mV/Pa', sens:1.6, spl:120, crest:14,
+               fantom:false, not:'Çok yüksek ses basıncı ama duyarlılığı düşük bir mikrofon: ikisi birbirini götürüyor, kazanç vokalinkine yakın çıkıyor.' },
+    gitar:   { ad:'Akustik gitar', alt:'kondansatör 20 mV/Pa', sens:20, spl:85, crest:14,
+               fantom:true,  not:'Sessiz bir kaynak: daha çok kazanç gerekiyor ve zincirin gürültüsü ilk burada konuşmaya başlıyor.' },
+    oda:     { ad:'Oda mikrofonu', alt:'sessiz pasaj, 20 mV/Pa', sens:20, spl:65, crest:16,
+               fantom:true,  not:'En zor durum: çok az sinyal. Burada ön yükseltecin kendi gürültüsü zincirin tavanını belirliyor.' },
+    hat:     { ad:'Klavye / hat', alt:'−10 dBV çıkış', sens:0, spl:0, crest:10,
+               hatDbu:-10, fantom:false,
+               not:'Mikrofon değil: hat seviyesi. Mikrofon girişine sokulursa kazanç neredeyse hiç gerekmez; doğrusu HAT girişini kullanmaktır.' }
+  };
+  var KSIRA = ['vokal','trampet','gitar','oda','hat'];
+  function kaynakDbu(k, padVar){
+    var Q = KAYNAK[k];
+    var d = (Q.hatDbu !== undefined) ? Q.hatDbu : micDbu(Q.sens, Q.spl);
+    return d - (padVar ? 20 : 0);
+  }
+  function odaSnr(k, odaSpl){
+    var Q = KAYNAK[k];
+    if (Q.hatDbu !== undefined) return 999;       /* hat kaynaginda oda yok */
+    return Q.spl - odaSpl;
+  }
+
+  /* ---------- KAZANC YAPISI ----------
+     On yukseltec gurultusu girise indirgenmis (EIN) ve kazancla birlikte
+     buyuyor; cevirici gurultusu kendi tavanina gore SABIT. Ikisi GUC olarak
+     toplaniyor. Dogrulandi: tavan +16/+22/+24 dBu icin ayni dBFS hedefinde
+     SNR AYNI cikiyor — tavan sadece hangi kazanc sayisini cevirdiginizi
+     degistiriyor, kaliteyi degil.                                           */
+  var EIN = -128;                 /* dBu, agirliksiz */
+  var TERMAL_150 = -130.92;       /* dBu, 150 Ω / 20 kHz / 20 °C */
+  var CEV_DR = 118;               /* cevirici dinamik araligi, dB */
+  var TAVANLAR = [
+    { v:16, ad:'+16 dBu', not:'Tipik ses kartı mikrofon kanalı (RME Fireface 802: +6 dB kazançta en büyük giriş +10 dBu).' },
+    { v:22, ad:'+22 dBu', not:'Stüdyo konsolu / iyi bir ön yükseltecin çıkış tavanı.' },
+    { v:24, ad:'+24 dBu', not:'Profesyonel hizalama: 0 dBFS = +24 dBu. Yayın standardı bu tarafta.' }
+  ];
+  function cevGuru(tavan){ return tavan - CEV_DR; }
+  function zincirSnr(sinyalDbu, G, tavan){
+    var toplam = gucTopla(EIN + G, cevGuru(tavan));
+    return (sinyalDbu + G) - toplam;
+  }
+  function plato(sinyalDbu){ return sinyalDbu - EIN; }
+  function tepeDbfs(sinyalDbu, crest, G, tavan){ return sinyalDbu + G + crest - tavan; }
+  function gainIcinTepe(sinyalDbu, crest, hedef, tavan){
+    return hedef + tavan - crest - sinyalDbu;
+  }
+  /* hangi gurultu baskin? */
+  function baskinGuru(G, tavan){
+    var a = EIN + G, b = cevGuru(tavan);
+    if (a > b + 3) return 'on';
+    if (b > a + 3) return 'cevirici';
+    return 'ikisi';
+  }
+
+  /* ---------- FANTOM BESLEME (IEC 61938) ---------- */
+  var FANTOM = [
+    { ad:'P48', V:48, R:6810 }, { ad:'P24', V:24, R:1200 }, { ad:'P12', V:12, R:680 }
+  ];
+  function fantomV(F, mA){ return F.V - (mA/1000)*(F.R/2); }
+
+  /* ---------- PAN YASASI ----------
+     Dogrulandi: ortada guc −3,01 dB, uzlasma −4,52 dB, genlik −6,02 dB.
+     Mono toplamda sirasiyla +3,01 / +1,51 / 0,00 dB.                        */
+  var PANYASA = {
+    guc:     { ad:'−3 dB · sabit güç', orta:-3.01,
+               not:'Hoparlörde toplam güç sabit kalır. Ama mono’ya toplanınca ortadaki kaynak 3 dB yükselir.' },
+    uzlasma: { ad:'−4,5 dB · uzlaşma', orta:-4.52,
+               not:'Çoğu konsolun ve DAW’ın varsayılanı (SSL dâhil). İki uçtaki hatayı ikiye böler.' },
+    genlik:  { ad:'−6 dB · sabit genlik', orta:-6.02,
+               not:'Mono toplam hiç değişmez. Stereo dinlemede ortadaki kaynak 3 dB düşük duyulur.' }
+  };
+  var PYSIRA = ['guc','uzlasma','genlik'];
+  function panLR(p, yasa){
+    var a = p*Math.PI/2, L, R;
+    if (yasa === 'guc'){ L = Math.cos(a); R = Math.sin(a); }
+    else if (yasa === 'genlik'){ L = 1 - p; R = p; }
+    else {
+      L = Math.sqrt(Math.cos(a)*(1 - p));
+      R = Math.sqrt(Math.sin(a)*p);
+    }
+    return { L:L, R:R };
+  }
+
+  /* ---------- FADER EGRISI ----------
+     Konsol faderi dogrusal degil: ust ucta 10 dB, %80'de unity (0 dB), alt
+     ucta hizla −∞. Isaretli skala budur.                                    */
+  var FADER_EGRI = [[1.00,10],[0.90,5],[0.80,0],[0.70,-5],[0.60,-10],[0.50,-15],
+                    [0.40,-20],[0.30,-30],[0.20,-40],[0.10,-55],[0.00,-90]];
+  function faderDb(p){
+    if (p <= 0) return -90;
+    var i;
+    for (i = 0; i < FADER_EGRI.length - 1; i++){
+      if (p <= FADER_EGRI[i][0] && p >= FADER_EGRI[i+1][0]){
+        var a = FADER_EGRI[i+1], b = FADER_EGRI[i];
+        return a[1] + (p - a[0])/(b[0] - a[0])*(b[1] - a[1]);
+      }
+    }
+    return 10;
+  }
+  function faderPos(db){
+    var i;
+    if (db >= 10) return 1;
+    for (i = 0; i < FADER_EGRI.length - 1; i++){
+      var b = FADER_EGRI[i], a = FADER_EGRI[i+1];
+      if (db <= b[1] && db >= a[1])
+        return a[0] + (db - a[1])/(b[1] - a[1])*(b[0] - a[0]);
+    }
+    return 0;
+  }
+
+  /* ---------- KANAL SERIDI EQ (RBJ biquad) ----------
+     Dogrulandi: HPF kesimde −3,01 dB ve oktav basina −12 / −24 dB;
+     can 1 kHz Q=1,4 → tepe +6,00, olculen Q 1,41; alt raf kosede +3,00.    */
+  var EQ_FS = 48000;
+  function biquad(tur, f0, Q, kazancDb){
+    var A = Math.pow(10, kazancDb/40), w = TAU*f0/EQ_FS;
+    var cw = Math.cos(w), sw = Math.sin(w), al = sw/(2*Q);
+    var b0, b1, b2, a0, a1, a2, be;
+    if (tur === 'hpf'){
+      b0 = (1+cw)/2; b1 = -(1+cw); b2 = (1+cw)/2;
+      a0 = 1+al; a1 = -2*cw; a2 = 1-al;
+    } else if (tur === 'can'){
+      b0 = 1+al*A; b1 = -2*cw; b2 = 1-al*A;
+      a0 = 1+al/A; a1 = -2*cw; a2 = 1-al/A;
+    } else if (tur === 'altraf'){
+      be = Math.sqrt(A)/Q;
+      b0 =    A*((A+1) - (A-1)*cw + be*sw);
+      b1 =  2*A*((A-1) - (A+1)*cw);
+      b2 =    A*((A+1) - (A-1)*cw - be*sw);
+      a0 =      (A+1) + (A-1)*cw + be*sw;
+      a1 =   -2*((A-1) + (A+1)*cw);
+      a2 =      (A+1) + (A-1)*cw - be*sw;
+    } else {                                   /* ustraf */
+      be = Math.sqrt(A)/Q;
+      b0 =    A*((A+1) + (A-1)*cw + be*sw);
+      b1 = -2*A*((A-1) + (A+1)*cw);
+      b2 =    A*((A+1) + (A-1)*cw - be*sw);
+      a0 =      (A+1) - (A-1)*cw + be*sw;
+      a1 =    2*((A-1) - (A+1)*cw);
+      a2 =      (A+1) - (A-1)*cw - be*sw;
+    }
+    return [b0/a0, b1/a0, b2/a0, a1/a0, a2/a0];
+  }
+  function biqDb(c, f){
+    var w = TAU*f/EQ_FS, cw = Math.cos(w), sw = Math.sin(w);
+    var c2 = Math.cos(2*w), s2 = Math.sin(2*w);
+    var nr = c[0] + c[1]*cw + c[2]*c2, ni = -(c[1]*sw + c[2]*s2);
+    var dr = 1    + c[3]*cw + c[4]*c2, di = -(c[3]*sw + c[4]*s2);
+    return 10*lg((nr*nr + ni*ni)/(dr*dr + di*di));
+  }
+  var BANT = {
+    altraf: { ad:'Alt raf',  tur:'altraf', fMin:40,  fMax:400,   qSabit:true,
+              not:'Köşe frekansının ALTINDAKİ her şeyi topluca kaldırır ya da indirir. Gövde eklemenin en sakin yolu.' },
+    can1:   { ad:'Alt-orta', tur:'can',    fMin:100, fMax:2000,  qSabit:false,
+              not:'Çamurun ve gövdenin yeri. Dar Q ile tek bir rezonans avlanır, geniş Q ile tonun rengi değişir.' },
+    can2:   { ad:'Üst-orta', tur:'can',    fMin:500, fMax:12000, qSabit:false,
+              not:'Anlaşılırlık ve saldırganlık burada. Konuşma ve vokalde en çok dokunulan bant.' },
+    ustraf: { ad:'Üst raf',  tur:'ustraf', fMin:2000,fMax:16000, qSabit:true,
+              not:'Hava ve parlaklık. Kaldırmak gürültüyü de kaldırır — kararı sessizliği dinleyerek verin.' }
+  };
+  var BSIRA2 = ['altraf','can1','can2','ustraf'];
+  /* HPF: 12 dB/okt tek biquad, 24 dB/okt Butterworth ikili */
+  function hpfKats(f0, egim){
+    if (!egim) return [];
+    if (egim === 12) return [biquad('hpf', f0, 0.7071, 0)];
+    return [biquad('hpf', f0, 0.5412, 0), biquad('hpf', f0, 1.3066, 0)];
+  }
+  function eqKats(){
+    var out = hpfKats(S.hpfF, S.hpfE), k;
+    for (k = 0; k < BSIRA2.length; k++){
+      var b = BSIRA2[k], Q = S.eq[b];
+      if (Math.abs(Q.g) < 0.05) continue;
+      out.push(biquad(BANT[b].tur, Q.f, Q.q, Q.g));
+    }
+    return out;
+  }
+  function eqDb(kats, f){
+    var s = 0, i;
+    for (i = 0; i < kats.length; i++) s += biqDb(kats[i], f);
+    return s;
+  }
+
+  /* ---------- KANAL SERIDININ BOLUMLERI ---------- */
+  var BOLUM = {
+    giris:  { ad:'Giriş', alt:'mic / line · pad · Ø · +48V',
+              not:'Şeridin ilk ve en önemli noktası. Kazanç burada kurulur; sonraki her şey bu kararın üzerine binerir.',
+              dij:'Dijital konsolda ön yükseltecin kendisi hâlâ ANALOG ve çoğu zaman sahnedeki kutudadır. Kazanç uzaktan ayarlanır, ama yine de analog bir devredir.' },
+    hpf:    { ad:'Yüksek geçiren süzgeç', alt:'HPF · low cut',
+              not:'Kaynağın altındaki her şeyi atar: sahne gürümesi, nefes patlaması, klima. Şeridin en ucuz temizliği.',
+              dij:'Dijital konsolda HPF sayısaldır ve eğimi seçilebilir; analogda genellikle tek bir sabit eğim vardır.' },
+    eq:     { ad:'Ekolayzır', alt:'4 bant · raf ve çan',
+              not:'Frekansların dengesi. Kesmek eklemekten daha sık işe yarar: yer açmak, doldurmaktan ucuzdur.',
+              dij:'Dijital konsolda EQ eğrisi ekranda GÖRÜNÜR ve sahne hafızasına kaydedilir. Analogda kulak ve düğme pozisyonundan başka kayıt yoktur.' },
+    insert: { ad:'Insert', alt:'kanal içine giriş/çıkış',
+              not:'Şeridin ortasında sinyali dışarı çıkarıp geri alan nokta. Kompresör gibi SERİ bağlanacak cihazlar buradan girer.',
+              dij:'Dijital konsolda insert kablo değil, dahili bir yönlendirmedir: bir efekt motorunu şeridin içine tek dokunuşla sokarsınız.' },
+    gonderi:{ ad:'Aux gönderi', alt:'pre / post fader',
+              not:'Sinyalin bir KOPYASINI başka bir yere yollar. Reverb gibi PARALEL bağlanacak her şey buradan gider.',
+              dij:'Dijital konsolda gönderi noktası (pre/post) menüden seçilir ve her gönderi için ayrı ayarlanabilir.' },
+    pan:    { ad:'Pan', alt:'sol / sağ dağılımı',
+              not:'Kaynağı iki hoparlör arasında bir yere yerleştirir. Ortada iki kanala da giden sinyal, yasa gereği biraz kısılır.',
+              dij:'Dijital konsolda pan yasası AYARDIR: −3, −4,5 ya da −6 dB. Analogda devreye lehimlenmiştir.' },
+    fader:  { ad:'Fader', alt:'−∞ … +10 dB',
+              not:'Kanalın ana seviyesi. Eğrisi doğrusal değildir: üst uçta geniş, alt uçta hızlı. İşaretli “U” noktası 0 dB’dir.',
+              dij:'Dijital konsolda fader motorludur ve KATMAN değiştirince aynı fader başka bir kanalı sürer — analogda her kanalın kendi faderi vardır.' },
+    yon:    { ad:'Yönlendirme', alt:'ana / alt grup / matris',
+              not:'Şeridin çıkışı nereye gidiyor? Ana stereo çifte, bir alt gruba ya da ikisine birden.',
+              dij:'Dijital konsolda yönlendirme tamamen yazılımdır; bir kanalı istediğiniz bus’a tek dokunuşla gönderirsiniz.' }
+  };
+  var BOSIRA = ['giris','hpf','eq','insert','gonderi','pan','fader','yon'];
+
+  /* ---------- GONDERI NOKTASI ---------- */
+  var NOKTA = {
+    preEq:  { ad:'Pre-EQ', not:'Gönderi EQ’dan ÖNCE alınır. Kanalda ne yaparsanız yapın gönderiye gitmez — sahne monitöründe bazen istenir.' },
+    pre:    { ad:'Pre-fader', not:'Gönderi fader’dan ÖNCE alınır. Fader’ı kıssanız bile gönderi değişmez: KULAKLIK ve SAHNE MİKSİ böyle kurulur.' },
+    post:   { ad:'Post-fader', not:'Gönderi fader’dan SONRA alınır. Fader’ı kısınca efekt de kısılır, kuru/ıslak oranı SABİT kalır: EFEKT gönderisi böyle olmalı.' }
+  };
+  var NSIRA = ['preEq','pre','post'];
+
+  /* ---------- YONLENDIRME ---------- */
+  var YON = {
+    ana:   { ad:'Ana stereo (L/R)', not:'Kanal doğrudan ana çifte gider. En basit yol.' },
+    grup:  { ad:'Alt grup', not:'Önce bir alt gruba, oradan anaya. Bütün davul kanallarını TEK fader’dan kısmanın yolu.' },
+    vca:   { ad:'VCA / DCA', not:'Sinyal alt gruptan GEÇMEZ; VCA yalnızca kanalların faderlerini birlikte sürer. Gönderiler post-fader ise onlar da birlikte iner.' },
+    matris:{ ad:'Matris çıkışı', not:'Ana ve grup çıkışlarından ayrı bir karışım: yayın beslemesi, kayıt, lobi hoparlörü.' }
+  };
+  var YSIRA = ['ana','grup','vca','matris'];
+
+  /* ---------- ortak: dB ekseni olan bir cerceve ---------- */
+  function dbPanel(x0, y0, w, h, lo, hi, adimlar, birim){
+    frame(x0, y0, w, h);
+    var Y = function(v){ return y0 + h - (v - lo)/(hi - lo)*h; };
+    ctx.strokeStyle = C.line2; LW(1);
+    adimlar.forEach(function(v){
+      if (v < lo || v > hi) return;
+      dash(v === 0 ? null : [2,4]);
+      ctx.strokeStyle = v === 0 ? C.line : C.line2; LW(v === 0 ? 1.3 : 1);
+      line(x0, Y(v), x0 + w, Y(v));
+      dash(null);
+      txt(sgn(v,0), x0 + 4*K.fs, Math.max(y0 + 8*K.fs, Y(v) - 6*K.fs),
+          C.ink3, 8.5, 'left', MONO);
+    });
+    if (birim) txt(birim, x0 + w - 5*K.fs, y0 + 9*K.fs, C.ink3, 8.5, 'right', MONO);
+    return Y;
+  }
+  /* ---------- ortak: zaman penceresi ---------- */
+  function zamanPanel(x0, y0, w, h, t0, t1, baslik, sag, yMax){
+    frame(x0, y0, w, h);
+    var ic = 20*K.fs, M = yMax || 1.15;
+    var X = function(t){ return x0 + 12*K.fs + (t - t0)/(t1 - t0)*(w - 24*K.fs); };
+    var Y = function(v){ return y0 + ic + (1 - (v + M)/(2*M))*(h - ic - 12*K.fs); };
+    ctx.strokeStyle = C.line; LW(1.2);
+    line(x0 + 6*K.fs, Y(0), x0 + w - 6*K.fs, Y(0));
+    if (baslik) txt(baslik, x0 + 10*K.fs, y0 + 12*K.fs, C.ink3, 9.5, 'left', MONO);
+    if (sag) txt(sag, x0 + w - 10*K.fs, y0 + 12*K.fs, C.ink3, 9.5, 'right', MONO);
+    return { X:X, Y:Y, M:M };
+  }
+  function surekli(P, t0, t1, fn, col, lw, kesik){
+    var N = 800, i;
+    ctx.beginPath();
+    for (i = 0; i <= N; i++){
+      var t = t0 + (t1 - t0)*i/N;
+      var p = [P.X(t), P.Y(Math.max(-P.M, Math.min(P.M, fn(t))))];
+      if (i === 0) ctx.moveTo(p[0], p[1]); else ctx.lineTo(p[0], p[1]);
+    }
+    ctx.strokeStyle = col; LW(lw || 2);
+    if (kesik) dash(kesik);
+    glowOn(col, 5); ctx.stroke(); glowOff();
+    dash(null);
+  }
+
+  /* ---------- ortak: spektrum cizimi ----------
+     GERCEK veri: FFT cikisi. Log frekans, SABIT dB ekseni.                  */
+  function spektrumCiz(x0, y0, w, h, sp, lo, col, etiket, sag, fsUst){
+    var Y = dbPanel(x0, y0, w, h, lo, 6, [0,-20,-40,-60,-80,-100,-120,-140], 'dBFS');
+    var A = logAxis(x0 + 38*K.fs, x0 + w - 12*K.fs, 40, fsUst || 24000);
+    drawTicks(A, y0 + h - 16*K.fs, [100,1000,10000,20000]);
+    var M = sp.mag.length, i;
+    var px = Math.max(2, Math.round(A.x1 - A.x0));
+    ctx.beginPath();
+    var basladi = false;
+    for (i = 0; i <= px; i++){
+      var fa = A.f0*Math.pow(A.f1/A.f0, i/px);
+      var fb = A.f0*Math.pow(A.f1/A.f0, (i + 1)/px);
+      var ka = Math.max(1, Math.floor(fa/sp.df)), kb = Math.min(M - 1, Math.ceil(fb/sp.df));
+      var mx = 0, k;
+      for (k = ka; k <= kb; k++) if (sp.mag[k] > mx) mx = sp.mag[k];
+      if (kb < ka) mx = sp.mag[Math.min(M - 1, ka)];
+      var v = Math.max(lo, db(mx));
+      if (!basladi){ ctx.moveTo(A.x0 + i, Y(v)); basladi = true; }
+      else ctx.lineTo(A.x0 + i, Y(v));
+    }
+    ctx.strokeStyle = col; LW(1.6); glowOn(col, 4); ctx.stroke(); glowOff();
+    if (etiket) txt(etiket, A.x0, y0 + 12*K.fs, C.ink3, 9.5, 'left', MONO);
+    if (sag) txt(sag, x0 + w - 12*K.fs, y0 + 12*K.fs, C.ink3, 9.5, 'right', MONO);
+    return { Y:Y, A:A };
+  }
+  /* ---------- ortak: etiketli olcu oku ---------- */
+  function okla(x, y1, y2, col, ad, kucuk){
+    ctx.strokeStyle = col; LW(1.6);
+    line(x, y1, x, y2);
+    [[y1, 1], [y2, -1]].forEach(function(q){
+      ctx.beginPath();
+      ctx.moveTo(x, q[0]); ctx.lineTo(x - 4*K.fs, q[0] + q[1]*7*K.fs);
+      ctx.lineTo(x + 4*K.fs, q[0] + q[1]*7*K.fs); ctx.closePath();
+      ctx.fillStyle = col; ctx.fill();
+    });
+    if (ad) chip(ad, x, (y1 + y2)/2, col, kucuk ? 8.5 : 9.5, 600);
+  }
+  /* ---------- ortak: satirli sayi paneli ---------- */
+  /* Aciklama metni panele sigmiyorsa SARILIYOR; etiket ile deger ayni satira
+     sigmiyorsa deger ALT SATIRA aliniyor. Dar ekranda ikisi de tasiyordu.   */
+  function satirlar(x0, y0, w, h, baslik, sat, lh){
+    frame(x0, y0, w, h);
+    txt(baslik, x0 + 9*K.fs, y0 + 12*K.fs, C.ink2, 9.5, 'left', MONO, 600);
+    var yy = y0 + 30*K.fs, adim = lh || 30*K.fs, i, ic = w - 18*K.fs;
+    for (i = 0; i < sat.length; i++){
+      if (yy + 14*K.fs > y0 + h) break;
+      var lw = tw(sat[i][0], 8.5, MONO, 400);
+      var vw = tw(sat[i][1], 11, MONO, 600);
+      var altSatir = (lw + vw + 14*K.fs > ic);
+      txt(sat[i][0], x0 + 9*K.fs, yy, C.ink3, 8.5, 'left', MONO);
+      if (altSatir){
+        if (yy + 14*K.fs > y0 + h) break;
+        txt(sat[i][1], x0 + w - 9*K.fs, yy + 13*K.fs, sat[i][2] || C.ink2,
+            11, 'right', MONO, 600);
+      } else {
+        txt(sat[i][1], x0 + w - 9*K.fs, yy, sat[i][2] || C.ink2, 11, 'right', MONO, 600);
+      }
+      var ay2 = yy + (altSatir ? 27 : 13)*K.fs, sn = 0;
+      if (sat[i][3] && ay2 < y0 + h - 4*K.fs)
+        sn = wrap(sat[i][3], x0 + 9*K.fs, ay2, ic, C.ink3, 8, 11*K.fs);
+      yy += Math.max(adim, (altSatir ? 30 : 17)*K.fs + sn*11*K.fs);
+    }
+  }
+
+
+  /* ---------- ortak: kanal seridinin dikey cizimi ----------
+     Gercek bir seritteki SIRA: giris → HPF → EQ → insert → gonderi → pan
+     → fader → yonlendirme. Sinyal yukaridan asagi akiyor.                  */
+  /* Dar ekranda dikey serit yan yana panellerle birlikte sigmiyordu:
+     orada serit YATAY bir sira olarak, yalnizca numaralar ve secili bolumun
+     adiyla ciziliyor. Sira bilgisi korunuyor, yer kaplamiyor.               */
+  function seritYatay(x, y, w, h, secili){
+    var n2 = BOSIRA.length, bw = (w - (n2 - 1)*4*K.fs)/n2, i;
+    for (i = 0; i < n2; i++){
+      var k = BOSIRA[i], sec = (k === secili), bx = x + i*(bw + 4*K.fs);
+      ctx.fillStyle = sec ? mixc(C.panel, C.sin, 0.30) : C.panel2;
+      ctx.fillRect(bx, y, bw, h);
+      ctx.strokeStyle = sec ? C.sin : C.line; LW(sec ? 1.8 : 1);
+      ctx.strokeRect(bx + 0.5, y + 0.5, bw - 1, h - 1);
+      txt((i + 1) + '', bx + bw/2, y + h/2, sec ? C.sin : C.ink3,
+          10, 'center', MONO, 600);
+    }
+    txt(BOSIRA.indexOf(secili) + 1 + '. ' + BOLUM[secili].ad + '  ·  ' +
+        BOLUM[secili].alt, x, y + h + 12*K.fs, C.sin, 9, 'left', MONO, 600);
+    txt('şerit sırası: sinyal 1’den 8’e akıyor', x, y + h + 25*K.fs,
+        C.ink3, 8, 'left', MONO);
+  }
+  function seritCiz(x, y, w, h, secili, tikla){
+    var n2 = BOSIRA.length, bh = (h - 8*K.fs)/n2, i;
+    var kutular = [];
+    for (i = 0; i < n2; i++){
+      var k = BOSIRA[i], Q = BOLUM[k], sec = (k === secili);
+      var by = y + 4*K.fs + i*bh, bhh = bh - 4*K.fs;
+      var col = sec ? C.sin : C.line;
+      ctx.fillStyle = sec ? mixc(C.panel, C.sin, 0.22) : C.panel2;
+      ctx.fillRect(x, by, w, bhh);
+      ctx.strokeStyle = col; LW(sec ? 1.8 : 1);
+      ctx.strokeRect(x + 0.5, by + 0.5, w - 1, bhh - 1);
+      txt(Q.ad, x + 10*K.fs, by + bhh/2 - (bhh > 30*K.fs ? 6*K.fs : 0),
+          sec ? C.sin : C.ink2, bhh > 30*K.fs ? 10 : 9, 'left', MONO, 600);
+      if (bhh > 30*K.fs)
+        txt(Q.alt, x + 10*K.fs, by + bhh/2 + 8*K.fs, C.ink3, 8, 'left', MONO);
+      /* akis oku */
+      if (i < n2 - 1){
+        ctx.strokeStyle = C.cos; LW(1.4);
+        line(x + w/2, by + bhh, x + w/2, by + bh);
+      }
+      kutular.push({ k:k, y:by, h:bhh });
+    }
+    return kutular;
+  }
+
+  /* ---------- SAHNE 1: KANAL SERIDI ----------
+     Solda seridin kendisi, sagda o bolumun ne yaptigi OLCULEREK gosteriliyor.
+     HPF ve EQ secilince frekans yaniti; giris secilince seviye zinciri.     */
+  function drawSerit(w, h){
+    var pad = 16*K.fs, dar = w < 900;
+    var Q = KAYNAK[S.kaynak];
+    var giris = kaynakDbu(S.kaynak, S.pad);
+    var B = BOLUM[S.bolum];
+
+    sahneBaslik(w,
+      'KANAL ŞERİDİ  ·  ' + Q.ad + '  ·  ' + B.ad,
+      'giriş ' + n(giris,1) + ' dBu' + (S.pad ? '  ·  PAD −20 dB' : '') +
+        (S.fantom && Q.fantom ? '  ·  +48V' : '') + (S.faz ? '  ·  Ø' : ''),
+      C.cos, n(giris,1) + ' dBu');
+
+    var top = 34*K.fs, gw = w - 2*pad, gh = h - top - 6*K.fs;
+    var rx, rw, ustPay = 0;
+    if (dar){
+      seritYatay(pad, top, gw, 30*K.fs, S.bolum);
+      ustPay = 66*K.fs;
+      rx = pad; rw = gw;
+    } else {
+      var sw = Math.min(180*K.fs, gw*0.24);
+      seritCiz(pad, top, sw, gh, S.bolum, true);
+      rx = pad + sw + 14*K.fs; rw = w - pad - rx;
+    }
+    top += ustPay; gh -= ustPay;
+
+    /* ---- SAG UST: frekans yaniti ---- */
+    var fh = dar ? gh*0.46 : gh*0.60;
+    var kats = eqKats();
+    var Y = dbPanel(rx, top, rw, fh, -18, 18, [18,12,6,0,-6,-12,-18], 'dB');
+    var A = logAxis(rx + 34*K.fs, rx + rw - 12*K.fs, 20, 20000);
+    drawTicks(A, top + fh - 18*K.fs,
+              dar ? [50,500,5000,20000] : [20,50,100,500,1000,5000,10000,20000]);
+    txt('KANALIN FREKANS YANITI  ·  SABİT EKSEN ±18 dB',
+        rx + 34*K.fs, top + 12*K.fs, C.ink3, dar ? 8.5 : 9.5, 'left', MONO, 600);
+
+    /* tek tek bantlar soluk */
+    var BCOL = { altraf:C.brass, can1:C.cos, can2:C.arc, ustraf:C.sin };
+    BSIRA2.forEach(function(b){
+      var E = S.eq[b];
+      if (Math.abs(E.g) < 0.05) return;
+      var c = [biquad(BANT[b].tur, E.f, E.q, E.g)];
+      ctx.globalAlpha = (b === S.bant && S.bolum === 'eq') ? 0.85 : 0.40;
+      bandCurve(A, Y, function(f){ return eqDb(c, f); },
+                BCOL[b], 1.4, -18, 18);
+      ctx.globalAlpha = 1;
+    });
+    if (S.hpfE){
+      var hc = hpfKats(S.hpfF, S.hpfE);
+      ctx.globalAlpha = S.bolum === 'hpf' ? 0.85 : 0.40;
+      bandCurve(A, Y, function(f){ return eqDb(hc, f); }, C.no, 1.4, -18, 18);
+      ctx.globalAlpha = 1;
+    }
+    /* toplam kalin */
+    bandCurve(A, Y, function(f){ return eqDb(kats, f); }, C.ink, 2.6, -18, 18);
+    txt('kalın eğri = TOPLAM', rx + 34*K.fs, top + 26*K.fs, C.ink, 8.5, 'left', MONO, 600);
+
+    /* secili bandin tepe noktasi isaretli */
+    if (S.bolum === 'eq'){
+      var E2 = S.eq[S.bant];
+      if (Math.abs(E2.g) >= 0.05){
+        var xx = A.X(Math.max(20, Math.min(20000, E2.f)));
+        var yy = Y(Math.max(-18, Math.min(18, eqDb(kats, E2.f))));
+        dot(xx, yy, 3.4, BCOL[S.bant]);
+        chip(fTxt(E2.f) + '  ' + sgn(E2.g,1) + ' dB', xx,
+             Math.max(top + 26*K.fs, yy - 14*K.fs), BCOL[S.bant], 9, 600);
+      }
+    } else if (S.bolum === 'hpf' && S.hpfE){
+      var hx = A.X(S.hpfF);
+      dot(hx, Y(-3.01), 3.4, C.no);
+      chip(fTxt(S.hpfF) + '  −3 dB', hx, Y(-3.01) - 14*K.fs, C.no, 9, 600);
+    }
+
+    /* ---- SAG ALT: secili bolumun sayilari ---- */
+    var by = top + fh + 12*K.fs;
+    var bh2 = dar ? (top + gh - by) : (top + gh - by);
+    if (bh2 < 60*K.fs) return;
+    var sat;
+    if (S.bolum === 'giris'){
+      var tavan = S.tavan;
+      sat = [
+        ['kaynak', Q.ad + ' · ' + (Q.hatDbu !== undefined ? 'hat' : n(Q.spl,0) + ' dB SPL'), C.cos, Q.alt],
+        ['mikrofon çıkışı', n(kaynakDbu(S.kaynak, false),1) + ' dBu', C.sin,
+         Q.hatDbu !== undefined ? 'Hat seviyesi: mikrofon girişine değil HAT girişine.'
+                                : '1 Pa = 94 dB SPL. Duyarlılık × basınç.'],
+        ['pad', S.pad ? '−20 dB → ' + n(giris,1) + ' dBu' : 'kapalı', S.pad ? C.no : C.ink3,
+         'Pad sinyali ÖN YÜKSELTEÇTEN ÖNCE kısar: girişin kendisi kırpıyorsa tek çare budur.'],
+        ['fantom (P48)', (Q.fantom ? (S.fantom ? 'açık — gerekli' : 'KAPALI — gerekli!') : 'gerekmiyor'),
+         Q.fantom ? (S.fantom ? C.ok : C.no) : C.ink3,
+         'IEC 61938: 48 V, iki adet 6,81 kΩ, mikrofon başına en çok 10 mA.']
+      ];
+    } else if (S.bolum === 'hpf'){
+      sat = [
+        ['kesim frekansı', S.hpfE ? fTxt(S.hpfF) : 'kapalı', S.hpfE ? C.no : C.ink3,
+         'Kesimde tam −3,01 dB. Eğri o noktadan sonra düşmeye başlıyor.'],
+        ['eğim', S.hpfE ? S.hpfE + ' dB/oktav' : '—', C.arc,
+         '12 dB/okt tek süzgeç, 24 dB/okt iki süzgeç ardışık. SSL 4000 E’de 18 dB/okt.'],
+        ['50 Hz’de', S.hpfE ? n(eqDb(hpfKats(S.hpfF, S.hpfE), 50),1) + ' dB' : '0 dB', C.cos,
+         'Şebeke uğultusunun yeri. Kesimi 50 Hz’in üstüne çıkarınca hızla iniyor.'],
+        ['kaynağın en pes notası', S.kaynak === 'vokal' ? '~100 Hz' :
+          (S.kaynak === 'trampet' ? '~150 Hz' : (S.kaynak === 'gitar' ? '~82 Hz' : '~40 Hz')), C.brass,
+         'Kural: kesimi kaynağın en pes notasının ALTINA koyun, üstüne değil.']
+      ];
+    } else if (S.bolum === 'eq'){
+      var E3 = S.eq[S.bant], BB = BANT[S.bant];
+      sat = [
+        ['bant', BB.ad + ' · ' + (BB.tur === 'can' ? 'çan' : 'raf'), BCOL[S.bant], BB.not],
+        ['frekans / kazanç', fTxt(E3.f) + '  ' + sgn(E3.g,1) + ' dB', C.sin,
+         BB.tur === 'can' ? 'Çan yalnız o frekansın çevresini etkiler.'
+                          : 'Raf, köşenin ötesindeki her şeyi topluca kaldırır ya da indirir.'],
+        ['Q (genişlik)', BB.qSabit ? 'raf — Q sabit' : n(E3.q,2), C.arc,
+         BB.qSabit ? 'Raf süzgeçte genişlik ayarı yok; köşenin dikliği sabit.'
+                   : 'Q büyüdükçe dar, küçüldükçe geniş. Q = merkez frekans ÷ bant genişliği.'],
+        ['toplam eğrinin tepesi', n(eqZirve(kats),1) + ' dB', C.ink,
+         'Bantlar üst üste binince toplam beklediğinizden büyük olabilir — kalın eğriye bakın.']
+      ];
+    } else {
+      sat = [
+        ['bölüm', B.ad, C.sin, B.not],
+        ['dijital konsolda', '→', C.arc, B.dij],
+        ['sıradaki', siradaki(S.bolum), C.cos,
+         'Sinyal şeritte yukarıdan aşağı akıyor; sıra sesin nasıl duyulacağını belirliyor.']
+      ];
+    }
+    satirlar(rx, by, rw, bh2, 'SEÇİLİ BÖLÜM  ·  ' + B.ad, sat,
+             Math.min(38*K.fs, (bh2 - 30*K.fs)/Math.max(1, sat.length)));
+  }
+  function siradaki(k){
+    var i = BOSIRA.indexOf(k);
+    return i >= 0 && i < BOSIRA.length - 1 ? BOLUM[BOSIRA[i+1]].ad : 'çıkış';
+  }
+  function eqZirve(kats){
+    var mx = -99, f;
+    for (f = 20; f < 20000; f *= 1.03){
+      var v = eqDb(kats, f);
+      if (v > mx) mx = v;
+    }
+    return mx;
+  }
+
+  /* ---------- ortak: blok ve ok ---------- */
+  function blok(x, y, w, h, ad, alt, col, vurgu){
+    ctx.fillStyle = vurgu ? mixc(C.panel, col, 0.24) : C.panel2;
+    ctx.fillRect(x, y, w, h);
+    ctx.strokeStyle = vurgu ? col : C.line; LW(vurgu ? 1.8 : 1.2);
+    ctx.strokeRect(x + 0.5, y + 0.5, w - 1, h - 1);
+    txt(ad, x + w/2, y + h/2 - (alt ? 6*K.fs : 0), vurgu ? col : C.ink2,
+        9.5, 'center', MONO, 600);
+    if (alt) txt(alt, x + w/2, y + h/2 + 8*K.fs, C.ink3, 7.5, 'center', MONO);
+  }
+  function okY(x1, y1, x2, y2, col, kesik, etiket){
+    ctx.strokeStyle = col; LW(kesik ? 1.6 : 2);
+    if (kesik) dash([4,3]);
+    line(x1, y1, x2, y2); dash(null);
+    var a = Math.atan2(y2 - y1, x2 - x1);
+    ctx.beginPath();
+    ctx.moveTo(x2, y2);
+    ctx.lineTo(x2 - 7*K.fs*Math.cos(a - 0.4), y2 - 7*K.fs*Math.sin(a - 0.4));
+    ctx.lineTo(x2 - 7*K.fs*Math.cos(a + 0.4), y2 - 7*K.fs*Math.sin(a + 0.4));
+    ctx.closePath(); ctx.fillStyle = col; ctx.fill();
+    if (etiket) chip(etiket, (x1 + x2)/2, (y1 + y2)/2 - 9*K.fs, col, 8.5, 600);
+  }
+
+  /* ---------- SAHNE 2: SINYAL AKIŞI VE PRE/POST ----------
+     Ustte zincir: giris → EQ → fader → pan → ana. Gonderi bu zincirin
+     UC AYRI noktasindan alinabiliyor ve secim kuru/islak oranini belirliyor.
+     Dogrulandi: fader −15 dB'de post gonderide oran 0 dB (degismiyor),
+     pre gonderide oran −15 dB (efekt bogusuyor).                            */
+  function drawAkis(w, h){
+    var pad = 16*K.fs, dar = w < 900;
+    var N2 = NOKTA[S.gonderiNokta];
+    var f = S.faderDb;
+    /* gonderi seviyesi: pre noktalarinda fader'dan etkilenmiyor */
+    var kuru = f;
+    var gonder = S.gonderi + (S.gonderiNokta === 'post' ? f : 0);
+    var oran = kuru - gonder;
+    var P = panLR(S.panPos, S.panYasa);
+    var Ldb = db(P.L) + f, Rdb = db(P.R) + f;
+    var mono = db(P.L + P.R) + f;
+
+    sahneBaslik(w,
+      'SİNYAL AKIŞI  ·  gönderi ' + N2.ad + '  ·  fader ' + sgn(f,1) + ' dB',
+      'kuru ' + sgn(kuru,1) + ' dB  ·  gönderi ' + sgn(gonder,1) +
+        ' dB  ·  kuru/ıslak oranı ' + sgn(oran,1) + ' dB',
+      Math.abs(oran - (S.gonderi*-1)) < 0.1 ? C.ok : C.sin,
+      'oran ' + sgn(oran,1) + ' dB');
+
+    var top = 34*K.fs, gw = w - 2*pad, gh = h - top - 6*K.fs;
+    var ch1 = dar ? gh*0.36 : gh*0.42;
+
+    /* ---- UST: zincir ---- */
+    frame(pad, top, gw, ch1);
+    txt('ŞERİTTEN GEÇEN YOL  ·  gönderi üç ayrı noktadan alınabilir',
+        pad + 9*K.fs, top + 12*K.fs, C.ink2, dar ? 8.5 : 9.5, 'left', MONO, 600);
+    var ZIN = [
+      { k:'giris',  ad:'GİRİŞ',  alt:'ön yükselteç' },
+      { k:'eq',     ad:'EQ',     alt:'4 bant' },
+      { k:'fader',  ad:'FADER',  alt:sgn(f,1) + ' dB' },
+      { k:'pan',    ad:'PAN',    alt:PANYASA[S.panYasa].ad.split(' ')[0] },
+      { k:'ana',    ad:'ANA L/R',alt:YON[S.yonlen].ad.split(' ')[0] }
+    ];
+    var bw = Math.min(118*K.fs, (gw - 30*K.fs - 4*16*K.fs)/5);
+    var bh = 44*K.fs, zy = top + 40*K.fs;
+    var zx0 = pad + (gw - 5*bw - 4*16*K.fs)/2;
+    var noktaX = {};
+    ZIN.forEach(function(q, i){
+      var x = zx0 + i*(bw + 16*K.fs);
+      var vurgu = (q.k === 'fader');
+      blok(x, zy, bw, bh, q.ad, q.alt, vurgu ? C.sin : C.cos, vurgu);
+      if (i < 4) okY(x + bw, zy + bh/2, x + bw + 16*K.fs, zy + bh/2, C.cos, false, '');
+      noktaX[q.k] = x;
+    });
+    /* gonderi alinma noktasi */
+    var tapX = S.gonderiNokta === 'preEq' ? (noktaX.giris + bw + 8*K.fs)
+             : (S.gonderiNokta === 'pre'  ? (noktaX.eq + bw + 8*K.fs)
+             :                              (noktaX.fader + bw + 8*K.fs));
+    var gy = zy + bh + 30*K.fs;
+    if (gy + 44*K.fs < top + ch1){
+      dot(tapX, zy + bh/2, 3.6, C.arc);
+      okY(tapX, zy + bh/2, tapX, gy, C.arc, true, '');
+      var ebw = Math.min(150*K.fs, gw*0.3);
+      blok(tapX - ebw/2, gy, ebw, 34*K.fs, 'EFEKT / MONİTÖR',
+           sgn(gonder,1) + ' dB', C.arc, true);
+      /* Etiket zincirin uzerine biniyordu: efekt kutusunun ALTINA alindi. */
+      var et = 'gönderi ' + N2.ad + ' alınıyor', etS = dar ? 8 : 8.5;
+      if (gy + 34*K.fs + 14*K.fs < top + ch1)
+        txt(et, tapX, gy + 34*K.fs + 12*K.fs, C.arc, etS, 'center', MONO, 600);
+    }
+
+    /* ---- ALT SOL: kuru / islak cubuklari ----
+       Dar ekranda pan paneli yok olmasin diye ikisi ALT ALTA yiginiyor.    */
+    var ay = top + ch1 + 12*K.fs;
+    var ah = dar ? (top + gh - ay)*0.46 : (top + gh - ay);
+    if (ah < 70*K.fs) return;
+    var aw = dar ? gw : gw*0.52;
+    frame(pad, ay, aw, ah);
+    txt('KURU İLE GÖNDERİ  ·  TEK ÖLÇEK −40…+10 dB',
+        pad + 9*K.fs, ay + 12*K.fs, C.ink2, dar ? 8.5 : 9.5, 'left', MONO, 600);
+    var bx0 = pad + 16*K.fs, bx1 = pad + aw - 16*K.fs;
+    var BX = function(v){ return bx0 + (Math.max(-40, Math.min(10, v)) + 40)/50*(bx1 - bx0); };
+    ctx.strokeStyle = C.line2; LW(1);
+    [10,0,-10,-20,-30,-40].forEach(function(v){
+      dash(v === 0 ? null : [2,4]);
+      ctx.strokeStyle = v === 0 ? C.line : C.line2;
+      line(BX(v), ay + 28*K.fs, BX(v), ay + ah - 20*K.fs); dash(null);
+      txt(sgn(v,0), BX(v), ay + ah - 10*K.fs, C.ink3, 7.5, 'center', MONO);
+    });
+    var CUB = [
+      ['kuru (kanal)', kuru, C.cos],
+      ['gönderi (efekt)', gonder, C.arc]
+    ];
+    var cbh = 24*K.fs;
+    CUB.forEach(function(q, i){
+      var yy = ay + 36*K.fs + i*(cbh + 22*K.fs);
+      txt(q[0], bx0, yy - 8*K.fs, C.ink3, 8.5, 'left', MONO, 600);
+      ctx.fillStyle = mixc(C.panel, q[2], 0.55);
+      ctx.fillRect(BX(-40), yy, Math.max(2, BX(q[1]) - BX(-40)), cbh);
+      ctx.strokeStyle = q[2]; LW(1.2);
+      ctx.strokeRect(BX(-40) + 0.5, yy + 0.5, Math.max(2, BX(q[1]) - BX(-40)) - 1, cbh - 1);
+      txt(sgn(q[1],1) + ' dB', BX(q[1]) + 6*K.fs, yy + cbh/2, q[2], 9.5, 'left', MONO, 600);
+    });
+    var oy2 = ay + 36*K.fs + 2*(cbh + 22*K.fs) + 4*K.fs;
+    if (oy2 + 12*K.fs < ay + ah - 22*K.fs)
+      txt(S.gonderiNokta === 'post'
+            ? 'Fader’ı kısınca ikisi BİRLİKTE iniyor: kuru/ıslak oranı sabit.'
+            : 'Fader’ı kısınca yalnız kuru iniyor: kanal efektin içinde boğuluyor.',
+          bx0, oy2, S.gonderiNokta === 'post' ? C.ok : C.sin,
+          dar ? 8 : 9, 'left', SANS, 500);
+
+    /* ---- uc noktanin AYNI fader'da verdigi oran, yan yana ---- */
+    var ky3 = oy2 + 20*K.fs;
+    if (ky3 + 56*K.fs < ay + ah - 18*K.fs){
+      txt('AYNI FADER’DA ÜÇ NOKTA  ·  kuru − gönderi',
+          bx0, ky3, C.ink3, 8.5, 'left', MONO, 600);
+      NSIRA.forEach(function(k, i){
+        var g2 = S.gonderi + (k === 'post' ? f : 0), o2 = f - g2;
+        var sec4 = (k === S.gonderiNokta);
+        var sabit = Math.abs(o2 + S.gonderi) < 0.05;   /* oran bozulmamis mi */
+        var yy4 = ky3 + 16*K.fs + i*15*K.fs;
+        if (yy4 + 6*K.fs > ay + ah - 16*K.fs) return;
+        txt(NOKTA[k].ad, bx0 + 6*K.fs, yy4, sec4 ? C.ink : C.ink3, 8.5,
+            'left', MONO, sec4 ? 600 : 400);
+        txt(sgn(o2,1) + ' dB', bx0 + 108*K.fs, yy4, sabit ? C.ok : C.sin,
+            9, 'left', MONO, 600);
+        txt(sabit ? 'oran korunuyor' : 'oran bozuldu',
+            bx0 + 164*K.fs, yy4, sabit ? C.ok : C.sin, 8, 'left', SANS);
+      });
+    }
+
+    /* ---- ALT SAG (dar ekranda: EN ALT): pan ---- */
+    var px = dar ? pad : (pad + aw + 12*K.fs);
+    var pw = dar ? gw : (w - pad - px);
+    var py2 = dar ? (ay + ah + 12*K.fs) : ay;
+    var ph2 = dar ? (top + gh - py2) : ah;
+    if (ph2 < 60*K.fs) return;
+    ay = py2; ah = ph2;
+    frame(px, ay, pw, ah);
+    txt('PAN  ·  ' + PANYASA[S.panYasa].ad, px + 9*K.fs, ay + 12*K.fs,
+        C.ink2, 9.5, 'left', MONO, 600);
+    /* L / R / mono cubuklari */
+    var MX0 = px + 44*K.fs, MX1 = px + pw - 46*K.fs;
+    var MX = function(v){ return MX0 + (Math.max(-24, Math.min(6, v)) + 24)/30*(MX1 - MX0); };
+    ctx.strokeStyle = C.line2; LW(1);
+    [6,0,-6,-12,-18,-24].forEach(function(v){
+      dash(v === 0 ? null : [2,4]);
+      ctx.strokeStyle = v === 0 ? C.line : C.line2;
+      line(MX(v), ay + 28*K.fs, MX(v), ay + ah - 34*K.fs); dash(null);
+      txt(sgn(v,0), MX(v), ay + ah - 24*K.fs, C.ink3, 7.5, 'center', MONO);
+    });
+    var MET = [['SOL', Ldb, C.cos], ['SAĞ', Rdb, C.sin], ['MONO L+R', mono, C.arc]];
+    var mbh = 18*K.fs;
+    MET.forEach(function(q, i){
+      var yy = ay + 40*K.fs + i*(mbh + 14*K.fs);
+      txt(q[0], MX0 - 6*K.fs, yy + mbh/2, C.ink3, 8, 'right', MONO, 600);
+      ctx.fillStyle = mixc(C.panel, q[2], 0.55);
+      ctx.fillRect(MX(-24), yy, Math.max(2, MX(q[1]) - MX(-24)), mbh);
+      ctx.strokeStyle = q[2]; LW(1.2);
+      ctx.strokeRect(MX(-24) + 0.5, yy + 0.5, Math.max(2, MX(q[1]) - MX(-24)) - 1, mbh - 1);
+      txt(n(q[1],1), MX1 + 6*K.fs, yy + mbh/2, q[2], 9, 'left', MONO, 600);
+    });
+    var ny2 = ay + 40*K.fs + 3*(mbh + 14*K.fs) + 2*K.fs;
+    if (ny2 + 12*K.fs < ay + ah - 36*K.fs)
+      txt('Tam ortada her kanal ' + n(PANYASA[S.panYasa].orta,2) +
+          ' dB; mono toplam ' + sgn(db(panLR(0.5,S.panYasa).L + panLR(0.5,S.panYasa).R),2) + ' dB.',
+          px + 10*K.fs, ny2, C.ink3, 8.5, 'left', SANS);
+  }
+
+  /* ---------- SAHNE 3: KAZANÇ YAPISI ----------
+     SNR–kazanc egrisi. Iki taban var: cevirici gurultusu (sabit) ve on
+     yukseltec gurultusu (kazancla birlikte buyuyor). Dusuk kazancta cevirici
+     sinirliyor, yuksek kazancta plato. Ustune KIRPMA cizgisi ve ODANIN kendi
+     gurultu siniri biniyor. Dogrulandi: tavan +16/+22/+24 dBu ayni dBFS
+     hedefinde AYNI SNR veriyor.                                             */
+  function drawKaz(w, h){
+    var pad = 16*K.fs, dar = w < 900;
+    var Q = KAYNAK[S.kaynak];
+    var sinyal = kaynakDbu(S.kaynak, S.pad);
+    var G = S.gain, tavan = S.tavan;
+    var snr = zincirSnr(sinyal, G, tavan);
+    var pl = plato(sinyal);
+    var tepe = tepeDbfs(sinyal, Q.crest, G, tavan);
+    var oda = odaSnr(S.kaynak, S.odaSpl);
+    var kirpiyor = tepe > 0;
+    var gKirp = gainIcinTepe(sinyal, Q.crest, 0, tavan);
+    var gHedef = gainIcinTepe(sinyal, Q.crest, S.hedefTepe, tavan);
+
+    sahneBaslik(w,
+      'KAZANÇ YAPISI  ·  ' + Q.ad + '  ·  kazanç ' + n(G,0) + ' dB  ·  0 dBFS = +' +
+        n(tavan,0) + ' dBu',
+      'tepe ' + n(tepe,1) + ' dBFS  ·  SNR ' + n(snr,1) + ' dB  ·  ' +
+        (oda < 900 ? 'odanın sınırı ' + n(oda,0) + ' dB' : 'hat kaynağı'),
+      kirpiyor ? C.no : (tepe < -30 ? C.sin : C.ok),
+      kirpiyor ? 'KIRPIYOR' : n(tepe,1) + ' dBFS');
+
+    var top = 34*K.fs, gw = w - 2*pad, gh = h - top - 6*K.fs;
+    var ch1 = dar ? gh*0.50 : gh*0.62;
+
+    /* ---- UST: SNR – kazanc egrisi ---- */
+    var cw1 = dar ? gw : gw*0.62;
+    var loS = 20, hiS = 120;
+    var Y = dbPanel(pad, top, cw1, ch1, loS, hiS, [120,100,80,60,40,20], 'dB SNR');
+    var GX0 = pad + 40*K.fs, GX1 = pad + cw1 - 12*K.fs;
+    var GX = function(g){ return GX0 + g/70*(GX1 - GX0); };
+    ctx.strokeStyle = C.line2; LW(1);
+    [0,10,20,30,40,50,60,70].forEach(function(g){
+      dash([2,4]); line(GX(g), top + 22*K.fs, GX(g), top + ch1 - 18*K.fs); dash(null);
+      txt(g + '', GX(g), top + ch1 - 8*K.fs, C.ink3, 7.5, 'center', MONO);
+    });
+    txt('KAZANCA GÖRE SNR  ·  yatay: ön yükselteç kazancı (dB)',
+        GX0, top + 12*K.fs, C.ink3, dar ? 8.5 : 9.5, 'left', MONO, 600);
+
+    /* ---- ONCE DOLGULAR ----
+       Onceki surumde dolgular en sona cizildigi icin plato ve oda etiketlerini
+       ortuyordu. Sira: dolgu → cizgi → etiket → egri.                        */
+    if (gKirp > 0 && gKirp < 70){
+      ctx.fillStyle = mixc(C.panel, C.no, 0.16);
+      ctx.fillRect(GX(gKirp), top + 22*K.fs, GX1 - GX(gKirp), ch1 - 40*K.fs);
+    }
+    if (gHedef > 0 && gHedef < 70){
+      ctx.fillStyle = mixc(C.panel, C.ok, 0.16);
+      ctx.fillRect(GX(Math.max(0,gHedef - 5)), top + 22*K.fs,
+                   GX(Math.min(70,gHedef + 5)) - GX(Math.max(0,gHedef - 5)), ch1 - 40*K.fs);
+    }
+    /* ---- SONRA CIZGILER VE ETIKETLER ---- */
+    if (gKirp > 0 && gKirp < 70){
+      ctx.strokeStyle = C.no; LW(1.6);
+      line(GX(gKirp), top + 22*K.fs, GX(gKirp), top + ch1 - 18*K.fs);
+      txt('KIRPMA', GX(gKirp) + 6*K.fs, top + 30*K.fs, C.no, 9, 'left', MONO, 600);
+    }
+    if (gHedef > 0 && gHedef < 70)
+      chip('hedef ' + n(S.hedefTepe,0) + ' dBFS', GX(gHedef), top + ch1 - 30*K.fs,
+           C.ok, 8.5, 600);
+    if (pl <= hiS && pl >= loS){
+      ctx.strokeStyle = C.brass; LW(1.4); dash([6,4]);
+      line(GX0, Y(pl), GX1, Y(pl)); dash(null);
+      chip('plato ' + n(pl,1) + ' dB — ön yükseltecin sınırı',
+           GX1 - tw('plato ' + n(pl,1) + ' dB — ön yükseltecin sınırı', 8.5, MONO, 600)/2 - 6*K.fs,
+           Y(pl) - 9*K.fs, C.brass, 8.5, 600);
+    }
+    if (oda < 900 && oda <= hiS && oda >= loS){
+      ctx.strokeStyle = C.arc; LW(1.8);
+      line(GX0, Y(oda), GX1, Y(oda));
+      chip('ODANIN sınırı ' + n(oda,0) + ' dB',
+           GX0 + tw('ODANIN sınırı ' + n(oda,0) + ' dB', 8.5, MONO, 600)/2 + 6*K.fs,
+           Y(oda) + 11*K.fs, C.arc, 8.5, 600);
+    }
+    /* egri */
+    ctx.beginPath();
+    var gg, bas = false;
+    for (gg = 0; gg <= 70; gg += 0.5){
+      var v = Math.max(loS, Math.min(hiS, zincirSnr(sinyal, gg, tavan)));
+      var xx = GX(gg), yy = Y(v);
+      if (!bas){ ctx.moveTo(xx, yy); bas = true; } else ctx.lineTo(xx, yy);
+    }
+    ctx.strokeStyle = C.cos; LW(2.8); glowOn(C.cos, 6); ctx.stroke(); glowOff();
+    /* simdiki nokta */
+    var cy = Y(Math.max(loS, Math.min(hiS, snr)));
+    dot(GX(G), cy, 4, kirpiyor ? C.no : C.sin);
+    chip(n(G,0) + ' dB → ' + n(snr,1) + ' dB SNR', GX(G),
+         Math.max(top + 30*K.fs, cy - 15*K.fs), kirpiyor ? C.no : C.sin, 9.5, 600);
+
+    /* ---- SAG: iki olcek yan yana ---- */
+    if (!dar){
+      var mx0 = pad + cw1 + 12*K.fs, mw = w - pad - mx0;
+      frame(mx0, top, mw, ch1);
+      txt('AYNI SİNYAL, İKİ ÖLÇEK', mx0 + 9*K.fs, top + 12*K.fs, C.ink2, 9.5, 'left', MONO, 600);
+      var my0 = top + 34*K.fs, my1 = top + ch1 - 22*K.fs;
+      /* dBFS olcegi solda, dBu olcegi sagda — AYNI fiziksel eksen */
+      var MY = function(dbfs){ return my1 - (dbfs + 90)/90*(my1 - my0); };
+      var mxA = mx0 + 54*K.fs, mxB = mx0 + mw - 60*K.fs;
+      ctx.strokeStyle = C.line; LW(1.2);
+      ctx.strokeRect(mxA + 0.5, my0 + 0.5, mxB - mxA - 1, my1 - my0 - 1);
+      [0,-6,-12,-18,-24,-36,-48,-60,-72,-84].forEach(function(v){
+        ctx.strokeStyle = v === 0 ? C.no : C.line2; LW(v === 0 ? 1.4 : 1);
+        line(mxA, MY(v), mxB, MY(v));
+        txt(n(v,0), mxA - 5*K.fs, MY(v), v === 0 ? C.no : C.ink3, 8, 'right', MONO,
+            v === 0 ? 600 : 400);
+        txt(sgn(v + tavan,0), mxB + 5*K.fs, MY(v), C.ink3, 8, 'left', MONO);
+      });
+      txt('dBFS', mxA - 5*K.fs, my0 - 10*K.fs, C.ink2, 8.5, 'right', MONO, 600);
+      txt('dBu', mxB + 5*K.fs, my0 - 10*K.fs, C.ink2, 8.5, 'left', MONO, 600);
+      /* sinyal cubugu: RMS'ten tepeye */
+      var rmsD = sinyal + G - tavan, tepeD = rmsD + Q.crest;
+      var gurD = gucTopla(EIN + G, cevGuru(tavan)) - tavan;
+      ctx.fillStyle = mixc(C.panel, C.cos, 0.55);
+      ctx.fillRect(mxA + 3, MY(Math.min(0, tepeD)), (mxB - mxA)/2 - 3,
+                   MY(Math.max(-90, rmsD)) - MY(Math.min(0, tepeD)));
+      ctx.fillStyle = mixc(C.panel, C.sin, 0.62);
+      ctx.fillRect(mxA + 3, MY(Math.min(0, tepeD)), (mxB - mxA)/2 - 3, 3*K.fs);
+      txt('tepe', mxA + 8*K.fs, MY(Math.min(0, tepeD)) - 8*K.fs, C.sin, 8, 'left', MONO, 600);
+      txt('RMS', mxA + 8*K.fs, MY(Math.max(-90, rmsD)) + 8*K.fs, C.cos, 8, 'left', MONO, 600);
+      /* gurultu tabani */
+      if (gurD > -90){
+        ctx.fillStyle = mixc(C.panel, C.no, 0.45);
+        ctx.fillRect(mxA + (mxB - mxA)/2 + 2, MY(gurD), (mxB - mxA)/2 - 5,
+                     MY(-90) - MY(gurD));
+        txt('gürültü ' + n(gurD,0), mxB - 8*K.fs, MY(gurD) - 8*K.fs, C.no, 8,
+            'right', MONO, 600);
+      } else {
+        txt('gürültü ' + n(gurD,0) + ' dBFS — ölçeğin altında',
+            (mxA + mxB)/2, MY(-87), C.no, 8, 'center', MONO, 600);
+      }
+      /* olcegin altina kisa aciklama */
+      txt('Tepe ile RMS arasındaki boşluk kaynağın TEPE PAYI (' + n(Q.crest,0) + ' dB).',
+          mx0 + 10*K.fs, my1 + 12*K.fs, C.ink3, 8, 'left', SANS);
+      if (kirpiyor){
+        ctx.fillStyle = mixc(C.panel, C.no, 0.30);
+        ctx.fillRect(mxA + 3, my0 + 1, mxB - mxA - 6, MY(0) - my0 - 1);
+        chip('KIRPIYOR  +' + n(tepe,1) + ' dB', (mxA + mxB)/2, my0 + 14*K.fs, C.no, 9, 600);
+      }
+    }
+
+    /* ---- ALT: sayilar ---- */
+    var sy = top + ch1 + 12*K.fs, sh2 = top + gh - sy;
+    if (sh2 < 56*K.fs) return;
+    var bas2 = baskinGuru(G, tavan);
+    satirlar(pad, sy, gw, sh2, 'SAYILAR', [
+      ['gerekli kazanç (tepe ' + n(S.hedefTepe,0) + ' dBFS)', n(gHedef,1) + ' dB', C.ok,
+       'Kaynak ' + n(sinyal,1) + ' dBu, tepe payı ' + n(Q.crest,0) +
+       ' dB, tavan +' + n(tavan,0) + ' dBu.'],
+      ['şu anki SNR / plato', n(snr,1) + ' / ' + n(pl,1) + ' dB',
+       snr > pl - 3 ? C.ok : C.sin,
+       'Baskın gürültü: ' + (bas2 === 'on' ? 'ÖN YÜKSELTEÇ — kazancı artırmak artık bir şey kazandırmıyor'
+        : (bas2 === 'cevirici' ? 'ÇEVİRİCİ — kazancı artırmak SNR’yi doğrudan iyileştiriyor'
+        : 'ikisi birden')) + '.'],
+      ['odanın izin verdiği', oda < 900 ? n(oda,0) + ' dB' : 'yok (hat)',
+       oda < 900 && oda < snr ? C.arc : C.ink2,
+       oda < 900 && oda < snr
+         ? 'Elektriksel SNR zaten odadan İYİ: daha çok kazanç duyulur bir şey kazandırmaz.'
+         : 'Oda bu kaynakta sınırlayıcı değil.'],
+      ['çevirici tavanı', '+' + n(tavan,0) + ' dBu', C.cos,
+       'Tavanı değiştirmek aynı dBFS hedefinde SNR’yi DEĞİŞTİRMİYOR — yalnız çevirdiğiniz kazanç sayısı değişiyor.']
+    ], Math.min(36*K.fs, (sh2 - 30*K.fs)/4));
+  }
+
+  /* ---------- yonetici ---------- */
+  function drawBoard(){
+    var g = sized(board); if (!g) return;
+    ctx = g.c;
+    if (S.mode === 'serit')     drawSerit(g.w, g.h);
+    else if (S.mode === 'akis') drawAkis(g.w, g.h);
+    else                        drawKaz(g.w, g.h);
+  }
+  function render(){ drawBoard(); }
+  if (window.ResizeObserver){ new ResizeObserver(function(){ render(); }).observe(board); }
+  window.addEventListener('resize', render);
+
+  /* ================= gosterge ================= */
+  var ro = document.getElementById('readout');
+  function cell(lab, val, cls){
+    return '<div><span>'+lab+'</span><b'+(cls?' class="'+cls+'"':'')+'>'+val+'</b></div>';
+  }
+  function mark(sel, key, val){
+    Array.prototype.forEach.call(document.querySelectorAll(sel+' button'), function(b){
+      b.classList.toggle('on', b.dataset[key] === String(val));
+    });
+  }
+  function logVal(v, lo, hi){ return Math.pow(10, lg(lo) + (lg(hi) - lg(lo))*v/100); }
+  function logPos(f, lo, hi){
+    return Math.max(0, Math.min(100, (lg(f) - lg(lo))/(lg(hi) - lg(lo))*100));
+  }
+  var Q_MIN = 0.3, Q_MAX = 8;
+
+  function sync(){
+    var Q = KAYNAK[S.kaynak], sinyal = kaynakDbu(S.kaynak, S.pad);
+
+    if (S.mode === 'serit'){
+      var kats = eqKats();
+      var B = BOLUM[S.bolum];
+      ro.innerHTML =
+        cell('kaynak', Q.ad, 'v-sin') +
+        cell('giriş seviyesi', n(sinyal,1) + ' dBu', 'v-cos') +
+        cell('seçili bölüm', B.ad, 'v-arc') +
+        cell('EQ tepesi', sgn(eqZirve(kats),1) + ' dB',
+             Math.abs(eqZirve(kats)) > 9 ? 'v-no' : 'v-ok');
+      mark('#gbolum','b',S.bolum); mark('#ghpfe','e',S.hpfE); mark('#gbant','q',S.bant);
+      Array.prototype.forEach.call(document.querySelectorAll('#ggiris button'), function(b){
+        b.classList.toggle('on', S[b.dataset.g] === true);
+      });
+      var E = S.eq[S.bant], BB = BANT[S.bant];
+      document.getElementById('v-hpf').textContent = S.hpfE ? fTxt(S.hpfF) : 'kapalı';
+      document.getElementById('v-bf').textContent = fTxt(E.f);
+      document.getElementById('v-bg').textContent = sgn(E.g,1) + ' dB';
+      document.getElementById('v-bq').textContent = BB.qSabit ? 'raf — sabit' : n(E.q,2);
+      document.getElementById('f-bq').disabled = BB.qSabit;
+      document.getElementById('s-note').textContent =
+        S.bolum === 'giris'
+          ? (Q.fantom && !S.fantom
+              ? 'Bu kondansatör mikrofon +48V olmadan çalışmaz: ses ya hiç gelmez ya da cılız ve bozuk gelir.'
+              : (S.pad ? 'Pad açık: sinyal ön yükselteçten ÖNCE 20 dB kısıldı. Girişin kendisi kırpıyorsa tek çare budur.'
+                       : 'Şeridin ilk kararı burada. Kaynağı değiştirip giriş seviyesinin nasıl değiştiğine bakın.'))
+        : (S.bolum === 'hpf'
+            ? (S.hpfE ? 'Kesim ' + fTxt(S.hpfF) + ': tam o noktada −3 dB var, etki epey üstünde başlıyor. Kaynağın en pes notasının altında kalın.'
+                      : 'Süzgeç kapalı. Açıp kesimi yukarı sürükleyin — eğrinin ne zaman kaynağın içine girdiğini izleyin.')
+        : (S.bolum === 'eq'
+            ? (BANT[S.bant].qSabit ? 'Raf süzgeç: köşenin ötesindeki HER ŞEY topluca kalkıyor ya da iniyor. Genişlik ayarı yok.'
+                                   : 'Q’yu büyütün: eğri daralıyor, yalnız o frekansın çevresi etkileniyor. Küçültün: tonun rengi değişiyor.')
+            : 'Bu bölümün sinyale dokunan bir ayarı yok; ne işe yaradığını sağdaki panelde okuyun. Şeritte sıradaki bölüm: ' + siradaki(S.bolum) + '.'));
+
+    } else if (S.mode === 'akis'){
+      var f = S.faderDb;
+      var gonder = S.gonderi + (S.gonderiNokta === 'post' ? f : 0);
+      var P = panLR(S.panPos, S.panYasa);
+      ro.innerHTML =
+        cell('gönderi noktası', NOKTA[S.gonderiNokta].ad,
+             S.gonderiNokta === 'post' ? 'v-ok' : 'v-sin') +
+        cell('fader', sgn(f,1) + ' dB', 'v-sin') +
+        cell('gönderi', sgn(gonder,1) + ' dB', 'v-arc') +
+        cell('kuru − gönderi', sgn(f - gonder,1) + ' dB', 'v-cos');
+      document.getElementById('v-fader').textContent =
+        (f <= -89 ? '−∞' : sgn(f,1)) + ' dB';
+      document.getElementById('v-gonderi').textContent = sgn(S.gonderi,1) + ' dB';
+      document.getElementById('v-pan').textContent =
+        S.panPos === 0.5 ? 'orta' : (S.panPos < 0.5
+          ? 'S ' + n((0.5 - S.panPos)*200,0) : 'R ' + n((S.panPos - 0.5)*200,0));
+      mark('#gnokta','k',S.gonderiNokta); mark('#gpanyasa','y',S.panYasa);
+      mark('#gyon','o',S.yonlen);
+      document.getElementById('a-note').textContent =
+        S.cal === 'prepost' ? 'Çalıyor: aynı kanal dört kez — POST fader açık, POST fader kısık, PRE fader açık, PRE fader kısık. Dördüncüde kanal efektin içinde boğuluyor.'
+        : (S.gonderiNokta === 'post'
+            ? 'Post-fader: fader’ı kısın, gönderi de onunla birlikte iniyor. Kuru/ıslak oranı sabit — efekt gönderisi böyle olmalı.'
+            : (S.gonderiNokta === 'pre'
+                ? 'Pre-fader: fader’ı kısın, gönderi HİÇ değişmiyor. Sahnedeki müzisyenin kulaklığı sizin miksinizden etkilenmiyor.'
+                : 'Pre-EQ: gönderi EQ’dan da önce alınıyor. Kanalda ne yaparsanız yapın monitöre gitmiyor.'));
+
+    } else {
+      var G = S.gain, tavan = S.tavan;
+      var snr = zincirSnr(sinyal, G, tavan);
+      var tepe = tepeDbfs(sinyal, Q.crest, G, tavan);
+      var oda = odaSnr(S.kaynak, S.odaSpl);
+      var pl = plato(sinyal);
+      ro.innerHTML =
+        cell('kazanç', n(G,0) + ' dB', 'v-sin') +
+        cell('tepe', n(tepe,1) + ' dBFS',
+             tepe > 0 ? 'v-no' : (tepe > -24 ? 'v-ok' : 'v-sin')) +
+        cell('SNR', n(snr,1) + ' dB', snr > pl - 3 ? 'v-ok' : 'v-cos') +
+        cell('sınırlayan', tepe > 0 ? 'KIRPMA'
+             : (oda < snr ? 'oda' : (baskinGuru(G,tavan) === 'on' ? 'ön yükselteç' : 'çevirici')),
+             tepe > 0 ? 'v-no' : 'v-arc');
+      document.getElementById('v-gain').textContent = n(G,0) + ' dB';
+      document.getElementById('v-oda').textContent = n(S.odaSpl,0) + ' dB SPL';
+      mark('#gtavan','t',S.tavan); mark('#ghedef','h',S.hedefTepe);
+      document.getElementById('k-note').textContent =
+        S.cal === 'kazanc' ? 'Çalıyor: aynı kayıt üç kez — DOĞRU kazanç, 36 dB EKSİK kazanç + dijital telafi (gürültü duyulur), 6 dB FAZLA kazanç (kırpma duyulur).'
+        : (tepe > 0 ? 'Tepe 0 dBFS’i aştı: kırpıyor. Kırpma ön yükselteçte oluyor — fader’ı kısmak onu geri getirmez.'
+        : (tepe < -30 ? 'Çok düşük: çevirici gürültüsü baskın. Kazancı açın, SNR eğrisi 1’e 1 tırmanıyor.'
+        : (oda < snr ? 'Bu noktada elektriksel SNR odanınkinden İYİ. Daha çok kazanç duyulur bir şey kazandırmaz — mor çizgiye bakın.'
+        : 'Kazancı gezdirin: eğri önce tırmanıyor, sonra platoya yatıyor. Plato ön yükseltecin kendi sınırı.')));
+    }
+    dijSync();
+  }
+
+  /* ================= kaynak seridi ================= */
+  var kayHost = document.getElementById('kaybar');
+  function kaySec(v){ sesDur(); S.kaynak = v; sync(); render(); }
+  KSIRA.forEach(function(k){
+    var Q = KAYNAK[k];
+    var b = document.createElement('button');
+    b.type = 'button'; b.className = 'tb'; b.dataset.k = k;
+    b.innerHTML = '<b>' + Q.ad + '</b><em>' + n(kaynakDbu(k, false),1) + ' dBu</em>';
+    b.addEventListener('click', function(){ kaySec(k); });
+    kayHost.appendChild(b);
+  });
+  function dijSync(){
+    Array.prototype.forEach.call(kayHost.children, function(b){
+      var on = b.dataset.k === S.kaynak;
+      b.setAttribute('aria-pressed', on ? 'true' : 'false');
+      if (on) b.scrollIntoView({ block:'nearest', inline:'nearest' });
+    });
+    var metin, sayac;
+    if (S.mode === 'serit'){
+      sayac = BOLUM[S.bolum].ad;
+      metin = '<b>' + BOLUM[S.bolum].ad + ':</b> ' + BOLUM[S.bolum].dij;
+    } else if (S.mode === 'akis'){
+      sayac = 'gönderi ve bus';
+      metin = '<b>Gönderi ve yönlendirme:</b> Dijital konsolda her gönderinin pre/post ' +
+        'seçimi <b>ayrı ayrı</b> menüden yapılır ve sahne hafızasına girer. Insert için ' +
+        'kablo gerekmez — dahili efekt motoru şeridin içine tek dokunuşla sokulur. ' +
+        'Yönlendirme tamamen yazılımdır: bir kanalı istediğiniz bus’a anında gönderirsiniz. ' +
+        '<b>' + YON[S.yonlen].ad + ':</b> ' + YON[S.yonlen].not;
+    } else {
+      sayac = 'kazanç ve tavan';
+      metin = '<b>Kazanç:</b> Dijital konsolda ön yükselteç hâlâ <b>analogdur</b> ve ' +
+        'çoğu zaman sahnedeki kutunun içindedir; kazanç uzaktan ayarlanır ama yine de ' +
+        'analog bir devredir. Bu yüzden kazanç yapısı hatası dijital konsolda da ' +
+        '<b>aynen</b> geçerlidir. Değişen tek şey, dijital konsolun şeridin içinde ' +
+        'fazladan tepe payı bulundurması: 32 bit kayan noktalı iç mimaride ara ' +
+        'toplamlar kırpmaz — ama <b>çevirici</b> kırpar, ve kırpma orada olur.';
+    }
+    document.getElementById('dij-count').textContent = sayac;
+    document.getElementById('dij-not').innerHTML = metin;
+  }
+
+  /* ================= serit tablosu ================= */
+  var KACIRILIRSA = {
+    giris:  'Ya gürültü ya kırpma; ikisi de sonradan düzelmez',
+    hpf:    'Sahne gürümesi ve nefes patlaması mikse girer',
+    eq:     'Frekans dengesi kaynağın kendi dengesine kalır',
+    insert: 'Kompresör paralel bağlanır ve işini yapmaz',
+    gonderi:'Efekt ve kulaklık miksi kurulamaz',
+    pan:    'Her şey ortada yığılır, genişlik olmaz',
+    fader:  'Kanallar arası denge kurulamaz',
+    yon:    'Alt grup ve matris çıkışları çalışmaz'
+  };
+  var stb = document.querySelector('#stable tbody');
+  function tabloDoldur(){
+    stb.innerHTML = '';
+    BOSIRA.forEach(function(k, i){
+      var B = BOLUM[k];
+      var tr = document.createElement('tr');
+      tr.innerHTML =
+        '<td>' + (i+1) + '</td>' +
+        '<td>' + B.ad + '</td>' +
+        '<td>' + B.alt + '</td>' +
+        '<td>' + KACIRILIRSA[k] + '</td>' +
+        '<td class="c-cmp">' + B.dij + '</td>';
+      tr.addEventListener('click', function(){
+        sesDur(); S.bolum = k;
+        if (S.mode !== 'serit') setMode('serit'); else { sync(); render(); }
+      });
+      stb.appendChild(tr);
+    });
+  }
+
+  /* ================= sahne secimi ================= */
+  var modeBtns = document.querySelectorAll('.modes button[data-m]');
+  function setMode(m){
+    sesDur();
+    S.mode = m;
+    Array.prototype.forEach.call(modeBtns, function(b){
+      b.setAttribute('aria-pressed', b.dataset.m === m ? 'true' : 'false');
+    });
+    ['serit','akis','kaz'].forEach(function(k){
+      document.getElementById('row-'+k).hidden = (k !== m);
+    });
+    document.getElementById('stage').dataset.scene = m;
+    /* HPF ve EQ kaydiraclari yalniz ilgili bolum secilince gerekli */
+    alanGoster();
+    sync(); render();
+  }
+  function alanGoster(){
+    var hpfVar = (S.mode === 'serit' && S.bolum === 'hpf');
+    var eqVar  = (S.mode === 'serit' && S.bolum === 'eq');
+    document.getElementById('fld-hpf').hidden = !hpfVar;
+    document.getElementById('ghpfe').hidden   = !hpfVar;
+    document.getElementById('gbant').hidden   = !eqVar;
+    document.getElementById('fld-bf').hidden  = !eqVar;
+    document.getElementById('fld-bg').hidden  = !eqVar;
+    document.getElementById('fld-bq').hidden  = !eqVar;
+    document.getElementById('ggiris').hidden  = !(S.mode === 'serit' && S.bolum === 'giris');
+  }
+  Array.prototype.forEach.call(modeBtns, function(b){
+    b.addEventListener('click', function(){ setMode(b.dataset.m); });
+  });
+
+  /* ================= kontroller ================= */
+  function group(host, items, set){
+    var g = document.getElementById(host);
+    items.forEach(function(o){
+      var b = document.createElement('button');
+      b.type = 'button'; b.textContent = o[0];
+      if (o[2]) b.dataset[o[2]] = o[1];
+      b.addEventListener('click', function(){ sesDur(); set(o[1]); alanGoster(); sync(); render(); });
+      g.appendChild(b);
+    });
+  }
+  group('gbolum', BOSIRA.map(function(k){ return [BOLUM[k].ad, k, 'b']; }),
+    function(v){ S.bolum = v; });
+  group('ggiris', [['PAD −20','pad','g'],['+48V','fantom','g'],['Ø faz','faz','g']],
+    function(v){ S[v] = !S[v]; });
+  group('ghpfe', [['kapalı',0,'e'],['12 dB/okt',12,'e'],['24 dB/okt',24,'e']],
+    function(v){ S.hpfE = +v; });
+  group('gbant', BSIRA2.map(function(k){ return [BANT[k].ad, k, 'q']; }),
+    function(v){ S.bant = v; });
+  group('gnokta', NSIRA.map(function(k){ return [NOKTA[k].ad, k, 'k']; }),
+    function(v){ S.gonderiNokta = v; });
+  group('gpanyasa', PYSIRA.map(function(k){ return [PANYASA[k].ad, k, 'y']; }),
+    function(v){ S.panYasa = v; });
+  group('gyon', YSIRA.map(function(k){ return [YON[k].ad, k, 'o']; }),
+    function(v){ S.yonlen = v; });
+  group('gtavan', TAVANLAR.map(function(q){ return ['0 dBFS = ' + q.ad, q.v, 't']; }),
+    function(v){ S.tavan = +v; });
+  group('ghedef', [['hedef −18 dBFS',-18,'h'],['hedef −12 dBFS',-12,'h'],['hedef −6 dBFS',-6,'h']],
+    function(v){ S.hedefTepe = +v; });
+
+  var fHpf = document.getElementById('f-hpf'), fBf = document.getElementById('f-bf'),
+      fBg = document.getElementById('f-bg'), fBq = document.getElementById('f-bq'),
+      fFader = document.getElementById('f-fader'), fGonderi = document.getElementById('f-gonderi'),
+      fPan = document.getElementById('f-pan'), fGain = document.getElementById('f-gain'),
+      fOda = document.getElementById('f-oda');
+  fHpf.addEventListener('input', function(){
+    S.hpfF = Math.round(logVal(+fHpf.value, 20, 400));
+    if (!S.hpfE) S.hpfE = 12;
+    sync(); render();
+  });
+  fBf.addEventListener('input', function(){
+    var BB = BANT[S.bant];
+    S.eq[S.bant].f = Math.round(logVal(+fBf.value, BB.fMin, BB.fMax));
+    sync(); render();
+  });
+  fBg.addEventListener('input', function(){ S.eq[S.bant].g = +fBg.value; sync(); render(); });
+  fBq.addEventListener('input', function(){
+    S.eq[S.bant].q = logVal(+fBq.value, Q_MIN, Q_MAX); sync(); render();
+  });
+  fFader.addEventListener('input', function(){
+    sesDur(); S.faderDb = faderDb(+fFader.value/100); sync(); render();
+  });
+  fGonderi.addEventListener('input', function(){
+    sesDur(); S.gonderi = +fGonderi.value; sync(); render();
+  });
+  fPan.addEventListener('input', function(){ S.panPos = +fPan.value/100; sync(); render(); });
+  fGain.addEventListener('input', function(){
+    sesDur(); S.gain = +fGain.value; sync(); render();
+  });
+  fOda.addEventListener('input', function(){ S.odaSpl = +fOda.value; sync(); render(); });
+
+  /* ================= SES =================
+     Iki gosterim de gercek zincir, benzetim degil:
+     1) KAZANC YAPISI: ayni kayit uc kez — dogru kazanc, 36 dB eksik kazanc
+        (sonra dijital telafi) ve 6 dB fazla kazanc (kirpma). 16 bitlik bir
+        kaydedici modellendi ki fark hoparlorden duyulsun; node'da olculdu:
+        dogru SNR 68,4 dB, 36 dB eksikte 32,4 dB, +6 dB'de orneklerin %2,98'i
+        kirpiliyor. 24 bitte AYNI ORAN kaybedilir, gurultu daha asagida kalir.
+     2) PRE/POST: ayni kanal dort kez. Post-fader'da fader kisilinca efekt de
+        kisiliyor (oran sabit), pre-fader'da efekt yerinde kaliyor ve kanal
+        onun icinde boguluyor. Node'da olculdu: fader −15 dB'de post oran
+        0 dB, pre oran −15 dB.                                                */
+  var AC = null, calan = null;
+  function ctxAl(){
+    if (!AC){
+      var K2 = window.AudioContext || window.webkitAudioContext;
+      if (!K2) return null;
+      AC = new K2();
+    }
+    if (AC.state === 'suspended') AC.resume();
+    return AC;
+  }
+  function sesDur(){
+    if (calan){ try { calan.stop(); } catch(e){} calan = null; }
+    if (S.cal){ S.cal = ''; sync(); render(); }
+  }
+  function calDizi(ac, y, etiket){
+    var buf = ac.createBuffer(1, y.length, ac.sampleRate);
+    if (buf.copyToChannel) buf.copyToChannel(y, 0); else buf.getChannelData(0).set(y);
+    var g = ac.createGain(); g.gain.value = 0.9; g.connect(ac.destination);
+    calan = ac.createBufferSource();
+    calan.buffer = buf; calan.connect(g);
+    calan.onended = function(){ sesDur(); };
+    calan.start();
+    S.cal = etiket; sync(); render();
+  }
+  /* --- ortak kaynak: dort heceli, vokal benzeri bir ifade --- */
+  function ifade(fs, sure){
+    var N = Math.round(fs*sure), y = new Float64Array(N), i, k;
+    var f0 = 180, HECE = [[0.05,0.45],[0.55,0.35],[1.00,0.50],[1.65,0.60]];
+    for (i = 0; i < N; i++){
+      var t = i/fs, e = 0, j;
+      for (j = 0; j < HECE.length; j++){
+        var d = t - HECE[j][0];
+        if (d > 0 && d < HECE[j][1]) e = Math.max(e, Math.sin(Math.PI*d/HECE[j][1]));
+      }
+      if (e <= 0){ y[i] = 0; continue; }
+      var vib = 1 + 0.012*Math.sin(TAU*5.2*t), v = 0;
+      for (k = 1; k <= 18; k++){
+        var f = f0*k*vib;
+        if (f > 9000) break;
+        var w = Math.exp(-Math.pow((f - 700)/900, 2))*0.9 +
+                Math.exp(-Math.pow((f - 2400)/1400, 2))*0.55 + 0.12/k;
+        v += w*Math.sin(TAU*f*t + k*0.7);
+      }
+      y[i] = v*e*0.11;
+    }
+    /* tepesi tam 1,0 olacak sekilde olcekle */
+    var mx = 0;
+    for (i = 0; i < N; i++) mx = Math.max(mx, Math.abs(y[i]));
+    if (mx > 0) for (i = 0; i < N; i++) y[i] /= mx;
+    return y;
+  }
+  function nicem16(v){
+    var q = 32768;
+    var d = (Math.random() + Math.random() - 1)/q;      /* TPDF dither */
+    return Math.max(-1, Math.min(1, Math.round((v + d)*q)/q));
+  }
+  /* --- 1) kazanc yapisi --- */
+  function kazancCal(){
+    var ac = ctxAl(); if (!ac) return;
+    sesDur();
+    var fs = ac.sampleRate, sure = 2.4;
+    var x = ifade(fs, sure), M = x.length;
+    var bos = Math.round(fs*0.45);
+    var DURUM = [
+      { tepe:-12, telafi:false },      /* dogru */
+      { tepe:-48, telafi:true  },      /* 36 dB eksik, sonra dijital telafi */
+      { tepe:6,   telafi:false }       /* 6 dB fazla → kirpma */
+    ];
+    var N = DURUM.length*(M + bos);
+    var y = new Float32Array(N), i, k;
+    DURUM.forEach(function(D, kk){
+      var g = Math.pow(10, D.tepe/20), off = kk*(M + bos);
+      var tel = D.telafi ? Math.pow(10, -D.tepe/20)*Math.pow(10, -12/20) : 1;
+      for (i = 0; i < M; i++){
+        var v = x[i]*g;
+        if (v > 1) v = 1; else if (v < -1) v = -1;    /* kirpma ON YUKSELTECTE */
+        y[off + i] = Math.max(-1, Math.min(1, nicem16(v)*tel));
+      }
+      /* uclarda kisa zarf: parca sinirlari tik uretmesin */
+      var r = Math.round(fs*0.008);
+      for (k = 0; k < r; k++){ y[off + k] *= k/r; y[off + M - 1 - k] *= k/r; }
+    });
+    calDizi(ac, y, 'kazanc');
+  }
+  /* --- 2) pre / post fader --- */
+  function prePostCal(){
+    var ac = ctxAl(); if (!ac) return;
+    sesDur();
+    var fs = ac.sampleRate, sure = 2.4;
+    var x = ifade(fs, sure), M = x.length;
+    /* efekt: dort yansimali gecikme (kaba bir reverb yerine gecer) */
+    var D = Math.round(fs*0.32), kuyruk = D*4;
+    var ef = new Float64Array(M + kuyruk), i, k;
+    for (k = 1; k <= 4; k++){
+      var gk = Math.pow(0.55, k);
+      for (i = 0; i < M; i++) ef[i + D*k] += x[i]*gk;
+    }
+    var L = M + kuyruk, bos = Math.round(fs*0.4);
+    var kisik = Math.pow(10, -15/20), gon = 0.6;
+    var DURUM = [
+      { f:1,     efekt:gon,        et:'POST · fader açık' },
+      { f:kisik, efekt:gon*kisik,  et:'POST · fader −15 dB' },
+      { f:1,     efekt:gon,        et:'PRE · fader açık' },
+      { f:kisik, efekt:gon,        et:'PRE · fader −15 dB' }
+    ];
+    var N = DURUM.length*(L + bos);
+    var y = new Float32Array(N);
+    DURUM.forEach(function(Q2, kk){
+      var off = kk*(L + bos);
+      for (i = 0; i < L; i++){
+        var kuru = (i < M ? x[i] : 0)*0.55*Q2.f;
+        y[off + i] = Math.max(-1, Math.min(1, kuru + ef[i]*0.55*Q2.efekt));
+      }
+      var r = Math.round(fs*0.008);
+      for (k = 0; k < r; k++){ y[off + k] *= k/r; y[off + L - 1 - k] *= k/r; }
+    });
+    calDizi(ac, y, 'prepost');
+  }
+  document.getElementById('b-k1').addEventListener('click', kazancCal);
+  document.getElementById('b-a1').addEventListener('click', prePostCal);
+  document.getElementById('b-dur1').addEventListener('click', sesDur);
+  document.getElementById('b-dur2').addEventListener('click', sesDur);
+  /* ================= ders akisi ================= */
+  var STEPS = [
+    { t:'Şerit: hep aynı sıra',
+      b:'Soldaki dikey dizi bir <b>kanal şeridi</b>. Konsolun her kanalında aynısı var ' +
+        've sinyal yukarıdan aşağı akıyor: <b>giriş → süzgeç → EQ → insert → gönderi → ' +
+        'pan → fader → yönlendirme</b>. Bir kanalı öğrenmek bütün konsolu öğrenmektir.',
+      ap:{ mode:'serit', bolum:'giris', kaynak:'vokal', pad:false, fantom:true } },
+    { t:'İlk karar: kazanç',
+      b:'Şeridin ilk kutusu <b>giriş</b>. Ön yükselteç mikrofonun milivoltlarını hat ' +
+        'seviyesine çıkarıyor. Sağ alttaki tabloda <b>vokalin mikrofon çıkışı −25,8 dBu</b> ' +
+        'yazıyor: 20 mV/Pa’lik bir kondansatör, 100 dB SPL’de bu kadar üretiyor. ' +
+        'Bütün şerit bu sayının üzerine kurulacak.',
+      ap:{ mode:'serit', bolum:'giris', kaynak:'vokal' } },
+    { t:'Kaynağı değiştirin',
+      b:'Şeritten <b>Trampet</b>’i seçin: 120 dB SPL gibi devasa bir basınç, ama mikrofonun ' +
+        'duyarlılığı 1,6 mV/Pa. İkisi birbirini götürüyor ve çıkış <b>−27,7 dBu</b> — ' +
+        'vokalinkine çok yakın. Sonra <b>Oda mikrofonu</b>’na geçin: <b>−60,8 dBu</b>. ' +
+        'Aradaki 35 dB, kazancın neden ayarlanabilir olduğunun cevabı.',
+      ap:{ mode:'serit', bolum:'giris', kaynak:'oda' } },
+    { t:'Pad ne işe yarar?',
+      b:'<b>Klavye / hat</b> kaynağını seçin: <b>−10 dBu</b>. Bu bir mikrofon değil, hat ' +
+        'seviyesi — mikrofon girişi için fazla yüksek. <b>PAD −20</b>’ye basın: sinyal ' +
+        '<b>ön yükselteçten önce</b> 20 dB kısıldı. Girişin kendisi kırpıyorsa kazancı ' +
+        'kısmak yetmez, çünkü sorun kazançtan öncedir.',
+      ap:{ mode:'serit', bolum:'giris', kaynak:'hat', pad:true } },
+    { t:'Fantom besleme',
+      b:'Vokale dönün ve <b>+48V</b>’u kapatın. Kondansatör mikrofon çalışmaz: ses ya hiç ' +
+        'gelmez ya da cılız ve bozuk gelir. IEC 61938: <b>48 V</b>, iki adet <b>6,81 kΩ</b> ' +
+        'üzerinden. Mikrofon 7 mA çekerse elinde yalnızca <b>24 V</b> kalır — zayıf ' +
+        'beslemelerde bozuk çalmanın sebebi budur.',
+      ap:{ mode:'serit', bolum:'giris', kaynak:'vokal', pad:false, fantom:false } },
+    { t:'Süzgeç: en ucuz temizlik',
+      b:'<b>+48V</b>’u geri açın ve şeritte <b>Yüksek geçiren süzgeç</b>’e geçin. Sağdaki ' +
+        'eğri kanalın frekans yanıtı ve ekseni <b>sabit ±18 dB</b>. Kesim <b>80 Hz</b>’de ' +
+        've tam o noktada <b>−3 dB</b> var. Dikkat: süzgeç kesimin altını “kesmiyor”, ' +
+        '<b>yavaşça indiriyor</b>.',
+      ap:{ mode:'serit', bolum:'hpf', kaynak:'vokal', fantom:true, hpfF:80, hpfE:12 } },
+    { t:'Eğim: 12 mi 24 mü?',
+      b:'<b>24 dB/okt</b>’a basın. Aynı kesim, çok daha dik iniş: 40 Hz’de ' +
+        '12 dB/okt <b>−12,3 dB</b> verirken 24 dB/okt <b>−24,1 dB</b> veriyor. Dik süzgeç ' +
+        'daha çok temizler ama kesimin hemen üstünde faz döndürür. SSL 4000 E’de bu ' +
+        'süzgeç <b>18 dB/okt</b>’tır.',
+      ap:{ mode:'serit', bolum:'hpf', hpfF:80, hpfE:24 } },
+    { t:'Süzgeci kaynağın içine sokmayın',
+      b:'Kesimi <b>200 Hz</b>’e sürükleyin. Eğri artık vokalin gövdesini yiyor. Kural: ' +
+        'kesim, kaynağın <b>en pes notasının altında</b> kalsın. Akustik gitarın en pes ' +
+        'teli 82 Hz’dir; kesimi 120 Hz’e almak gürümeyi değil <b>gitarı</b> keser.',
+      ap:{ mode:'serit', bolum:'hpf', hpfF:200, hpfE:24 } },
+    { t:'EQ: dört bant',
+      b:'Kesimi <b>80 Hz</b>’e geri alıp şeritte <b>Ekolayzır</b>’a geçin. Dört bant var: ' +
+        'iki uçta <b>raf</b>, ortada iki <b>çan</b>. Raf köşenin ötesindeki her şeyi ' +
+        'topluca kaldırır; çan yalnız kendi çevresini etkiler. <b>Alt-orta</b> bandın ' +
+        'kazancını <b>+6 dB</b> yapın.',
+      ap:{ mode:'serit', bolum:'eq', hpfF:80, hpfE:12, bant:'can1' } },
+    { t:'Q: genişlik',
+      b:'<b>Q</b> kaydıracını büyütün. Eğri daralıyor: artık yalnız o frekansın çok yakın ' +
+        'çevresi etkileniyor. Küçültün: geniş bir tepe oluyor ve <b>tonun rengi</b> ' +
+        'değişiyor. Kural olarak <b>dar Q kesmek</b>, <b>geniş Q eklemek</b> için ' +
+        'kullanılır. Q = merkez frekans ÷ bant genişliği.',
+      ap:{ mode:'serit', bolum:'eq', bant:'can1' } },
+    { t:'Raf ile çanın farkı',
+      b:'<b>Üst raf</b> bandına geçin ve <b>+6 dB</b> verin. Çanın aksine eğri yukarı ' +
+        'çıkıp <b>orada kalıyor</b> — köşenin ötesindeki her şey kalktı. Hava ve ' +
+        'parlaklık böyle eklenir. Ama dikkat: kalkanın içinde <b>gürültü de</b> var.',
+      ap:{ mode:'serit', bolum:'eq', bant:'ustraf' } },
+    { t:'Bantlar üst üste biner',
+      b:'Şimdi iki çana da kazanç verin ve sağ üstteki göstergedeki <b>EQ tepesi</b>’ne ' +
+        'bakın. Kalın siyah eğri <b>toplam</b>: iki bant yan yanaysa tepeleri toplanıyor ve ' +
+        'toplam, ayrı ayrı verdiğiniz sayıdan <b>büyük</b> çıkıyor. Bu, kazanç yapısını ' +
+        'sessizce bozan en yaygın sebeplerden biridir.',
+      ap:{ mode:'serit', bolum:'eq', bant:'can2' } },
+    { t:'Şeridin geri kalanı',
+      b:'Şeritte <b>Insert</b>, <b>Aux gönderi</b>, <b>Pan</b>, <b>Fader</b> ve ' +
+        '<b>Yönlendirme</b>’ye tek tek tıklayın. Her birinin ne yaptığı ve dijital ' +
+        'konsolda neyin değiştiği sağ alttaki panelde. İkisini ayırt edin: ' +
+        '<b>insert seri</b> (sinyalin tamamı geçer), <b>gönderi paralel</b> (bir kopya gider).',
+      ap:{ mode:'serit', bolum:'insert' } },
+    { t:'Insert mi gönderi mi?',
+      b:'Basit ayraç: cihazın <b>bütün</b> sinyali işlemesi gerekiyorsa <b>insert</b> ' +
+        '(kompresör, kapı, EQ). Cihazın çıkışı asıl sesin <b>üstüne</b> eklenecekse ' +
+        '<b>gönderi</b> (reverb, delay). Reverb’ü insert’e sokarsanız kuru sesi ' +
+        'kaybedersiniz; kompresörü gönderiye koyarsanız sıkıştırma işe yaramaz.',
+      ap:{ mode:'serit', bolum:'gonderi' } },
+
+    { t:'Akış: gönderi nereden alınıyor?',
+      b:'İkinci sahne. Üstte şeridin yolu: <b>giriş → EQ → fader → pan → ana</b>. ' +
+        'Mor ok gönderinin nereden alındığını gösteriyor. Şu an <b>post-fader</b>: ' +
+        'gönderi fader’dan SONRA. Alttaki iki çubuk kuru sinyali ve gönderiyi ' +
+        '<b>tek ölçekte</b> karşılaştırıyor.',
+      ap:{ mode:'akis', gonderiNokta:'post', faderDb:0, gonderi:-6, panPos:0.5 } },
+    { t:'Post-fader: fader’ı kısın',
+      b:'Fader’ı <b>−15 dB</b>’e çekin. İki çubuk da <b>birlikte</b> indi: aradaki fark ' +
+        'değişmedi. Yani kuru/ıslak oranı <b>sabit</b>. Kanalı kısınca reverb’ü de kısmış ' +
+        'oluyorsunuz — <b>efekt gönderisi</b> tam olarak böyle davranmalı.',
+      ap:{ mode:'akis', gonderiNokta:'post', faderDb:-15, gonderi:-6 } },
+    { t:'Pre-fader: aynı fader, başka sonuç',
+      b:'<b>Pre-fader</b>’a geçin. Fader hâlâ −15 dB ama gönderi çubuğu <b>yerinde ' +
+        'kaldı</b>. Oran artık 15 dB bozuk: kanal kendi efektinin içinde boğuluyor. ' +
+        'Reverb için felaket — ama <b>kulaklık miksi</b> için tam olarak istenen şey.',
+      ap:{ mode:'akis', gonderiNokta:'pre', faderDb:-15, gonderi:-6 } },
+    { t:'Neden kulaklık pre-fader?',
+      b:'Sahnedeki şarkıcı kendini duymak istiyor. Siz salon miksinde onun fader’ını ' +
+        'kısarsanız, <b>post-fader</b> bir gönderide kulaklığı da kısılır. <b>Pre-fader</b> ' +
+        'gönderide ise salonda ne yaparsanız yapın sahnedeki miks <b>bozulmaz</b>. ' +
+        'Kural: <b>monitör pre, efekt post</b>.',
+      ap:{ mode:'akis', gonderiNokta:'pre', faderDb:-15 } },
+    { t:'Pre-EQ: üçüncü seçenek',
+      b:'<b>Pre-EQ</b>’ya geçin: gönderi EQ’dan da önce alınıyor. Kanalda ne yaparsanız ' +
+        'yapın monitöre gitmiyor. Bazı sahne monitörlerinde istenir — ama çoğu zaman ' +
+        'istenmez, çünkü müzisyen EQ’lanmış sesi duymak ister. Dijital konsolda bu seçim ' +
+        'her gönderi için <b>ayrı ayrı</b> yapılır.',
+      ap:{ mode:'akis', gonderiNokta:'preEq', faderDb:-15 } },
+    { t:'Şimdi kulağınızla duyun',
+      b:'<b>Pre/post farkını duy</b>’a basın. Dört bölüm: <b>POST fader açık</b>, ' +
+        '<b>POST fader −15 dB</b>, <b>PRE fader açık</b>, <b>PRE fader −15 dB</b>. ' +
+        'İkinci bölümde her şey birlikte iniyor; dördüncüde ses gidiyor ama <b>yankı ' +
+        'kalıyor</b>. Fark tartışılır değil, apaçık.',
+      ap:{ mode:'akis', gonderiNokta:'post', faderDb:-15, gonderi:-6 } },
+    { t:'Pan ve pan yasası',
+      b:'Sağ alttaki üç çubuk: <b>sol</b>, <b>sağ</b> ve <b>mono toplam</b>. Pan’ı ' +
+        'ortadayken her kanal <b>−4,5 dB</b>’de. Neden kısılıyor? Çünkü sinyal iki ' +
+        'hoparlörden birden çıkıyor; kısılmazsa ortadaki kaynak kenardakilerden ' +
+        '<b>yüksek</b> duyulurdu.',
+      ap:{ mode:'akis', faderDb:0, panPos:0.5, panYasa:'uzlasma' } },
+    { t:'Üç yasa, üç sonuç',
+      b:'<b>−3 dB</b>’ye geçin: hoparlördeki akustik toplam tam korunuyor, ama mono’ya ' +
+        'toplanınca ortadaki kaynak <b>+3 dB</b> yükseliyor. <b>−6 dB</b>’ye geçin: ' +
+        'mono toplam hiç değişmiyor, ama stereo dinlemede orta <b>3 dB düşük</b>. ' +
+        '<b>−4,5 dB</b> ikisinin ortası — çoğu konsolun varsayılanı bu yüzden odur.',
+      ap:{ mode:'akis', panPos:0.5, panYasa:'genlik' } },
+    { t:'Yönlendirme: bus ve VCA',
+      b:'<b>−4,5</b>’e dönüp yönlendirme düğmelerini gezin. <b>Alt grup</b>: sinyal ' +
+        'gerçekten oradan geçer, bütün davulu tek fader’dan kısarsınız. <b>VCA/DCA</b>: ' +
+        'sinyal geçmez, yalnız faderler birlikte hareket eder — post-fader gönderiler de ' +
+        'onlarla birlikte iner. <b>Matris</b>: yayın ve lobi için ayrı bir karışım.',
+      ap:{ mode:'akis', panYasa:'uzlasma', yonlen:'grup' } },
+
+    { t:'Kazanç: eğriye bakalım',
+      b:'Üçüncü sahne. Yatay eksen <b>ön yükselteç kazancı</b>, dikey eksen <b>SNR</b>. ' +
+        'Eğri önce 1’e 1 tırmanıyor, sonra <b>platoya</b> yatıyor. Neden? Düşük kazançta ' +
+        '<b>çeviricinin</b> gürültüsü baskın; kazanç arttıkça sinyal ondan uzaklaşıyor. ' +
+        'Plato ise <b>ön yükseltecin kendi gürültüsü</b> (EIN −128 dBu).',
+      ap:{ mode:'kaz', kaynak:'vokal', gain:10, tavan:16, odaSpl:25, hedefTepe:-18, pad:false } },
+    { t:'Kırmızı bölge: kırpma',
+      b:'Kazancı sağa sürükleyin. <b>KIRMIZI</b> bölgeye girince tepe 0 dBFS’i aşıyor: ' +
+        'kırpma. Dikkat edin — kırpma <b>ön yükselteçte</b> oluyor, yani fader’dan ' +
+        '<b>önce</b>. Fader’ı kısmak onu geri getirmez; bozulmuş sinyali sessizleştirmiş ' +
+        'olursunuz, o kadar.',
+      ap:{ mode:'kaz', kaynak:'vokal', gain:45 } },
+    { t:'Yeşil pencere: hedef',
+      b:'Yeşil şerit <b>tepe −18 dBFS</b> hedefini gösteriyor. Kazancı oraya getirin: ' +
+        'yaklaşık <b>12 dB</b>. SNR <b>87,8 dB</b> çıkıyor — ve platonun (102,2 dB) ' +
+        '14 dB altında. “Öyleyse daha fazla açayım” demeden önce bir sonraki adıma bakın.',
+      ap:{ mode:'kaz', kaynak:'vokal', gain:12, hedefTepe:-18 } },
+    { t:'Mor çizgi: odanın sınırı',
+      b:'Mor yatay çizgi <b>odanın kendi gürültüsünün</b> izin verdiği SNR: sessiz bir ' +
+        'stüdyoda (25 dB SPL) 100 dB SPL’lik bir vokal için <b>75 dB</b>. Elektriksel ' +
+        'SNR’niz (87,8 dB) bunun <b>üstünde</b>. Yani daha çok kazanç duyulur hiçbir şey ' +
+        'kazandırmaz — sadece kırpma riskini büyütür.',
+      ap:{ mode:'kaz', kaynak:'vokal', gain:12, odaSpl:25 } },
+    { t:'Odayı kirletin',
+      b:'Oda gürültüsü kaydıracını <b>45 dB SPL</b>’ye çıkarın: mor çizgi 55 dB’ye düştü. ' +
+        'Artık zincirin en zayıf halkası açık ara <b>oda</b>. Gürültülü bir mekânda daha ' +
+        'iyi bir ön yükselteç almak hiçbir işe yaramaz; <b>mikrofonu kaynağa yaklaştırmak</b> ' +
+        'yarar.',
+      ap:{ mode:'kaz', kaynak:'vokal', gain:12, odaSpl:45 } },
+    { t:'Zor durum: oda mikrofonu',
+      b:'Odayı 25’e geri alıp şeritten <b>Oda mikrofonu</b>’nu seçin: sinyal <b>−60,8 dBu</b>, ' +
+        'plato <b>67,2 dB</b>’ye düştü. Tepeyi −18 dBFS’e getirin (≈43 dB kazanç): SNR ' +
+        '<b>67,1 dB</b> — yani <b>zaten platodasınız</b>. Burada kazancı 10 dB daha açmak ' +
+        '<b>0,1 dB</b> kazandırıyor. Sessiz kaynakta sınırı ön yükselteç koyar.',
+      ap:{ mode:'kaz', kaynak:'oda', gain:43, odaSpl:25 } },
+    { t:'Yüksek kaynakta ise tam tersi',
+      b:'<b>Vokal</b>’e dönüp aynı şeyi deneyin: −18 dBFS’te 87,8 dB, 10 dB daha açınca ' +
+        '<b>96,6 dB</b> — <b>8,8 dB</b> kazanç. Çünkü orada hâlâ çevirici sınırlıyor. ' +
+        'Ders: “kazancı aç” tavsiyesi kaynağa göre doğru ya da yanlış. Eğri size hangisi ' +
+        'olduğunu söylüyor.',
+      ap:{ mode:'kaz', kaynak:'vokal', gain:22, odaSpl:25 } },
+    { t:'Çevirici tavanı SNR’yi değiştirmiyor',
+      b:'Tavanı <b>+22</b> ve <b>+24 dBu</b> yapın. Eğri yukarı kaydı — ama <b>aynı dBFS ' +
+        'hedefinde SNR aynı</b>. Değişen tek şey, o hedefe ulaşmak için çevirdiğiniz ' +
+        '<b>kazanç sayısı</b>. Tavan yüksek bir cihaz “daha sessiz” değildir; yalnız daha ' +
+        'çok gerilim yutar.',
+      ap:{ mode:'kaz', kaynak:'vokal', gain:28, tavan:24, hedefTepe:-18 } },
+    { t:'Şimdi üç kazancı da duyun',
+      b:'Tavanı +16’ya alıp <b>Kazanç yapısını duy</b>’a basın. Üç bölüm: <b>doğru</b>, ' +
+        '<b>36 dB eksik + dijital telafi</b> ve <b>6 dB fazla</b>. İkincide gürültü ' +
+        'apaçık; üçüncüde kırpma. Gösterimde 16 bitlik bir kaydedici var ki fark ' +
+        'hoparlörden duyulsun — 24 bitte <b>aynı oran</b> kaybedilir, gürültü daha aşağıda kalır.',
+      ap:{ mode:'kaz', kaynak:'vokal', gain:12, tavan:16, hedefTepe:-18 } },
+    { t:'Dijital telafi kaybı geri getirmiyor',
+      b:'İkinci bölümü bir daha dinleyin: seviye <b>doğru</b> ama gürültü orada. Dijital ' +
+        'kazanç sinyali de gürültüyü de birlikte büyütür — oran <b>hiç değişmez</b>. ' +
+        'Ölçüldü: doğru kazançta SNR <b>68,4 dB</b>, 36 dB eksikte <b>32,4 dB</b>. ' +
+        'Tam 36 dB kayıp, tam telafi edilemeyen.',
+      ap:{ mode:'kaz', kaynak:'vokal', gain:12 } },
+    { t:'Toparlayalım',
+      b:'Üç sahne, üç cümle. <b>Şerit</b> her kanalda aynı sırayı tekrarlar ve anlamı ' +
+        'veren şey sıradaki yerdir. <b>Gönderi</b> o sıranın seçilebilen tek noktasıdır: ' +
+        'monitör pre, efekt post. <b>Kazanç</b> gürültüye göre değil <b>tepeye</b> göre ' +
+        'kurulur — çünkü elektriksel sınıra varmadan çok önce odanın sınırına varırsınız.',
+      ap:{ mode:'serit', bolum:'giris', kaynak:'vokal', gain:12, faderDb:0 } }
+  ];
+  var si = 0;
+  var stT = document.getElementById('step-title'), stB = document.getElementById('step-body'),
+      stC = document.getElementById('step-count'), dots = document.getElementById('dots');
+  STEPS.forEach(function(_, i){
+    var d = document.createElement('button');
+    d.type = 'button'; d.className = 'dot';
+    d.setAttribute('aria-label', (i+1)+'. adım');
+    d.addEventListener('click', function(){ setStep(i, true); });
+    dots.appendChild(d);
+  });
+  function kaydiracSync(){
+    var E = S.eq[S.bant], BB = BANT[S.bant];
+    fHpf.value = logPos(S.hpfF, 20, 400);
+    fBf.value = logPos(E.f, BB.fMin, BB.fMax);
+    fBg.value = E.g;
+    fBq.value = logPos(E.q, Q_MIN, Q_MAX);
+    fFader.value = Math.round(faderPos(S.faderDb)*100);
+    fGonderi.value = S.gonderi;
+    fPan.value = Math.round(S.panPos*100);
+    fGain.value = S.gain;
+    fOda.value = S.odaSpl;
+  }
+  function setStep(i, uygula){
+    si = Math.max(0, Math.min(STEPS.length-1, i));
+    var s2 = STEPS[si];
+    stT.textContent = (si+1)+'. '+s2.t;
+    stB.innerHTML = s2.b;
+    stC.textContent = (si+1)+' / '+STEPS.length;
+    Array.prototype.forEach.call(dots.children, function(d,k){
+      d.setAttribute('aria-current', k === si ? 'true':'false');
+    });
+    document.getElementById('prev').disabled = si === 0;
+    document.getElementById('next').disabled = si === STEPS.length-1;
+    if (uygula && s2.ap){
+      var q = s2.ap;
+      sesDur();
+      ['kaynak','pad','fantom','faz','bolum','hpfF','hpfE','bant',
+       'faderDb','gonderi','gonderiNokta','panPos','panYasa','yonlen',
+       'gain','tavan','odaSpl','hedefTepe'].forEach(function(k){
+        if (q[k] !== undefined) S[k] = q[k];
+      });
+      kaydiracSync();
+      if (q.mode) setMode(q.mode); else { alanGoster(); sync(); render(); }
+    }
+  }
+  document.getElementById('prev').addEventListener('click', function(){ setStep(si-1, true); });
+  document.getElementById('next').addEventListener('click', function(){ setStep(si+1, true); });
+
+  /* ================= alistirma ================= */
+  var QS = [
+    { q:'Kanal şeridinde kazanç neden en başta?',
+      o:['Kolay ulaşılsın diye','Sonraki her şey onun üzerine bindiği için',
+         'En az kullanılan ayar olduğu için','Fader’ı etkilemediği için'], c:1,
+      e:'Kazanç sinyali gürültünün üstüne çıkarır ve şeridin geri kalanı bu seviyeyi devralır. Yanlış kurulursa sonraki hiçbir ayar onu düzeltemez.' },
+    { q:'Kazanç ile fader arasındaki fark nedir?',
+      o:['Aynı şeyin iki adı','Kazanç sinyali gürültünün üstüne çıkarır, fader zaten kurulmuş seviyeyi kısar',
+         'Fader analog, kazanç dijitaldir','Kazanç yalnız mikrofonda vardır'], c:1,
+      e:'Fader’ı açmak zayıf bir sinyali gürültüsüyle birlikte açar. Üstelik kırpma fader’dan ÖNCE olduğu için fader onu geri getiremez.' },
+    { q:'Girişin kendisi kırpıyorsa ne yapılır?',
+      o:['Fader kısılır','PAD açılır','EQ’dan bas kesilir','Kanal susturulur'], c:1,
+      e:'Pad sinyali ÖN YÜKSELTEÇTEN ÖNCE ~20 dB kısar. Kazancı kısmak yetmez, çünkü sorun kazanç devresinin girişindedir.' },
+    { q:'IEC 61938’e göre P48 fantom besleme nasıl verilir?',
+      o:['48 V doğrudan','48 V, iki adet 6,81 kΩ üzerinden, en çok 10 mA',
+         '24 V, tek dirençle','Mikrofonun kendi pilinden'], c:1,
+      e:'İki direnç hem sinyali kısa devre etmemek hem akımı sınırlamak içindir ve %0,1 içinde eşleşmeleri gerekir. Mikrofon 7 mA çekerse elinde yalnızca 24 V kalır.' },
+    { q:'Yüksek geçiren süzgecin kesim frekansında kazanç kaç dB’dir?',
+      o:['0 dB','−3 dB','−6 dB','−12 dB'], c:1,
+      e:'Tam −3,01 dB. Yani etki kesimin epey üstünde başlar; kesimi kaynağın en pes notasına koymak o notayı da 3 dB kısar.' },
+    { q:'12 dB/oktav yerine 24 dB/oktav seçmek ne değiştirir?',
+      o:['Kesim frekansını yükseltir','Kesimin altındaki iniş iki kat dikleşir',
+         'Gürültüyü artırır','Hiçbir şey'], c:1,
+      e:'Ölçüldü: 80 Hz kesimde 40 Hz’de 12 dB/okt −12,3 dB, 24 dB/okt −24,1 dB veriyor. Dik süzgeç daha çok temizler ama kesimin hemen üstünde faz döndürür.' },
+    { q:'EQ’da Q büyüdüğünde ne olur?',
+      o:['Eğri genişler','Eğri daralır','Kazanç artar','Frekans kayar'], c:1,
+      e:'Q = merkez frekans ÷ bant genişliği. Büyük Q dar bir eğri demektir: rezonans avlamak için dar, tonun rengini değiştirmek için geniş kullanılır.' },
+    { q:'Raf (shelf) süzgeç çandan nasıl ayrılır?',
+      o:['Daha yüksek kazanç verir','Köşenin ötesindeki HER ŞEYİ topluca kaldırır ya da indirir',
+         'Yalnız basta çalışır','Fazı döndürmez'], c:1,
+      e:'Çan yalnız kendi çevresini etkiler ve iki yanda sıfıra döner; raf ise köşeden sonra düz bir seviyede kalır. Gövde ve hava eklemenin sakin yolu raftır.' },
+    { q:'Insert ile aux gönderi arasındaki fark nedir?',
+      o:['Insert paralel, gönderi seri','Insert seri (sinyalin tamamı geçer), gönderi paralel (bir kopya gider)',
+         'İkisi aynıdır','Insert yalnız dijital konsolda vardır'], c:1,
+      e:'Kompresör gibi sinyalin TAMAMINI işlemesi gereken cihazlar insert’e; reverb gibi asıl sesin ÜSTÜNE eklenecek olanlar gönderiye bağlanır.' },
+    { q:'Reverb gönderisi şeridin neresinden alınmalı?',
+      o:['Pre-EQ','Pre-fader','Post-fader','Fark etmez'], c:2,
+      e:'Post-fader’da fader inince efekt de iner ve kuru/ıslak oranı sabit kalır. Pre-fader’da fader’ı kısınca kanal kendi reverb’ünün içinde boğulur.' },
+    { q:'Sahnedeki müzisyenin kulaklık miksi neden pre-fader kurulur?',
+      o:['Daha yüksek olsun diye','Salon miksinde fader’ı kısınca kulaklığı bozulmasın diye',
+         'Gecikme azalsın diye','Daha az gürültü olsun diye'], c:1,
+      e:'Pre-fader gönderi fader’dan bağımsızdır. Kural: monitör pre, efekt post. Ölçüldü: fader −15 dB’de post’ta oran 0 dB, pre’de −15 dB.' },
+    { q:'Pan ortadayken sinyal neden kısılır?',
+      o:['Gürültü azalsın diye','İki hoparlörden birden çıktığı için; kısılmazsa ortadaki kaynak kenardakinden yüksek duyulur',
+         'Kırpmayı önlemek için','Faz sorunu olmasın diye'], c:1,
+      e:'Sabit güçte −3,01 dB, uzlaşmada −4,52 dB, sabit genlikte −6,02 dB. Mono’ya toplanınca sırasıyla +3,01 / +1,51 / 0,00 dB olur.' },
+    { q:'Alt grup ile VCA/DCA arasındaki fark nedir?',
+      o:['Hiçbiri','Alt grupta sinyal gerçekten oradan geçer; VCA yalnız faderleri birlikte sürer',
+         'VCA daha yüksek kalitelidir','Alt grup yalnız dijital konsolda vardır'], c:1,
+      e:'Bu ayrım pratikte önemlidir: VCA faderleri indirince post-fader gönderiler de iner, alt grup faderini indirince gönderiler DEĞİŞMEZ.' },
+    { q:'Vokalde tepe −18 dBFS’e ayarlandığında zinciri ne sınırlar?',
+      o:['Çeviricinin gürültüsü','Odanın kendi gürültüsü','Ön yükselteç','Fader'], c:1,
+      e:'Ölçüldü: elektriksel SNR 87,8 dB, sessiz bir stüdyonun (25 dB SPL) izin verdiği 75 dB. Oda zaten daha kötü olduğu için daha çok kazanç duyulur bir şey kazandırmaz.' },
+    { q:'Çevirici tavanını +16 dBu yerine +24 dBu yapmak aynı dBFS hedefinde SNR’yi nasıl değiştirir?',
+      o:['8 dB iyileştirir','8 dB kötüleştirir','Değiştirmez — yalnız çevirdiğiniz kazanç sayısı değişir','İki katına çıkarır'], c:2,
+      e:'Hesaplandı: +16, +22 ve +24 dBu için aynı tepe hedefinde SNR aynı çıkıyor. Tavanı yüksek bir cihaz “daha sessiz” değildir, yalnız daha çok gerilim yutar.' }
+  ];
+  var qi = 0, qok = 0, qDone = [];
+  var qT = document.getElementById('q-text'), qO = document.getElementById('q-opts'),
+      qE = document.getElementById('q-exp'), qC = document.getElementById('q-count'),
+      qN = document.getElementById('q-next');
+  function renderQ(){
+    var q = QS[qi];
+    qT.textContent = (qi+1)+'. '+q.q;
+    qE.textContent = '';
+    qO.innerHTML = '';
+    q.o.forEach(function(o, k){
+      var b = document.createElement('button');
+      b.type='button'; b.textContent = o;
+      b.addEventListener('click', function(){
+        Array.prototype.forEach.call(qO.children, function(x){ x.disabled = true; });
+        b.classList.add(k === q.c ? 'correct' : 'wrong');
+        if (k !== q.c) qO.children[q.c].classList.add('correct');
+        qE.innerHTML = q.e;
+        if (!qDone[qi]){ qDone[qi] = true; if (k === q.c) qok++; }
+        qC.textContent = qok+' / '+qDone.filter(Boolean).length+' doğru';
+      });
+      qO.appendChild(b);
+    });
+    qN.textContent = (qi === QS.length-1) ? 'Baştan başla' : 'Sonraki soru';
+  }
+  qN.addEventListener('click', function(){ qi = (qi+1)%QS.length; renderQ(); });
+
+  /* ================= baslangic ================= */
+  kaydiracSync();
+  tabloDoldur();
+  setMode('serit');
+  setStep(0, false);
+  renderQ();
+  sync();
+  render();
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(render);
+})();
+</script>
