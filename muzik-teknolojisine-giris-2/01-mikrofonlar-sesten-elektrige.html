@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="tr">
 <meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Mikrofonlar: Sesten Elektriğe</title>
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400..600;1,6..72,400&family=Chakra+Petch:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
@@ -176,7 +177,8 @@
   .stage[data-scene="elek"] #board{height:var(--board-elek)}
   .stage[data-scene="has"] #board{height:var(--board-has)}
   .stage[data-scene="uc"] #board{height:var(--board-uc)}
-  .stage[data-scene="uc"] #board{cursor:default}
+  .stage[data-scene="uc"] #board{cursor:grab}
+  .stage[data-scene="uc"] #board.tutuyor{cursor:grabbing}
   #board.tut{cursor:grab}
   #board.tut:active{cursor:grabbing}
 
@@ -763,7 +765,8 @@
     f0:900, q:0.25, mgos:'hepsi',                 /* diyafram mekanigi */
     gap:40, cap:22, ima:2,                        /* elektriksel taraf */
     hspl:94, gain:40,                             /* hassasiyet ve gurultu */
-    ucKesit:false, ucPat:0, ucHedef:0          /* 3B govde: kesit ve patlatma */
+    ucKesit:false, ucPat:0, ucHedef:0,         /* 3B govde: kesit ve patlatma */
+    ucYaw:0.58                                 /* 3B govde: surukleyerek donme */
   };
 
   /* ---------- tema ---------- */
@@ -1117,7 +1120,7 @@
   function drawDon(w,h){
     var pad = 16*K.fs, small = w < 760;
     var T = TUR[S.tur];
-    var faz = (S.anim && !REDUCED) ? TAU*(S.yavas ? 0.35 : 1.1)*nowS() : Math.PI*0.25;
+    var faz = S.anim ? TAU*(S.yavas ? 0.35 : 1.1)*nowS() : Math.PI*0.25;
     sahneBaslik(w, 'DÖNÜŞÜM  ·  ' + T.yasa,
       T.ad + '  ·  ' + T.duyar + 'la orantılı  ·  ' + n(S.spl,0) + ' dB SPL',
       C.arc, T.ad + ' · ' + T.duyar);
@@ -1717,26 +1720,31 @@
         gx1, gy1 + 18*K.fs, C.ink3, 9.5, 'right', MONO);
   }
 
-  /* ================= SAHNE 5: 3B govde ve PATLATMA =================
-     Kucuk bir katilar-cizeri: her parca bir DONEL YUZEY (profil + eksen etrafinda
-     tarama) ya da bir KUTU. Dortgenler dondurulup derinlige gore siralaniyor
-     (ressamin algoritmasi). Olculer GERCEK milimetre.
-     Bakis SABIT uc ceyrek: fareyle dondurme kaldirildi, yerine parcalarina
-     ayirma animasyonu kondu — ogrenci acti kapatti ile ugrasmadan hep ayni,
-     okunakli resmi goruyor.                                                     */
+  /* ================= SAHNE 5: 3B GOVDE ve PATLATMA =================
+     Her parca bir DONEL YUZEY (profil + eksen etrafinda tarama) ya da bir KUTU.
+     Olculer GERCEK milimetre, gercek modellerin oranlari.
+     CIZIM WebGL ile: piksel basina isik, derinlik tamponu, studyo ortaminin
+     yansimasi ve fiziksel temelli malzeme (krom, saten nikel, boyali dokum, siyah
+     eloksal, pirinc, kaucuk, sunger). Tel izgara GERCEKTEN delikli ve dokuma:
+     deliklerden icerideki sunger ve kapsul gorunuyor.
+     Islevi olan ic parcalar (zar, bobin, trafo, kart...) sayfanin rol renklerini
+     tasiyor ki etiketleriyle eslessin; dis govde gercek malzemesinde.
+     WebGL acilamazsa eski 2B cizer (dortgen + ressam algoritmasi) devreye giriyor.
+     Bakis uc ceyrek; YATAY surukleyince govde kendi ekseni etrafinda donuyor,
+     cift tiklayinca basa donuyor.                                                */
 
   var CAMD = 1600;
-  var VY = 0.58, VP = 0.17;                      /* SABIT UC CEYREK BAKIS */
-  var LX = -0.40, LY = 0.70, LZ = 0.59;          /* isik yonu (kamera uzayinda) */
-  var HX, HY, HZ;                                /* Blinn yarim vektoru */
+  var GL_MS = 0;                                 /* son 3B karelerin suresi (ms) */
+  var YAW0 = 0.58;                               /* varsayilan uc ceyrek bakis */
+  var LX = -0.40, LY = 0.70, LZ = 0.59;          /* 2B yedek cizer: isik yonu */
+  var HX, HY, HZ;
   (function(){
     var hx = LX, hy = LY, hz = LZ + 1, L = Math.hypot(hx, hy, hz);
     HX = hx/L; HY = hy/L; HZ = hz/L;
   })();
   var ISIK = '#ffffff', KOYU = '#0a0f17';
 
-  /* Malzemeler. Duz Lambert tonlama her seyi plastik oyuncak gosteriyordu:
-     parlama (Blinn) + kenar isigi (Fresnel) + tornalama bandi metali metal yapiyor. */
+  /* 2B yedek cizerin malzemeleri */
   var MAT = {
     krom:    { amb:0.20, kd:0.70, sp:0.85, sh:46, rim:0.44, bant:0.10, nb:1 },
     metal:   { amb:0.24, kd:0.72, sp:0.44, sh:22, rim:0.30, bant:0.06, nb:1 },
@@ -1747,8 +1755,47 @@
     sunger:  { amb:0.34, kd:0.66, sp:0.02, sh:4,  rim:0.05, bant:0,    nb:1 },
     film:    { amb:0.26, kd:0.72, sp:0.72, sh:36, rim:0.36, bant:0,    nb:1 }
   };
+  /* 3B malzemeleri 2B yedege eslestir */
+  var MAT2 = { nikel:'metal', celik:'orgu', emaye:'plastik', eloksal:'plastik', kapsul:'metal',
+               pirinc:'metal', kalay:'krom', kaucuk:'mat', miknatis:'metal', bobin:'metal',
+               boya:'mat', kablo:'mat', kablo_k:'mat', kablo_s:'mat', pcb:'plastik',
+               seramik:'mat', serit:'film', plaka:'metal', elektrot:'krom' };
+  function mat2(p){ return MAT[p.mat] || MAT[MAT2[p.mat]] || MAT.mat; }
 
-  function kureProf(r, yc, y0, y1, n){           /* kure kapagi profili */
+  /* WebGL malzemeleri: c dogrusal renk, m metallik, r puruzluluk, t desen.
+     rol:1 olanlar rengini parcadan (sayfanin rol renginden) alir.
+     Desenler: 1 dokuma tel izgara (saydam), 2 tirtik, 3 sunger, 4 bobin sarimi,
+               5 baski devre, 6 kivrimli serit, 7 delikli plaka.                */
+  var MAT3 = {
+    krom:     { c:[0.90,0.90,0.92], m:1,    r:0.10 },
+    nikel:    { c:[0.70,0.69,0.66], m:1,    r:0.26 },
+    celik:    { c:[0.80,0.81,0.83], m:1,    r:0.30, t:1 },
+    tirtik:   { c:[0.70,0.70,0.68], m:1,    r:0.28, t:2 },
+    emaye:    { c:[0.052,0.054,0.060], m:0.45, r:0.30 },
+    eloksal:  { c:[0.030,0.030,0.034], m:0.45, r:0.40 },
+    kapsul:   { c:[0.090,0.094,0.102], m:0.70, r:0.36 },
+    pirinc:   { c:[0.80,0.60,0.30], m:1,    r:0.24 },
+    kalay:    { c:[0.72,0.73,0.75], m:1,    r:0.18 },
+    plastik:  { c:[0.028,0.028,0.031], m:0, r:0.40 },
+    kaucuk:   { c:[0.020,0.020,0.023], m:0, r:0.70 },
+    sunger:   { c:[0.075,0.078,0.086], m:0, r:1.00, t:3 },
+    miknatis: { c:[0.56,0.57,0.59], m:1,    r:0.20 },
+    kablo_k:  { c:[0.42,0.02,0.02], m:0,    r:0.42 },
+    kablo_s:  { c:[0.018,0.018,0.020], m:0, r:0.42 },
+    film:     { rol:1, m:0.88, r:0.13 },
+    bobin:    { rol:1, m:0.60, r:0.26, t:4 },
+    boya:     { rol:1, m:0.05, r:0.40 },
+    kablo:    { rol:1, m:0,    r:0.55 },
+    pcb:      { rol:1, m:0,    r:0.36, t:5 },
+    seramik:  { rol:1, m:0,    r:0.60 },
+    serit:    { rol:1, m:0.90, r:0.20, t:6 },
+    plaka:    { rol:1, m:0.85, r:0.30, t:7 },
+    elektrot: { rol:1, m:0.90, r:0.28 }
+  };
+
+  /* ---- profil yardimcilari. Profil [r, y] noktalari; normal = (dy, -dr) ----
+     Siralama: malzeme hep YURUME YONUNUN SOLUNDA kalir -> normal disari bakar. */
+  function kureProf(r, yc, y0, y1, n){           /* kure kapagi, y'ye gore esit adim */
     var P = [], i;
     for (i = 0; i <= n; i++){
       var y = y0 + (y1 - y0)*i/n, d = (y - yc)/r;
@@ -1763,8 +1810,28 @@
     if (kapak === 'ust' || kapak === 'iki') P.push([0, y1]);
     return P;
   }
+  function silP(r, y0, y1, pah){                 /* dolu silindir, pahli kenarlar */
+    var c = pah || 0;
+    return c ? [[0,y0],[r-c,y0],[r,y0+c],[r,y1-c],[r-c,y1],[0,y1]]
+             : [[0,y0],[r,y0],[r,y1],[0,y1]];
+  }
+  function tup(ri, ro, y0, y1, pah){             /* halka / boru: ic ve dis duvar */
+    var c = pah || 0;
+    return c ? [[ri,y0],[ro-c,y0],[ro,y0+c],[ro,y1-c],[ro-c,y1],[ri,y1],[ri,y0]]
+             : [[ri,y0],[ro,y0],[ro,y1],[ri,y1],[ri,y0]];
+  }
+  /* y0'dan tepe kutbuna elipsoit / kure: ACIYA gore esit adim (kutupta da puruzsuz) */
+  function kubbe(a, b, yc, y0, n){
+    var P = [], t0 = Math.acos(Math.max(-1, Math.min(1, (yc - y0)/b))), i;
+    for (i = 0; i <= n; i++){
+      var t = t0 + (Math.PI - t0)*i/n;
+      P.push([Math.max(0, a*Math.sin(t)), yc - b*Math.cos(t)]);
+    }
+    P[P.length-1][0] = 0;
+    return P;
+  }
 
-  function donelYuz(prof, opt){
+  function donelYuz(prof, opt){                  /* 2B yedek cizer icin dortgenler */
     var Q = [], i, j, o = opt, seg = o.seg || 30;
     var ox = (o.off && o.off[0]) || 0, oy = (o.off && o.off[1]) || 0,
         oz = (o.off && o.off[2]) || 0;
@@ -1798,149 +1865,177 @@
   }
 
   /* ---- Mikrofon govdeleri: gercek milimetre, gercek modellerin oranlari ----
-     eo = patlatma sirasi (montaj ekseni boyunca kacinci katman). pat verilirse
-     parca o yone gider (kart, trafo, miknatis gibi yandan cikan parcalar).      */
+     eo = patlatma sirasi (montaj ekseni boyunca kacinci katman). yan verilirse
+     parca o yone gider (kart, trafo, miknatis gibi yandan cikan parcalar).
+     mat = malzeme, harita + dok = tel izgaranin desen haritasi ve tel araligi (mm). */
   function mik3(k){
-    var P = [], ad, boy, cap, not, adim, i;
-    function pin3(eo){                            /* XLR erkek pimleri */
+    var P = [], ad, boy, cap, not, adim, egim = 0.17, i;
+    function pinler(eo, y0, y1){                  /* XLR erkek pimleri: kovanin ICINDE, geride */
       [[0,3.6],[-3.12,-1.8],[3.12,-1.8]].forEach(function(p, n2){
-        P.push({ prof: silProf(0.8, -5, 2.4, 'iki'), col:C.ink2, mat:'krom', seg:10,
-                 off:[p[0],0,p[1]], eo:eo, ad: n2 === 0 ? 'XLR pimleri' : null });
+        P.push({ prof: [[0,y0],[0.5,y0],[0.8,y0+0.3],[0.8,y1],[0,y1]], col:C.ink2, mat:'krom',
+                 seg:12, off:[p[0],0,p[1]], eo:eo, ad: n2 === 0 ? 'XLR pimleri' : null });
       });
     }
     if (k === 'dinamik'){
       ad = 'Dinamik sahne mikrofonu'; boy = 162; cap = 51; adim = 13;
       not = 'Elde tutulan ince gövde, küresel tel ızgara, altta XLR çıkışı. ' +
             'Kapsül ızgaranın ortasında, şok montajın üstünde asılı duruyor.';
-      pin3(-3);
-      P.push({ prof: silProf(8.4, -0.6, 2.6, 'iki'), col:C.ink3, mat:'plastik', eo:-3 });
-      P.push({ prof: silProf(9.5, 2.6, 15, 'alt'), col:C.ink2, mat:'metal', eo:-3,
-               ad:'XLR çıkışı' });
-      P.push({ prof: silProf(12.2, 62, 75, 'iki'), col:C.ink2, mat:'tirtik', eo:-2,
+      pinler(-3, 3.4, 9.8);
+      P.push({ prof: silP(9.7, 9.8, 13.4, 0.2), col:C.ink3, mat:'plastik', eo:-3 });
+      P.push({ prof: [[9.8,14.6],[9.8,1.0],[10.55,0.2],[11.3,0.2],[11.95,0.85],[11.95,15.6],
+                      [10.6,15.6],[10.6,14.6],[9.8,14.6]],
+               col:C.ink2, mat:'nikel', eo:-3, ad:'XLR çıkışı' });
+      P.push({ prof: tup(14.2, 15.75, 60.0, 73.6, 0.5), col:C.ink2, mat:'tirtik', eo:-2,
                ad:'tırtıklı halka' });
-      P.push({ prof: [[9.5,15],[11.5,23],[11.5,100],[11.3,104]], col:C.ink2,
-               mat:'metal', eo:-1, ad:'gövde' });
-      /* Izgara topu govdeye bir bilezikle oturuyor. Top y=112,3'te r=9,5 ile
-         kesiliyor (merkez 136, R 25,5) — daha asagidan baslatilinca yarical sifira
-         inip sivri bir huni cikiyordu. */
-      P.push({ prof: [[11.3,104],[12.8,107],[12.8,112]], col:C.ink2, mat:'metal',
-               eo:0, ad:'bilezik' });
-      P.push({ prof: silProf(6, 30, 48, 'iki'), col:C.arc, mat:'mat', eo:0, ic:true,
+      /* sap: alta dogru daralan boyali dokum, ici bos */
+      P.push({ prof: [[11.95,15.6],[12.15,17.4],[16.55,100.4],[16.95,102.2],[16.95,103.6],
+                      [15.5,103.6],[15.1,100.4],[10.7,17.4],[10.6,15.6],[11.95,15.6]],
+               col:C.ink2, mat:'emaye', eo:-1, ad:'gövde' });
+      /* izgara topu sapa bir bilezikle oturuyor */
+      P.push({ prof: [[15.6,103.6],[17.05,103.6],[17.45,104.0],[17.9,110.2],[18.55,116.6],
+                      [18.55,117.4],[17.3,117.4],[16.7,110.2],[15.6,104.4],[15.6,103.6]],
+               col:C.ink2, mat:'nikel', eo:0, ad:'bilezik' });
+      P.push({ prof: silP(6.1, 30, 48, 0.5), col:C.arc, mat:'boya', eo:0, ic:true,
                ad:'trafo', yan:[-36,0,0] });
-      P.push({ prof: silProf(2.2, 48, 92, 'iki'), col:C.brass, mat:'mat', seg:12,
+      P.push({ prof: silP(1.5, 48, 92), col:C.brass, mat:'kablo', seg:16,
                eo:0, ic:true, ad:'kablo', yan:[-36,0,0] });
-      P.push({ prof: silProf(12.6, 107, 116, 'iki'), col:C.ink3, mat:'plastik',
-               eo:1, ic:true, ad:'şok montaj' });
-      P.push({ prof: silProf(9.4, 116, 140, 'iki'), col:C.ink2, mat:'metal',
-               eo:2, ic:true, kes:true, ad:'kapsül' });
-      P.push({ prof: silProf(7.4, 119, 132, 'iki'), col:C.ink3, mat:'mat',
-               eo:3, ic:true, ad:'mıknatıs' });
-      P.push({ prof: silProf(4.3, 132, 136.6, 'iki'), col:C.cos, mat:'metal',
+      P.push({ prof: [[8.2,107.0],[13.9,107.0],[14.5,108.3],[13.95,109.6],[14.5,110.9],
+                      [13.95,112.2],[14.5,113.5],[13.95,114.8],[14.5,116.1],[13.9,117.0],
+                      [8.2,117.0],[8.2,107.0]],
+               col:C.ink3, mat:'kaucuk', eo:1, ic:true, ad:'şok montaj' });
+      P.push({ prof: [[0,117.0],[13.4,117.0],[13.9,117.5],[13.9,137.3],[12.9,137.3],
+                      [12.9,118.1],[0,118.1]],
+               col:C.ink2, mat:'kapsul', eo:2, ic:true, kes:true, ad:'kapsül' });
+      P.push({ prof: [[0,119.0],[8.6,119.0],[8.9,119.3],[8.9,128.4],[8.6,128.7],[5.3,128.7],
+                      [5.3,136.2],[5.0,136.5],[0,136.5]],
+               col:C.ink3, mat:'miknatis', eo:3, ic:true, ad:'mıknatıs' });
+      P.push({ prof: tup(5.65, 6.6, 130.0, 136.9, 0.15), col:C.cos, mat:'bobin',
                eo:4, ic:true, ad:'bobin' });
-      P.push({ prof: silProf(8.6, 136.6, 138, 'iki'), col:C.sin, mat:'film',
-               eo:5, ic:true, ad:'zar' });
-      P.push({ prof: kureProf(22.4, 136, 114.5, 157, 10), col:C.ink3, mat:'sunger',
-               seg:18, eo:6, ic:true, kes:true, ad:'iç sünger' });
-      P.push({ prof: kureProf(25.5, 136, 112.3, 161.4, 22), col:C.ink3, mat:'orgu',
-               seg:52, eo:7, ad:'tel ızgara' });
+      /* zar: kivrimli kenar + ortada kubbe (ince film) */
+      var zp = [[11.8,137.3],[11.2,137.75],[10.6,137.35],[10.0,137.75],[9.4,137.4]];
+      for (i = 1; i <= 12; i++){
+        var tz = i/12*Math.PI/2;
+        zp.push([i === 12 ? 0 : 9.4*Math.cos(tz), 137.4 + 2.9*Math.sin(tz)]);
+      }
+      P.push({ prof: zp, col:C.sin, mat:'film', eo:5, ic:true, ad:'zar' });
+      P.push({ prof: kubbe(23.6, 23.6, 136.5, 116.9, 28), col:C.ink3, mat:'sunger',
+               eo:6, ic:true, kes:true, ad:'iç sünger' });
+      P.push({ prof: kubbe(25.5, 25.5, 136.5, 119.3, 36), col:C.ink3, mat:'celik',
+               harita:'kutup', dok:1.28, eo:7, ad:'tel ızgara' });
+      P.push({ prof: tup(18.35, 18.95, 116.9, 119.6, 0.2), col:C.ink2, mat:'nikel', eo:7 });
     } else if (k === 'kondansator'){
       ad = 'Geniş diyaframlı kondansatör'; boy = 200; cap = 56; adim = 16;
       not = 'Kalın gövde, iki katlı tel ızgara. Kapsül gövdenin ucunda değil, ' +
             'YANA bakacak şekilde asılı: bu mikrofona yandan konuşulur.';
-      pin3(-3);
-      P.push({ prof: silProf(21, -0.6, 2.6, 'iki'), col:C.ink3, mat:'plastik', eo:-3 });
-      P.push({ prof: silProf(23, 2.6, 13, 'alt'), col:C.ink2, mat:'metal', eo:-3,
-               ad:'XLR çıkışı' });
-      P.push({ prof: [[23,13],[27.8,23]], col:C.ink2, mat:'metal', eo:-2 });
-      P.push({ prof: silProf(27.8, 23, 114), col:C.ink2, mat:'metal', eo:-1,
-               ad:'gövde' });
-      P.push({ kutu:[17, 25, 3], col:C.brass, mat:'plastik', off:[0,64,0],
-               eo:0, ic:true, ad:'dönüştürücü kartı', yan:[-48,0,0] });
-      P.push({ prof: silProf(9, 92, 108, 'iki'), col:C.arc, mat:'mat',
-               eo:0, ic:true, ad:'çıkış trafosu', yan:[-48,0,0] });
-      P.push({ prof: silProf(28.6, 114, 123, 'iki'), col:C.ink2, mat:'tirtik', eo:1,
-               ad:'bilezik' });
-      P.push({ prof: silProf(23, -7.5, 7.5, 'iki'), col:C.ink3, mat:'plastik',
-               eksen:'z', off:[0,152,0], eo:2, ic:true, ad:'kapsül sepeti' });
-      P.push({ prof: silProf(21, -5, 5, 'iki'), col:C.ink2, mat:'metal', eksen:'z',
+      pinler(-3, 3.8, 10.2);
+      P.push({ prof: silP(9.7, 10.2, 13.6, 0.2), col:C.ink3, mat:'plastik', eo:-3 });
+      P.push({ prof: [[10.9,12.6],[10.9,1.1],[11.7,0.3],[24.9,0.3],[25.6,1.0],[25.6,12.6],
+                      [10.9,12.6]],
+               col:C.ink2, mat:'tirtik', eo:-3, ad:'XLR çıkışı' });
+      P.push({ prof: tup(25.2, 28.0, 12.6, 15.4, 0.5), col:C.ink2, mat:'krom', eo:-2 });
+      P.push({ prof: [[28.0,15.4],[28.0,115.4],[27.6,116.0],[26.6,116.0],[26.6,15.4],[28.0,15.4]],
+               col:C.ink2, mat:'nikel', eo:-1, ad:'gövde' });
+      /* on yuzde kucuk yonsellik anahtari */
+      P.push({ kutu:[3.2, 6.0, 0.55], col:C.ink3, mat:'plastik', off:[0,102,28.35], eo:-1 });
+      P.push({ kutu:[0.9, 1.5, 0.9], col:C.ink2, mat:'krom', off:[0,103.6,29.3], eo:-1 });
+      P.push({ kutu:[16, 26, 0.8], col:C.brass, mat:'pcb', off:[0,64,0],
+               eo:0, ic:true, ad:'dönüştürücü kartı', yan:[-66,0,-24] });
+      P.push({ kutu:[3.0, 2.2, 1.0], col:C.ink3, mat:'plastik', off:[-5,72,1.8],
+               eo:0, ic:true, yan:[-66,0,-24] });
+      P.push({ prof: silP(2.6, 0, 6.5, 0.4), eksen:'z', col:C.ink2, mat:'nikel',
+               off:[6,56,0.8], eo:0, ic:true, yan:[-66,0,-24] });
+      P.push({ prof: silP(9, 92, 108, 0.8), col:C.arc, mat:'boya',
+               eo:0, ic:true, ad:'çıkış trafosu', yan:[-60,0,-22] });
+      P.push({ prof: [[26.0,116.0],[27.6,116.0],[28.0,116.4],[28.0,119.2],[27.6,119.6],
+                      [27.6,120.4],[28.0,120.8],[28.0,123.1],[27.6,123.5],[26.0,123.5],
+                      [26.0,116.0]],
+               col:C.ink2, mat:'krom', eo:1, ad:'bilezik' });
+      P.push({ prof: tup(21.6, 23.2, -7.8, 7.8, 0.5), eksen:'z', col:C.ink3, mat:'kapsul',
+               off:[0,152,0], eo:2, ic:true, ad:'kapsül sepeti' });
+      P.push({ prof: silP(21, -5, 5, 0.6), eksen:'z', col:C.ink2, mat:'pirinc',
                off:[0,152,0], eo:3, ic:true, kes:true, ad:'kapsül' });
-      P.push({ prof: silProf(20, 5, 6.6, 'iki'), col:C.sin, mat:'film', eksen:'z',
+      P.push({ prof: silP(19.6, 5.0, 5.25), eksen:'z', col:C.sin, mat:'film',
                off:[0,152,0], eo:3, ic:true, ad:'zar', yan:[0,0,40] });
-      P.push({ prof: silProf(18, -6.6, -5, 'iki'), col:C.cos, mat:'metal', eksen:'z',
-               off:[0,152,0], eo:3, ic:true, ad:'sabit plaka', yan:[0,0,-40] });
-      P.push({ prof: silProf(24.6, 127, 174), col:C.ink3, mat:'orgu', seg:34,
-               eo:4, ic:true, kes:true, ad:'iç ızgara' });
-      P.push({ prof: kureProf(24.6, 174, 174, 197, 8), col:C.ink3, mat:'orgu',
-               seg:34, eo:4, ic:true, kes:true });
-      P.push({ prof: silProf(28, 123, 178), col:C.ink3, mat:'orgu', seg:50,
-               eo:5, ad:'dış ızgara' });
-      P.push({ prof: kureProf(28, 178, 178, 202, 10), col:C.ink3, mat:'orgu',
-               seg:40, eo:5 });
+      P.push({ prof: tup(19.5, 20.8, 5.0, 5.9, 0.2), eksen:'z', col:C.ink2, mat:'pirinc',
+               off:[0,152,0], eo:3, ic:true, yan:[0,0,40] });
+      P.push({ prof: silP(18.4, -6.8, -5.0, 0.3), eksen:'z', col:C.cos, mat:'plaka',
+               harita:'duz', dok:1.35, off:[0,152,0], eo:3, ic:true, ad:'sabit plaka',
+               yan:[0,0,-40] });
+      P.push({ prof: [[24.6,127]].concat(kubbe(24.6, 18, 176, 176, 14)), col:C.ink3,
+               mat:'celik', dok:1.05, eo:4, ic:true, kes:true, ad:'iç ızgara' });
+      P.push({ prof: [[28,123.5]].concat(kubbe(28, 22, 178, 178, 16)), col:C.ink3,
+               mat:'celik', dok:1.45, eo:5, ad:'dış ızgara' });
+      P.push({ prof: tup(27.5, 28.25, 123.5, 125.4, 0.25), col:C.ink2, mat:'krom', eo:5 });
     } else if (k === 'serit'){
       ad = 'Şerit (ribbon) mikrofon'; boy = 210; cap = 25; adim = 15;
       not = 'İnce uzun gövde. Izgaranın içinde, iki mıknatısın arasında tek bir ' +
             'alüminyum şerit geriliyor; gövdede yükseltici trafo var.';
-      pin3(-3);
-      P.push({ prof: silProf(9.4, -0.6, 2.6, 'iki'), col:C.ink3, mat:'plastik', eo:-3 });
-      P.push({ prof: silProf(10.5, 2.6, 15, 'alt'), col:C.ink2, mat:'metal', eo:-3,
-               ad:'XLR çıkışı' });
-      P.push({ prof: silProf(13.2, 100, 112, 'iki'), col:C.ink2, mat:'tirtik', eo:-2,
+      pinler(-3, 3.4, 9.8);
+      P.push({ prof: silP(8.6, 9.8, 13.2, 0.2), col:C.ink3, mat:'plastik', eo:-3 });
+      P.push({ prof: [[8.7,14.4],[8.7,1.0],[9.45,0.2],[10.2,0.2],[10.8,0.8],[10.8,15.2],
+                      [9.6,15.2],[9.6,14.4],[8.7,14.4]],
+               col:C.ink2, mat:'nikel', eo:-3, ad:'XLR çıkışı' });
+      P.push({ prof: tup(12.2, 12.72, 100, 112, 0.25), col:C.ink2, mat:'tirtik', eo:-2,
                ad:'tırtıklı halka' });
-      P.push({ prof: [[10.5,15],[12.4,22],[12.4,126]], col:C.ink2, mat:'metal',
-               eo:-1, ad:'gövde' });
-      P.push({ prof: silProf(8, 34, 68, 'iki'), col:C.arc, mat:'mat', eo:0, ic:true,
+      P.push({ prof: [[10.8,15.2],[11.0,17.0],[12.4,22.5],[12.4,125.2],[12.0,125.8],
+                      [11.0,125.8],[11.0,22.5],[9.6,17.0],[9.5,15.2],[10.8,15.2]],
+               col:C.ink2, mat:'eloksal', eo:-1, ad:'gövde' });
+      P.push({ prof: silP(8, 34, 68, 0.6), col:C.arc, mat:'boya', eo:0, ic:true,
                ad:'yükseltici trafo', yan:[-34,0,0] });
-      P.push({ prof: silProf(11.4, 126, 135, 'iki'), col:C.ink2, mat:'metal', eo:1 });
-      P.push({ kutu:[9.6, 27, 5.6], col:C.ink3, mat:'plastik', off:[0,166,0],
+      P.push({ prof: tup(10.2, 11.6, 125.8, 134.8, 0.4), col:C.ink2, mat:'krom', eo:1 });
+      P.push({ kutu:[9.2, 1.6, 5.2], col:C.ink3, mat:'plastik', off:[0,191.2,0],
                eo:2, ic:true, ad:'şerit çerçevesi' });
-      P.push({ kutu:[2.8, 25, 4.2], col:C.ink3, mat:'mat', off:[-7.4,166,0],
+      P.push({ kutu:[9.2, 1.6, 5.2], col:C.ink3, mat:'plastik', off:[0,140.8,0],
+               eo:2, ic:true });
+      P.push({ kutu:[2.6, 23.6, 4.2], col:C.ink3, mat:'miknatis', off:[-7.0,166,0],
                eo:3, ic:true, ad:'mıknatıslar', yan:[-44,0,0] });
-      P.push({ kutu:[2.8, 25, 4.2], col:C.ink3, mat:'mat', off:[7.4,166,0],
+      P.push({ kutu:[2.6, 23.6, 4.2], col:C.ink3, mat:'miknatis', off:[7.0,166,0],
                eo:3, ic:true, yan:[44,0,0] });
-      P.push({ kutu:[4.4, 25, 0.35], col:C.sin, mat:'film', off:[0,166,0],
+      P.push({ kutu:[3.9, 23.6, 0.12], col:C.sin, mat:'serit', off:[0,166,0],
                eo:4, ic:true, ad:'alüminyum şerit' });
-      P.push({ prof: silProf(10.8, 138, 190), col:C.ink3, mat:'orgu', seg:30,
+      P.push({ prof: [[10.8,138],[10.8,190]], col:C.ink3, mat:'celik', dok:0.9,
                eo:5, ic:true, kes:true, ad:'iç ızgara' });
-      P.push({ prof: silProf(12.4, 135, 196), col:C.ink3, mat:'orgu', seg:40,
-               eo:6, ad:'tel ızgara' });
-      P.push({ prof: kureProf(12.4, 196, 196, 208, 8), col:C.ink3, mat:'orgu',
-               seg:36, eo:6 });
+      P.push({ prof: [[12.4,134.8]].concat(kubbe(12.4, 14, 196, 196, 12)), col:C.ink3,
+               mat:'celik', dok:1.0, eo:6, ad:'tel ızgara' });
     } else if (k === 'elektret'){
-      ad = 'Elektret yaka mikrofonu'; boy = 15; cap = 5; adim = 2.8;
+      ad = 'Elektret yaka mikrofonu'; boy = 15; cap = 5; adim = 2.8; egim = 0.30;
       not = 'Bir nohut büyüklüğünde. Kutuplama gerilimi yalıtkanın içinde kalıcı ' +
             'olarak hazır; gövdeye sığan tek elektronik parça dönüştürücüsü.';
-      P.push({ prof: silProf(0.95, -9, 0.4, 'alt'), col:C.ink3, mat:'mat', seg:14,
-               eo:-2, ad:'kablo' });
-      P.push({ prof: silProf(2.5, 0.4, 11.4), col:C.ink2, mat:'metal', seg:26,
+      P.push({ prof: [[0,-9],[0.95,-9],[0.95,-2.4],[1.55,-1.6],[2.15,-0.2],[2.15,0.4],[0,0.4]],
+               col:C.ink3, mat:'kaucuk', seg:24, eo:-2, ad:'kablo' });
+      P.push({ prof: tup(2.2, 2.5, 0.4, 12.2, 0.12), col:C.ink2, mat:'eloksal',
                eo:-1, ad:'kapsül gövdesi' });
-      P.push({ prof: silProf(1.7, 2.6, 8.2, 'iki'), col:C.brass, mat:'plastik',
-               seg:20, eo:0, ic:true, ad:'dönüştürücü' });
-      P.push({ prof: silProf(2.0, 8.9, 9.9, 'iki'), col:C.cos, mat:'metal', seg:22,
-               eo:1, ic:true, ad:'sabit plaka' });
-      P.push({ prof: silProf(2.15, 10.1, 10.8, 'iki'), col:C.sin, mat:'film',
-               seg:22, eo:2, ic:true, ad:'zar' });
-      P.push({ prof: kureProf(2.5, 11.4, 11.4, 14.6, 8), col:C.ink3, mat:'orgu',
-               seg:28, eo:3, ad:'ızgara' });
+      P.push({ prof: silP(1.7, 2.6, 8.2, 0.15), col:C.brass, mat:'boya',
+               eo:0, ic:true, ad:'dönüştürücü' });
+      P.push({ prof: silP(2.05, 8.9, 9.9, 0.08), col:C.cos, mat:'plaka', harita:'duz',
+               dok:0.45, eo:1, ic:true, ad:'sabit plaka' });
+      P.push({ prof: silP(2.15, 10.1, 10.22), col:C.sin, mat:'film',
+               eo:2, ic:true, ad:'zar' });
+      P.push({ prof: [[2.52,12.2],[2.56,12.35],[2.56,13.5],[2.35,13.95],[0,13.95]],
+               col:C.ink3, mat:'celik', harita:'kutup', dok:0.34, eo:3, ad:'ızgara' });
     } else {
-      ad = 'Piezo temas mikrofonu'; boy = 1.2; cap = 27; adim = 2.6;
+      ad = 'Piezo temas mikrofonu'; boy = 1.2; cap = 27; adim = 2.6; egim = 0.72;
       not = 'Yassı bir disk: çalgının göbeğine yapıştırılır. Havayı değil ' +
             'TAHTAYI dinler; pirinç disk büküldükçe seramik yük toplar.';
-      P.push({ prof: silProf(0.8, -5, 0.3, 'alt'), col:C.ink3, mat:'mat', seg:12,
-               eo:-1, ad:'kablo' });
-      P.push({ prof: silProf(13.5, 0, 0.45, 'iki'), col:C.ink2, mat:'metal', seg:44,
+      /* iki ince kablo: biri elektrottaki lehime, biri pirinc diskin kenarina */
+      P.push({ prof: silP(0.55, 0, 18), eksen:'z', col:C.ink3, mat:'kablo_k', seg:14,
+               off:[6.0,1.25,0], eo:-1, ad:'kablo' });
+      P.push({ prof: silP(0.55, 0, 18), eksen:'z', col:C.ink3, mat:'kablo_s', seg:14,
+               off:[-11.0,0.85,0], eo:-1 });
+      P.push({ prof: silP(13.5, 0, 0.45, 0.08), col:C.ink2, mat:'pirinc', seg:44,
                eo:0, ad:'pirinç disk' });
-      P.push({ prof: silProf(9.5, 0.45, 0.72, 'iki'), col:C.brass, mat:'mat', seg:40,
+      P.push({ prof: kubbe(1.4, 0.6, 0.45, 0.45, 8), col:C.ink2, mat:'kalay', seg:16,
+               off:[-11,0,0], eo:0 });
+      P.push({ prof: silP(9.5, 0.45, 0.72, 0.05), col:C.brass, mat:'seramik', seg:40,
                eo:1, ic:true, ad:'seramik' });
-      P.push({ prof: silProf(9.5, 0.72, 0.86, 'iki'), col:C.cos, mat:'krom', seg:40,
+      P.push({ prof: silP(9.2, 0.72, 0.84, 0.03), col:C.cos, mat:'elektrot', seg:40,
                eo:2, ic:true, ad:'elektrot' });
-      P.push({ prof: silProf(1.2, 0.86, 1.9, 'iki'), col:C.ink3, mat:'metal', seg:14,
+      P.push({ prof: kubbe(1.5, 0.75, 0.84, 0.84, 8), col:C.ink2, mat:'kalay', seg:16,
                off:[6,0,0], eo:3, ic:true, ad:'lehim ucu' });
     }
     /* --- PATLATMA YERLESIMI ---
-       Sabit bir adimla acmak yetmiyordu: kucuk parcalar birbirinden ayrilirken
-       izgara ve sunger gibi buyuk parcalar ust uste biniyordu. Onun yerine her
-       KATMAN (eo) kendi y uzunlugu kadar yer kapliyor ve katmanlar montaj
-       sirasina gore alttan yukari bosluk birakilarak isteniyor. Yana cikan
+       Her KATMAN (eo) kendi y uzunlugu kadar yer kapliyor ve katmanlar montaj
+       sirasina gore alttan yukari bosluk birakilarak diziliyor. Yana cikan
        parcalar (trafo, kart, miknatis) yiginin yuksekligine karismiyor.        */
     function parcaY(p){
       var oy = (p.off && p.off[1]) || 0, lo = 1e9, hi = -1e9;
@@ -1977,7 +2072,7 @@
       p.pat = p.yan ? [p.yan[0], dy + p.yan[1], p.yan[2]] : [0, dy, 0];
       p.sira = Math.abs(dy)/enUz;                     /* en uzaga giden once cikar */
     });
-    return { ad:ad, boy:boy, cap:cap, not:not, P:P, adim:adim };
+    return { ad:ad, boy:boy, cap:cap, not:not, P:P, adim:adim, egim:egim, tur:k };
   }
   var MIK3 = {};
   function mik3Al(k){
@@ -1997,7 +2092,7 @@
     var L = Math.hypot(n[0],n[1],n[2]) || 1;
     return [n[0]/L, n[1]/L, n[2]/L];
   }
-  /* Bir yuzun rengi: ortam + yayinim + parlama + kenar isigi + tornalama bandi */
+  /* 2B yedek cizer: ortam + yayinim + parlama + kenar isigi + tornalama bandi */
   function yuzRenk(base, m, nx, ny, nz, qj, qs){
     var d = Math.max(0, nx*LX + ny*LY + nz*LZ);
     var t = m.amb + m.kd*d;
@@ -2011,11 +2106,529 @@
     return c;
   }
   function yumusat(u){ return u <= 0 ? 0 : (u >= 1 ? 1 : 1 - Math.pow(1 - u, 3)); }
+  function rgbaS(hx, a){ var c = rgbOf(hx); return 'rgba('+c[0]+','+c[1]+','+c[2]+','+a+')'; }
+
+  /* ================= WebGL cizer ================= */
+  var GL3 = (function(){
+    var cv = document.createElement('canvas'), gl = null, prog = null, A = {}, U = {},
+        hazir = false, denendi = false, GEO = {};
+    var VS = [
+      'attribute vec3 aP; attribute vec3 aN; attribute vec2 aT;',
+      'uniform mat3 uRot; uniform vec3 uOff; uniform float uYp, uYm, uK, uCam, uZR;',
+      'uniform vec2 uC, uWH;',
+      'varying vec3 vP, vN, vM; varying vec2 vPat;',
+      'void main(){',
+      '  vec3 m = aP + uOff;  vM = m;  m.y -= uYp;',
+      '  vec3 v = uRot*m;  v.y -= uYm;',
+      '  vP = v;  vN = uRot*aN;  vPat = aT;',
+      '  float w = (uCam - v.z)/uCam;',
+      '  vec2 o = vec2(2.0*uC.x/uWH.x - 1.0, 1.0 - 2.0*uC.y/uWH.y);',
+      '  gl_Position = vec4(o*w + vec2(2.0*uK*v.x/uWH.x, 2.0*uK*v.y/uWH.y), -(v.z/uZR)*w, w);',
+      '}'].join('\n');
+    var FS = [
+      '#ifdef GL_FRAGMENT_PRECISION_HIGH',
+      'precision highp float;',
+      '#else',
+      'precision mediump float;',
+      '#endif',
+      'varying vec3 vP, vN, vM; varying vec2 vPat;',
+      'uniform vec3 uCol, uEY;',
+      'uniform float uMet, uRou, uTip, uHar, uCev, uDok, uKes, uKesX, uKesZ, uCamF, uPxMm;',
+      'const float PI = 3.14159265;',
+      'const vec3 L1 = vec3(-0.5199, 0.5863, 0.5294);',   /* ana isik: sol ust on    */
+      'const vec3 L2 = vec3( 0.8413, 0.2152,-0.4957);',   /* kenar isigi: sag arka  */
+      'const vec3 L3 = vec3( 0.6219,-0.0201, 0.7828);',   /* dolgu: sag on alcak    */
+      'const vec3 L4 = vec3( 0.0000, 0.9929, 0.1191);',   /* tavan                   */
+      '#ifdef TUREV',
+      'vec2 fw2(vec2 g, float p, float n){ return fwidth(g); }',
+      'float fw1(float g, float p, float n){ return fwidth(g); }',
+      '#else',
+      'vec2 fw2(vec2 g, float p, float n){ return vec2(1.0/max(uPxMm*p*max(n,0.2), 1e-3)); }',
+      'float fw1(float g, float p, float n){ return 1.0/max(uPxMm*p*max(n,0.2), 1e-3); }',
+      '#endif',
+      'float h3(vec3 p){ p = fract(p*0.1031); p += dot(p, p.yzx + 33.33);',
+      '  return fract((p.x + p.y)*p.z); }',
+      'float gur(vec3 x){ vec3 i = floor(x), f = fract(x); f = f*f*(3.0 - 2.0*f);',
+      '  float a = mix(h3(i), h3(i + vec3(1.0,0.0,0.0)), f.x);',
+      '  float b = mix(h3(i + vec3(0.0,1.0,0.0)), h3(i + vec3(1.0,1.0,0.0)), f.x);',
+      '  float c = mix(h3(i + vec3(0.0,0.0,1.0)), h3(i + vec3(1.0,0.0,1.0)), f.x);',
+      '  float d = mix(h3(i + vec3(0.0,1.0,1.0)), h3(i + vec3(1.0,1.0,1.0)), f.x);',
+      '  return mix(mix(a, b, f.y), mix(c, d, f.y), f.z); }',
+      /* studyo: koyu zemin, acik tavan, uc yumusak kutu isik. Puruzluluk isiklari buyutur. */
+      'float kutu(vec3 r, vec3 d, float a){ return smoothstep(cos(a), cos(a*0.5), dot(r, d)); }',
+      'vec3 ortam(vec3 r, float rou){',
+      '  float g = 1.0 + rou*2.2, e = 1.0/(g*g);',
+      /* zemin koyu gri, ufuk orta, tavan acik: metalde karanlik-aydinlik bantlari verir */
+      '  vec3 c = mix(vec3(0.085,0.088,0.096), vec3(0.32,0.33,0.35), smoothstep(-0.55, 0.12, r.y));',
+      '  c = mix(c, vec3(0.66,0.67,0.70), smoothstep(0.28, 0.95, r.y));',
+      '  c += vec3(4.6,4.5,4.3)*e*kutu(r, L1, 0.52*g);',
+      '  c += vec3(3.2,3.4,3.7)*e*kutu(r, L2, 0.28*g);',
+      '  c += vec3(1.5)*e*kutu(r, L3, 0.48*g);',
+      '  return c; }',
+      'vec3 isinim(vec3 n){',
+      '  vec3 c = mix(vec3(0.10,0.10,0.11), vec3(0.46,0.47,0.50), n.y*0.5 + 0.5);',
+      '  c += vec3(1.55)*max(dot(n, L1), 0.0);',
+      '  c += vec3(0.70)*max(dot(n, L2), 0.0);',
+      '  c += vec3(0.45)*max(dot(n, L3), 0.0);',
+      '  return c; }',
+      'vec3 aces(vec3 x){ return clamp((x*(2.51*x + 0.03))/(x*(2.43*x + 0.59) + 0.14), 0.0, 1.0); }',
+      'void main(){',
+      '  if (uKes > 0.5 && uKesX*vM.x + uKesZ*vM.z > 0.0) discard;',
+      '  vec3 N = normalize(vN);',
+      '  if (!gl_FrontFacing) N = -N;',
+      '  vec3 V = normalize(vec3(0.0, 0.0, uCamF) - vP);',
+      '  float ndv = clamp(dot(N, V), 0.0, 1.0);',
+      '  vec3 alb = uCol; float met = uMet, rou = uRou, a = 1.0;',
+      '  if (uTip > 0.5 && uTip < 1.5){',                      /* 1 DOKUMA TEL IZGARA */
+      '    vec2 g = uHar > 0.5 ? vPat/uDok : vec2(vPat.x*floor(uCev/uDok + 0.5), vPat.y/uDok);',
+      '    vec2 fw = fw2(g, uDok, ndv);',
+      '    vec2 d = abs(fract(g + 0.5) - 0.5);',
+      '    float w = 0.20;',
+      '    vec2 k = 1.0 - smoothstep(vec2(w) - fw, vec2(w) + fw, d);',
+      '    float px = mod(floor(g.x + 0.5), 2.0)*2.0 - 1.0;',
+      '    float py = mod(floor(g.y + 0.5), 2.0)*2.0 - 1.0;',
+      '    float hx = cos(PI*g.y)*px, hy = -cos(PI*g.x)*py;',     /* bir ustten bir alttan */
+      '    float sx = clamp(1.0 - d.x*d.x/(w*w), 0.0, 1.0), sy = clamp(1.0 - d.y*d.y/(w*w), 0.0, 1.0);',
+      '    float bx = (0.72 + 0.28*hx)*(0.45 + 0.55*sx), by = (0.72 + 0.28*hy)*(0.45 + 0.55*sy);',
+      '    float ust = step(hy, hx);',
+      '    float wx = k.x*mix(1.0 - k.y, 1.0, ust), wy = k.y*mix(1.0, 1.0 - k.x, ust);',
+      '    float b = (wx*bx + wy*by)/max(wx + wy, 1e-4);',
+      '    float m = smoothstep(0.30, 0.75, max(fw.x, fw.y));',     /* ince kalinca ortalamaya */
+      '    a = mix(max(k.x, k.y), 0.64, m);',
+      '    a = mix(a, 1.0, pow(1.0 - ndv, 3.0)*0.65);',             /* yandan bakinca kapanir */
+      '    alb *= mix(b, 0.80, m);',
+      '  } else if (uTip > 1.5 && uTip < 2.5){',                /* 2 TIRTIK */
+      '    float nk = floor(uCev/0.9 + 0.5);',
+      '    vec2 g = vec2(vPat.x*nk, vPat.y/0.9);',
+      '    vec2 q = fract(vec2(g.x + g.y, g.x - g.y)*0.5);',
+      '    vec2 t = abs(q - 0.5);',
+      '    float h = 1.0 - 2.0*max(t.x, t.y);',
+      '    vec2 fw = fw2(g, 0.9, ndv);',
+      '    float m = smoothstep(0.25, 0.7, max(fw.x, fw.y));',
+      '    alb *= mix(0.55 + 0.55*h + 0.35*(q.x - 0.5), 0.85, m);',
+      '    rou = mix(rou, 0.46, (1.0 - h)*0.6*(1.0 - m));',
+      '  } else if (uTip > 2.5 && uTip < 3.5){',                /* 3 SUNGER */
+      '    float n1 = gur(vM*1.9), n2 = gur(vM*4.3 + 7.0);',
+      '    float gz = smoothstep(0.58, 0.82, gur(vM*2.7 + 3.0));',
+      '    alb *= (0.62 + 0.55*n1 + 0.25*n2)*(1.0 - 0.55*gz);',
+      '  } else if (uTip > 3.5 && uTip < 4.5){',                /* 4 BOBIN SARIMI */
+      '    float t = vPat.y/0.28;',
+      '    float d = abs(fract(t) - 0.5)*2.0;',
+      '    float m = smoothstep(0.3, 0.8, fw1(t, 0.28, ndv));',
+      '    alb *= mix(0.45 + 0.55*sqrt(max(0.0, 1.0 - d*d)), 0.8, m);',
+      '  } else if (uTip > 4.5 && uTip < 5.5){',                /* 5 BASKI DEVRE */
+      '    vec2 g = vPat/1.6;',
+      '    vec2 c = floor(g);',
+      '    float r = h3(vec3(c, 1.0));',
+      '    vec2 f = abs(fract(g) - 0.5);',
+      '    float yx = (1.0 - smoothstep(0.06, 0.10, f.y))*step(0.45, r);',
+      '    float yy = (1.0 - smoothstep(0.06, 0.10, f.x))*step(r, 0.35);',
+      '    float ada = (1.0 - smoothstep(0.18, 0.24, length(fract(g) - 0.5)))*step(0.72, h3(vec3(c, 5.0)));',
+      '    float bk = max(max(yx, yy)*0.6, ada);',
+      '    alb = mix(alb, vec3(0.80, 0.55, 0.22), bk*0.85);',
+      '    met = mix(met, 1.0, ada); rou = mix(rou, 0.25, ada);',
+      '  } else if (uTip > 5.5 && uTip < 6.5){',                /* 6 KIVRIMLI SERIT */
+      '    N = normalize(N + uEY*0.75*cos(vPat.y*(2.0*PI/1.1)));',
+      '  } else if (uTip > 6.5){',                              /* 7 DELIKLI PLAKA */
+      '    vec2 g = vPat/uDok;',
+      '    vec2 fw = fw2(g, uDok, ndv);',
+      '    float d = length(fract(g) - 0.5);',
+      '    float dl = 1.0 - smoothstep(0.24 - fw.x, 0.24 + fw.x, d);',
+      '    float m = smoothstep(0.3, 0.8, fw.x);',
+      '    alb *= mix(1.0 - 0.85*dl, 0.7, m);',
+      '    rou = mix(rou, 0.9, dl*(1.0 - m));',
+      '  }',
+      '  vec3 R = reflect(-V, N);',
+      '  float nv = max(dot(N, V), 1e-3);',
+      '  vec3 F0 = mix(vec3(0.04), alb, met);',
+      '  vec3 F = F0 + (max(vec3(1.0 - rou), F0) - F0)*pow(1.0 - nv, 5.0);',
+      '  vec3 c = alb*(1.0 - met)*isinim(N)*(1.0 - 0.5*F.g) + F*ortam(R, rou);',
+      '  if (!gl_FrontFacing) c *= 0.40;',                      /* kesitte ic yuzey */
+      '  c = pow(aces(c*0.92), vec3(0.4545));',
+      '  gl_FragColor = vec4(c*a, a);',
+      '}'].join('\n');
+
+    function derle(tip, src){
+      var s = gl.createShader(tip);
+      gl.shaderSource(s, src); gl.compileShader(s);
+      if (!gl.getShaderParameter(s, gl.COMPILE_STATUS)) throw new Error(gl.getShaderInfoLog(s));
+      return s;
+    }
+    function kur(){
+      denendi = true; hazir = false; GEO = {};
+      try {
+        var o = { antialias:true, alpha:true, premultipliedAlpha:true,
+                  preserveDrawingBuffer:true, depth:true };
+        gl = cv.getContext('webgl', o) || cv.getContext('experimental-webgl', o);
+        if (!gl) return false;
+        var tv = !!gl.getExtension('OES_standard_derivatives');
+        prog = gl.createProgram();
+        gl.attachShader(prog, derle(gl.VERTEX_SHADER, VS));
+        gl.attachShader(prog, derle(gl.FRAGMENT_SHADER,
+          (tv ? '#extension GL_OES_standard_derivatives : enable\n#define TUREV 1\n' : '') + FS));
+        gl.linkProgram(prog);
+        if (!gl.getProgramParameter(prog, gl.LINK_STATUS)) throw new Error(gl.getProgramInfoLog(prog));
+        ['aP','aN','aT'].forEach(function(k2){ A[k2] = gl.getAttribLocation(prog, k2); });
+        ['uRot','uOff','uYp','uYm','uK','uCam','uZR','uC','uWH','uCol','uEY','uMet','uRou','uTip',
+         'uHar','uCev','uDok','uKes','uKesX','uKesZ','uCamF','uPxMm'].forEach(function(k2){
+          U[k2] = gl.getUniformLocation(prog, k2);
+        });
+        hazir = true;
+      } catch(e){ hazir = false; gl = null; }
+      return hazir;
+    }
+    cv.addEventListener('webglcontextlost', function(e){ e.preventDefault(); hazir = false; GEO = {}; }, false);
+    cv.addEventListener('webglcontextrestored', function(){ kur(); render(); }, false);
+
+    /* ---- geometri: donel yuzey (puruzsuz normaller) ve kutu ---- */
+    function geoDonel(p){
+      var prof = p.prof, ez = p.eksen === 'z', V = [], n = prof.length, i, j, kk;
+      var seg = 112, rref = 0, s = [0], SN = [], har = p.harita;
+      prof.forEach(function(q){ rref = Math.max(rref, q[0]); });
+      for (i = 1; i < n; i++)
+        s.push(s[i-1] + Math.hypot(prof[i][0]-prof[i-1][0], prof[i][1]-prof[i-1][1]));
+      var Lt = s[n-1];
+      for (i = 0; i < n-1; i++){
+        var dr = prof[i+1][0]-prof[i][0], dy = prof[i+1][1]-prof[i][1], L = Math.hypot(dr, dy);
+        SN.push(L > 1e-9 ? [dy/L, -dr/L] : null);
+      }
+      /* ~40 dereceden yumusak kiriklar puruzsuz, sert koseler keskin kalir */
+      function nUc(jj, uc){
+        var me = SN[jj], kom = uc ? SN[jj+1] : SN[jj-1], vi = uc ? jj+1 : jj;
+        var nr = me[0], ny = me[1];
+        if (kom && me[0]*kom[0] + me[1]*kom[1] > 0.766){ nr += kom[0]; ny += kom[1]; }
+        if (prof[vi][0] < 1e-6){ nr = 0; ny = ny >= 0 ? 1 : -1; }
+        var l = Math.hypot(nr, ny) || 1;
+        return [nr/l, ny/l];
+      }
+      function vtx(r, y, a, nn, sv){
+        var c = Math.cos(a), sn = Math.sin(a), t;
+        if (har === 'kutup'){ var rho = Lt - sv; t = [rho*c, rho*sn]; }
+        else if (har === 'duz') t = [r*c, r*sn];
+        else t = [a/TAU, sv];
+        return ez ? [r*c, r*sn, y, nn[0]*c, nn[0]*sn, nn[1], t[0], t[1]]
+                  : [r*c, y, r*sn, nn[0]*c, nn[1], nn[0]*sn, t[0], t[1]];
+      }
+      function tri(a, b, c){ V.push.apply(V, a); V.push.apply(V, b); V.push.apply(V, c); }
+      for (j = 0; j < n-1; j++){
+        if (!SN[j]) continue;
+        var r0 = prof[j][0], y0 = prof[j][1], r1 = prof[j+1][0], y1 = prof[j+1][1];
+        if (r0 < 1e-6 && r1 < 1e-6) continue;
+        var na = nUc(j, 0), nb = nUc(j, 1);
+        for (kk = 0; kk < seg; kk++){
+          var a0 = kk/seg*TAU, a1 = (kk+1)/seg*TAU;
+          var q00 = vtx(r0,y0,a0,na,s[j]), q01 = vtx(r0,y0,a1,na,s[j]),
+              q10 = vtx(r1,y1,a0,nb,s[j+1]), q11 = vtx(r1,y1,a1,nb,s[j+1]);
+          if (!ez){ tri(q00,q10,q11); tri(q00,q11,q01); }     /* dis yuz saat yonunun tersi */
+          else    { tri(q00,q11,q10); tri(q00,q01,q11); }     /* z ekseninde el degisiyor */
+        }
+      }
+      return { v:new Float32Array(V), rref:rref };
+    }
+    function geoKutu(p){
+      var h = p.kutu, V = [];
+      var Y = [ [[1,0,0],[0,0,-1],[0,1,0]], [[-1,0,0],[0,0,1],[0,1,0]],
+                [[0,1,0],[1,0,0],[0,0,-1]], [[0,-1,0],[1,0,0],[0,0,1]],
+                [[0,0,1],[1,0,0],[0,1,0]],  [[0,0,-1],[-1,0,0],[0,1,0]] ];
+      function ol(v){ return [v[0]*h[0], v[1]*h[1], v[2]*h[2]]; }
+      Y.forEach(function(f){
+        var nn = f[0], uu = ol(f[1]), vv = ol(f[2]), c = ol(nn);
+        var q = [[-1,-1],[1,-1],[1,1],[-1,1]].map(function(e){
+          var P3 = [c[0] + uu[0]*e[0] + vv[0]*e[1], c[1] + uu[1]*e[0] + vv[1]*e[1],
+                    c[2] + uu[2]*e[0] + vv[2]*e[1]];
+          var t = [f[1][0]*P3[0] + f[1][1]*P3[1] + f[1][2]*P3[2],
+                   f[2][0]*P3[0] + f[2][1]*P3[1] + f[2][2]*P3[2]];
+          return P3.concat(nn, t);
+        });
+        [0,1,2, 0,2,3].forEach(function(ix){ V.push.apply(V, q[ix]); });
+      });
+      return { v:new Float32Array(V), rref:Math.max(h[0], h[2]) };
+    }
+    function geo(p, key){
+      if (GEO[key]) return GEO[key];
+      var g = p.kutu ? geoKutu(p) : geoDonel(p);
+      var b = gl.createBuffer();
+      gl.bindBuffer(gl.ARRAY_BUFFER, b);
+      gl.bufferData(gl.ARRAY_BUFFER, g.v, gl.STATIC_DRAW);
+      return (GEO[key] = { b:b, n:g.v.length/8, rref:g.rref });
+    }
+    function lin(hx){ var c = rgbOf(hx);
+      return [Math.pow(c[0]/255, 2.2), Math.pow(c[1]/255, 2.2), Math.pow(c[2]/255, 2.2)]; }
+
+    /* o: w, h, dpr, cx, cy, k, yp (egilme ekseni), ym, R (satir duzeninde 3x3), yaw, kes, zr */
+    function ciz(M, o){
+      if (!hazir) return false;
+      var W = Math.max(1, Math.round(o.w*o.dpr)), H = Math.max(1, Math.round(o.h*o.dpr));
+      if (cv.width !== W || cv.height !== H){ cv.width = W; cv.height = H; }
+      gl.viewport(0, 0, W, H);
+      gl.clearColor(0, 0, 0, 0);
+      gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+      gl.useProgram(prog);
+      var R = o.R;
+      gl.uniformMatrix3fv(U.uRot, false, [R[0],R[3],R[6], R[1],R[4],R[7], R[2],R[5],R[8]]);
+      gl.uniform3f(U.uEY, R[1], R[4], R[7]);
+      gl.uniform1f(U.uYp, o.yp); gl.uniform1f(U.uYm, o.ym); gl.uniform1f(U.uK, o.k);
+      gl.uniform1f(U.uCam, CAMD); gl.uniform1f(U.uCamF, CAMD);
+      gl.uniform1f(U.uZR, o.zr);
+      gl.uniform2f(U.uC, o.cx, o.cy); gl.uniform2f(U.uWH, o.w, o.h);
+      gl.uniform1f(U.uPxMm, o.k*o.dpr);
+      gl.uniform1f(U.uKesX, -Math.sin(o.yaw)); gl.uniform1f(U.uKesZ, Math.cos(o.yaw));
+      gl.enable(gl.DEPTH_TEST); gl.depthFunc(gl.LEQUAL);
+      gl.enableVertexAttribArray(A.aP); gl.enableVertexAttribArray(A.aN);
+      gl.enableVertexAttribArray(A.aT);
+
+      var saydam = [];
+      function ciz1(p, ix){
+        var g = geo(p, M.tur + ':' + ix), m = MAT3[p.mat] || MAT3.nikel;
+        var c = m.rol ? lin(p.col) : m.c;
+        if (m.rol && m.m >= 0.5){                  /* altin zar, aluminyum serit: parlak metal */
+          var mx = Math.max(c[0], c[1], c[2], 1e-3), kat = Math.min(3, 0.86/mx);
+          c = [c[0]*kat, c[1]*kat, c[2]*kat];
+        }
+        gl.bindBuffer(gl.ARRAY_BUFFER, g.b);
+        gl.vertexAttribPointer(A.aP, 3, gl.FLOAT, false, 32, 0);
+        gl.vertexAttribPointer(A.aN, 3, gl.FLOAT, false, 32, 12);
+        gl.vertexAttribPointer(A.aT, 2, gl.FLOAT, false, 32, 24);
+        gl.uniform3f(U.uOff, p._o[0], p._o[1], p._o[2]);
+        gl.uniform3f(U.uCol, c[0], c[1], c[2]);
+        gl.uniform1f(U.uMet, m.m); gl.uniform1f(U.uRou, m.r); gl.uniform1f(U.uTip, m.t || 0);
+        gl.uniform1f(U.uHar, (p.harita === 'kutup' || p.harita === 'duz') ? 1 : 0);
+        gl.uniform1f(U.uCev, TAU*Math.max(0.01, g.rref));
+        gl.uniform1f(U.uDok, p.dok || 1);
+        gl.uniform1f(U.uKes, (o.kes && (!p.ic || p.kes)) ? 1 : 0);
+        gl.drawArrays(gl.TRIANGLES, 0, g.n);
+      }
+      /* 1) opak parcalar: iki yuzlu, derinlik yazarak */
+      gl.disable(gl.BLEND); gl.depthMask(true); gl.disable(gl.CULL_FACE);
+      M.P.forEach(function(p, ix){
+        if ((MAT3[p.mat] || {}).t === 1){ saydam.push({ p:p, ix:ix }); return; }
+        ciz1(p, ix);
+      });
+      /* 2) tel izgaralar: once arka yarilar, sonra on yarilar (uzaktan yakina) */
+      if (saydam.length){
+        gl.enable(gl.BLEND); gl.blendFunc(gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
+        gl.depthMask(false); gl.enable(gl.CULL_FACE);
+        saydam.forEach(function(e){
+          var g = geo(e.p, M.tur + ':' + e.ix), q = e.p._o;
+          e.z = R[6]*q[0] + R[7]*q[1] + R[8]*q[2]; e.r = g.rref;
+        });
+        gl.cullFace(gl.FRONT);
+        saydam.slice().sort(function(a2, b2){ return (a2.z - a2.r) - (b2.z - b2.r); })
+          .forEach(function(e){ ciz1(e.p, e.ix); });
+        gl.cullFace(gl.BACK);
+        saydam.slice().sort(function(a2, b2){ return (a2.z + a2.r) - (b2.z + b2.r); })
+          .forEach(function(e){ ciz1(e.p, e.ix); });
+        gl.disable(gl.CULL_FACE); gl.depthMask(true); gl.disable(gl.BLEND);
+      }
+      return true;
+    }
+    return {
+      hazirMi: function(){ if (!denendi) kur(); return hazir; },
+      ciz: ciz,
+      tuval: cv
+    };
+  })();
+
+  /* ---- ortak: bakis matrisi (yaw sonra egim), satir duzeninde ---- */
+  function bakis(yaw, pit){
+    var cy = Math.cos(yaw), sy = Math.sin(yaw), cp = Math.cos(pit), sp = Math.sin(pit);
+    return [cy, 0, sy,  sy*sp, cp, -cy*sp,  -sy*cp, sp, cy*cp];
+  }
+  /* parcanin uc noktalari: (eksene uzaklik, yukseklik) ciftleri */
+  function kaplama(p, o, fn){
+    var ox = o[0], oy = o[1], oz = o[2];
+    if (p.kutu){
+      var h = p.kutu;
+      [-1,1].forEach(function(sx){ [-1,1].forEach(function(sy2){ [-1,1].forEach(function(sz){
+        fn(Math.hypot(ox + sx*h[0], oz + sz*h[2]), oy + sy2*h[1]);
+      }); }); });
+    } else if (p.eksen === 'z'){
+      p.prof.forEach(function(q){
+        fn(Math.hypot(ox, oz + q[1]) + q[0], oy + q[0]);
+        fn(Math.hypot(ox, oz + q[1]) + q[0], oy - q[0]);
+      });
+    } else {
+      var d0 = Math.hypot(ox, oz);
+      p.prof.forEach(function(q){ fn(d0 + q[0], oy + q[1]); });
+    }
+  }
+  /* bir yukseklikteki dis yaricap (etiket capasi icin) */
+  function profR(prof, y){
+    var r = 0, i;
+    for (i = 0; i < prof.length - 1; i++){
+      var a = prof[i], b = prof[i+1], lo = Math.min(a[1], b[1]), hi = Math.max(a[1], b[1]);
+      if (y >= lo - 1e-6 && y <= hi + 1e-6){
+        var t = hi - lo > 1e-9 ? (y - a[1])/(b[1] - a[1]) : 0;
+        r = Math.max(r, a[0] + (b[0] - a[0])*Math.max(0, Math.min(1, t)));
+      }
+    }
+    return r;
+  }
+
+  /* ---- alt serit: BES TURUN GERCEK ORANLARI (TEK OLCEK), yandan siluet ---- */
+  function seritCiz(bx0, bx1, by1, altH, w){
+    var sy0 = by1 + 12*K.fs, sh = altH - 30*K.fs;
+    txt('AYNI ÖLÇEKTE BEŞ TÜR', bx0, sy0 - 2*K.fs, C.ink3, 9.5, 'left', MONO);
+    var enBoy = 0;
+    TSIRA.forEach(function(t2){ var A2 = mik3Al(t2); enBoy = Math.max(enBoy, A2.boy, A2.cap); });
+    var sk = sh/enBoy, gw = (bx1 - bx0)/TSIRA.length;
+    TSIRA.forEach(function(t2, ti){
+      var M2 = mik3Al(t2), sec = (t2 === S.tur);
+      var gx = bx0 + gw*(ti + 0.5), tb = sy0 + sh + 4*K.fs;
+      var col = sec ? C.sin : mixc(C.panel2, C.ink3, 0.45);
+      /* siluet: dis parcalarin her profil kesimi bir yamuk; birlesimi govdenin yan gorunusu */
+      var yAlt = 1e9;
+      M2.P.forEach(function(p){
+        if (p.ic || p.yan || p.kutu || p.eksen === 'z') return;
+        p.prof.forEach(function(q){ yAlt = Math.min(yAlt, q[1] + ((p.off && p.off[1]) || 0)); });
+      });
+      ctx.fillStyle = col;
+      var enAz = 1.2/sk;                            /* en az ~1 piksel gorunsun */
+      M2.P.forEach(function(p){
+        if (p.ic || p.yan || p.kutu || p.eksen === 'z') return;
+        var ox = (p.off && p.off[0]) || 0, oy = ((p.off && p.off[1]) || 0) - yAlt;
+        for (var i = 0; i < p.prof.length - 1; i++){
+          var a = p.prof[i], b = p.prof[i+1];
+          var ya = oy + a[1], yb = oy + b[1];
+          if (Math.abs(yb - ya) < enAz){ var ym2 = (ya + yb)/2; ya = ym2 - enAz/2; yb = ym2 + enAz/2; }
+          ctx.beginPath();
+          ctx.moveTo(gx + (ox - a[0])*sk, tb - ya*sk); ctx.lineTo(gx + (ox + a[0])*sk, tb - ya*sk);
+          ctx.lineTo(gx + (ox + b[0])*sk, tb - yb*sk); ctx.lineTo(gx + (ox - b[0])*sk, tb - yb*sk);
+          ctx.closePath(); ctx.fill();
+        }
+      });
+      txt(n(M2.boy,0) + '×' + n(M2.cap,0) + (w < 760 ? '' : ' mm'), gx, tb + 11*K.fs,
+          sec ? C.sin : C.ink3, w < 760 ? 8.5 : 9, 'center', MONO, sec ? 600 : 400);
+    });
+  }
+
+  /* ---- etiketler: iki yana dagitilan sutunlar, kilavuz cizgileriyle ---- */
+  function etiketCiz(etiket, cx, bx0, bx1, by0, by1, Rpx){
+    var LS = [], nm;
+    for (nm in etiket){ if (etiket.hasOwnProperty(nm)) LS.push({ ad:nm, e:etiket[nm] }); }
+    LS.sort(function(a,b){ return a.e.y - b.e.y; });
+    var ara = 17.5*K.fs, tav = by0 + 10*K.fs, tab = by1 - 10*K.fs;
+    var yan = Rpx + 200*K.fs;
+    var sx = [Math.max(bx0 + 6*K.fs, cx - yan), Math.min(bx1 - 6*K.fs, cx + yan)];
+    var alt = [tav, tav], son = [tav, tav];
+    LS.forEach(function(L, li){
+      var dxl = L.e.x - cx;                            /* yana cikan parca kendi tarafina */
+      L.s = Math.abs(dxl) > Rpx*0.45 ? (dxl > 0 ? 1 : 0) : li % 2;
+      L.ly = Math.max(alt[L.s], Math.min(tab, L.e.y));
+      alt[L.s] = L.ly + ara; son[L.s] = L.ly;
+    });
+    [0,1].forEach(function(sd){
+      var tas = son[sd] - tab;
+      if (tas > 0) LS.forEach(function(L){ if (L.s === sd) L.ly -= tas; });
+    });
+    LS.forEach(function(L){
+      var sag = L.s === 1, gen = tw(L.ad, 10.5, MONO, 600);
+      var kx = sag ? (sx[1] - gen - 12*K.fs) : (sx[0] + gen + 12*K.fs);
+      ctx.strokeStyle = L.e.col; LW(1.3); ctx.globalAlpha = 0.85;
+      ctx.beginPath();
+      ctx.moveTo(L.e.x, L.e.y);
+      ctx.lineTo(kx + (sag ? -10*K.fs : 10*K.fs), L.ly);
+      ctx.lineTo(kx, L.ly);
+      ctx.stroke(); ctx.globalAlpha = 1;
+      dot(L.e.x, L.e.y, 3.2, L.e.col);
+      txt(L.ad, sx[L.s], L.ly, L.e.col, 10.5, sag ? 'right' : 'left', MONO, 600);
+    });
+  }
 
   function drawUc(w, h){
+    if (!GL3.hazirMi()){ drawUc2D(w, h); return; }
     var pad = 16*K.fs;
     var M = mik3Al(S.tur), u = S.ucPat;
     var etiketliMi = (u > 0.10) || S.ucKesit;
+    sahneBaslik(w, '3B GÖVDE  ·  ' + (u > 0.02 ? 'parçalarına ayrıldı' : 'gerçek ölçüler') +
+                   '  ·  sürükleyerek döndürün',
+      M.ad + '  ·  ' + n(M.boy,0) + ' × Ø' + n(M.cap,0) + ' mm' +
+      (S.ucKesit ? '  ·  KESİT' : ''),
+      C.arc, M.ad + (S.ucKesit ? ' · kesit' : ''));
+
+    var top = 40*K.fs, altH = 74*K.fs;
+    var bx0 = pad, bx1 = w - pad, by0 = top, by1 = h - altH;
+    var cx = (bx0 + bx1)/2, cy = (by0 + by1)/2;
+    var yaw = S.ucYaw, pit = M.egim, R = bakis(yaw, pit);
+    var cp = Math.cos(pit), sp = Math.sin(pit);
+
+    /* --- parcalarin o anki yeri + DONMEDEN BAGIMSIZ kaplama (dondururken olcek oynamasin) --- */
+    var Rm = 1, yLo = 1e9, yHi = -1e9, E = [], yA = 1e9, yB = -1e9, ie;
+    M.P.forEach(function(p){
+      p._u = yumusat((u - p.sira*0.40)/0.60);
+      p._d = [p.pat[0]*p._u, p.pat[1]*p._u, p.pat[2]*p._u];
+      p._o = [((p.off && p.off[0]) || 0) + p._d[0], ((p.off && p.off[1]) || 0) + p._d[1],
+              ((p.off && p.off[2]) || 0) + p._d[2]];
+      kaplama(p, p._o, function(rr, y){ E.push(rr, y); yA = Math.min(yA, y); yB = Math.max(yB, y); });
+    });
+    var yPiv = (yA + yB)/2;                        /* govde kendi ortasi etrafinda egiliyor */
+    for (ie = 0; ie < E.length; ie += 2){
+      var rr0 = E[ie], yy0 = E[ie+1] - yPiv;
+      Rm = Math.max(Rm, rr0);
+      yLo = Math.min(yLo, yy0*cp - rr0*sp); yHi = Math.max(yHi, yy0*cp + rr0*sp);
+    }
+    var Hm = Math.max(1e-3, yHi - yLo), ym = (yLo + yHi)/2;
+    var enX = (bx1 - bx0)*(etiketliMi ? 0.22 : 0.42);
+    var k = Math.min(enX/Rm, (by1 - by0)*0.92/Hm);
+
+    /* yumusak zemin golgesi */
+    var gy = Math.min(by1 - 4*K.fs, cy + (ym - yLo)*k + 5*K.fs);
+    var gr = Math.max(8, Math.min(Rm*k*1.25, (bx1 - bx0)*0.22));
+    ctx.save(); ctx.translate(cx, gy); ctx.scale(1, 0.16);
+    var gg = ctx.createRadialGradient(0, 0, 0, 0, 0, gr);
+    gg.addColorStop(0, rgbaS(K.glow ? '#000000' : C.ink, K.glow ? 0.55 : 0.20));
+    gg.addColorStop(1, rgbaS(K.glow ? '#000000' : C.ink, 0));
+    ctx.fillStyle = gg; ctx.beginPath(); ctx.arc(0, 0, gr, 0, TAU); ctx.fill();
+    ctx.restore();
+
+    /* Uyarlanir cozunurluk: ekran karti olmayan (yazilimla WebGL cizen) bir
+       makinede kare 50 ms'yi asarsa 3B goruntu daha dusuk cozunurlukte
+       cizilir; surukleme ve acilma akici kalir.                              */
+    var dpr = Math.min(window.devicePixelRatio || 1, 2)*(GL_MS > 50 ? 0.6 : 1);
+    var t0g = (window.performance && performance.now) ? performance.now() : Date.now();
+    var ok = GL3.ciz(M, { w:w, h:h, dpr:dpr, cx:cx, cy:cy, k:k, yp:yPiv, ym:ym, R:R, yaw:yaw,
+                          kes:S.ucKesit, zr:Math.max(Hm, 2*Rm)*1.6 });
+    if (!ok){ drawUc2D(w, h); return; }
+    ctx.drawImage(GL3.tuval, 0, 0, w, h);
+    var t1g = (window.performance && performance.now) ? performance.now() : Date.now();
+    GL_MS = GL_MS*0.6 + (t1g - t0g)*0.4;
+
+    /* --- parca etiketleri: her parcanin kameraya bakan yuzunde bir capa --- */
+    if (etiketliMi){
+      var etiket = {}, dcx = -Math.sin(yaw), dcz = Math.cos(yaw);
+      M.P.forEach(function(p){
+        if (!p.ad) return;
+        var o = p._o, ax, ay, az, kesik = S.ucKesit && (!p.ic || p.kes);
+        if (p.kutu){
+          ax = o[0] + dcx*p.kutu[0]*0.5; ay = o[1]; az = o[2] + dcz*p.kutu[2];
+        } else if (p.eksen === 'z'){
+          var rz = 0, z0 = 1e9, z1 = -1e9;
+          p.prof.forEach(function(q){ rz = Math.max(rz, q[0]); z0 = Math.min(z0, q[1]); z1 = Math.max(z1, q[1]); });
+          ax = o[0]; ay = o[1] + rz*0.35; az = o[2] + (z0 + z1)/2;
+        } else {
+          var lo = 1e9, hi = -1e9;
+          p.prof.forEach(function(q){ lo = Math.min(lo, q[1]); hi = Math.max(hi, q[1]); });
+          var yy = (lo + hi)/2, rr = kesik ? 0 : profR(p.prof, yy);
+          ax = o[0] + dcx*rr; ay = o[1] + yy; az = o[2] + dcz*rr;
+        }
+        ay -= yPiv;
+        var vx = R[0]*ax + R[1]*ay + R[2]*az,
+            vy = R[3]*ax + R[4]*ay + R[5]*az - ym,
+            vz = R[6]*ax + R[7]*ay + R[8]*az;
+        var f = CAMD/(CAMD - vz);
+        etiket[p.ad] = { x:cx + vx*k*f, y:cy - vy*k*f, col:p.col };
+      });
+      etiketCiz(etiket, cx, bx0, bx1, by0, by1, Rm*k);
+    }
+    seritCiz(bx0, bx1, by1, altH, w);
+  }
+
+  /* ---------- 2B YEDEK CIZER (WebGL yoksa) ---------- */
+  function drawUc2D(w, h){
+    var pad = 16*K.fs;
+    var M = mik3Al(S.tur), u = S.ucPat;
+    var etiketliMi = (u > 0.10) || S.ucKesit;
+    var VY = S.ucYaw, VP = M.egim;
     sahneBaslik(w, '3B GÖVDE  ·  ' + (u > 0.02 ? 'parçalarına ayrıldı' : 'gerçek ölçüler'),
       M.ad + '  ·  ' + n(M.boy,0) + ' × Ø' + n(M.cap,0) + ' mm' +
       (S.ucKesit ? '  ·  KESİT' : ''),
@@ -2025,7 +2638,6 @@
     var bx0 = pad, bx1 = w - pad, by0 = top, by1 = h - altH;
     var cx = (bx0 + bx1)/2, cy = (by0 + by1)/2;
 
-    /* --- parcalarin o anki yerleri + kaplayan kutu --- */
     var yMin = 1e9, yMax = -1e9, Rm = 1, i, j;
     M.P.forEach(function(p){
       p._u = yumusat((u - p.sira*0.40)/0.60);
@@ -2052,14 +2664,13 @@
     var enX = (bx1 - bx0)*(etiketliMi ? 0.22 : 0.42);
     var k = Math.min(enX/Rm, (by1 - by0)*0.47/(Hm/2));
 
-    /* --- dortgenleri topla, dondur, isikla --- */
     var QS = [], CIZ = [], etiket = {};
     M.P.forEach(function(p){
       if (S.ucKesit || u > 0.02 || !p.ic){
         var o = { off:[((p.off&&p.off[0])||0) + p._d[0],
                        ((p.off&&p.off[1])||0) + p._d[1],
                        ((p.off&&p.off[2])||0) + p._d[2]],
-                  eksen:p.eksen, seg:p.seg, mat:MAT[p.mat] || MAT.mat,
+                  eksen:p.eksen, seg:p.seg, mat:mat2(p),
                   col:p.col, ic:p.ic, kes:p.kes, ad:p.ad };
         (p.kutu ? kutuYuz(p.kutu[0], p.kutu[1], p.kutu[2], o)
                 : donelYuz(p.prof, o)).forEach(function(q){ QS.push(q); });
@@ -2068,7 +2679,6 @@
     QS.forEach(function(q){
       var V = q.v.map(function(p){ return dondur([p[0], p[1]-yOrt, p[2]], VY, VP); });
       var vz = (V[0][2]+V[1][2]+V[2][2]+V[3][2])/4;
-      /* KESIT: kabugun KAMERAYA YAKIN yarisi kalkiyor, ic parcalar butun kaliyor. */
       if (S.ucKesit && (!q.o.ic || q.o.kes) && vz > 0) return;
       var nz = normal(V), arka = nz[2] < 0;
       if (arka && !S.ucKesit) return;
@@ -2091,9 +2701,8 @@
     });
     CIZ.sort(function(a,b){ return a.z - b.z; });
 
-    /* zemin golgesi */
     var gr = Math.min(Rm*k*1.1, (bx1-bx0)*0.15);
-    var gy = Math.min(by1 - 6*K.fs, cy + (Hm/2)*k + 16*K.fs);   /* golge modelin dibinde */
+    var gy = Math.min(by1 - 6*K.fs, cy + (Hm/2)*k + 16*K.fs);
     ctx.fillStyle = C.ink3; ctx.globalAlpha = 0.10;
     ctx.beginPath();
     ctx.ellipse(cx, gy, gr, gr*0.20, 0, 0, TAU);
@@ -2107,9 +2716,7 @@
       ctx.lineTo(q.p[3][0], q.p[3][1]);
       ctx.closePath();
       ctx.fillStyle = q.col; ctx.fill();
-      ctx.strokeStyle = q.col; LW(0.7); ctx.stroke();   /* dikis izini kapatir */
-      /* TEL IZGARA: yuzeye gercek delikler. Dama tahtasi dokusu golf topu gibi
-         duruyordu; delinmis sac bir adim daha gercek. */
+      ctx.strokeStyle = q.col; LW(0.7); ctx.stroke();
       if (q.delik){
         var mx = (q.p[0][0]+q.p[1][0]+q.p[2][0]+q.p[3][0])/4;
         var my = (q.p[0][1]+q.p[1][1]+q.p[2][1]+q.p[3][1])/4;
@@ -2122,58 +2729,8 @@
         }
       }
     });
-
-    /* --- parca etiketleri: sag sutun, her parca kendi yuksekliginde --- */
-    if (etiketliMi){
-      var LS = [], nm;
-      for (nm in etiket){ if (etiket.hasOwnProperty(nm)) LS.push({ ad:nm, e:etiket[nm] }); }
-      LS.sort(function(a,b){ return a.e.y - b.e.y; });
-      /* Etiketler IKI YANA dagitiliyor: tek sutunda kilavuz cizgileri tuvali boydan
-         boya kesiyor ve dikey sikisma iki katina cikiyordu. */
-      var ara = 17.5*K.fs, tav = by0 + 10*K.fs, tab = by1 - 10*K.fs;
-      /* Sutunlar modelin hemen yanina: tuval kenarina yapisinca kilavuz cizgileri
-         gereksiz yere yarim ekran boyu uzuyordu. */
-      var yan = Rm*k + 200*K.fs;
-      var sx = [Math.max(bx0 + 6*K.fs, cx - yan), Math.min(bx1 - 6*K.fs, cx + yan)];
-      var alt = [tav, tav], son = [tav, tav];
-      LS.forEach(function(L, li){
-        L.s = li % 2;                                  /* 0 sol, 1 sag */
-        L.ly = Math.max(alt[L.s], Math.min(tab, L.e.y));
-        alt[L.s] = L.ly + ara; son[L.s] = L.ly;
-      });
-      [0,1].forEach(function(sd){
-        var tas = son[sd] - tab;
-        if (tas > 0) LS.forEach(function(L){ if (L.s === sd) L.ly -= tas; });
-      });
-      LS.forEach(function(L){
-        var sag = L.s === 1, gen = tw(L.ad, 10.5, MONO, 600);
-        var kx = sag ? (sx[1] - gen - 12*K.fs) : (sx[0] + gen + 12*K.fs);
-        ctx.strokeStyle = L.e.col; LW(1.3); ctx.globalAlpha = 0.80;
-        ctx.beginPath();
-        ctx.moveTo(L.e.x, L.e.y);
-        ctx.lineTo(kx + (sag ? -10*K.fs : 10*K.fs), L.ly);
-        ctx.lineTo(kx, L.ly);
-        ctx.stroke(); ctx.globalAlpha = 1;
-        dot(L.e.x, L.e.y, 3.2, L.e.col);
-        txt(L.ad, sx[L.s], L.ly, L.e.col, 10.5, sag ? 'right' : 'left', MONO, 600);
-      });
-    }
-
-    /* --- alt serit: BES TURUN GERCEK ORANLARI (TEK OLCEK) --- */
-    var sy0 = by1 + 12*K.fs, sh = altH - 30*K.fs;
-    txt('AYNI ÖLÇEKTE BEŞ TÜR', bx0, sy0 - 2*K.fs, C.ink3, 9.5, 'left', MONO);
-    var enBoy = 0;
-    TSIRA.forEach(function(t2){ var A = mik3Al(t2); enBoy = Math.max(enBoy, A.boy, A.cap); });
-    var sk = sh/enBoy, gw = (bx1 - bx0)/TSIRA.length;
-    TSIRA.forEach(function(t2, ti){
-      var M2 = mik3Al(t2), sec = (t2 === S.tur);
-      var gx = bx0 + gw*(ti + 0.5), tb = sy0 + sh + 4*K.fs;
-      var ww = Math.max(2, M2.cap*sk), hh = Math.max(2, M2.boy*sk);
-      ctx.fillStyle = sec ? C.sin : C.ink3; ctx.globalAlpha = sec ? 0.95 : 0.32;
-      ctx.fillRect(gx - ww/2, tb - hh, ww, hh); ctx.globalAlpha = 1;
-      txt(n(M2.boy,0) + '×' + n(M2.cap,0) + (w < 760 ? '' : ' mm'), gx, tb + 11*K.fs,
-          sec ? C.sin : C.ink3, w < 760 ? 8.5 : 9, 'center', MONO, sec ? 600 : 400);
-    });
+    if (etiketliMi) etiketCiz(etiket, cx, bx0, bx1, by0, by1, Rm*k);
+    seritCiz(bx0, bx1, by1, altH, w);
   }
 
   /* ---------- yonetici ---------- */
@@ -2191,10 +2748,14 @@
   window.addEventListener('resize', render);
 
   /* ---------- animasyon ---------- */
+  /* Hareket azaltma acikken (Windows'ta "animasyonlari goster" kapaliyken, uzak
+     masaustunde...) eskiden HIC animasyon calismiyordu: parcalarina ayir dugmesi
+     yazisini degistiriyor ama govde yerinden kipirdamiyordu. Simdi: kendiliginden
+     baslayan hareket yok; patlatma animasyonsuz, ANINDA aciliyor; donusum
+     hareketi yalniz kullanici dugmeye basarsa basliyor.                           */
   function canliMi(){
-    if (REDUCED) return false;
     if (S.mode === 'don') return S.anim;
-    if (S.mode === 'uc')  return S.ucPat !== S.ucHedef;
+    if (S.mode === 'uc')  return !REDUCED && S.ucPat !== S.ucHedef;
     return false;
   }
   var patT = 0;
@@ -2204,7 +2765,10 @@
     if (S.mode === 'uc'){
       /* Patlatma tweeni: ~1,25 sn'de acilip kapaniyor. Her parcanin kendi
          gecikmesi drawUc icinde (sira) veriliyor, burada tek ilerleme var. */
-      var t2 = nowS(), dt = Math.min(0.05, patT ? (t2 - patT) : 0.016);
+      /* Duvar saatine gore: yavas bir makinede kare seyrek gelse de acilma
+         ~1,25 sn'de biter. Eskiden adim kare basina 0,05 sn ile sinirliydi ve
+         zayif bir bilgisayarda govde agir cekimde aciliyordu.                */
+      var t2 = nowS(), dt = Math.min(0.25, patT ? (t2 - patT) : 0.016);
       patT = t2;
       var yon = S.ucHedef > S.ucPat ? 1 : -1, adim = dt/1.25;
       S.ucPat += yon*adim;
@@ -2409,8 +2973,31 @@
   document.getElementById('ucpat').addEventListener('click', function(){
     S.ucHedef = S.ucHedef ? 0 : 1;
     patT = 0;
+    if (REDUCED) S.ucPat = S.ucHedef;          /* hareket azaltilmis: aninda ac / kapa */
     if (canliMi()) startAnim();
     sync(); render();
+  });
+
+  /* 3B govde: YATAY surukleyince eksen etrafinda doner, cift tik basa dondurur */
+  var surukle = null;
+  board.addEventListener('pointerdown', function(e){
+    if (S.mode !== 'uc') return;
+    surukle = { x:e.clientX, yaw:S.ucYaw, id:e.pointerId };
+    try { board.setPointerCapture(e.pointerId); } catch(er){}
+    board.classList.add('tutuyor');
+  });
+  board.addEventListener('pointermove', function(e){
+    if (!surukle || e.pointerId !== surukle.id) return;
+    S.ucYaw = surukle.yaw + (e.clientX - surukle.x)*0.011;
+    render();
+  });
+  function birak(e){
+    if (surukle && (!e || e.pointerId === surukle.id)){ surukle = null; board.classList.remove('tutuyor'); }
+  }
+  board.addEventListener('pointerup', birak);
+  board.addEventListener('pointercancel', birak);
+  board.addEventListener('dblclick', function(){
+    if (S.mode === 'uc'){ S.ucYaw = YAW0; render(); }
   });
 
   var fFrq = document.getElementById('f-frq'), fSpl = document.getElementById('f-spl'),
@@ -2633,7 +3220,8 @@
       ['tur','spl','frq','f0','q','mgos','gap','cap','ima','hspl','gain'].forEach(function(k){
         if (a[k] !== undefined) S[k] = a[k];
       });
-      if (a.anim !== undefined) S.anim = a.anim;
+      if (a.anim !== undefined) S.anim = a.anim && !REDUCED;
+      if (a.mode === 'uc') S.ucYaw = YAW0;
       if (a.ucKesit !== undefined) S.ucKesit = a.ucKesit;
       if (a.ucPat !== undefined){ S.ucPat = a.ucPat; S.ucHedef = a.ucPat; }
       fSpl.value = S.spl; fQ.value = S.q; fGap.value = S.gap; fCap.value = S.cap;
@@ -2738,6 +3326,7 @@
   /* ================= baslangic ================= */
   fFrq.value = logPos(S.frq, 20, 16000);
   fF0.value = logPos(S.f0, 20, 20000);
+  if (REDUCED) S.anim = false;
   setMode('don');
   setStep(0, false);
   renderQ();
