@@ -1,0 +1,1988 @@
+<!DOCTYPE html>
+<html lang="tr">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Ölçüm Cihazları: Voltmetre ve Ampermetre</title>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400..600;1,6..72,400&family=Chakra+Petch:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+  :root{
+    --ground:#E5ECF3; --panel:#FFFFFF; --panel-2:#F1F6FA;
+    --ink:#0B1620; --ink-2:#3F5265; --ink-3:#697E92;
+    --line:#C7D4E0; --line-2:#DEE7EF;
+    --sin:#A8600A; --cos:#0F5F80; --arc:#A81E6E; --brass:#4A7A12;
+    --on-sin:#FFFFFF; --ok:#1E6B45; --no:#A8203C;
+    --shadow:0 1px 2px rgba(11,22,32,.06), 0 8px 20px -14px rgba(11,22,32,.26);
+    --fs:15px;
+    --board-h:clamp(430px,43vw,520px);
+    --board-vm:clamp(560px,56vw,644px);
+    --board-am:clamp(560px,56vw,644px);
+    --board-hata:clamp(560px,56vw,644px);
+    --board-mm:clamp(575px,57vw,661px);
+    --font-display:"Chakra Petch","IBM Plex Sans",sans-serif;
+    --h1:clamp(30px,4.5vw,46px);
+    --h2:clamp(21px,2.5vw,28px);
+    --track:.02em; --radius:2px; --radius-s:2px;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --ground:#070F17; --panel:#0E1720; --panel-2:#13202C;
+      --ink:#E7F2FB; --ink-2:#9FB6C9; --ink-3:#6B8296;
+      --line:#213240; --line-2:#182533;
+      --sin:#FFB01F; --cos:#4FD3FF; --arc:#FF6AC1; --brass:#A8FF60;
+      --on-sin:#0A1017; --ok:#3EE59B; --no:#FF5F86;
+      --shadow:0 0 0 1px rgba(79,211,255,.07), 0 12px 30px -18px rgba(0,0,0,.9);
+    }
+  }
+  :root[data-theme="dark"]{
+    --ground:#070F17; --panel:#0E1720; --panel-2:#13202C;
+    --ink:#E7F2FB; --ink-2:#9FB6C9; --ink-3:#6B8296;
+    --line:#213240; --line-2:#182533;
+    --sin:#FFB01F; --cos:#4FD3FF; --arc:#FF6AC1; --brass:#A8FF60;
+    --on-sin:#0A1017; --ok:#3EE59B; --no:#FF5F86;
+    --shadow:0 0 0 1px rgba(79,211,255,.07), 0 12px 30px -18px rgba(0,0,0,.9);
+  }
+  :root[data-mode="proj"]{
+    --ground:#F3F8FC; --panel:#FFFFFF; --panel-2:#EDF4F9;
+    --ink:#040B12; --ink-2:#2A3A49; --ink-3:#546678;
+    --line:#ADBFCE; --line-2:#D2DEE9;
+    --sin:#8A4D00; --cos:#084A66; --arc:#8A1258; --brass:#3A6208;
+    --on-sin:#FFFFFF; --ok:#14512F; --no:#8A1428;
+    --shadow:0 1px 2px rgba(11,22,32,.09), 0 8px 20px -14px rgba(11,22,32,.3);
+    --fs:17px;
+    --board-h:clamp(470px,47vw,572px);
+    --board-vm:clamp(610px,61vw,700px);
+    --board-am:clamp(610px,61vw,700px);
+    --board-hata:clamp(610px,61vw,700px);
+    --board-mm:clamp(625px,62vw,718px);
+  }
+  @media (max-width:820px){
+    :root, :root[data-mode="proj"]{ --board-r:580px; }
+  }
+  @media (max-width:760px){
+    :root, :root[data-mode="proj"]{
+      --board-h:520px;
+      --board-vm:820px; --board-am:840px; --board-hata:820px; --board-mm:880px;
+    }
+  }
+
+  *{box-sizing:border-box}
+  body{
+    background:var(--ground);color:var(--ink);
+    font-family:"IBM Plex Sans","Helvetica Neue",Arial,sans-serif;
+    font-size:var(--fs);line-height:1.6;-webkit-font-smoothing:antialiased;
+  }
+  .wrap{max-width:1160px;margin:0 auto;padding:34px 20px 60px;display:flex;flex-direction:column;gap:14px}
+
+  .topbar{display:flex;gap:28px;justify-content:space-between;align-items:flex-start;margin-bottom:12px}
+  @media (max-width:640px){.topbar{flex-direction:column-reverse;align-items:flex-start;gap:16px}}
+  .theme{display:flex;flex:0 0 auto;flex-wrap:wrap;border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;background:var(--panel);box-shadow:var(--shadow)}
+  .theme button{border:0;border-left:1px solid var(--line);border-radius:0;background:transparent;font-size:12.5px;padding:8px 12px;color:var(--ink-2)}
+  .theme button:first-child{border-left:0}
+  .theme button:hover{background:var(--panel-2);color:var(--ink)}
+  .theme button[aria-pressed="true"]{background:var(--ink);color:var(--panel);font-weight:500}
+  .theme button:focus-visible{outline:2px solid var(--arc);outline-offset:-2px}
+  header{display:flex;flex-direction:column;gap:9px;max-width:66ch}
+  .eyebrow{margin:0;font-size:11.5px;font-weight:600;letter-spacing:.13em;text-transform:uppercase;color:var(--ink-3)}
+  h1{margin:0;font-family:var(--font-display);font-weight:500;font-size:var(--h1);line-height:1.06;letter-spacing:var(--track);text-wrap:balance}
+  .lede{margin:2px 0 0;color:var(--ink-2);font-size:16.5px;text-wrap:pretty}
+  .lede b{color:var(--ink);font-weight:600}
+
+  section.sec{display:flex;flex-direction:column;gap:14px;padding-top:22px}
+  .sec-head{display:flex;align-items:baseline;gap:14px;border-bottom:1px solid var(--line);padding-bottom:9px}
+  .sec-num,.num{font-family:"IBM Plex Mono",monospace;font-size:12px;font-weight:500;color:var(--brass);letter-spacing:.06em;flex:0 0 auto;padding-top:5px}
+  .sec-head h2{margin:0;font-family:var(--font-display);font-weight:500;font-size:var(--h2);letter-spacing:var(--track);line-height:1.15;text-wrap:balance}
+  .sec-head p{margin:0;color:var(--ink-3);font-size:13px;margin-left:auto;flex:0 0 auto;text-align:right}
+  @media (max-width:620px){.sec-head p{display:none}}
+
+  .panel{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow)}
+
+  .why{display:grid;grid-template-columns:1fr 1.12fr;gap:20px 28px;align-items:center}
+  @media (max-width:860px){.why{grid-template-columns:1fr;align-items:start}}
+  .why-lead{display:flex;flex-direction:column;gap:13px;padding-bottom:4px}
+  .why-more{display:grid;grid-template-columns:repeat(auto-fit,minmax(255px,1fr));gap:16px 28px;margin-top:6px}
+  .why-lead p,.why-more p{margin:0;color:var(--ink-2)}
+  .why-lead p b,.why-more p b{color:var(--ink);font-weight:600}
+  .cols3{display:grid;grid-template-columns:repeat(3,1fr);gap:16px 28px}
+  @media (max-width:900px){.cols3{grid-template-columns:1fr}}
+  .cols3 p{margin:0;color:var(--ink-2);font-size:14px;line-height:1.6}
+  .cols3 p b{color:var(--ink);font-weight:600}
+  .cols .intro-col{display:flex;flex-direction:column;gap:12px}
+  .cols .intro-col p{margin:0;color:var(--ink-2)}
+  .cols .intro-col p b{color:var(--ink);font-weight:600}
+  p.pull{font-size:16px;color:var(--ink)!important;border-left:3px solid var(--sin);
+    padding-left:13px}
+  .panel-body.nopad{padding:0;gap:0}
+  .quiz{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);
+    box-shadow:var(--shadow);padding:16px 18px 18px;display:flex;flex-direction:column;gap:12px}
+  .q-head{display:flex;align-items:baseline;justify-content:space-between;gap:14px}
+  .q-head .count{font-family:"IBM Plex Mono",monospace;font-size:12px;color:var(--ink-3);
+    font-variant-numeric:tabular-nums;flex:0 0 auto}
+  .q-head .q-text{font-size:16px;font-weight:500;text-wrap:pretty}
+  .quiz > button{align-self:flex-start}
+  .kicker{font-family:"Newsreader",Georgia,serif;font-size:clamp(21px,2.2vw,26px);line-height:1.28;color:var(--ink);font-style:italic;max-width:29ch;letter-spacing:-.01em;text-wrap:balance}
+  .trio-list{display:flex;flex-direction:column;gap:1px;background:var(--line);
+    border:1px solid var(--line);border-radius:var(--radius);overflow:hidden}
+  .tl{background:var(--panel);padding:13px 15px 14px;border-left:3px solid var(--line)}
+  .tl-1{border-left-color:var(--sin)} .tl-2{border-left-color:var(--arc)}
+  .tl-3{border-left-color:var(--cos)}
+  .tl h3{margin:0 0 3px;font-family:var(--font-display);font-weight:500;font-size:15.5px;
+    letter-spacing:var(--track)}
+  .tl p{margin:0;font-size:13.5px;line-height:1.5;color:var(--ink-2)}
+  .tl p b{color:var(--ink);font-weight:600}
+  .tl code{font-size:.92em}
+
+  .defs{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--line);border:1px solid var(--line);border-radius:var(--radius);overflow:hidden}
+  @media (max-width:880px){.defs{grid-template-columns:repeat(2,1fr)}}
+  @media (max-width:560px){.defs{grid-template-columns:1fr}}
+  .def{background:var(--panel);padding:16px 17px 18px;display:flex;flex-direction:column;gap:7px}
+  .def h3{margin:0;font-size:14.5px;font-weight:600;display:flex;align-items:baseline;gap:8px;flex-wrap:wrap}
+  .def h3 em{font-style:normal;font-family:"IBM Plex Mono",monospace;font-size:11.5px;color:var(--ink-3);font-weight:400}
+  .def p{margin:0;font-size:13.8px;color:var(--ink-2);line-height:1.55}
+  .def p b{color:var(--ink);font-weight:600}
+  code{font-family:"IBM Plex Mono",monospace;font-size:.9em;background:var(--panel-2);border:1px solid var(--line-2);padding:1px 5px;border-radius:var(--radius-s)}
+
+  .lang{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--line);border:1px solid var(--line);border-radius:var(--radius);overflow:hidden}
+  @media (max-width:1000px){.lang{grid-template-columns:repeat(2,1fr)}}
+  @media (max-width:560px){.lang{grid-template-columns:1fr}}
+  .lg{background:var(--panel);padding:16px 17px 18px;display:flex;flex-direction:column;gap:8px}
+  .lg-top{display:flex;align-items:baseline;justify-content:space-between;gap:8px}
+  .lg h3{margin:0;font-size:14.5px;font-weight:600}
+  .lg .unit{font-family:"IBM Plex Mono",monospace;font-size:11px;color:var(--ink-3)}
+  .lg p{margin:0;font-size:13.8px;color:var(--ink-2);line-height:1.55}
+  .lg .music{margin-top:2px;font-size:12.5px;color:var(--ink);border-left:2px solid var(--brass);padding-left:9px}
+  .lg .music b{font-weight:600}
+
+  .stage{padding:0;overflow:hidden}
+  .stage-top,.stage-head{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px;padding:13px 16px;border-bottom:1px solid var(--line-2)}
+  .modes{display:flex;flex-wrap:wrap;border:1px solid var(--line);border-radius:var(--radius);overflow:hidden}
+  .modes button{border:0;border-left:1px solid var(--line);border-radius:0;background:var(--panel-2);font-size:13px;padding:8px 15px;color:var(--ink-2);font-weight:500}
+  .modes button:first-child{border-left:0}
+  .modes button:hover{color:var(--ink)}
+  .modes button[aria-pressed="true"]{background:var(--sin);color:var(--on-sin)}
+  .readout{display:flex;flex-wrap:wrap;font-family:"IBM Plex Mono",ui-monospace,monospace;font-variant-numeric:tabular-nums;font-size:13px}
+  .readout div{padding:0 13px;border-left:1px solid var(--line-2)}
+  .readout div:first-child{border-left:0;padding-left:0}
+  .readout b{font-weight:500}
+  .readout span{color:var(--ink-3);font-size:11px;letter-spacing:.06em;text-transform:uppercase;display:block;line-height:1.3}
+  .v-sin{color:var(--sin)} .v-cos{color:var(--cos)} .v-arc{color:var(--arc)}
+
+  .canvas-wrap{background:var(--panel-2);border-bottom:1px solid var(--line-2)}
+  #board{display:block;width:100%;height:var(--board-h);touch-action:none;cursor:crosshair}
+  .stage[data-scene="vm"] #board{height:var(--board-vm)}
+  .stage[data-scene="am"] #board{height:var(--board-am)}
+  .stage[data-scene="hata"] #board{height:var(--board-hata)}
+  .stage[data-scene="mm"] #board{height:var(--board-mm)}
+
+  #board.tut{cursor:grab}
+  #board.tut:active{cursor:grabbing}
+
+  .controls{padding:15px 16px 17px;display:flex;flex-direction:column;gap:14px}
+  .ctl-row{display:flex;flex-wrap:wrap;gap:14px 20px;align-items:center}
+  .ctl-row[hidden]{display:none}
+  .field[hidden]{display:none}
+  .btn-group[hidden]{display:none}
+  .ctl-label{font-size:11px;font-weight:600;letter-spacing:.09em;text-transform:uppercase;color:var(--ink-3);flex:0 0 auto}
+  .field{display:flex;flex-direction:column;gap:5px;min-width:172px;flex:1 1 172px;max-width:300px}
+  .field label{font-size:11px;font-weight:600;letter-spacing:.09em;text-transform:uppercase;color:var(--ink-3);display:flex;justify-content:space-between;gap:10px}
+  .field label em{font-style:normal;font-family:"IBM Plex Mono",monospace;font-variant-numeric:tabular-nums;letter-spacing:0;text-transform:none;font-size:12px;color:var(--ink-2)}
+
+  input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:20px;background:transparent;margin:0}
+  input[type=range]::-webkit-slider-runnable-track{height:4px;background:var(--line);border-radius:2px}
+  input[type=range]::-moz-range-track{height:4px;background:var(--line);border-radius:2px}
+  input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;width:16px;height:16px;border-radius:50%;background:var(--arc);border:2px solid var(--panel);margin-top:-6px;box-shadow:0 0 0 1px var(--arc)}
+  input[type=range]::-moz-range-thumb{width:14px;height:14px;border-radius:50%;background:var(--arc);border:2px solid var(--panel);box-shadow:0 0 0 1px var(--arc)}
+  input[type=range]:focus-visible{outline:2px solid var(--arc);outline-offset:4px}
+
+  button{font:inherit;font-size:13.5px;color:var(--ink);background:var(--panel-2);border:1px solid var(--line);padding:7px 13px;border-radius:var(--radius-s);cursor:pointer;transition:background .13s,border-color .13s,color .13s}
+  button:hover{border-color:var(--ink-3)}
+  button:focus-visible{outline:2px solid var(--arc);outline-offset:2px}
+  button:disabled{opacity:.42;cursor:default}
+  button.on{background:var(--ink);border-color:var(--ink);color:var(--panel)}
+  .ctl-note{font-size:12px;color:var(--ink-3);font-family:"IBM Plex Mono",monospace;
+    letter-spacing:.01em;min-width:0;flex:1 1 138px;line-height:1.35}
+  .btn-group{display:flex;flex-wrap:wrap;gap:6px}
+  .btn-group.sm button{font-size:12.5px;padding:5px 9px}
+
+  .cols{display:grid;grid-template-columns:1.3fr 1fr;gap:16px;align-items:start}
+  @media (max-width:880px){.cols{grid-template-columns:1fr}}
+  .panel-head{display:flex;align-items:baseline;justify-content:space-between;gap:12px;padding:13px 18px 11px;border-bottom:1px solid var(--line-2)}
+  .panel-head h3{margin:0;font-family:var(--font-display);font-weight:500;font-size:19px;letter-spacing:var(--track)}
+  .panel-head .count{font-family:"IBM Plex Mono",monospace;font-size:12px;color:var(--ink-3);font-variant-numeric:tabular-nums}
+  .panel-body{padding:16px 18px 18px;display:flex;flex-direction:column;gap:13px}
+  .step-title{font-family:var(--font-display);font-size:21px;font-weight:500;line-height:1.22;margin:0;letter-spacing:var(--track);text-wrap:balance}
+  .step-body{margin:0;color:var(--ink-2)}
+  .step-body strong{color:var(--ink);font-weight:600}
+  .step-nav{display:flex;gap:8px;align-items:center;margin-top:auto;padding-top:4px;flex-wrap:wrap}
+  /* 34 nokta dar ekranda paneli tasiriyordu: sarmali ve sutunlar daralabilir. */
+  .dots{display:flex;flex-wrap:wrap;gap:5px;margin-left:auto;justify-content:flex-end}
+  .cols>*{min-width:0}
+  .dot{width:7px;height:7px;border-radius:50%;background:var(--line);border:0;padding:0;cursor:pointer}
+  .dot:hover{background:var(--ink-3)}
+  .dot[aria-current="true"]{background:var(--arc)}
+
+  table{width:100%;border-collapse:collapse;font-family:"IBM Plex Mono",monospace;font-size:12.5px;font-variant-numeric:tabular-nums}
+  th,td{text-align:right;padding:6px 8px;border-bottom:1px solid var(--line-2)}
+  th:first-child,td:first-child{text-align:left}
+  th:last-child,td:last-child{text-align:left}
+  thead th{font-family:"IBM Plex Sans",sans-serif;font-size:10.5px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-3);border-bottom:1px solid var(--line)}
+  tbody tr{cursor:pointer}
+  tbody tr:hover{background:var(--panel-2)}
+  tbody tr[aria-selected="true"]{background:color-mix(in srgb,var(--arc) 13%,var(--panel))}
+  tbody tr:last-child td{border-bottom:0}
+  td.c-cmp{font-family:"IBM Plex Sans",sans-serif;font-size:12px;color:var(--ink-2)}
+  tr.unitrow td:first-child{color:var(--brass);font-weight:500}
+  /* Dar ekranda tablo tasiyordu: en az gerekli sutun gizleniyor, kalani kayabiliyor. */
+  .tbl-scroll{overflow-x:auto;-webkit-overflow-scrolling:touch}
+  @media (max-width:620px){
+    th.c-cmp,td.c-cmp{display:none}
+    table{font-size:11.5px}
+    th,td{padding:6px 5px}
+  }
+  .tbl-note{margin:10px 18px 16px;font-size:12.5px;color:var(--ink-3);line-height:1.5}
+  .tbl-note b{color:var(--ink-2);font-weight:600}
+  .tbl-note + .tbl-note{margin-top:-4px}
+
+  .quiz-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;align-items:start}
+  @media (max-width:820px){.quiz-grid{grid-template-columns:1fr}}
+  .q-text{margin:0;font-size:16px;font-weight:500;text-wrap:pretty}
+  .q-opts{display:flex;flex-direction:column;gap:7px}
+  .q-opts button{text-align:left;padding:9px 12px}
+  .q-opts button.correct{border-color:var(--ok);background:color-mix(in srgb,var(--ok) 12%,var(--panel))}
+  .q-opts button.wrong{border-color:var(--no);background:color-mix(in srgb,var(--no) 12%,var(--panel))}
+  .q-feedback{margin:0;font-size:14px;color:var(--ink-2);min-height:1.6em}
+  .q-feedback b.y{color:var(--ok);font-weight:600}
+  .q-feedback b.n{color:var(--no);font-weight:600}
+  .recap ul{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:8px}
+  .recap li{color:var(--ink-2);font-size:14px}
+  .recap b{color:var(--ink);font-weight:600}
+
+  /* ---- video bloğu (yeni video eklemek için bu kalıbı kopyala) ---- */
+  .vid{display:grid;grid-template-columns:1.25fr 1fr;gap:16px;align-items:start}
+  @media (max-width:900px){.vid{grid-template-columns:1fr}}
+  .vid-main{display:flex;flex-direction:column;gap:9px;min-width:0}
+  .vid-frame{position:relative;aspect-ratio:16/9;width:100%;background:var(--panel-2);
+    border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);
+    overflow:hidden}
+  .vid-frame iframe{position:absolute;inset:0;z-index:1;width:100%;height:100%;border:0;display:block}
+  .vid-play{position:absolute;inset:0;z-index:0;width:100%;height:100%;
+    display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;
+    text-align:center;padding:20px;border:0;border-radius:0;background:transparent;
+    cursor:pointer;color:inherit}
+  .vid-play:hover{background:color-mix(in srgb,var(--sin) 7%,transparent);border-color:transparent}
+  .vid-play:focus-visible{outline:2px solid var(--arc);outline-offset:-4px}
+  .vid-tri{width:62px;height:62px;border-radius:50%;background:var(--sin);
+    display:block;margin-bottom:6px;position:relative;box-shadow:var(--shadow);
+    transition:transform .14s}
+  .vid-tri::after{content:"";position:absolute;top:50%;left:54%;transform:translate(-50%,-50%);
+    border-style:solid;border-width:11px 0 11px 18px;
+    border-color:transparent transparent transparent var(--on-sin)}
+  .vid-play:hover .vid-tri{transform:scale(1.07)}
+  .vid-play b{font-family:var(--font-display);font-weight:500;font-size:18px;
+    letter-spacing:var(--track);color:var(--ink);line-height:1.2;text-wrap:balance}
+  .vid-play .vid-ch{font-size:13px;color:var(--ink-3)}
+  .vid-play .vid-hint{font-style:normal;font-family:"IBM Plex Mono",monospace;
+    font-size:11.5px;color:var(--ink-3);margin-top:5px}
+  .vid-meta{margin:0;font-size:13px;color:var(--ink-2);line-height:1.5}
+  .vid-meta b{color:var(--ink);font-weight:600}
+  .vid-meta a{color:var(--cos);font-weight:600;text-underline-offset:3px}
+  .vid-meta span{display:block;margin-top:3px;font-size:12px;color:var(--ink-3)}
+  .vid-guide{background:var(--panel);border:1px solid var(--line);
+    border-left:3px solid var(--brass);border-radius:var(--radius);
+    box-shadow:var(--shadow);padding:15px 18px 17px}
+  .vid-guide h3{margin:0 0 9px;font-family:var(--font-display);font-weight:500;
+    font-size:17px;letter-spacing:var(--track)}
+  .vid-guide ol{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:9px}
+  .vid-guide li{font-size:13.5px;line-height:1.5;color:var(--ink-2)}
+  .vid-guide li b{color:var(--ink);font-weight:600}
+  .vid-guide li::marker{color:var(--brass);font-weight:600}
+  .vid-note{margin:13px 0 0;padding-top:11px;border-top:1px solid var(--line-2);
+    font-size:13px;color:var(--ink-3);line-height:1.5}
+  .vid-note b{color:var(--ink-2);font-weight:600}
+
+  .spec{display:grid;grid-template-columns:1.05fr 1fr;gap:16px;align-items:start}
+  @media (max-width:880px){.spec{grid-template-columns:1fr}}
+  .spec-card{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);
+    box-shadow:var(--shadow);padding:16px 18px 18px;font-family:"IBM Plex Mono",monospace;font-size:13px}
+  .spec-card h3{margin:0 0 10px;font-family:var(--font-display);font-size:17px;font-weight:500;letter-spacing:var(--track)}
+  .spec-row{display:flex;justify-content:space-between;gap:14px;padding:6px 0;border-bottom:1px solid var(--line-2)}
+  .spec-row:last-child{border-bottom:0}
+  .spec-row span{color:var(--ink-3)}
+  .spec-row b{font-weight:500;color:var(--ink)}
+  .spec-row.q{background:color-mix(in srgb,var(--arc) 9%,transparent);margin:0 -8px;padding:6px 8px;border-radius:2px}
+  .ask{display:flex;flex-direction:column;gap:12px}
+  .ask .a{background:var(--panel);border:1px solid var(--line);border-left:3px solid var(--arc);
+    border-radius:var(--radius);box-shadow:var(--shadow);padding:12px 15px 13px}
+  .ask .a h4{margin:0 0 3px;font-size:14px;font-weight:600}
+  .ask .a p{margin:0;font-size:13.5px;color:var(--ink-2);line-height:1.5}
+  .ask .a b{color:var(--ink);font-weight:600}
+  footer{color:var(--ink-3);font-size:12.5px;border-top:1px solid var(--line);padding-top:14px;margin-top:26px;display:flex;flex-wrap:wrap;gap:6px 18px}
+  footer b{color:var(--ink-2);font-weight:600}
+  @media (max-width:760px){
+    button{font-size:14.5px;padding:9px 14px}
+    .btn-group.sm button{font-size:13px;padding:7px 11px}
+    .theme button{padding:8px 9px;font-size:12px}
+    .modes button{padding:9px 12px;font-size:13px}
+    .q-opts button{padding:12px 14px}
+    input[type=range]{height:30px}
+    input[type=range]::-webkit-slider-thumb{width:22px;height:22px;margin-top:-9px}
+    input[type=range]::-moz-range-thumb{width:20px;height:20px}
+    .readout{width:100%}
+    .readout div{padding:0 11px 0 0;border-left:0}
+    .wrap{padding:22px 16px 44px}
+  }
+
+  /* ---- 29. atolyeye ozel ---- */
+  .cks{display:flex;flex-direction:column;gap:1px;background:var(--line);
+    border:1px solid var(--line);border-radius:var(--radius);overflow:hidden}
+  .ck{background:var(--panel);display:grid;grid-template-columns:auto 1fr;gap:3px 10px;
+    padding:10px 13px 11px;align-items:start}
+  .ck .mk{grid-row:1/3;width:20px;height:20px;border-radius:50%;display:flex;
+    align-items:center;justify-content:center;font-size:12px;font-weight:700;
+    font-family:"IBM Plex Mono",monospace;margin-top:1px}
+  .ck.ok .mk{background:color-mix(in srgb,var(--ok) 18%,var(--panel));color:var(--ok)}
+  .ck.no .mk{background:color-mix(in srgb,var(--sin) 20%,var(--panel));color:var(--sin)}
+  .ck b{font-size:13.2px;font-weight:600;line-height:1.35;color:var(--ink)}
+  .ck span{font-size:12.4px;color:var(--ink-2);line-height:1.45}
+  /* Tur seridi: sahne dugmelerinin altinda, tuvalin hemen ustunde. Tur degisince
+     yukaridaki sahne aninda degistigi icin secici gorus alaninda duruyor. */
+  .turbar{display:flex;align-items:center;gap:10px;padding:10px 16px;
+    border-bottom:1px solid var(--line-2);background:var(--panel-2)}
+  .turbar>.tb-lab{font-family:"IBM Plex Mono",monospace;font-size:10.5px;font-weight:500;
+    letter-spacing:.09em;text-transform:uppercase;color:var(--ink-3);flex:0 0 auto}
+  .turbar .tb-scroll{display:flex;gap:6px;overflow-x:auto;flex:1 1 auto;
+    scrollbar-width:thin;padding-bottom:1px}
+  .tb{flex:0 0 auto;border:1px solid var(--line);border-radius:var(--radius);
+    background:var(--panel);padding:6px 12px 7px;display:flex;flex-direction:column;
+    gap:1px;text-align:left;cursor:pointer;line-height:1.25}
+  .tb:hover{background:var(--panel-2);color:var(--ink)}
+  .tb b{font-size:12.8px;font-weight:600;color:var(--ink)}
+  .tb em{font-style:normal;font-family:"IBM Plex Mono",monospace;font-size:10.8px;
+    color:var(--ink-3);white-space:nowrap}
+  .tb[aria-pressed="true"]{border-color:var(--sin);
+    background:color-mix(in srgb,var(--sin) 12%,var(--panel))}
+  .tb[aria-pressed="true"] em{color:var(--ink-2)}
+  @media (max-width:760px){
+    .turbar{flex-direction:column;align-items:stretch;gap:6px;padding:9px 12px}
+    .tb{padding:6px 10px}
+    .tb b{font-size:12.4px}
+  }
+  .pick{display:flex;flex-direction:column;gap:1px;background:var(--line);
+    border:1px solid var(--line);border-radius:var(--radius);overflow:hidden}
+  .pk{background:var(--panel);border:0;border-left:3px solid transparent;border-radius:0;
+    text-align:left;padding:11px 14px 12px;display:flex;flex-direction:column;gap:3px;
+    cursor:pointer;width:100%}
+  .pk:hover{background:var(--panel-2)}
+  .pk[aria-pressed="true"]{border-left-color:var(--sin);
+    background:color-mix(in srgb,var(--sin) 8%,var(--panel))}
+  .pk b{font-size:13.4px;font-weight:600;color:var(--ink)}
+  .pk span{font-size:12.4px;color:var(--ink-2);line-height:1.45;font-weight:400}
+  .pk em{font-style:normal;font-family:"IBM Plex Mono",monospace;font-size:11.5px;
+    color:var(--ink-3)}
+  .tag{display:inline-block;padding:1px 6px;border-radius:2px;font-size:10.5px;font-weight:600;
+    letter-spacing:.04em;border:1px solid}
+  .tag-a{color:var(--brass);border-color:color-mix(in srgb,var(--brass) 45%,transparent);
+    background:color-mix(in srgb,var(--brass) 11%,transparent)}
+  .tag-b{color:var(--sin);border-color:color-mix(in srgb,var(--sin) 45%,transparent);
+    background:color-mix(in srgb,var(--sin) 11%,transparent)}
+  .hint{margin:0;font-size:12.5px;color:var(--ink-3);line-height:1.5}
+  .hint b{color:var(--ink-2);font-weight:600}
+  @media (prefers-reduced-motion: reduce){*{transition:none!important}}
+  .field.bilinmez label{color:var(--arc)}
+  .field.bilinmez input{opacity:.5}
+  td .hata{color:var(--ink-3);font-size:11px;margin-left:4px}
+</style>
+<div class="wrap">
+  <div class="topbar">
+    <header>
+      <p class="eyebrow">Elektronik Bilgisi · Sınıf atölyesi</p>
+      <h1>Ölçüm Cihazları: Voltmetre ve Ampermetre</h1>
+      <p class="lede">Voltmetre <b>paralel</b>, ampermetre <b>seri</b> bağlanır. Bu kuralın ezberlenecek
+        bir yanı yok: ikisi de ölçtükleri şeyin doğasından çıkıyor. Bu atölyede nedenini,
+        ölçerin <b>iç direncinin</b> ölçümü nasıl değiştirdiğini ve yanlış bağlantının ne
+        yaptığını görüyor, sonunda bir multimetrenin kadranını ve jaklarını doğru kuruyoruz.</p>
+    </header>
+    <div class="theme" role="group" aria-label="Görünüm">
+      <button type="button" data-t="light">Açık</button>
+      <button type="button" data-t="dark">Koyu</button>
+      <button type="button" data-t="proj">Projeksiyon</button>
+    </div>
+  </div>
+
+  <section class="sec">
+    <div class="sec-head"><span class="num">01</span><h2>Neden iki farklı bağlantı?</h2>
+      <span class="kicker">Ölçmek, biraz değiştirmektir</span></div>
+    <div class="panel">
+      <div class="panel-body">
+        <p><b>Gerilim</b> iki nokta arasındaki farktır; ölçmek için iki noktaya birer uçla dokunmak
+          yeter, devreyi açmaya gerek yoktur. Voltmetre bu yüzden ölçülen parçanın <b>yanına</b>,
+          paralel bağlanır. Ama paralel bağlanan her şey akıma yeni bir yol açar. Voltmetre o yoldan
+          akım çalmasın diye iç direnci <b>çok büyük</b> yapılır: dijital multimetrelerde
+          çoğunlukla <b>10 MΩ</b>.</p>
+        <p><b>Akım</b> bir noktadan geçen yüktür; saymak için yolun üstünde durmak gerekir. Devre
+          açılır, ampermetre boşluğa, <b>seri</b> girer ve bütün akım onun içinden geçer. Bu kez
+          ölçer yola engel olmasın diye iç direnci <b>çok küçük</b> yapılır: bir multimetrenin mA
+          kademesinde yaklaşık <b>1,8 Ω</b>.</p>
+        <p>İki kural birbirinin tam tersi, bu yüzden yer değiştirmeleri tehlikelidir. Seriye giren
+          bir voltmetre 10 MΩ ile yolu tıkar: devre durur, ama bir şey bozulmaz. Paralele giren bir
+          ampermetre 1,8 Ω ile pilin iki ucunu neredeyse birleştirir: <b>kısa devre</b>. Multimetrenin
+          içindeki sigorta bu hata için var.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="sec">
+    <div class="sec-head"><span class="num">02</span><h2>Bilmemiz gereken dokuz kavram</h2>
+      <span class="kicker">İki ölçer, bir alet</span></div>
+    <div class="defs">
+      <div class="def">
+        <h3>Voltmetre <em>voltmeter</em></h3>
+        <p>İki nokta arasındaki gerilimi ölçer. Ölçülen parçaya <b>paralel</b> bağlanır; devre
+          açılmaz.</p>
+      </div>
+      <div class="def">
+        <h3>Ampermetre <em>ammeter</em></h3>
+        <p>Bir noktadan geçen akımı ölçer. Devre açılır, ölçer araya <b>seri</b> girer; bütün akım
+          içinden geçer.</p>
+      </div>
+      <div class="def">
+        <h3>İç direnç <em>input impedance</em></h3>
+        <p>Ölçerin devreye kendisinin kattığı direnç. Voltmetrede <b>çok büyük</b> (10 MΩ),
+          ampermetrede <b>çok küçük</b> (≈1,8 Ω) olmalı.</p>
+      </div>
+      <div class="def">
+        <h3>Yükleme etkisi <em>loading</em></h3>
+        <p>Voltmetrenin iç direnci ölçülen parçaya paralel eklenip okumayı <b>düşürür</b>.
+          Devrenin dirençleri ölçerinkine yaklaştıkça hata büyür.</p>
+      </div>
+      <div class="def">
+        <h3>Şönt <em>shunt</em></h3>
+        <p>Ampermetrenin içindeki çok küçük direnç. Üstündeki küçük gerilim ölçülür, Ohm yasasıyla
+          akıma çevrilir.</p>
+      </div>
+      <div class="def">
+        <h3>Yük gerilimi <em>burden voltage</em></h3>
+        <p>Ampermetrenin şöntünde kaybolan gerilim; devreden çalınır. Fluke 87V’nin mA kademesinde
+          <b>mA başına 1,8 mV</b>.</p>
+      </div>
+      <div class="def">
+        <h3>Multimetre <em>multimeter</em></h3>
+        <p>Voltmetre, ampermetre ve ohmmetre tek alette. <b>Kadran</b> ne ölçüleceğini,
+          <b>jak</b> ölçerin içinden hangi yolun geçeceğini seçer.</p>
+      </div>
+      <div class="def">
+        <h3>Ohmmetre <em>ohmmeter</em></h3>
+        <p>Küçük bir akım gönderip gerilimi ölçer, bölümü yazar. Bu yüzden direnç yalnızca
+          <b>enerjisiz</b> devrede ölçülür.</p>
+      </div>
+      <div class="def">
+        <h3>Sigorta <em>fuse</em></h3>
+        <p>Akım girişlerinin içindeki ince tel. Akım sınırı aşınca erir, yolu keser: 87V’de mA
+          girişi <b>440 mA</b>, A girişi 11 A.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="sec">
+    <div class="sec-head"><span class="num">03</span><h2>Atölye: dört sahne</h2>
+      <span class="kicker">Voltmetre · ampermetre · hata · multimetre</span></div>
+
+    <div class="stage" id="stage">
+      <div class="stage-head">
+        <div class="modes" role="group" aria-label="Sahne">
+          <button type="button" data-m="vm">Voltmetre</button>
+          <button type="button" data-m="am">Ampermetre</button>
+          <button type="button" data-m="hata">Yanlış bağlantı</button>
+          <button type="button" data-m="mm">Multimetre</button>
+        </div>
+        <div class="readout" id="readout"></div>
+      </div>
+
+      <div class="canvas-wrap"><canvas id="board"></canvas></div>
+
+      <div class="controls">
+        <div class="ctl-row" id="row-vm">
+          <span class="ctl-label">Bölücü</span>
+          <div class="btn-group sm" id="gVR"></div>
+          <span class="ctl-label">Ölçer</span>
+          <div class="btn-group sm" id="gVT"></div>
+          <span class="ctl-note" id="vm-note"></span>
+        </div>
+
+        <div class="ctl-row" id="row-am" hidden>
+          <span class="ctl-label">Pil</span>
+          <div class="btn-group sm" id="gAV"></div>
+          <span class="ctl-label">Yük</span>
+          <div class="btn-group sm" id="gAR"></div>
+          <span class="ctl-label">Ölçer</span>
+          <div class="btn-group sm" id="gAT"></div>
+          <span class="ctl-note" id="am-note"></span>
+        </div>
+
+        <div class="ctl-row" id="row-hata" hidden>
+          <span class="ctl-label">Bağlantı</span>
+          <div class="btn-group sm" id="gHt"></div>
+          <span class="ctl-note" id="ht-note"></span>
+        </div>
+
+        <div class="ctl-row" id="row-mm" hidden>
+          <span class="ctl-label">Hedef</span>
+          <div class="btn-group sm" id="gHd"></div>
+          <span class="ctl-label">Kadran</span>
+          <div class="btn-group sm" id="gKd"></div>
+          <span class="ctl-label">Kırmızı uç</span>
+          <div class="btn-group sm" id="gJk"></div>
+        </div>
+        <div class="ctl-row" id="row-mm2" hidden>
+          <span class="ctl-note" id="mm-note"></span>
+        </div>
+      </div>
+    </div>
+
+    <div class="cols">
+      <section class="panel">
+        <div class="panel-head">
+          <h3>Ders akışı</h3>
+          <span class="count" id="step-count">1 / 1</span>
+        </div>
+        <div class="panel-body">
+          <h4 id="step-title"></h4>
+          <p id="step-body"></p>
+          <div class="steps">
+            <button type="button" id="prev">Önceki</button>
+            <button type="button" id="next">Sonraki</button>
+          </div>
+          <div class="dots" id="dots"></div>
+        </div>
+      </section>
+
+      <section class="panel">
+        <div class="panel-head">
+          <h3>Kendin dene</h3>
+          <span class="count" id="ner-count"></span>
+        </div>
+        <div class="panel-body">
+          <p class="tbl-note" id="ner-not"></p>
+          <p class="tbl-note">Sınıftaki bütün ölçümleri <b>pil ve pedal adaptörü</b> gibi düşük
+            gerilimli kaynaklarda yapın. Her ölçümden önce üç şeyi kontrol edin: kadran, kırmızı
+            ucun jakı, uçların nereye dokunacağı. <b>Prizde ve amfinin içinde ölçüm yapmayın</b>;
+            orası eğitimli teknisyen ve doğru kategoride (CAT) bir ölçer işi.</p>
+        </div>
+      </section>
+    </div>
+  </section>
+
+  <section class="sec">
+    <div class="sec-head"><span class="num">04</span><h2>Voltmetre devreyi ne kadar bozar?</h2>
+      <span class="kicker">9 V, iki eşit direnç, gerçek değer 4,5 V</span></div>
+    <div class="panel">
+      <div class="tbl-scroll">
+      <table id="vtable">
+        <thead><tr><th>Bölücü</th><th>İdeal ölçer</th><th>Dijital · 10 MΩ</th><th>Analog · 200 kΩ</th></tr></thead>
+        <tbody></tbody>
+      </table>
+      </div>
+      <p class="tbl-note">Satıra tıklayın: birinci sahne o bölücüye geçer. Her hücrede ölçerin
+        gösterdiği gerilim ve gerçek değerden sapması var.</p>
+      <p class="tbl-note">Kural basit: devrenin dirençleri ölçerin iç direncinden <b>çok küçükse</b>
+        hata önemsiz. 1 kΩ’luk bir bölücüde üç ölçer de neredeyse aynı şeyi okur. 1 MΩ’luk bölücüde
+        dijital ölçer %4,8 düşük, 20 000 Ω/V’luk analog ölçer ise <b>%71 düşük</b> okur — 4,5 V
+        yerine 1,29 V. Aynı devre, aynı pil; farkı yaratan yalnızca ölçer.</p>
+    </div>
+  </section>
+
+  <section class="sec">
+    <div class="sec-head"><span class="num">05</span><h2>Pratikte ne işe yarar?</h2>
+      <span class="kicker">Altı çıkarım</span></div>
+    <div class="cks">
+      <div class="ck ok">
+        <span class="mk">✓</span>
+        <b>Voltmetre paralel: devreyi açmadan iki noktaya</b>
+        <span>Gerilim iki nokta arasındaki farktır. Kırmızı uç yüksek taraf, siyah uç alçak taraf
+          (çoğu zaman toprak). Uçlar ters olursa okuma eksi çıkar; zararı yoktur.</span>
+      </div>
+      <div class="ck ok">
+        <span class="mk">✓</span>
+        <b>Ampermetre seri: devreyi açıp araya</b>
+        <span>Bir pedalın akımını ölçmek için besleme kablosunun bir damarı açılır, ölçer boşluğa
+          girer. Kırmızı uç mA girişinde, kadran mA’de. Bitince kırmızı uç VΩ’ya geri.</span>
+      </div>
+      <div class="ck ok">
+        <span class="mk">✓</span>
+        <b>Dijital ölçer çoğu devrede “görünmezdir”</b>
+        <span>10 MΩ’luk bir ölçer 1 kΩ’luk bir bölücüde yalnız <b>%0,005</b> hata yapar. Hata
+          ancak megaohm düzeyinde dirençlerde büyür: lambalı amfilerin ızgara devreleri gibi.</span>
+      </div>
+      <div class="ck ok">
+        <span class="mk">✓</span>
+        <b>Ampermetrenin hatası yükün direncine bağlı</b>
+        <span>1,8 Ω’luk şönt, 1 kΩ’luk bir yükte %0,18, <b>10 Ω’luk</b> bir yükte %15 hata yapar.
+          Hata pilin geriliminden bağımsız: 1,5 V’ta da 9 V’ta da aynı yüzde.</span>
+      </div>
+      <div class="ck no">
+        <span class="mk">!</span>
+        <b>Ampermetreyi paralel bağlamak kısa devredir</b>
+        <span>9 V’luk bir pilin iki ucuna mA girişinden dokunmak: 9 V ÷ 1,8 Ω = <b>5 A</b>, sigortanın
+          11 katı. Sigorta anında atar. En sık sebep: akım ölçtükten sonra kırmızı ucu mA girişinde
+          unutmak.</span>
+      </div>
+      <div class="ck no">
+        <span class="mk">!</span>
+        <b>Direnç devre enerjisizken ölçülür</b>
+        <span>Ohmmetre kendi küçük akımını gönderir. Gerilim olan bir yere dokunursa okuma
+          anlamsızlaşır, ölçer zarar görebilir. Devredeki bir direnci ölçerken öbür parçalar da
+          paralel yol açar; en doğrusu bir ucunu sökmek.</span>
+      </div>
+    </div>
+  </section>
+
+  <section class="sec">
+    <div class="sec-head"><span class="num">06</span><h2>Bu kavramların dili</h2>
+      <span class="kicker">Ölçerin üstünde ve kılavuzunda ne yazıyor</span></div>
+    <div class="panel">
+      <div class="tbl-scroll">
+      <table id="ltable">
+        <thead><tr><th>Terim</th><th>Türkçe</th><th class="c-cmp">Ne demek</th></tr></thead>
+        <tbody>
+          <tr><td>V⎓ · V~</td><td>Doğru / alternatif gerilim</td><td class="c-cmp">Pil ve adaptör ⎓, şebeke ve ses sinyali ~</td></tr>
+          <tr><td>A · mA · µA</td><td>Akım kademeleri</td><td class="c-cmp">Kırmızı ucun ayrı bir girişe taşınmasını ister</td></tr>
+          <tr><td>Ω</td><td>Direnç kademesi</td><td class="c-cmp">Devre enerjisizken kullanılır</td></tr>
+          <tr><td>COM</td><td>Ortak uç</td><td class="c-cmp">Siyah uç her zaman buraya</td></tr>
+          <tr><td>VΩ</td><td>Gerilim / direnç girişi</td><td class="c-cmp">Kırmızı ucun çoğu zaman durduğu yer</td></tr>
+          <tr><td>10A MAX FUSED</td><td>En çok 10 A, sigortalı</td><td class="c-cmp">Büyük akım girişi</td></tr>
+          <tr><td>Input impedance</td><td>Giriş direnci</td><td class="c-cmp">Voltmetrenin iç direnci; çoğunlukla 10 MΩ</td></tr>
+          <tr><td>Ω/V (ohms per volt)</td><td>Ohm/volt duyarlılığı</td><td class="c-cmp">Analog ölçerin iç direnci = Ω/V × kademe</td></tr>
+          <tr><td>Loading effect</td><td>Yükleme etkisi</td><td class="c-cmp">Ölçerin devreyi değiştirmesi</td></tr>
+          <tr><td>Shunt</td><td>Şönt</td><td class="c-cmp">Ampermetrenin içindeki küçük direnç</td></tr>
+          <tr><td>Burden voltage</td><td>Yük gerilimi</td><td class="c-cmp">Şöntte kaybolan gerilim, mV/mA</td></tr>
+          <tr><td>OL (overload)</td><td>Kademe dışı</td><td class="c-cmp">Değer seçili kademeye sığmıyor; kademeyi büyütün</td></tr>
+          <tr><td>Continuity</td><td>Süreklilik</td><td class="c-cmp">İki uç arasında yol varsa bip; kablo kontrolü</td></tr>
+          <tr><td>CAT II / III</td><td>Ölçüm kategorisi</td><td class="c-cmp">Ölçerin hangi elektrik tesisatında güvenli olduğu</td></tr>
+        </tbody>
+      </table>
+      </div>
+    </div>
+  </section>
+
+  <section class="sec">
+    <div class="sec-head"><span class="num">07</span><h2>Alıştırma</h2>
+      <span class="kicker">On dört soru</span></div>
+    <div class="panel quiz">
+      <div class="q-head">
+        <span class="count" id="q-count">0 / 0 doğru</span>
+      </div>
+      <div class="panel-body">
+        <p id="q-text"></p>
+        <div class="q-opts" id="q-opts"></div>
+        <p id="q-exp" class="tbl-note"></p>
+        <div class="steps"><button type="button" id="q-next">Sonraki soru</button></div>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <span><b>Voltmetre:</b> paralel, iki noktaya; iç direnci çok büyük (dijital 10 MΩ). 9 V, 2 × 1 MΩ bölücü: dijital 4,29 V (−%4,8), 20 kΩ/V analog 10 V kademesinde 1,29 V (−%71). 1 kΩ’luk bölücüde hata önemsiz.</span>
+    <span><b>Ampermetre:</b> seri, devre açılıp araya; iç direnci çok küçük (mA kademesi ≈1,8 Ω, 1,8 mV/mA). 3 V, 30 Ω: 100 mA yerine 94,3 mA (−%5,7). Hata yükün direncine bağlı, pilin gerilimine değil.</span>
+    <span><b>Yanlış bağlantı:</b> voltmetre seri → yol tıkanır, 0,9 µA, yük çalışmaz, ekran ≈9 V. Ampermetre paralel → 9 V ÷ 1,8 Ω = 5 A, 440 mA’lik sigorta atar.</span>
+    <span><b>Multimetre:</b> siyah uç COM. Gerilim ve direnç için kırmızı uç VΩ, akım için mA ya da 10A. Kadran ne gösterileceğini, jak ölçerin içinden geçen yolu seçer. Direnç enerjisiz devrede ölçülür.</span>
+  </footer>
+</div>
+
+<script>
+(function(){
+  "use strict";
+  var TAU = Math.PI*2, L10 = Math.LN10;
+  var root = document.documentElement;
+  function lg(x){ return Math.log(x)/L10; }
+  var CS = 343;
+
+  /* BU ATOLYENIN KENDI DURUM NESNESI.
+     Onbellek uyarisi: bu blok her atolyeye KOPYALANIR, paylasilmaz. 18. atolyede
+     onceki atolyenin S nesnesi kullanilinca butun sahneler cokmustu.            */
+  var S = {
+    mode:'vm',
+    /* --- sahne 1: voltmetre --- */
+    vR:1e6, vTip:'dijital',
+    /* --- sahne 2: ampermetre --- */
+    aV:3, aRL:30, aTip:'mA',
+    /* --- sahne 3: yanlış bağlantı --- */
+    hata:'vp',
+    /* --- sahne 4: multimetre --- */
+    hedef:'pil', kadran:'V', jak:'VO',
+    t:0
+  };
+  /* ---------- tema ---------- */
+  var C = {}, K = { lw:1, fs:1, glow:0, faint:.32 };
+  function readColors(){
+    var s = getComputedStyle(root);
+    ['ink','ink-2','ink-3','line','line-2','sin','cos','arc','brass','panel','panel-2','ok','no'].forEach(function(k){
+      C[k.replace('-','')] = s.getPropertyValue('--'+k).trim();
+    });
+    var proj = root.getAttribute('data-mode') === 'proj';
+    var attr = root.getAttribute('data-theme');
+    var isDark = attr === 'dark' ||
+                 (!attr && window.matchMedia('(prefers-color-scheme: dark)').matches);
+    K.glow  = (isDark && !proj) ? 0.7 : 0;
+    K.lw    = proj ? 1.5 : 1;
+    K.fs    = proj ? 1.24 : 1;
+    K.faint = proj ? 0.42 : (K.glow ? 0.34 : 0.32);
+  }
+  readColors();
+
+  var MODES = { proj:'light' };
+  var themeBtns = document.querySelectorAll('.theme button');
+  function markTheme(t){
+    Array.prototype.forEach.call(themeBtns, function(b){
+      b.setAttribute('aria-pressed', b.dataset.t === t ? 'true':'false');
+    });
+  }
+  function applyTheme(t, save){
+    if (MODES[t]){ root.setAttribute('data-theme', MODES[t]); root.setAttribute('data-mode', t); }
+    else { root.setAttribute('data-theme', t); root.removeAttribute('data-mode'); }
+    if (save) { try { localStorage.setItem('dalga-tema', t); } catch(e){} }
+    markTheme(t);
+  }
+  Array.prototype.forEach.call(themeBtns, function(b){
+    b.addEventListener('click', function(){ applyTheme(b.dataset.t, true); });
+  });
+  var sysDark = window.matchMedia('(prefers-color-scheme: dark)');
+  var stored = null;
+  try { stored = localStorage.getItem('dalga-tema'); } catch(e){}
+  if (stored === 'light' || stored === 'dark' || MODES[stored]) applyTheme(stored, false);
+  else markTheme(sysDark.matches ? 'dark' : 'light');
+  sysDark.addEventListener('change', function(){
+    readColors(); render();
+    if (!root.hasAttribute('data-theme')) markTheme(sysDark.matches ? 'dark' : 'light');
+  });
+  new MutationObserver(function(){ readColors(); render(); })
+    .observe(root, {attributes:true, attributeFilter:['data-theme','data-mode']});
+
+  /* ---------- sayilar ---------- */
+  function n(v,d){
+    var x = v.toFixed(d===undefined?2:d);
+    if (/^-0[.,]?0*$/.test(x)) x = x.slice(1);
+    return x.replace('.',',').replace('-','−');
+  }
+  function fTxt(f){
+    return f >= 1000 ? n(f/1000, f >= 10000 ? 0 : 1).replace(',0','')+' kHz' : n(f,0)+' Hz';
+  }
+  function sgn(v,d){ return (v>0?'+':'')+n(v,d); }
+
+  /* ---------- canvas ---------- */
+  var board = document.getElementById('board');
+  var ctx = null, MONO = '"IBM Plex Mono", monospace', SANS = '"IBM Plex Sans", sans-serif';
+  function dash(a){ ctx.setLineDash(a ? a.map(function(v){ return v*K.lw; }) : []); }
+  function LW(v){ ctx.lineWidth = v*K.lw; }
+  function glowOn(col,amt){ if (K.glow){ ctx.shadowColor = col; ctx.shadowBlur = (amt||9)*K.lw; } }
+  function glowOff(){ ctx.shadowBlur = 0; }
+  function line(x1,y1,x2,y2){ ctx.beginPath(); ctx.moveTo(x1,y1); ctx.lineTo(x2,y2); ctx.stroke(); }
+  function dot(x,y,r,col){
+    ctx.beginPath(); ctx.arc(x,y,r*K.fs,0,TAU);
+    ctx.fillStyle = col; glowOn(col,10); ctx.fill(); glowOff();
+    LW(1.6); ctx.strokeStyle = C.panel2; ctx.stroke();
+  }
+  function txt(s,x,y,col,size,align,fam,weight){
+    ctx.fillStyle = col;
+    ctx.font = (weight||400)+' '+((size||12)*K.fs).toFixed(2)+'px '+(fam||MONO);
+    ctx.textAlign = align||'left'; ctx.textBaseline='middle';
+    ctx.fillText(s,x,y);
+  }
+  function tw(s,size,fam,weight){
+    ctx.font = (weight||400)+' '+((size||12)*K.fs).toFixed(2)+'px '+(fam||MONO);
+    return ctx.measureText(s).width;
+  }
+  function chip(s2,x,y,col,size,weight,fam){
+    var w = tw(s2,size,fam||MONO,weight||400), ph = (size+7)*K.fs;
+    ctx.fillStyle = C.panel2; ctx.globalAlpha = .92;
+    ctx.fillRect(x - w/2 - 4*K.fs, y - ph/2, w + 8*K.fs, ph);
+    ctx.globalAlpha = 1;
+    txt(s2, x, y, col, size, 'center', fam||MONO, weight||400);
+  }
+  function wrap(s, x, y, maxw, col, size, lh, weight){
+    var words = s.split(' '), ln = '', out = [];
+    words.forEach(function(w){
+      var t = ln ? ln+' '+w : w;
+      if (tw(t, size, SANS, weight) > maxw){ out.push(ln); ln = w; } else ln = t;
+    });
+    if (ln) out.push(ln);
+    out.forEach(function(l,k){ txt(l, x, y + k*lh, col, size, 'left', SANS, weight); });
+    return out.length;
+  }
+  var cw = 0, ch = 0;
+  function sized(cv){
+    var dpr = Math.min(window.devicePixelRatio||1, 2);
+    var r = cv.getBoundingClientRect();
+    if (r.width < 10) return null;
+    var W = Math.round(r.width*dpr), H = Math.round(r.height*dpr);
+    if (W !== cw || H !== ch){ cv.width = W; cv.height = H; cw = W; ch = H; }
+    var c = cv.getContext('2d');
+    c.setTransform(dpr,0,0,dpr,0,0);
+    c.clearRect(0,0,r.width,r.height);
+    c.lineJoin='round'; c.lineCap='round';
+    return { c:c, w:r.width, h:r.height };
+  }
+  function logAxis(x0, x1, f0, f1){
+    return { X: function(f){ return x0 + (lg(f) - lg(f0))/(lg(f1) - lg(f0))*(x1 - x0); },
+             F: function(x){ return f0*Math.pow(f1/f0, (x - x0)/(x1 - x0)); },
+             f0:f0, f1:f1, x0:x0, x1:x1 };
+  }
+  function drawTicks(A, y, list, fmt){
+    ctx.strokeStyle = C.line; LW(1.3);
+    line(A.x0, y, A.x1, y);
+    var dec, d;
+    for (dec = Math.floor(lg(A.f0)); dec <= Math.ceil(lg(A.f1)); dec++){
+      for (d = 1; d <= 9; d++){
+        var f = Math.pow(10, dec)*d;
+        if (f < A.f0 || f > A.f1) continue;
+        line(A.X(f), y, A.X(f), y + 2.6*K.fs);
+      }
+    }
+    list.forEach(function(v){
+      if (v < A.f0 || v > A.f1) return;
+      line(A.X(v), y, A.X(v), y + 6*K.fs);
+      txt((fmt||fTxt)(v), A.X(v), y + 16*K.fs, C.ink3, 9.5, 'center', MONO);
+    });
+  }
+  /* Hizli salinan yanitlar: her PIKSEL SUTUNU icin birkac ara deger alinip en kucuk
+     ile en buyuk arasina dikey cizgi cekiliyor. Seyrek ornekleme sahte desen uretmez. */
+  function bandCurve(A, yOf, fn, col, lw, lo, hi){
+    var px = Math.max(2, Math.round(A.x1 - A.x0)), x, k, ALT = 7;
+    ctx.strokeStyle = col; LW(lw||2.4); glowOn(col, 6);
+    ctx.beginPath();
+    for (x = 0; x <= px; x++){
+      var fa = A.f0*Math.pow(A.f1/A.f0, x/px);
+      var fb = A.f0*Math.pow(A.f1/A.f0, (x+1)/px);
+      var mn = 1e9, mx = -1e9;
+      for (k = 0; k < ALT; k++){
+        var v = fn(fa*Math.pow(fb/fa, k/(ALT-1)));
+        if (!isFinite(v)) v = lo;
+        if (v < lo) v = lo; else if (v > hi) v = hi;
+        if (v < mn) mn = v;
+        if (v > mx) mx = v;
+      }
+      ctx.moveTo(A.x0 + x, yOf(mx)); ctx.lineTo(A.x0 + x, yOf(mn));
+    }
+    ctx.stroke(); glowOff();
+  }
+
+  /* ================= cizim ================= */
+  function frame(x0,y0,w,h){
+    ctx.fillStyle = C.panel; ctx.fillRect(x0,y0,w,h);
+    ctx.strokeStyle = C.line; LW(1.2); ctx.strokeRect(x0+0.5,y0+0.5,w-1,h-1);
+  }
+  /* Yari saydam hucreler bitisik cizilince kenarlarda dikis izi birakiyor.
+     Bu yuzden renkler ONCEDEN panel rengiyle karistirilip TAM OPAK doldurulur. */
+  var RGBC = {};
+  function rgbOf(hx){
+    if (RGBC[hx]) return RGBC[hx];
+    var s2 = String(hx).trim(), r, g, b, m;
+    if (s2.charAt(0) === '#'){
+      if (s2.length === 4){
+        r = parseInt(s2.charAt(1)+s2.charAt(1),16);
+        g = parseInt(s2.charAt(2)+s2.charAt(2),16);
+        b = parseInt(s2.charAt(3)+s2.charAt(3),16);
+      } else {
+        r = parseInt(s2.substr(1,2),16); g = parseInt(s2.substr(3,2),16); b = parseInt(s2.substr(5,2),16);
+      }
+    } else {
+      m = s2.match(/(\d+)[,\s]+(\d+)[,\s]+(\d+)/);
+      r = m ? +m[1] : 128; g = m ? +m[2] : 128; b = m ? +m[3] : 128;
+    }
+    return (RGBC[hx] = [r||0, g||0, b||0]);
+  }
+  function mixc(a, b, t){
+    var A = rgbOf(a), B = rgbOf(b);
+    return 'rgb(' + Math.round(A[0]+(B[0]-A[0])*t) + ',' +
+                    Math.round(A[1]+(B[1]-A[1])*t) + ',' +
+                    Math.round(A[2]+(B[2]-A[2])*t) + ')';
+  }
+  function basincRenk(v){
+    var a = Math.min(1, Math.abs(v));
+    return mixc(C.panel, v >= 0 ? C.sin : C.cos, 0.05 + 0.84*a);
+  }
+  /* bir kesitin basinc haritasi: fu(u,v) -> [-1,1], u ve v 0..1 */
+  function harita(x0,y0,w,h,fu,NU,NV){
+    var i, j;
+    for (i=0;i<NU;i++){
+      var xa = Math.round(x0 + i*w/NU), xb = Math.round(x0 + (i+1)*w/NU);
+      for (j=0;j<NV;j++){
+        var ya = Math.round(y0 + j*h/NV), yb = Math.round(y0 + (j+1)*h/NV);
+        ctx.fillStyle = basincRenk(fu((i+0.5)/NU, (j+0.5)/NV));
+        ctx.fillRect(xa, ya, Math.max(1, xb-xa), Math.max(1, yb-ya));
+      }
+    }
+  }
+
+  /* Dar ekranda sol alt baslik ile sag ozet carpisiyordu: dar ekranda sol metin dusuyor. */
+  function sahneBaslik(w, sol, sag, sagCol, sagDar){
+    var pad = 16*K.fs, y = 16*K.fs, dar = w < 700;
+    if (!dar) txt(sol, pad, y, C.ink3, 10.5, 'left', MONO, 500);
+    var t = (dar && sagDar) ? sagDar : sag;
+    txt(t, dar ? pad : w - pad, y, sagCol, dar ? 11 : 11.5, dar ? 'left' : 'right', MONO, 600);
+  }
+
+
+  /* ================= ÖLÇÜM CİHAZLARI: SAYILAR =================
+     Hepsi node'da doğrulandı (_fiz.js). Kaynaklar: Wikipedia Multimeter
+     (dijital giriş 1–10 MΩ; analog 20 000 Ω/V), Fluke “Can you live with the
+     burden?” (87V, 400 mA kademesi 1,8 mV/mA ≈ 1,8 Ω), HamRadioBase meter loading. */
+
+  function par(a, b){ return !isFinite(b) ? a : (!isFinite(a) ? b : a*b/(a + b)); }
+
+  /* ---------- 1) VOLTMETRE: yükleme etkisi ---------- */
+  var VM_KAYNAK = 9;
+  var VM_TIP = [
+    { k:'ideal',   ad:'ideal voltmetre',          kisa:'ideal',   R:Infinity, not:'Hayali ölçer: iç direnci sonsuz, devreden hiç akım çalmaz.' },
+    { k:'dijital', ad:'dijital multimetre',       kisa:'dijital', R:10e6,     not:'Dijital multimetrelerin giriş direnci çoğunlukla 10 MΩ.' },
+    { k:'analog',  ad:'analog ölçer, 10 V kademe', kisa:'analog', R:200e3,    not:'İyi bir analog ölçer 20 000 Ω/V: 10 V kademesinde iç direnci 200 kΩ.' }
+  ];
+  function vmTip(k){ var i; for (i = 0; i < VM_TIP.length; i++) if (VM_TIP[i].k === k) return VM_TIP[i]; return VM_TIP[1]; }
+  var VM_R = [1e3, 1e5, 1e6];            /* bölücünün iki direnci eşit */
+  function vmHesap(R, Rm){
+    var Rp = par(R, Rm), V = VM_KAYNAK*Rp/(R + Rp), gercek = VM_KAYNAK/2;
+    return { V:V, gercek:gercek, hata:(V - gercek)/gercek, Im:isFinite(Rm) ? V/Rm : 0, I2:V/R };
+  }
+
+  /* ---------- 2) AMPERMETRE: yük gerilimi ---------- */
+  var AM_TIP = [
+    { k:'ideal', ad:'ideal ampermetre', kisa:'ideal', r:0,   not:'Hayali ölçer: iç direnci sıfır, devreye hiç engel koymaz.' },
+    { k:'mA',    ad:'multimetre, mA kademesi', kisa:'mA kademesi', r:1.8, not:'Fluke 87V, 400 mA kademesi: 1,8 mV/mA, yani iç direnç ≈ 1,8 Ω.' }
+  ];
+  function amTip(k){ return k === 'ideal' ? AM_TIP[0] : AM_TIP[1]; }
+  var AM_V = [1.5, 3, 9], AM_RL = [10, 30, 100, 1000];
+  var SIGORTA_MA = 0.44;                /* mA girişinin sigortası (87V: 440 mA) */
+  function amHesap(Vs, RL, r){
+    var It = Vs/RL, Im = Vs/(RL + r);
+    return { gercek:It, I:Im, yukV:Im*r, hata:(Im - It)/It, atar:Im > SIGORTA_MA };
+  }
+
+  /* ---------- 3) YANLIŞ BAĞLANTI: 9 V, 1 kΩ yük ---------- */
+  var HT_V = 9, HT_RL = 1000, HT_RV = 10e6, HT_RA = 1.8;
+  var HATA = [
+    { k:'vp', ad:'voltmetre paralel', kisa:'V paralel', dogru:true },
+    { k:'as', ad:'ampermetre seri',   kisa:'A seri',    dogru:true },
+    { k:'vs', ad:'voltmetre seri',    kisa:'V seri',    dogru:false },
+    { k:'ap', ad:'ampermetre paralel', kisa:'A paralel', dogru:false }
+  ];
+  function hataBul(k){ var i; for (i = 0; i < HATA.length; i++) if (HATA[i].k === k) return HATA[i]; return HATA[0]; }
+  function htHesap(k){
+    if (k === 'vp') return { okuma:HT_V, birim:'V', yukI:HT_V/HT_RL, olcerI:HT_V/HT_RV, durum:'doğru' };
+    if (k === 'as'){ var I = HT_V/(HT_RL + HT_RA); return { okuma:I, birim:'A', yukI:I, olcerI:I, durum:'doğru' }; }
+    if (k === 'vs'){ var I2 = HT_V/(HT_RL + HT_RV); return { okuma:I2*HT_RV, birim:'V', yukI:I2, olcerI:I2, durum:'çalışmaz' }; }
+    return { okuma:HT_V/HT_RA, birim:'A', yukI:HT_V/HT_RL, olcerI:HT_V/HT_RA, durum:'sigorta' };
+  }
+
+  /* ---------- 4) MULTİMETRE: kadran + jak + hedef ---------- */
+  var HEDEF = [
+    { k:'pil',   ad:'9 V pilin gerilimi', kisa:'pil',   yer:'paralel' },
+    { k:'akim',  ad:'pedalın akımı (50 mA)', kisa:'pedal akımı', yer:'seri' },
+    { k:'dir',   ad:'1 kΩ direnç (devre dışında)', kisa:'direnç', yer:'paralel' }
+  ];
+  function hedef(k){ var i; for (i = 0; i < HEDEF.length; i++) if (HEDEF[i].k === k) return HEDEF[i]; return HEDEF[0]; }
+  var KADRAN = [ { k:'V', ad:'V⎓' }, { k:'ohm', ad:'Ω' }, { k:'mA', ad:'mA' }, { k:'A', ad:'A' } ];
+  var JAK = [ { k:'A', ad:'10A' }, { k:'mA', ad:'mA µA' }, { k:'COM', ad:'COM' }, { k:'VO', ad:'VΩ' } ];
+  /* sonuç: s = 'ok' | 'bos' | 'yanlis' | 'tehlike' */
+  function mmSonuc(h, kd, jk){
+    var R = function(s, ekran, not){ return { s:s, ekran:ekran, not:not }; };
+    var kisaYol = (jk === 'mA' || jk === 'A');         /* kırmızı uç akım girişinde: ölçer içi neredeyse 0 Ω */
+    if (h === 'pil'){
+      if (kisaYol) return R('tehlike', jk === 'mA' ? 'sigorta attı' : '— —',
+        jk === 'mA' ? 'Kırmızı uç mA girişinde: ölçerin içi ~1,8 Ω. Pilin iki ucuna dokunmak kısa devre: ~5 A, 440 mA’lik sigorta anında atar. Kadranın nerede olduğu fark etmez — yolu jak belirler.'
+                    : 'Kırmızı uç 10 A girişinde: pil neredeyse sıfır dirençle kısa devre edildi. Pil ısınır; aynı hata prizde patlama ve yanık demek.');
+      if (kd === 'V') return R('ok', '9,00 V', 'Doğru: kırmızı uç VΩ’da, kadran V⎓’da, uçlar pilin iki ucunda (paralel). Ölçer 10 MΩ ile neredeyse hiç akım çalmıyor.');
+      if (kd === 'ohm') return R('yanlis', 'anlamsız', 'Ohmmetre kendi küçük akımını gönderip gerilimi ölçer. Gerilim olan bir yere dokununca okuma anlamsızlaşır; eski ölçerler zarar da görebilir. Direnç hep devre enerjisizken ölçülür.');
+      return R('bos', '0,00', 'Kadran akımda ama kırmızı uç VΩ girişinde: akım girişine hiçbir şey bağlı değil, ekran 0 gösterir.');
+    }
+    if (h === 'akim'){
+      if (jk === 'mA' && kd === 'mA') return R('ok', '50,0 mA', 'Doğru: devre açıldı, ölçer araya girdi (seri). Kırmızı uç mA girişinde, kadran mA’da. Ölçer ~1,8 Ω ile pedaldan 90 mV çalıyor — önemsiz.');
+      if (jk === 'A' && kd === 'A') return R('ok', '0,050 A', 'Doğru ama kaba: 10 A girişi büyük akımlar için. 50 mA’i okur, yalnızca daha az basamakla.');
+      if (jk === 'VO' && kd === 'V') return R('yanlis', '9,00 V', 'Voltmetre seriye girdi: 10 MΩ yolu neredeyse tıkadı. Ekranda pilin gerilimi görünür, pedal çalışmaz. Zarar yok, ama ölçülen şey akım değil.');
+      if (jk === 'VO') return R('bos', '0,00', 'Kırmızı uç VΩ girişinde: ölçerin içinden akım yolu yok. Devre açık kaldı, pedal çalışmaz, ekran bir şey söylemez.');
+      return R('bos', '0,00', 'Kadran ile jak uyuşmuyor: ' + (kd === 'V' || kd === 'ohm' ? 'kadran gerilim/dirençte, uç akım girişinde' : 'kadran bir akım kademesinde, uç öbür akım girişinde') + '. Ekran okumaz; birçok ölçer uyarı bipi verir.');
+    }
+    /* direnç */
+    if (kd === 'ohm' && jk === 'VO') return R('ok', '1,00 kΩ', 'Doğru: direnç devreden çıkarıldı, kırmızı uç VΩ’da, kadran Ω’da. Ölçer küçük bir akım gönderip gerilimi ölçer: R = V ÷ I.');
+    if (kd === 'V' && jk === 'VO') return R('bos', '0,00 V', 'Direncin kendi gerilimi yok: gerilim ancak bir kaynak varken oluşur. Direnç ölçmek için kadran Ω’ya.');
+    if (kisaYol) return R('bos', '0,00', 'Kırmızı uç akım girişinde: direnç ölçülmez. Direncin iki ucuna dokunmak zarar vermez ama bir şey de söylemez.');
+    return R('bos', '0,00', 'Kadran akımda ama direncin içinden akım geçmiyor: ekran 0 gösterir.');
+  }
+
+  /* ---------- ortak: dB ekseni olan bir cerceve ---------- */
+  function dbPanel(x0, y0, w, h, lo, hi, adimlar, birim){
+    frame(x0, y0, w, h);
+    var Y = function(v){ return y0 + h - (v - lo)/(hi - lo)*h; };
+    ctx.strokeStyle = C.line2; LW(1);
+    adimlar.forEach(function(v){
+      if (v < lo || v > hi) return;
+      dash(v === 0 ? null : [2,4]);
+      ctx.strokeStyle = v === 0 ? C.line : C.line2; LW(v === 0 ? 1.3 : 1);
+      line(x0, Y(v), x0 + w, Y(v));
+      dash(null);
+      txt(sgn(v,0), x0 + 4*K.fs, Math.max(y0 + 8*K.fs, Y(v) - 6*K.fs),
+          C.ink3, 8.5, 'left', MONO);
+    });
+    if (birim) txt(birim, x0 + w - 5*K.fs, y0 + 9*K.fs, C.ink3, 8.5, 'right', MONO);
+    return Y;
+  }
+  /* ---------- ortak: zaman penceresi ---------- */
+  function zamanPanel(x0, y0, w, h, t0, t1, baslik, sag, yMax){
+    frame(x0, y0, w, h);
+    var ic = 20*K.fs, M = yMax || 1.15;
+    var X = function(t){ return x0 + 12*K.fs + (t - t0)/(t1 - t0)*(w - 24*K.fs); };
+    var Y = function(v){ return y0 + ic + (1 - (v + M)/(2*M))*(h - ic - 12*K.fs); };
+    ctx.strokeStyle = C.line; LW(1.2);
+    line(x0 + 6*K.fs, Y(0), x0 + w - 6*K.fs, Y(0));
+    if (baslik) txt(baslik, x0 + 10*K.fs, y0 + 12*K.fs, C.ink3, 9.5, 'left', MONO);
+    if (sag) txt(sag, x0 + w - 10*K.fs, y0 + 12*K.fs, C.ink3, 9.5, 'right', MONO);
+    return { X:X, Y:Y, M:M };
+  }
+  function surekli(P, t0, t1, fn, col, lw, kesik){
+    var N = 800, i;
+    ctx.beginPath();
+    for (i = 0; i <= N; i++){
+      var t = t0 + (t1 - t0)*i/N;
+      var p = [P.X(t), P.Y(Math.max(-P.M, Math.min(P.M, fn(t))))];
+      if (i === 0) ctx.moveTo(p[0], p[1]); else ctx.lineTo(p[0], p[1]);
+    }
+    ctx.strokeStyle = col; LW(lw || 2);
+    if (kesik) dash(kesik);
+    glowOn(col, 5); ctx.stroke(); glowOff();
+    dash(null);
+  }
+
+  /* ---------- ortak: etiketli olcu oku ---------- */
+  function okla(x, y1, y2, col, ad, kucuk){
+    ctx.strokeStyle = col; LW(1.6);
+    line(x, y1, x, y2);
+    [[y1, 1], [y2, -1]].forEach(function(q){
+      ctx.beginPath();
+      ctx.moveTo(x, q[0]); ctx.lineTo(x - 4*K.fs, q[0] + q[1]*7*K.fs);
+      ctx.lineTo(x + 4*K.fs, q[0] + q[1]*7*K.fs); ctx.closePath();
+      ctx.fillStyle = col; ctx.fill();
+    });
+    if (ad) chip(ad, x, (y1 + y2)/2, col, kucuk ? 8.5 : 9.5, 600);
+  }
+  /* ---------- ortak: satirli sayi paneli ---------- */
+  /* Aciklama metni panele sigmiyorsa SARILIYOR; etiket ile deger ayni satira
+     sigmiyorsa deger ALT SATIRA aliniyor. Dar ekranda ikisi de tasiyordu.   */
+  function satirlar(x0, y0, w, h, baslik, sat, lh){
+    frame(x0, y0, w, h);
+    txt(baslik, x0 + 9*K.fs, y0 + 12*K.fs, C.ink2, 9.5, 'left', MONO, 600);
+    var yy = y0 + 30*K.fs, adim = lh || 30*K.fs, i, ic = w - 18*K.fs;
+    for (i = 0; i < sat.length; i++){
+      if (yy + 14*K.fs > y0 + h) break;
+      var lw = tw(sat[i][0], 8.5, MONO, 400);
+      var vw = tw(sat[i][1], 11, MONO, 600);
+      var altSatir = (lw + vw + 14*K.fs > ic);
+      txt(sat[i][0], x0 + 9*K.fs, yy, C.ink3, 8.5, 'left', MONO);
+      if (altSatir){
+        if (yy + 14*K.fs > y0 + h) break;
+        txt(sat[i][1], x0 + w - 9*K.fs, yy + 13*K.fs, sat[i][2] || C.ink2,
+            11, 'right', MONO, 600);
+      } else {
+        txt(sat[i][1], x0 + w - 9*K.fs, yy, sat[i][2] || C.ink2, 11, 'right', MONO, 600);
+      }
+      var ay2 = yy + (altSatir ? 27 : 13)*K.fs, sn = 0;
+      if (sat[i][3] && ay2 < y0 + h - 4*K.fs)
+        sn = wrap(sat[i][3], x0 + 9*K.fs, ay2, ic, C.ink3, 8, 11*K.fs);
+      yy += Math.max(adim, (altSatir ? 30 : 17)*K.fs + sn*11*K.fs);
+    }
+  }
+
+
+  /* ---------- sayı yazımı: üstel ve birimli ---------- */
+  var UST = {'0':'⁰','1':'¹','2':'²','3':'³','4':'⁴','5':'⁵','6':'⁶','7':'⁷','8':'⁸','9':'⁹','-':'⁻'};
+  function usUst(k){ return String(k).split('').map(function(c){ return UST[c] || c; }).join(''); }
+  function usTxt(x){
+    if (x === 0) return '0';
+    var us = Math.floor(lg(Math.abs(x)) + 1e-9), m = x/Math.pow(10, us);
+    if (Math.abs(m - 1) < 0.005) return '10' + usUst(us);
+    return n(m, 2) + '×10' + usUst(us);
+  }
+  /* sondaki sıfırları at: 1,50 → 1,5 ; 2,00 → 2 */
+  function kis(v, d){ return n(v, d).replace(/(,\d*?)0+$/, '$1').replace(/,$/, ''); }
+  function ohmTxt(R){
+    if (R < 1)     return kis(R*1000, R < 0.1 ? 1 : 0) + ' mΩ';
+    if (R < 1e3)   return kis(R, R < 10 ? 2 : (R < 100 ? 1 : 0)) + ' Ω';
+    if (R < 1e6)   return kis(R/1e3, R < 1e4 ? 2 : (R < 1e5 ? 1 : 0)) + ' kΩ';
+    if (R < 1e9)   return kis(R/1e6, R < 1e7 ? 2 : 1) + ' MΩ';
+    return usTxt(R) + ' Ω';
+  }
+  function vTxt(V){
+    var a = Math.abs(V), s = V < 0 ? '−' : '';
+    if (a < 5e-4) return '0 V';
+    if (a < 1) return s + kis(a*1000, a < 0.01 ? 1 : 0) + ' mV';
+    return s + kis(a, a < 10 ? 2 : (a < 100 ? 1 : 0)) + ' V';
+  }
+  function aTxt(I){
+    if (I === 0) return '0 mA';
+    if (I < 1e-4) return kis(I*1e6, I < 1e-5 ? 2 : 1) + ' µA';
+    if (I < 1)    return kis(I*1000, I < 0.01 ? 2 : (I < 0.1 ? 1 : 0)) + ' mA';
+    return kis(I, 2) + ' A';
+  }
+  function wTxt(P){
+    if (P === 0) return '0 mW';
+    if (P < 1) return kis(P*1000, P < 0.01 ? 2 : (P < 0.1 ? 1 : 0)) + ' mW';
+    return kis(P, P < 10 ? 2 : (P < 100 ? 1 : 0)) + ' W';
+  }
+  function saatTxt(h){
+    if (h < 1) return n(h*60, 0) + ' dk';
+    return kis(h, h < 10 ? 1 : 0) + ' saat';
+  }
+  /* büyük çarpanlar: 115 000 gibi, binlik ayraçlı */
+  function katTxt(x){
+    if (x >= 1000) return String(Math.round(x)).replace(/\B(?=(\d{3})+(?!\d))/g, '\u2009');
+    if (x >= 10) return n(x, 0);
+    return n(x, 1).replace(/,0$/, '');
+  }
+
+  /* ---------- ortak devre parçaları ---------- */
+  /* dikdörtgen çevre yolu: s=0 sol-orta (pilin + ucu, üstte), saat yönünde */
+  function cevreYol(x0, y0, x1, y1){
+    var a = x1 - x0, b = y1 - y0, L = 2*(a + b);
+    return { L:L, p:function(s){
+      s = ((s % L) + L) % L;
+      var s0 = b/2;                             /* sol kenarın ortası */
+      s = (s + (L - s0)) % L;                   /* sol-alt köşeden ölç */
+      if (s < b) return [x0, y1 - s];
+      if (s < b + a) return [x0 + (s - b), y0];
+      if (s < 2*b + a) return [x1, y0 + (s - b - a)];
+      return [x1 - (s - 2*b - a), y1];
+    }};
+  }
+  function pilDik(x, y, col, etiket, sagda){           /* dikey telde pil: + üstte */
+    ctx.fillStyle = C.panel; ctx.fillRect(x - 17*K.fs, y - 12*K.fs, 34*K.fs, 24*K.fs);
+    ctx.strokeStyle = col; LW(2.6); line(x - 15*K.fs, y - 5*K.fs, x + 15*K.fs, y - 5*K.fs);
+    LW(4.2); line(x - 7*K.fs, y + 5*K.fs, x + 7*K.fs, y + 5*K.fs);
+    txt('+', x - 22*K.fs, y - 9*K.fs, col, 10.5, 'center', MONO, 600);
+    txt('−', x - 22*K.fs, y + 9*K.fs, col, 10.5, 'center', MONO, 600);
+    if (etiket) txt(etiket, sagda ? x + 22*K.fs : x - 30*K.fs, y, col, 9.5, sagda ? 'left' : 'right', MONO, 600);
+  }
+  function metre(x, y, harf, col, deger, konum){        /* ampermetre / voltmetre dairesi */
+    var r = 14*K.fs;
+    ctx.beginPath(); ctx.arc(x, y, r, 0, TAU); ctx.fillStyle = C.panel; ctx.fill();
+    ctx.strokeStyle = col; LW(2); glowOn(col, 6); ctx.stroke(); glowOff();
+    txt(harf, x, y + 0.5, col, 11.5, 'center', MONO, 600);
+    if (deger){
+      if (konum === 'ust') chip(deger, x, y - r - 11*K.fs, col, 9.5, 600);
+      else if (konum === 'alt') chip(deger, x, y + r + 11*K.fs, col, 9.5, 600);
+      else txt(deger, x + r + 6*K.fs, y, col, 9.5, 'left', MONO, 600);
+    }
+  }
+  function yonOk(x, y, dx, col){                       /* yatay küçük ok */
+    ctx.fillStyle = col; ctx.beginPath();
+    ctx.moveTo(x + dx*7*K.fs, y); ctx.lineTo(x - dx*5*K.fs, y - 5*K.fs); ctx.lineTo(x - dx*5*K.fs, y + 5*K.fs);
+    ctx.closePath(); ctx.fill();
+  }
+  function kutu(x, y, w2, h2, col, ust, alt){           /* yük / cihaz kutusu, merkezli */
+    ctx.fillStyle = mixc(C.panel, col, 0.10); ctx.fillRect(x - w2/2, y - h2/2, w2, h2);
+    ctx.strokeStyle = col; LW(2); ctx.strokeRect(x - w2/2, y - h2/2, w2, h2);
+    if (ust) txt(ust, x, y - (alt ? 7 : 0)*K.fs, col, 9.5, 'center', MONO, 600);
+    if (alt) txt(alt, x, y + 8*K.fs, C.ink2, 8.5, 'center', MONO);
+  }
+  function usCiz(x, y, v, col, size, align, weight){   /* 3,12×10 + küçük üst simge: yazı tipi ⁴–⁹ glifini başka fonttan alıyordu */
+    var us = Math.floor(lg(Math.abs(v)) + 1e-9), m = v/Math.pow(10, us);
+    var a = n(m, 2) + '×10', b = String(us).replace('-', '−');
+    var wa = tw(a, size, MONO, weight), wb = tw(b, size*0.6, MONO, weight), x0;
+    x0 = align === 'center' ? x - (wa + wb)/2 : (align === 'right' ? x - wa - wb : x);
+    txt(a, x0, y, col, size, 'left', MONO, weight);
+    txt(b, x0 + wa + 1, y - size*0.36*K.fs, col, size*0.6, 'left', MONO, weight);
+  }
+  function baslikP(s2, x, y, dar){ txt(s2, x + 9*K.fs, y + 12*K.fs, C.ink2, dar ? 8.5 : 9.5, 'left', MONO, 600); }
+
+  function wrapC(s, cx, y, maxw, col, size, lh){       /* ortalı sarma */
+    var words = s.split(' '), ln = '', out = [];
+    words.forEach(function(w2){
+      var t = ln ? ln + ' ' + w2 : w2;
+      if (tw(t, size, MONO) > maxw){ out.push(ln); ln = w2; } else ln = t;
+    });
+    if (ln) out.push(ln);
+    out.forEach(function(l, k){ txt(l, cx, y + k*lh, col, size, 'center', MONO); });
+  }
+
+  /* ---------- direnç sembolleri ---------- */
+  function dirYatay(cx, y, L, col, kopuk){
+    var i;
+    ctx.fillStyle = C.panel; ctx.fillRect(cx - L/2 - 2, y - 10*K.fs, L + 4, 20*K.fs);
+    ctx.strokeStyle = col; LW(2.2); dash(kopuk ? [3,3] : null);
+    ctx.beginPath(); ctx.moveTo(cx - L/2, y);
+    if (kopuk){
+      for (i = 1; i <= 3; i++) ctx.lineTo(cx - L/2 + L*i/8, y + (i % 2 ? -8 : 8)*K.fs);
+      ctx.stroke(); ctx.beginPath(); ctx.moveTo(cx + L/2 - L*3/8, y + 8*K.fs);
+      for (i = 6; i <= 7; i++) ctx.lineTo(cx - L/2 + L*i/8, y + (i % 2 ? -8 : 8)*K.fs);
+      ctx.lineTo(cx + L/2, y);
+    } else {
+      for (i = 1; i <= 7; i++) ctx.lineTo(cx - L/2 + L*i/8, y + (i % 2 ? -8 : 8)*K.fs);
+      ctx.lineTo(cx + L/2, y);
+    }
+    ctx.stroke(); dash(null);
+    if (kopuk){ txt('×', cx, y, C.arc, 13, 'center', MONO, 600); }
+  }
+  function dirDik(x, cy, L, col, kopuk){
+    var i;
+    ctx.fillStyle = C.panel; ctx.fillRect(x - 10*K.fs, cy - L/2 - 2, 20*K.fs, L + 4);
+    ctx.strokeStyle = col; LW(2.2);
+    ctx.beginPath(); ctx.moveTo(x, cy - L/2);
+    if (kopuk){
+      for (i = 1; i <= 3; i++) ctx.lineTo(x + (i % 2 ? -8 : 8)*K.fs, cy - L/2 + L*i/8);
+      ctx.stroke(); ctx.beginPath(); ctx.moveTo(x + 8*K.fs, cy + L/2 - L*3/8);
+      for (i = 6; i <= 7; i++) ctx.lineTo(x + (i % 2 ? -8 : 8)*K.fs, cy - L/2 + L*i/8);
+      ctx.lineTo(x, cy + L/2);
+    } else {
+      for (i = 1; i <= 7; i++) ctx.lineTo(x + (i % 2 ? -8 : 8)*K.fs, cy - L/2 + L*i/8);
+      ctx.lineTo(x, cy + L/2);
+    }
+    ctx.stroke();
+    if (kopuk) txt('×', x, cy, C.arc, 13, 'center', MONO, 600);
+  }
+  function renkK(k){ return [C.sin, C.cos, C.arc, C.ink2][k]; }
+  function yerlesim(dar, top, pad, w, h, oranlar){      /* P1 sol üst, P2 sağ üst, P3 alt */
+    var gw = w - 2*pad, gh = h - top - 6*K.fs, gap = 12*K.fs;
+    if (dar){
+      var h1 = gh*oranlar[0], h2 = gh*oranlar[1], h3 = gh - h1 - h2 - 2*gap;
+      return [[pad, top, gw, h1], [pad, top + h1 + gap, gw, h2], [pad, top + h1 + h2 + 2*gap, gw, h3]];
+    }
+    var wl = (gw - gap)*oranlar[2], wr = gw - gap - wl, hu = (gh - gap)*oranlar[3], hd = gh - gap - hu;
+    return [[pad, top, wl, hu], [pad + wl + gap, top, wr, hu], [pad, top + hu + gap, gw, hd]];
+  }
+  /* yığılmış çubuk: parçalar, ölçek üst değeri, etiket biçimi */
+  function yiginCubuk(x0, x1, y, bh, parca, ust, etiket, dar){
+    var X = function(v){ return x0 + v/ust*(x1 - x0); }, acc = 0;
+    ctx.fillStyle = mixc(C.panel, C.line, 0.45); ctx.fillRect(x0, y - bh/2, x1 - x0, bh);
+    parca.forEach(function(p){
+      var xa = X(acc), xb = X(acc + p.v);
+      ctx.fillStyle = p.col; ctx.fillRect(xa, y - bh/2, Math.max(0, xb - xa), bh);
+      ctx.strokeStyle = C.panel; LW(1.5); line(xb, y - bh/2, xb, y + bh/2);
+      var s2 = etiket(p);
+      if (s2 && xb - xa > tw(s2, dar ? 8 : 9, MONO, 600) + 10*K.fs)
+        txt(s2, (xa + xb)/2, y, C.panel, dar ? 8 : 9, 'center', MONO, 600);
+      acc += p.v;
+    });
+    return X;
+  }
+
+
+  /* ---------- ortak: ölçer kutusu (iç direnciyle) ---------- */
+  function olcerKutu(x, y, bw, bh, harf, col, icR, dikey){
+    ctx.fillStyle = mixc(C.panel, col, 0.08); ctx.fillRect(x - bw/2, y - bh/2, bw, bh);
+    ctx.strokeStyle = col; LW(1.4); dash([4,3]); ctx.strokeRect(x - bw/2, y - bh/2, bw, bh); dash(null);
+    var r = 13*K.fs, cy = dikey ? y - bh*0.24 : y, cx = dikey ? x : x - bw*0.24;
+    ctx.beginPath(); ctx.arc(cx, cy, r, 0, TAU); ctx.fillStyle = C.panel; ctx.fill();
+    ctx.strokeStyle = col; LW(2); glowOn(col, 6); ctx.stroke(); glowOff();
+    txt(harf, cx, cy + 0.5, col, 11, 'center', MONO, 600);
+    if (icR){
+      if (dikey){ dirDik(x, y + bh*0.22, Math.min(34*K.fs, bh*0.34), col, false); }
+      else { dirYatay(x + bw*0.22, y, Math.min(34*K.fs, bw*0.34), col, false); }
+    }
+  }
+  function sigan(uzun, kisa, maxw, size){ return tw(uzun, size, MONO, 400) <= maxw ? uzun : kisa; }
+  function durumRenk(s){ return s === 'ok' || s === 'doğru' ? C.cos : (s === 'tehlike' || s === 'sigorta' ? C.arc : (s === 'bos' ? C.ink3 : C.sin)); }
+  function yuzdeTxt(x){ var a = Math.abs(x*100); if (a < 1e-9) return '%0'; return (x < 0 ? '−' : '+') + '%' + kis(a, a < 0.01 ? 3 : (a < 1 ? 2 : 1)); }
+
+  /* ================= SAHNE 1: VOLTMETRE =================
+     Bölücünün alt direncine paralel bir voltmetre. Ölçerin iç direnci R2 ile
+     paralel olur ve okumayı düşürür: yükleme etkisi.                        */
+  function drawVm(w, h){
+    var pad = 16*K.fs, dar = w < 760, i, top = 34*K.fs;
+    var T = vmTip(S.vTip), R = S.vR, H = vmHesap(R, T.R);
+    sahneBaslik(w,
+      'VOLTMETRE  ·  ' + T.ad + '  ·  bölücü 2 × ' + ohmTxt(R),
+      'gerçek 4,5 V  →  ölçülen ' + vTxt(H.V) + '  ·  hata ' + yuzdeTxt(H.hata),
+      Math.abs(H.hata) > 0.02 ? C.arc : C.cos, vTxt(H.V) + ' · ' + yuzdeTxt(H.hata));
+    var P = yerlesim(dar, top, pad, w, h, [0.40, 0.20, 0.60, 0.56]), P1 = P[0], P2 = P[1], P3 = P[2];
+
+    /* ---- 1) devre ---- */
+    frame(P1[0], P1[1], P1[2], P1[3]);
+    baslikP(dar ? 'DEVRE' : 'DEVRE  ·  voltmetre R2’nin iki ucuna, paralel', P1[0], P1[1], dar);
+    var lx0 = P1[0] + P1[2]*0.13, lx1 = P1[0] + P1[2]*0.52, xm = P1[0] + P1[2]*0.80;
+    var ly0 = P1[1] + P1[3]*0.28, ly1 = P1[1] + P1[3]*0.82, my = (ly0 + ly1)/2;
+    ctx.strokeStyle = C.ink2; LW(1.8); ctx.strokeRect(lx0, ly0, lx1 - lx0, ly1 - ly0);
+    pilDik(lx0, my, C.sin, '9 V', false);
+    var L = Math.min(56*K.fs, (lx1 - lx0)*0.46);
+    dirYatay((lx0 + lx1)/2, ly0, L, C.ink2, false);
+    txt('R1 ' + ohmTxt(R), (lx0 + lx1)/2, ly0 - 20*K.fs, C.ink2, 9, 'center', MONO, 600);
+    dirDik(lx1, my, Math.min(L, (ly1 - ly0)*0.5), C.ink2, false);
+    txt('R2', lx1 - 14*K.fs, my - 8*K.fs, C.ink2, 9, 'right', MONO, 600);
+    if (!dar) txt(ohmTxt(R), lx1 - 14*K.fs, my + 6*K.fs, C.ink2, 8.5, 'right', MONO);
+    /* ölçer kolu */
+    var col = T.k === 'ideal' ? C.cos : (Math.abs(H.hata) > 0.02 ? C.arc : C.cos);
+    ctx.strokeStyle = col; LW(1.8); line(lx1, ly0, xm, ly0); line(xm, ly0, xm, ly1); line(xm, ly1, lx1, ly1);
+    ctx.fillStyle = C.ink2; [ly0, ly1].forEach(function(y){ ctx.beginPath(); ctx.arc(lx1, y, 3.5*K.fs, 0, TAU); ctx.fill(); });
+    var bw = Math.min(64*K.fs, P1[2]*0.16), bh = Math.min(110*K.fs, (ly1 - ly0)*0.86);
+    olcerKutu(xm, my, bw, bh, 'V', col, T.k !== 'ideal', true);
+    if (dar) txt(T.k === 'ideal' ? 'iç ∞' : 'iç ' + ohmTxt(T.R), xm, ly1 + 13*K.fs, col, 8.5, 'center', MONO, 600);
+    else txt(T.k === 'ideal' ? 'iç direnç ∞' : 'iç ' + ohmTxt(T.R), xm - bw/2 - 6*K.fs, my + bh*0.22, col, 8.5, 'right', MONO, 600);
+    chip(vTxt(H.V), xm, ly0 - 14*K.fs, col, dar ? 9 : 10, 600);
+    if (!dar){
+      chip('R2’den ' + aTxt(H.I2), lx1 + (xm - lx1)*0.42, ly1 + 14*K.fs, C.ink2, 8.5, 600);
+      chip('ölçerden ' + aTxt(H.Im), xm + bw/2 + 4*K.fs + tw('ölçerden ' + aTxt(H.Im), 8.5, MONO, 600)/2, my, col, 8.5, 600);
+    }
+    txt(sigan('ölçerin iç direnci R2’ye paralel bağlanır: ikisi birlikte R2’den küçük bir direnç yapar', 'ölçer R2’ye paralel', P1[2] - 24*K.fs, 8.5),
+        P1[0] + P1[2]/2, P1[1] + P1[3] - 10*K.fs, C.ink3, 8.5, 'center', MONO);
+
+    /* ---- 2) okuma ---- */
+    frame(P2[0], P2[1], P2[2], P2[3]);
+    baslikP(dar ? 'OKUMA' : 'OKUMA  ·  ölçer yokken ve varken', P2[0], P2[1], dar);
+    var rows = [
+      ['ölçer yokken R2 üstünde', '4,5 V', C.ink2],
+      ['ölçerin gösterdiği', vTxt(H.V), col],
+      ['hata', yuzdeTxt(H.hata), col],
+      ['ölçerin çaldığı akım', aTxt(H.Im), C.ink2],
+      ['R2’nin akımı', aTxt(H.I2), C.ink2]
+    ];
+    var ry = P2[1] + 34*K.fs, rs = Math.min(24*K.fs, (P2[3] - 44*K.fs)/rows.length);
+    rows.forEach(function(q, k){
+      txt(q[0], P2[0] + 12*K.fs, ry + k*rs, C.ink3, 8.5, 'left', MONO);
+      txt(q[1], P2[0] + P2[2] - 12*K.fs, ry + k*rs, q[2], k === 1 ? 12 : 10, 'right', MONO, 600);
+    });
+
+    /* ---- 3) üç ölçer yan yana ---- */
+    frame(P3[0], P3[1], P3[2], P3[3]);
+    baslikP(dar ? 'ÜÇ ÖLÇER · ' + ohmTxt(R) : 'ÜÇ ÖLÇER, AYNI DEVRE  ·  bölücü 2 × ' + ohmTxt(R) + ', gerçek değer 4,5 V', P3[0], P3[1], dar);
+    var lab = 0; VM_TIP.forEach(function(q){ lab = Math.max(lab, tw(dar ? q.kisa : q.ad, 8.5, MONO, 600)); });
+    var gx0 = P3[0] + 16*K.fs + lab, gx1 = P3[0] + P3[2] - 70*K.fs;
+    var GX = function(v){ return gx0 + v/4.5*(gx1 - gx0); };
+    var ry0 = P3[1] + 40*K.fs, rs2 = (P3[3] - 40*K.fs - 36*K.fs)/3;
+    VM_TIP.forEach(function(q, k){
+      var hq = vmHesap(R, q.R), yy = ry0 + rs2*(k + 0.5), on = q.k === S.vTip, bh2 = Math.min(16*K.fs, rs2*0.5);
+      var c2 = q.k === 'ideal' ? C.cos : (Math.abs(hq.hata) > 0.02 ? C.arc : C.cos);
+      txt(dar ? q.kisa : q.ad, gx0 - 8*K.fs, yy, on ? C.ink : C.ink3, 8.5, 'right', MONO, on ? 600 : 400);
+      ctx.fillStyle = on ? c2 : mixc(C.panel, c2, 0.35); ctx.fillRect(gx0, yy - bh2/2, GX(hq.V) - gx0, bh2);
+      txt(vTxt(hq.V) + (dar ? '' : '  ' + yuzdeTxt(hq.hata)), GX(hq.V) + 6*K.fs, yy, on ? c2 : C.ink3, 8.5, 'left', MONO, on ? 600 : 400);
+    });
+    ctx.strokeStyle = C.ink2; LW(1.4); dash([4,3]); line(GX(4.5), ry0 - 8*K.fs, GX(4.5), P3[1] + P3[3] - 30*K.fs); dash(null);
+    for (i = 0; i <= 4; i++) txt(i + ' V', GX(i), P3[1] + P3[3] - 20*K.fs, C.ink3, 8, 'center', MONO);
+    txt('4,5 V', GX(4.5), P3[1] + P3[3] - 20*K.fs, C.ink2, 8, 'center', MONO, 600);
+  }
+
+  /* ================= SAHNE 2: AMPERMETRE =================
+     Yolun üstüne giren ampermetrenin iç direnci yüke seri eklenir: akımı biraz
+     azaltır ve üstünde bir gerilim (yük gerilimi) çalar.                    */
+  function drawAm(w, h){
+    var pad = 16*K.fs, dar = w < 760, top = 34*K.fs;
+    var T = amTip(S.aTip), H = amHesap(S.aV, S.aRL, T.r), atar = H.atar && T.k !== 'ideal';
+    sahneBaslik(w,
+      'AMPERMETRE  ·  ' + T.ad + '  ·  ' + vTxt(S.aV) + ', yük ' + ohmTxt(S.aRL),
+      atar ? 'sigorta attı: ' + aTxt(H.I) + ' > 440 mA' : 'gerçek ' + aTxt(H.gercek) + '  →  ölçülen ' + aTxt(H.I) + '  ·  hata ' + yuzdeTxt(H.hata),
+      atar || Math.abs(H.hata) > 0.02 ? C.arc : C.cos, atar ? 'sigorta attı' : aTxt(H.I) + ' · ' + yuzdeTxt(H.hata));
+    var P = yerlesim(dar, top, pad, w, h, [0.40, 0.20, 0.60, 0.56]), P1 = P[0], P2 = P[1], P3 = P[2];
+    var col = atar || Math.abs(H.hata) > 0.02 ? C.arc : C.cos;
+
+    /* ---- 1) devre ---- */
+    frame(P1[0], P1[1], P1[2], P1[3]);
+    baslikP(dar ? 'DEVRE' : 'DEVRE  ·  devre açıldı, ampermetre araya girdi (seri)', P1[0], P1[1], dar);
+    var lx0 = P1[0] + P1[2]*(dar ? 0.22 : 0.14), lx1 = P1[0] + P1[2]*0.86, ly0 = P1[1] + P1[3]*0.36, ly1 = P1[1] + P1[3]*0.82, my = (ly0 + ly1)/2;
+    ctx.strokeStyle = C.ink2; LW(1.8); ctx.strokeRect(lx0, ly0, lx1 - lx0, ly1 - ly0);
+    pilDik(lx0, my, C.sin, vTxt(S.aV), false);
+    dirDik(lx1, my, Math.min(56*K.fs, (ly1 - ly0)*0.5), C.ink2, false);
+    txt('yük', lx1 - 14*K.fs, my - 8*K.fs, C.ink2, 9, 'right', MONO, 600);
+    txt(ohmTxt(S.aRL), lx1 - 14*K.fs, my + 6*K.fs, C.ink2, 8.5, 'right', MONO);
+    var bw = Math.min(120*K.fs, (lx1 - lx0)*0.42), bh = 40*K.fs, mx = (lx0 + lx1)/2;
+    olcerKutu(mx, ly0, bw, bh, 'A', col, T.k !== 'ideal', false);
+    txt(T.k === 'ideal' ? 'iç direnç 0' : 'iç ' + ohmTxt(T.r) + (dar ? '' : ' (şönt)'), mx, ly0 - bh/2 - 10*K.fs, col, 8.5, 'center', MONO, 600);
+    if (atar){
+      chip('SİGORTA ATTI', mx, ly0 + bh/2 + 16*K.fs, C.arc, 10, 600);
+    } else {
+      chip(aTxt(H.I), mx, ly0 + bh/2 + 16*K.fs, col, dar ? 9.5 : 10.5, 600);
+      if (T.k !== 'ideal' && !dar) chip('ölçerin üstünde ' + vTxt(H.yukV), mx, ly0 + bh/2 + 38*K.fs, C.sin, 8.5, 600);
+    }
+    txt(sigan('akımın hepsi ölçerden geçer: ölçerin direnci yüke seri eklenir', 'akımın hepsi ölçerden geçer', P1[2] - 24*K.fs, 8.5),
+        P1[0] + P1[2]/2, P1[1] + P1[3] - 10*K.fs, C.ink3, 8.5, 'center', MONO);
+
+    /* ---- 2) okuma ---- */
+    frame(P2[0], P2[1], P2[2], P2[3]);
+    baslikP(dar ? 'OKUMA' : 'OKUMA  ·  ölçer yokken ve varken', P2[0], P2[1], dar);
+    var rows = [
+      ['ölçer yokken akım', aTxt(H.gercek), C.ink2],
+      ['ölçerin gösterdiği', atar ? 'sigorta attı' : aTxt(H.I), col],
+      ['hata', atar ? '—' : yuzdeTxt(H.hata), col],
+      ['ölçerin üstündeki gerilim', atar ? '—' : vTxt(H.yukV), C.sin],
+      ['yüke kalan gerilim', atar ? '—' : vTxt(S.aV - H.yukV), C.ink2]
+    ];
+    var ry = P2[1] + 34*K.fs, rs = Math.min(24*K.fs, (P2[3] - 44*K.fs)/rows.length);
+    rows.forEach(function(q, k){
+      txt(q[0], P2[0] + 12*K.fs, ry + k*rs, C.ink3, 8.5, 'left', MONO);
+      txt(q[1], P2[0] + P2[2] - 12*K.fs, ry + k*rs, q[2], k === 1 ? 12 : 10, 'right', MONO, 600);
+    });
+
+    /* ---- 3) gerilim payı ---- */
+    frame(P3[0], P3[1], P3[2], P3[3]);
+    baslikP(dar ? 'GERİLİM PAYI' : 'GERİLİM PAYI  ·  pilin gerilimi yük ile ölçer arasında paylaşılıyor', P3[0], P3[1], dar);
+    var bx0 = P3[0] + (dar ? 16 : 70)*K.fs, bx1 = P3[0] + P3[2] - 18*K.fs, bh2 = Math.min(30*K.fs, P3[3]*0.18), yb = P3[1] + P3[3]*0.40;
+    if (atar){
+      wrapC('Ölçer ' + aTxt(H.I) + ' taşımaya çalıştı, 440 mA’lik sigorta attı. Yolu kesildi: devrede artık akım yok. Büyük akımlar için 10 A girişi kullanılır.',
+            P3[0] + P3[2]/2, P3[1] + P3[3]*0.42, P3[2] - 40*K.fs, C.arc, 10, 15*K.fs);
+      return;
+    }
+    if (!dar) txt(vTxt(S.aV), bx0 - 10*K.fs, yb, C.sin, 10, 'right', MONO, 600);
+    yiginCubuk(bx0, bx1, yb, bh2, [{ v:S.aV - H.yukV, col:C.ink2, ad:'yük' }, { v:H.yukV, col:C.sin, ad:'ölçer' }], S.aV,
+      function(p){ return p.ad + ' ' + vTxt(p.v); }, dar);
+    var pay = H.yukV/S.aV;
+    wrapC(T.k === 'ideal' ? 'İdeal ampermetre hiç gerilim çalmaz: bütün gerilim yükte.'
+      : 'Ölçerin payı %' + kis(pay*100, pay < 0.01 ? 2 : 1) + '. Hata pilin geriliminden değil, yükün direncine göre ölçerin direncinden gelir: yük ne kadar küçükse hata o kadar büyük.',
+      P3[0] + P3[2]/2, P3[1] + P3[3]*0.70, P3[2] - 40*K.fs, C.ink2, 9, 13*K.fs);
+  }
+
+  /* ================= SAHNE 3: YANLIŞ BAĞLANTI =================
+     9 V ve 1 kΩ'luk bir yük; ölçer dört şekilde bağlanır. */
+  function drawHata(w, h){
+    var pad = 16*K.fs, dar = w < 760, top = 34*K.fs, i;
+    var Hq = hataBul(S.hata), H = htHesap(S.hata), dcol = durumRenk(H.durum);
+    var okTxt = H.birim === 'V' ? vTxt(H.okuma) : aTxt(H.okuma);
+    var durTxt = { 'doğru':'doğru bağlantı', 'çalışmaz':'yük çalışmaz', 'sigorta':'kısa devre: sigorta atar' }[H.durum];
+    sahneBaslik(w, 'YANLIŞ BAĞLANTI  ·  9 V, yük 1 kΩ  ·  ' + Hq.ad, durTxt + '  ·  ekran ' + (H.durum === 'sigorta' ? '—' : okTxt), dcol, durTxt);
+    var P = yerlesim(dar, top, pad, w, h, [0.38, 0.20, 0.60, 0.56]), P1 = P[0], P2 = P[1], P3 = P[2];
+
+    /* ---- 1) devre ---- */
+    frame(P1[0], P1[1], P1[2], P1[3]);
+    baslikP(dar ? 'DEVRE' : 'DEVRE  ·  ' + Hq.ad, P1[0], P1[1], dar);
+    var lx0 = P1[0] + P1[2]*0.14, lx1 = P1[0] + P1[2]*0.60, xm = P1[0] + P1[2]*0.84;
+    var ly0 = P1[1] + P1[3]*0.30, ly1 = P1[1] + P1[3]*0.80, my = (ly0 + ly1)/2;
+    var seri = (S.hata === 'as' || S.hata === 'vs'), harf = (S.hata === 'vp' || S.hata === 'vs') ? 'V' : 'A';
+    var mcol = dcol;
+    ctx.strokeStyle = C.ink2; LW(1.8);
+    line(lx0, ly0, lx0, ly1); line(lx0, ly1, lx1, ly1); line(lx1, ly0, lx1, ly1);
+    if (seri){
+      var mx = (lx0 + lx1)/2;
+      line(lx0, ly0, mx - 16*K.fs, ly0); line(mx + 16*K.fs, ly0, lx1, ly0);
+      metre(mx, ly0, harf, mcol, '', '');
+      chip(harf === 'V' ? 'iç 10 MΩ' : 'iç 1,8 Ω', mx, ly0 - 26*K.fs, mcol, 8.5, 600);
+    } else {
+      line(lx0, ly0, lx1, ly0);
+      ctx.strokeStyle = mcol; LW(1.8); line(lx1, ly0, xm, ly0); line(xm, ly0, xm, my - 16*K.fs); line(xm, my + 16*K.fs, xm, ly1); line(xm, ly1, lx1, ly1);
+      metre(xm, my, harf, mcol, '', '');
+      chip(harf === 'V' ? 'iç 10 MΩ' : 'iç 1,8 Ω', xm, my + 30*K.fs, mcol, 8.5, 600);
+      ctx.fillStyle = C.ink2; [ly0, ly1].forEach(function(y){ ctx.beginPath(); ctx.arc(lx1, y, 3.5*K.fs, 0, TAU); ctx.fill(); });
+    }
+    pilDik(lx0, my, C.sin, '9 V', false);
+    var calis = H.yukI > 1e-3;
+    dirDik(lx1, my, Math.min(56*K.fs, (ly1 - ly0)*0.5), calis ? C.sin : C.ink3, false);
+    txt('yük', lx1 - 14*K.fs, my - 8*K.fs, C.ink2, 9, 'right', MONO, 600);
+    txt('1 kΩ', lx1 - 14*K.fs, my + 6*K.fs, C.ink2, 8.5, 'right', MONO);
+    /* yük göstergesi: küçük bir lamba */
+    var gx = lx1 - 30*K.fs, gy = ly1 - 22*K.fs;
+    ctx.beginPath(); ctx.arc(gx, gy, 6*K.fs, 0, TAU); ctx.fillStyle = calis ? C.sin : C.panel2; if (calis) glowOn(C.sin, 12); ctx.fill(); glowOff();
+    ctx.strokeStyle = C.ink3; LW(1.2); ctx.stroke();
+    if (!dar) txt(calis ? 'yük çalışıyor' : 'yük çalışmıyor', gx - 12*K.fs, gy, calis ? C.sin : C.ink3, 8, 'right', MONO, 600);
+    if (S.hata === 'ap'){
+      /* kısa devre yolu: kalın ok, sigorta */
+      ctx.strokeStyle = C.arc; LW(3.4); glowOn(C.arc, 10);
+      line(lx1 + 6*K.fs, ly0 - 6*K.fs, xm - 6*K.fs, ly0 - 6*K.fs); glowOff();
+      yonOk(xm - 10*K.fs, ly0 - 6*K.fs, 1, C.arc);
+      chip('5 A!', (lx1 + xm)/2, ly0 - 20*K.fs, C.arc, 10, 600);
+      chip(dar ? 'sigorta attı' : 'sigorta 440 mA: attı', dar ? (lx1 + xm)/2 : xm, ly1 + 14*K.fs, C.arc, 8.5, 600);
+    }
+    txt(sigan(seri ? 'ölçer yolun üstünde: bütün akım ölçerden geçer' : 'ölçer yükün iki ucuna: yükle aynı gerilimi görür', seri ? 'ölçer yolun üstünde' : 'ölçer yükün iki ucunda', P1[2] - 24*K.fs, 8.5),
+        P1[0] + P1[2]/2, P1[1] + P1[3] - 10*K.fs, C.ink3, dar ? 8 : 8.5, 'center', MONO);
+
+    /* ---- 2) sonuç ---- */
+    frame(P2[0], P2[1], P2[2], P2[3]);
+    baslikP(dar ? 'SONUÇ' : 'SONUÇ  ·  ' + durTxt, P2[0], P2[1], dar);
+    var rows = [
+      ['ekran', H.durum === 'sigorta' ? '— (sigorta attı)' : okTxt, dcol],
+      ['yükten geçen akım', aTxt(H.yukI), calis ? C.sin : C.ink3],
+      ['ölçerden geçen akım', aTxt(H.olcerI), H.durum === 'sigorta' ? C.arc : C.ink2],
+      ['durum', durTxt, dcol]
+    ];
+    var ry = P2[1] + 36*K.fs, rs = Math.min(26*K.fs, (P2[3] - 46*K.fs)/rows.length);
+    rows.forEach(function(q, k){
+      txt(q[0], P2[0] + 12*K.fs, ry + k*rs, C.ink3, 8.5, 'left', MONO);
+      txt(q[1], P2[0] + P2[2] - 12*K.fs, ry + k*rs, q[2], k === 0 ? 11.5 : 9.5, 'right', MONO, 600);
+    });
+
+    /* ---- 3) dört durum ---- */
+    frame(P3[0], P3[1], P3[2], P3[3]);
+    baslikP(dar ? 'DÖRT BAĞLANTI' : 'DÖRT BAĞLANTI  ·  iki doğru, iki yanlış', P3[0], P3[1], dar);
+    var gx0 = P3[0] + 12*K.fs, gy0 = P3[1] + 28*K.fs, cwid = (P3[2] - 24*K.fs - 10*K.fs)/2, chh = (P3[3] - 40*K.fs - 10*K.fs)/2;
+    var OZ = {
+      vp:['9,00 V okur', 'ölçer 0,9 µA çalar; yük çalışır'],
+      as:['8,98 mA okur', 'ölçer 16 mV çalar; yük çalışır'],
+      vs:['≈ 9 V okur', 'yol neredeyse tıkandı: 0,9 µA; yük çalışmaz'],
+      ap:['kısa devre', '9 V ÷ 1,8 Ω = 5 A; sigorta atar']
+    };
+    HATA.forEach(function(q, k){
+      var cx = gx0 + (k % 2)*(cwid + 10*K.fs), cy = gy0 + Math.floor(k/2)*(chh + 10*K.fs), on = q.k === S.hata;
+      var hq = htHesap(q.k), c2 = durumRenk(hq.durum);
+      ctx.fillStyle = on ? mixc(C.panel, c2, 0.14) : C.panel2; ctx.fillRect(cx, cy, cwid, chh);
+      ctx.strokeStyle = on ? c2 : C.line; LW(on ? 2 : 1); ctx.strokeRect(cx + 0.5, cy + 0.5, cwid - 1, chh - 1);
+      txt(dar ? q.kisa : q.ad, cx + 10*K.fs, cy + 14*K.fs, C.ink, dar ? 9 : 10, 'left', MONO, 600);
+      txt(q.dogru ? '✓ doğru' : '✗ yanlış', cx + cwid - 10*K.fs, cy + 14*K.fs, c2, 9, 'right', MONO, 600);
+      if (chh > 44*K.fs) txt(OZ[q.k][0], cx + 10*K.fs, cy + 32*K.fs, c2, 9.5, 'left', MONO, 600);
+      if (chh > 62*K.fs) wrap(OZ[q.k][1], cx + 10*K.fs, cy + 50*K.fs, cwid - 20*K.fs, C.ink3, 8.5, 12*K.fs);
+    });
+  }
+
+  /* ================= SAHNE 4: MULTİMETRE =================
+     Kadran ekranın NEYİ göstereceğini seçer; jak ölçerin İÇİNDEN hangi yolun
+     geçeceğini. Kırmızı uç akım girişindeyse ölçer ne gösterirse göstersin
+     iki ucu arası neredeyse kısa devredir.                                   */
+  function drawMm(w, h){
+    var pad = 16*K.fs, dar = w < 760, top = 34*K.fs, i;
+    var Hd = hedef(S.hedef), R = mmSonuc(S.hedef, S.kadran, S.jak), rc = durumRenk(R.s);
+    var sAd = { ok:'doğru', bos:'okuma yok', yanlis:'yanlış ölçüm', tehlike:'tehlikeli' }[R.s];
+    sahneBaslik(w, 'MULTİMETRE  ·  hedef: ' + Hd.ad, sAd + '  ·  ekran ' + R.ekran, rc, sAd + ' · ' + R.ekran);
+    var gw = w - 2*pad, gh = h - top - 6*K.fs, gap = 12*K.fs, P1, P2, P3;
+    if (dar){
+      var h1 = gh*0.40, h2 = gh*0.26, h3 = gh - h1 - h2 - 2*gap;
+      P1 = [pad, top, gw, h1]; P2 = [pad, top + h1 + gap, gw, h2]; P3 = [pad, top + h1 + h2 + 2*gap, gw, h3];
+    } else {
+      var wl = (gw - gap)*0.42, wr = gw - gap - wl, hu = (gh - gap)*0.42;
+      P3 = [pad + wl + gap, top, wr, hu]; P2 = [pad + wl + gap, top + hu + gap, wr, gh - hu - gap]; P1 = [pad, top, wl, gh];
+    }
+
+    /* ---- 1) ölçer ---- */
+    frame(P1[0], P1[1], P1[2], P1[3]);
+    baslikP('MULTİMETRE', P1[0], P1[1], dar);
+    var bw = Math.min(P1[2]*0.72, 250*K.fs), bh = P1[3] - 50*K.fs, bx = P1[0] + (P1[2] - bw)/2, by = P1[1] + 30*K.fs;
+    ctx.fillStyle = mixc(C.panel, C.sin, 0.10); ctx.fillRect(bx, by, bw, bh);
+    ctx.strokeStyle = C.ink2; LW(2); ctx.strokeRect(bx, by, bw, bh);
+    /* ekran */
+    var eh = Math.min(52*K.fs, bh*0.16), ex = bx + bw*0.1, ey = by + bh*0.05;
+    ctx.fillStyle = C.panel; ctx.fillRect(ex, ey, bw*0.8, eh); ctx.strokeStyle = C.ink3; LW(1.2); ctx.strokeRect(ex, ey, bw*0.8, eh);
+    txt(R.ekran, ex + bw*0.8 - 10*K.fs, ey + eh/2, rc, Math.min(17, eh/K.fs*0.36), 'right', MONO, 600);
+    /* kadran */
+    var dcx = bx + bw/2, dcy = ey + eh + (bh*0.62 - eh)*0.55, dr = Math.min(bw*0.24, bh*0.15);
+    ctx.beginPath(); ctx.arc(dcx, dcy, dr, 0, TAU); ctx.fillStyle = C.panel2; ctx.fill(); ctx.strokeStyle = C.ink2; LW(1.8); ctx.stroke();
+    var ACI = { V:-0.75*Math.PI, ohm:-0.25*Math.PI, mA:0.25*Math.PI, A:0.75*Math.PI };
+    KADRAN.forEach(function(q){
+      var a = ACI[q.k] - Math.PI/2*0, on = q.k === S.kadran;
+      var lx = dcx + Math.cos(a)*(dr + 20*K.fs), ly = dcy + Math.sin(a)*(dr + 16*K.fs);
+      txt(q.ad, lx, ly, on ? C.arc : C.ink2, on ? 11 : 10, 'center', MONO, 600);
+    });
+    var ak = ACI[S.kadran];
+    ctx.strokeStyle = C.arc; LW(4); line(dcx, dcy, dcx + Math.cos(ak)*dr*0.85, dcy + Math.sin(ak)*dr*0.85);
+    dot(dcx, dcy, 4, C.ink2);
+    /* jaklar */
+    var jy = by + bh*0.84, jr = Math.min(11*K.fs, bw/16), JX = {};
+    JAK.forEach(function(q, k){
+      var jx = bx + bw*(0.14 + 0.24*k); JX[q.k] = jx;
+      var aktif = (q.k === S.jak) || q.k === 'COM', c2 = q.k === 'COM' ? C.ink : (q.k === S.jak ? C.sin : C.ink3);
+      ctx.beginPath(); ctx.arc(jx, jy, jr, 0, TAU); ctx.fillStyle = aktif ? c2 : C.panel; ctx.fill();
+      ctx.strokeStyle = c2; LW(1.8); ctx.stroke();
+      txt(q.ad, jx, jy + jr + 11*K.fs, aktif ? c2 : C.ink3, 8, 'center', MONO, 600);
+    });
+    if (!dar) txt('kırmızı uç: ' + JAK.filter(function(q){ return q.k === S.jak; })[0].ad + '  ·  siyah uç: COM', bx + bw/2, jy - jr - 12*K.fs, C.ink3, 8, 'center', MONO);
+    /* ---- 2) hedef ---- */
+    frame(P2[0], P2[1], P2[2], P2[3]);
+    baslikP(dar ? 'HEDEF · ' + Hd.kisa : 'HEDEF  ·  ' + Hd.ad + '  ·  uçlar ' + (Hd.yer === 'seri' ? 'devre açılıp araya (seri)' : 'iki uca (paralel)'), P2[0], P2[1], dar);
+    var tcx = P2[0] + P2[2]*(dar ? 0.5 : 0.56), tcy = P2[1] + P2[3]*0.60, sp = Math.min(P2[2]*0.32, 140*K.fs);
+    var uK, uS;                                    /* kırmızı ve siyah uç noktaları */
+    if (S.hedef === 'pil'){
+      ctx.fillStyle = mixc(C.panel, C.sin, 0.18); ctx.fillRect(tcx - 26*K.fs, tcy - 36*K.fs, 52*K.fs, 72*K.fs);
+      ctx.strokeStyle = C.sin; LW(2); ctx.strokeRect(tcx - 26*K.fs, tcy - 36*K.fs, 52*K.fs, 72*K.fs);
+      txt('9 V', tcx, tcy, C.sin, 12, 'center', MONO, 600);
+      txt('−', tcx - 12*K.fs, tcy - 46*K.fs, C.sin, 11, 'center', MONO, 600); txt('+', tcx + 12*K.fs, tcy - 46*K.fs, C.sin, 11, 'center', MONO, 600);
+      uK = [tcx + 12*K.fs, tcy - 38*K.fs]; uS = [tcx - 12*K.fs, tcy - 38*K.fs];
+    } else if (S.hedef === 'dir'){
+      ctx.strokeStyle = C.ink2; LW(1.8); line(tcx - sp/2, tcy, tcx - 30*K.fs, tcy); line(tcx + 30*K.fs, tcy, tcx + sp/2, tcy);
+      dirYatay(tcx, tcy, 60*K.fs, C.ink2, false);
+      txt('1 kΩ', tcx, tcy - 20*K.fs, C.ink2, 9.5, 'center', MONO, 600);
+      uK = [tcx - sp/2, tcy]; uS = [tcx + sp/2, tcy];
+    } else {
+      var x0 = tcx - sp, x1 = tcx + sp, y0 = tcy - P2[3]*0.20, y1 = tcy + P2[3]*0.26;
+      ctx.strokeStyle = C.ink2; LW(1.8);
+      line(x0, y0, x0, y1); line(x0, y1, x1, y1); line(x1, y0, x1, y1);
+      line(x0, y0, tcx - 22*K.fs, y0); line(tcx + 22*K.fs, y0, x1, y0);
+      pilDik(x0, (y0 + y1)/2, C.sin, '9 V', true);
+      kutu(x1, (y0 + y1)/2, 60*K.fs, 28*K.fs, C.arc, 'PEDAL', '');
+      if (!dar) chip('devre burada açıldı', tcx, y0 - 16*K.fs, C.ink3, 8, 400);
+      uK = [tcx - 22*K.fs, y0]; uS = [tcx + 22*K.fs, y0];
+    }
+    if (R.s === 'tehlike'){ chip('KISA DEVRE', tcx, P2[1] + P2[3] - 14*K.fs, C.arc, 10, 600); }
+
+    /* ---- 3) sonuç ---- */
+    frame(P3[0], P3[1], P3[2], P3[3]);
+    baslikP(dar ? 'SONUÇ' : 'SONUÇ', P3[0], P3[1], dar);
+    chip(sAd.toUpperCase(), P3[0] + 16*K.fs + tw(sAd.toUpperCase(), 11, MONO, 600)/2, P3[1] + 36*K.fs, rc, 11, 600);
+    txt('ekran: ' + R.ekran, P3[0] + P3[2] - 14*K.fs, P3[1] + 36*K.fs, rc, 10, 'right', MONO, 600);
+    wrap(R.not, P3[0] + 14*K.fs, P3[1] + 60*K.fs, P3[2] - 28*K.fs, C.ink2, dar ? 9.5 : 10.5, (dar ? 14 : 16)*K.fs);
+
+    /* ---- kablolar: jaklardan hedefin uçlarına, en üstte ---- */
+    [[JX[S.jak], uK, C.sin], [JX.COM, uS, C.ink]].forEach(function(q){
+      var x0 = q[0], y0 = jy + jr, p = q[1];
+      ctx.strokeStyle = q[2]; LW(2.6); ctx.beginPath(); ctx.moveTo(x0, y0);
+      if (dar) ctx.bezierCurveTo(x0, y0 + 50*K.fs, p[0], p[1] - 70*K.fs, p[0], p[1] - 8*K.fs);
+      else ctx.bezierCurveTo(x0, y0 + 60*K.fs, p[0] - 40*K.fs, p[1] - 90*K.fs, p[0], p[1] - 8*K.fs);
+      ctx.stroke();
+      ctx.fillStyle = q[2]; ctx.beginPath(); ctx.moveTo(p[0], p[1]); ctx.lineTo(p[0] - 4*K.fs, p[1] - 10*K.fs); ctx.lineTo(p[0] + 4*K.fs, p[1] - 10*K.fs); ctx.closePath(); ctx.fill();
+    });
+  }
+
+  /* ---------- yönetici ---------- */
+  function drawBoard(){
+    var g = sized(board); if (!g) return;
+    ctx = g.c;
+    if (S.mode === 'vm')        drawVm(g.w, g.h);
+    else if (S.mode === 'am')   drawAm(g.w, g.h);
+    else if (S.mode === 'hata') drawHata(g.w, g.h);
+    else                        drawMm(g.w, g.h);
+  }
+  function render(){ drawBoard(); }
+  if (window.ResizeObserver){ new ResizeObserver(function(){ render(); }).observe(board); }
+  window.addEventListener('resize', render);
+
+  /* ================= gösterge ================= */
+  var ro = document.getElementById('readout');
+  function cell(lab, val, cls){
+    return '<div><span>'+lab+'</span><b'+(cls?' class="'+cls+'"':'')+'>'+val+'</b></div>';
+  }
+  function mark(sel, key, val){
+    Array.prototype.forEach.call(document.querySelectorAll(sel+' button'), function(b){
+      b.classList.toggle('on', b.dataset[key] === String(val));
+    });
+  }
+  function yaz(id, s){ document.getElementById(id).textContent = s; }
+
+  function sync(){
+    if (S.mode === 'vm'){
+      var T = vmTip(S.vTip), H = vmHesap(S.vR, T.R), kotu = Math.abs(H.hata) > 0.02;
+      ro.innerHTML =
+        cell('gerçek', '4,5 V', '') +
+        cell('ölçülen', vTxt(H.V), kotu ? 'v-arc' : 'v-cos') +
+        cell('hata', yuzdeTxt(H.hata), kotu ? 'v-arc' : 'v-cos') +
+        cell('ölçerin çaldığı', aTxt(H.Im), 'v-sin');
+      mark('#gVR','r',S.vR); mark('#gVT','t',S.vTip);
+      yaz('vm-note', T.not + (S.vR >= 1e5 && T.k !== 'ideal' ? ' Devrenin dirençleri ölçerinkine yaklaştıkça hata büyüyor.' : ' Devrenin dirençleri ölçerinkinden çok küçükse hata önemsiz.'));
+
+    } else if (S.mode === 'am'){
+      var Ta = amTip(S.aTip), Ha = amHesap(S.aV, S.aRL, Ta.r), atar = Ha.atar && Ta.k !== 'ideal';
+      ro.innerHTML =
+        cell('ölçer yokken', aTxt(Ha.gercek), '') +
+        cell('ölçülen', atar ? 'sigorta attı' : aTxt(Ha.I), atar || Math.abs(Ha.hata) > 0.02 ? 'v-arc' : 'v-cos') +
+        cell('hata', atar ? '—' : yuzdeTxt(Ha.hata), atar || Math.abs(Ha.hata) > 0.02 ? 'v-arc' : 'v-cos') +
+        cell('ölçerin üstünde', atar ? '—' : vTxt(Ha.yukV), 'v-sin');
+      mark('#gAV','v',S.aV); mark('#gAR','r',S.aRL); mark('#gAT','t',S.aTip);
+      yaz('am-note', atar ? 'Akım 440 mA’lik mA sigortasını aştı. Büyük akım beklerken kırmızı ucu 10 A girişine takın.'
+        : Ta.not + ' Yük ne kadar küçükse ölçerin 1,8 Ω’u o kadar fark eder.');
+
+    } else if (S.mode === 'hata'){
+      var Hq = hataBul(S.hata), Hh = htHesap(S.hata);
+      var okT = Hh.durum === 'sigorta' ? '—' : (Hh.birim === 'V' ? vTxt(Hh.okuma) : aTxt(Hh.okuma));
+      ro.innerHTML =
+        cell('ekran', okT, Hh.durum === 'doğru' ? 'v-cos' : 'v-arc') +
+        cell('yükten', aTxt(Hh.yukI), 'v-sin') +
+        cell('ölçerden', aTxt(Hh.olcerI), Hh.durum === 'sigorta' ? 'v-arc' : '') +
+        cell('bağlantı', Hq.dogru ? 'doğru' : 'yanlış', Hq.dogru ? 'v-cos' : 'v-arc');
+      mark('#gHt','k',S.hata);
+      yaz('ht-note', {
+        vp:'Voltmetre yükün iki ucunda. 10 MΩ’luk iç direnci neredeyse hiç akım almıyor: devre ölçer yokmuş gibi çalışıyor.',
+        as:'Ampermetre yolun üstünde. 1,8 Ω’luk iç direnci 1 kΩ’un yanında önemsiz: akım 9 mA’den 8,98 mA’e iniyor.',
+        vs:'Voltmetre yolun üstünde: 10 MΩ yolu tıkadı. Akım 0,9 µA’e indi, yük çalışmıyor; ekran pilin gerilimine yakın bir şey gösteriyor. Tehlikeli değil ama yanlış.',
+        ap:'Ampermetre yükün iki ucunda: 1,8 Ω pilin iki ucunu neredeyse birleştirdi. 9 V ÷ 1,8 Ω = 5 A. Sigorta bu yüzden var; sigortasız bir ölçer ya da prizde bu hata yangın demek.'
+      }[S.hata]);
+
+    } else {
+      var Hd = hedef(S.hedef), R = mmSonuc(S.hedef, S.kadran, S.jak);
+      var sAd = { ok:'doğru', bos:'okuma yok', yanlis:'yanlış ölçüm', tehlike:'tehlikeli' }[R.s];
+      ro.innerHTML =
+        cell('hedef', Hd.kisa, '') +
+        cell('kadran', KADRAN.filter(function(q){ return q.k === S.kadran; })[0].ad, 'v-arc') +
+        cell('kırmızı uç', JAK.filter(function(q){ return q.k === S.jak; })[0].ad, 'v-sin') +
+        cell('sonuç', sAd, R.s === 'ok' ? 'v-cos' : (R.s === 'tehlike' ? 'v-arc' : ''));
+      mark('#gHd','k',S.hedef); mark('#gKd','k',S.kadran); mark('#gJk','k',S.jak);
+      yaz('mm-note', 'Kadran ekranın ne göstereceğini seçer; kırmızı ucun takıldığı jak ölçerin içinden hangi yolun geçeceğini. İkisi uyuşmalı.');
+    }
+    nerSync();
+    tabloSec();
+  }
+
+  var NEREDE = {
+    vm: { c:'voltmetre',
+      t:'<b>Multimetrenizin kılavuzunda “input impedance” satırını bulun:</b> çoğunlukla 10 MΩ yazar. Bir 9 V pili ölçün: okuma pilin etiketine çok yakın çıkar, çünkü pilin iç direnci birkaç ohm, ölçerinki on milyon. Ölçer ancak çok yüksek dirençli devrelerde (lambalı amfilerin ızgara devreleri gibi) okumayı bozar.' },
+    am: { c:'ampermetre',
+      t:'<b>Bir pedalın çektiği akımı ölçmek için</b> adaptör kablosunu kesmezsiniz: araya bir “pil klipsi” ya da DC uzatma kablosu takıp bir damarı açarsınız, ölçer o boşluğa girer. Kırmızı uç <b>mA</b> girişinde, kadran <b>mA</b>’de. Ölçüm bitince kırmızı ucu mutlaka VΩ’ya geri takın.' },
+    hata: { c:'yanlış bağlantı',
+      t:'<b>En sık yapılan hata:</b> akım ölçtükten sonra kırmızı ucu mA girişinde unutmak, sonra bir pilin ya da adaptörün gerilimini ölçmeye kalkmak. Ölçer bu durumda ampermetredir ve pilin iki ucuna dokunmak kısa devredir. Birçok ölçer bu yüzden uç akım girişindeyken kadran V’ye alınınca uyarı bipi verir.' },
+    mm: { c:'multimetre',
+      t:'<b>Kendi multimetrenize bakın:</b> alttaki girişlerin yanında küçük yazılar vardır — “10A MAX FUSED”, “mA µA 400 mA MAX FUSED”, “COM”, “VΩ”. Siyah uç hep COM’a. Kırmızı uç çoğu zaman VΩ’da kalmalı; yalnızca akım ölçerken mA ya da 10A girişine taşınır.' }
+  };
+  function nerSync(){
+    var N2 = NEREDE[S.mode];
+    document.getElementById('ner-count').textContent = N2.c;
+    document.getElementById('ner-not').innerHTML = N2.t;
+  }
+
+  /* ================= tablo: voltmetre yükleme etkisi ================= */
+  var htb = document.querySelector('#vtable tbody');
+  function tabloDoldur(){
+    htb.innerHTML = '';
+    VM_R.forEach(function(R){
+      var tr = document.createElement('tr'); tr.dataset.r = String(R);
+      var h = '<td>2 × ' + ohmTxt(R) + '</td>';
+      VM_TIP.forEach(function(q){ var hq = vmHesap(R, q.R); h += '<td>' + vTxt(hq.V) + ' <span class="hata">' + yuzdeTxt(hq.hata) + '</span></td>'; });
+      tr.innerHTML = h;
+      tr.addEventListener('click', function(){ S.vR = R; if (S.mode !== 'vm') setMode('vm'); else { sync(); render(); } });
+      htb.appendChild(tr);
+    });
+  }
+  function tabloSec(){
+    Array.prototype.forEach.call(htb.children, function(tr){
+      tr.setAttribute('aria-selected', (S.mode === 'vm' && +tr.dataset.r === S.vR) ? 'true' : 'false');
+    });
+  }
+
+  /* ================= sahne seçimi ================= */
+  var SATIR = { vm:['row-vm'], am:['row-am'], hata:['row-hata'], mm:['row-mm','row-mm2'] };
+  var modeBtns = document.querySelectorAll('.modes button[data-m]');
+  function setMode(m){
+    S.mode = m;
+    Array.prototype.forEach.call(modeBtns, function(b){
+      b.setAttribute('aria-pressed', b.dataset.m === m ? 'true' : 'false');
+    });
+    Object.keys(SATIR).forEach(function(k){
+      SATIR[k].forEach(function(id){ document.getElementById(id).hidden = (k !== m); });
+    });
+    document.getElementById('stage').dataset.scene = m;
+    sync(); render();
+  }
+  Array.prototype.forEach.call(modeBtns, function(b){
+    b.addEventListener('click', function(){ setMode(b.dataset.m); });
+  });
+
+  /* ================= kontroller ================= */
+  function group(host, items, set){
+    var g = document.getElementById(host);
+    items.forEach(function(o){
+      var b = document.createElement('button');
+      b.type = 'button'; b.textContent = o[0];
+      if (o[2]) b.dataset[o[2]] = o[1];
+      b.addEventListener('click', function(){ set(o[1]); sync(); render(); });
+      g.appendChild(b);
+    });
+  }
+  group('gVR', VM_R.map(function(R){ return ['2 × ' + ohmTxt(R), R, 'r']; }), function(v){ S.vR = v; });
+  group('gVT', VM_TIP.map(function(q){ return [q.kisa, q.k, 't']; }), function(v){ S.vTip = v; });
+  group('gAV', AM_V.map(function(v){ return [vTxt(v), v, 'v']; }), function(v){ S.aV = v; });
+  group('gAR', AM_RL.map(function(r){ return [ohmTxt(r), r, 'r']; }), function(v){ S.aRL = v; });
+  group('gAT', AM_TIP.map(function(q){ return [q.kisa, q.k, 't']; }), function(v){ S.aTip = v; });
+  group('gHt', HATA.map(function(q){ return [q.ad, q.k, 'k']; }), function(v){ S.hata = v; });
+  group('gHd', HEDEF.map(function(q){ return [q.kisa, q.k, 'k']; }), function(v){ S.hedef = v; });
+  group('gKd', KADRAN.map(function(q){ return [q.ad, q.k, 'k']; }), function(v){ S.kadran = v; });
+  group('gJk', JAK.filter(function(q){ return q.k !== 'COM'; }).map(function(q){ return [q.ad, q.k, 'k']; }), function(v){ S.jak = v; });
+  function kaydiracSync(){}
+
+  /* ================= ders akışı ================= */
+  var STEPS = [
+    /* ---- sahne 1: voltmetre ---- */
+    { t:'Voltmetreyi R2’nin iki ucuna bağlayın',
+      b:'<b>Voltmetre</b> sahnesinde bölücüyü <b>2 × 1 kΩ</b>, ölçeri <b>ideal</b> seçin. 9 V iki eşit dirence bölünüyor; R2’nin ' +
+        'üstünde <b>4,5 V</b> olmalı. Voltmetrenin iki ucu R2’nin iki ucunda: <b>paralel</b>. Devreyi açmaya gerek yok, çünkü ' +
+        'gerilim iki nokta arasındaki farktır.',
+      ap:{ mode:'vm', vR:1e3, vTip:'ideal' } },
+    { t:'Dijital ölçer: fark yok',
+      b:'Ölçeri <b>dijital</b> yapın. İç direnci <b>10 MΩ</b>: R2’den 4,5 mA geçerken ölçer yalnızca <b>0,45 µA</b> alıyor — on bin kat ' +
+        'az. Okuma 4,5 V. Paralel bağlanan her şey akıma bir yol daha açar; voltmetrenin işi o yolu olabildiğince dar ' +
+        'tutmak. Bu yüzden iç direnci çok büyük yapılır.',
+      ap:{ mode:'vm', vR:1e3, vTip:'dijital' } },
+    { t:'Analog ölçer, küçük dirençli devre',
+      b:'Ölçeri <b>analog</b> yapın. İyi bir analog ölçer 20 000 Ω/V: 10 V kademesinde iç direnci <b>200 kΩ</b>, dijitalden elli ' +
+        'kat küçük. Yine de 1 kΩ’luk bölücüde okuma 4,49 V, hata yalnız %0,25. Devrenin dirençleri ölçerinkinden çok ' +
+        'küçükse ölçer “görünmezdir”.',
+      ap:{ mode:'vm', vR:1e3, vTip:'analog' } },
+    { t:'Devrenin dirençleri büyüyünce',
+      b:'Bölücüyü <b>2 × 100 kΩ</b> yapın. Analog ölçer artık <b>3,6 V</b> okuyor: %20 düşük. Ölçerin 200 kΩ’u R2’nin 100 kΩ’una ' +
+        'paralel eklendi; ikisi birlikte 67 kΩ ediyor ve bölücünün dengesi bozuldu. Buna <b>yükleme etkisi</b> denir: ' +
+        'ölçmek, biraz değiştirmektir.',
+      ap:{ mode:'vm', vR:1e5, vTip:'analog' } },
+    { t:'1 MΩ: analog ölçer yanılıyor',
+      b:'Bölücüyü <b>2 × 1 MΩ</b> yapın. Analog ölçer <b>1,29 V</b> okuyor: gerçek değerin üçte birinden az, %71 düşük. Şimdi ' +
+        'ölçerin 200 kΩ’u R2’den beş kat küçük; akımın çoğu R2’den değil ölçerden geçiyor. Alttaki üç çubuk aynı devreyi ' +
+        'üç ölçerle gösteriyor.',
+      ap:{ mode:'vm', vR:1e6, vTip:'analog' } },
+    { t:'Dijital ölçer de kusursuz değil',
+      b:'Ölçeri <b>dijital</b>’e döndürün: 1 MΩ’luk bölücüde <b>4,29 V</b>, %4,8 düşük. 10 MΩ ile 1 MΩ arasında yalnız on kat var. ' +
+        'Kural: ölçerin iç direnci devreninkinden <b>en az yüz kat</b> büyükse hata %1’in altında kalır. Megaohm’luk ' +
+        'devrelerde (lambalı amfilerin ızgara devreleri gibi) bu hesaba katılır.',
+      ap:{ mode:'vm', vR:1e6, vTip:'dijital' } },
+
+    /* ---- sahne 2: ampermetre ---- */
+    { t:'Ampermetreyi yolun üstüne koyun',
+      b:'<b>Ampermetre</b> sahnesi: 3 V (iki kalem pil), <b>30 Ω</b>’luk bir yük, <b>ideal</b> ampermetre. Akım bir noktadan ' +
+        'geçeni saymak demek; ölçer bu yüzden <b>yolun üstünde</b> durur. Devre açıldı, ölçer boşluğa girdi: <b>seri</b>. ' +
+        'Bütün akım ölçerden geçiyor: 100 mA.',
+      ap:{ mode:'am', aV:3, aRL:30, aTip:'ideal' } },
+    { t:'Gerçek ölçer: 1,8 Ω',
+      b:'Ölçeri <b>mA kademesi</b> yapın. Fluke 87V’nin 400 mA kademesinde iç direnç ≈ <b>1,8 Ω</b> (mA başına 1,8 mV). Bu direnç ' +
+        'yüke seri eklendi: akım <b>94,3 mA</b>’e indi, %5,7 düşük. Ölçerin üstünde <b>170 mV</b> kayboluyor: buna ' +
+        '<b>yük gerilimi</b> (burden) denir. Ampermetrenin iç direncinin çok küçük yapılması bundan.',
+      ap:{ mode:'am', aV:3, aRL:30, aTip:'mA' } },
+    { t:'Büyük yük, küçük hata',
+      b:'Yükü <b>1 kΩ</b> yapın. 1,8 Ω, 1000 Ω’un yanında önemsiz: 3 mA yerine 2,99 mA, hata <b>%0,18</b>. Alttaki çubukta ölçerin ' +
+        'gerilim payı görünmeyecek kadar ince. Pedal gibi yüzlerce ohm’luk yüklerde ampermetre neredeyse görünmezdir.',
+      ap:{ mode:'am', aV:3, aRL:1000, aTip:'mA' } },
+    { t:'Küçük yük, büyük hata',
+      b:'Yükü <b>10 Ω</b> yapın. Şimdi 1,8 Ω yükün beşte biri: 300 mA yerine <b>254 mA</b>, %15 düşük; ölçer 0,46 V çalıyor. ' +
+        'Voltmetrenin tam tersi: ampermetre <b>küçük dirençli</b> devrelerde okumayı bozar.',
+      ap:{ mode:'am', aV:3, aRL:10, aTip:'mA' } },
+    { t:'Pilin gerilimi hatayı değiştirmez',
+      b:'Yükü 30 Ω’a döndürüp pili <b>1,5 V</b> yapın. Akım yarıya indi (47,2 mA), ama hata yine <b>%5,7</b>. Hatayı belirleyen ' +
+        'şey ölçerin direncinin yükün direncine oranı: 1,8 ÷ 31,8. Gerilim ikisinde de aynı oranda paylaşılıyor — seri ' +
+        'devre atölyesindeki gerilim payı kuralı.',
+      ap:{ mode:'am', aV:1.5, aRL:30, aTip:'mA' } },
+    { t:'Sigorta: mA girişinin sınırı',
+      b:'Pili <b>9 V</b>, yükü <b>10 Ω</b> yapın. Akım 763 mA olacaktı; mA girişinin sigortası <b>440 mA</b>. Sigorta attı, yol ' +
+        'kesildi. Büyük akım beklerken kırmızı uç <b>10 A</b> girişine takılır; emin değilseniz önce büyük kademeden başlayın.',
+      ap:{ mode:'am', aV:9, aRL:10, aTip:'mA' } },
+
+    /* ---- sahne 3: yanlış bağlantı ---- */
+    { t:'Doğru: voltmetre paralel',
+      b:'<b>Yanlış bağlantı</b> sahnesi: 9 V ve 1 kΩ’luk bir yük. Önce doğrusu: voltmetre yükün iki ucunda. Ekran <b>9 V</b>, yük ' +
+        'çalışıyor, ölçer yalnızca 0,9 µA alıyor. Alttaki dört kutu dört bağlantıyı yan yana gösteriyor.',
+      ap:{ mode:'hata', hata:'vp' } },
+    { t:'Doğru: ampermetre seri',
+      b:'<b>Ampermetre seri</b>: ölçer yolun üstünde. Ekran <b>8,98 mA</b>; ölçer olmasa 9 mA olacaktı. 1,8 Ω, 1 kΩ’un yanında ' +
+        'önemsiz. Yük çalışıyor.',
+      ap:{ mode:'hata', hata:'as' } },
+    { t:'Yanlış: voltmetre seri',
+      b:'<b>Voltmetre seri</b>: 10 MΩ yolun üstüne girdi ve yolu tıkadı. Akım <b>0,9 µA</b>’e indi, yük çalışmıyor. Ekran ' +
+        'yaklaşık <b>9 V</b> gösteriyor, çünkü pilin bütün gerilimi o büyük iç direncin üstünde. Tehlikeli değil, ama ' +
+        'ölçülen şey akım değil: yanlış bir sayı.',
+      ap:{ mode:'hata', hata:'vs' } },
+    { t:'Yanlış ve tehlikeli: ampermetre paralel',
+      b:'<b>Ampermetre paralel</b>: 1,8 Ω yükün iki ucuna, yani pilin iki ucuna bağlandı. 9 V ÷ 1,8 Ω = <b>5 A</b>, sigortanın ' +
+        '11 katı. Sigorta anında atar. İki yanlıştan biri zararsız, öbürü tehlikeli: fark, ölçerin iç direncinin büyük mü ' +
+        'küçük mü olduğunda. Prizde bu hata yangın ve yanık demek.',
+      ap:{ mode:'hata', hata:'ap' } },
+
+    /* ---- sahne 4: multimetre ---- */
+    { t:'Pilin gerilimini ölçün',
+      b:'<b>Multimetre</b> sahnesi, hedef <b>pil</b>. Siyah uç her zaman <b>COM</b>’da. Kırmızı uç <b>VΩ</b>’da, kadran <b>V⎓</b>’da, ' +
+        'uçlar pilin iki ucunda. Ekran 9,00 V. Kadran ekranın ne göstereceğini, kırmızı ucun jakı ise ölçerin içinden ' +
+        'hangi yolun geçeceğini seçer.',
+      ap:{ mode:'mm', hedef:'pil', kadran:'V', jak:'VO' } },
+    { t:'Kadran Ω’da kalırsa',
+      b:'Kadranı <b>Ω</b>’ya alın. Ohmmetre kendi küçük akımını gönderip gerilimi ölçer; gerilim olan bir yere dokununca okuma ' +
+        '<b>anlamsız</b> olur, eski ölçerler zarar da görebilir. Direnç hep devre enerjisizken ölçülür.',
+      ap:{ mode:'mm', hedef:'pil', kadran:'ohm', jak:'VO' } },
+    { t:'Akım ölçmek: kırmızı ucu taşıyın',
+      b:'Hedefi <b>pedal akımı</b> yapın. Devre açıldı, uçlar boşluğun iki yanında (seri). Kırmızı ucu <b>mA</b> girişine taşıyın, ' +
+        'kadranı <b>mA</b>’ye alın: ekran 50,0 mA. Kadranı çevirmek yetmez; akım ölçmek için uç da <b>başka bir jaka</b> ' +
+        'geçmeli, çünkü şönt o jakın arkasında.',
+      ap:{ mode:'mm', hedef:'akim', kadran:'mA', jak:'mA' } },
+    { t:'Kırmızı uç VΩ’da kalırsa',
+      b:'Kırmızı ucu <b>VΩ</b>’ya, kadranı <b>V⎓</b>’ya alın, uçlar hâlâ boşlukta. Bu bir <b>seri voltmetre</b>: 10 MΩ yolu tıkadı, ' +
+        'pedal çalışmıyor, ekran 9 V gösteriyor. Zarar yok, ama sayı yanlış şeyi anlatıyor.',
+      ap:{ mode:'mm', hedef:'akim', kadran:'V', jak:'VO' } },
+    { t:'En tehlikeli unutkanlık',
+      b:'Akımı ölçtünüz, kırmızı ucu <b>mA</b>’de unuttunuz, kadranı V⎓’ya aldınız ve pili ölçmeye kalktınız. Hedefi <b>pil</b> yapın: ' +
+        '<b>kısa devre</b>. Kadran V’de olsa bile yolu jak belirler: ölçerin içi ~1,8 Ω. Sigorta atar. Birçok ölçer bu ' +
+        'yüzden uç akım girişindeyken uyarı bipi verir.',
+      ap:{ mode:'mm', hedef:'pil', kadran:'V', jak:'mA' } },
+    { t:'Direnç: devre dışında, Ω kademesi',
+      b:'Hedefi <b>direnç</b> yapın: direnç devreden sökülmüş. Kırmızı uç <b>VΩ</b>, kadran <b>Ω</b>: ekran 1,00 kΩ. Ölçer küçük bir ' +
+        'akım gönderir, gerilimi ölçer, R = V ÷ I hesabını kendisi yapar. Üç ölçüm, üç ayrı kurulum; her ölçümden önce ' +
+        '<b>kadran, jak, uçların yeri</b>.',
+      ap:{ mode:'mm', hedef:'dir', kadran:'ohm', jak:'VO' } }
+  ];
+  var si = 0;
+  var stT = document.getElementById('step-title'), stB = document.getElementById('step-body'),
+      stC = document.getElementById('step-count'), dots = document.getElementById('dots');
+  STEPS.forEach(function(_, i){
+    var d = document.createElement('button');
+    d.type = 'button'; d.className = 'dot';
+    d.setAttribute('aria-label', (i+1)+'. adım');
+    d.addEventListener('click', function(){ setStep(i, true); });
+    dots.appendChild(d);
+  });
+  var AP_ANAHTAR = ['vR','vTip','aV','aRL','aTip','hata','hedef','kadran','jak'];
+  function setStep(i, uygula){
+    si = Math.max(0, Math.min(STEPS.length-1, i));
+    var s2 = STEPS[si];
+    stT.textContent = (si+1)+'. '+s2.t;
+    stB.innerHTML = s2.b;
+    stC.textContent = (si+1)+' / '+STEPS.length;
+    Array.prototype.forEach.call(dots.children, function(d,k){
+      d.setAttribute('aria-current', k === si ? 'true':'false');
+    });
+    document.getElementById('prev').disabled = si === 0;
+    document.getElementById('next').disabled = si === STEPS.length-1;
+    if (uygula && s2.ap){
+      var q = s2.ap;
+      AP_ANAHTAR.forEach(function(k){ if (q[k] !== undefined) S[k] = q[k]; });
+      if (q.mode) setMode(q.mode); else { sync(); render(); }
+    }
+  }
+  document.getElementById('prev').addEventListener('click', function(){ setStep(si-1, true); });
+  document.getElementById('next').addEventListener('click', function(){ setStep(si+1, true); });
+
+  /* ================= alıştırma ================= */
+  var QS = [
+    { q:'Voltmetre neden ölçülen parçaya paralel bağlanır?',
+      o:['Gerilim iki nokta arasındaki fark olduğu için; iki noktaya dokunmak yeter','Akımın hepsi ölçerden geçsin diye','Ölçerin sigortası atmasın diye','Paralel bağlantı daha ucuz olduğu için'], c:0,
+      e:'Gerilim tek bir noktanın değil, iki nokta arasındaki farkın adıdır. Voltmetrenin iki ucu o iki noktaya dokunur; devreyi açmaya gerek yoktur.' },
+    { q:'Ampermetre neden devreye seri bağlanır?',
+      o:['Gerilimi ölçmek için','Devreyi korumak için','Akım bir noktadan geçeni saydığı için; bütün akım ölçerden geçmeli','Pil daha uzun dayansın diye'], c:2,
+      e:'Akım bir noktadan saniyede geçen yüktür. Onu saymak için ölçer yolun üstünde durmalı: devre açılır, ölçer araya girer.' },
+    { q:'İyi bir voltmetrenin iç direnci nasıl olmalıdır?',
+      o:['Sıfır','Çok büyük','Ölçülen dirençle aynı','Önemi yok'], c:1,
+      e:'Voltmetre paralel bağlandığı için akıma yeni bir yol açar. İç direnci çok büyükse (dijitalde 10 MΩ) o yoldan neredeyse hiç akım geçmez ve devre ölçer yokmuş gibi çalışır.' },
+    { q:'İyi bir ampermetrenin iç direnci nasıl olmalıdır?',
+      o:['Çok büyük','Ölçülen yükle aynı','10 MΩ','Çok küçük'], c:3,
+      e:'Ampermetre seri bağlandığı için bütün akım içinden geçer. İç direnci büyük olsaydı yolu daraltır, akımı azaltırdı. Multimetrenin mA kademesinde yaklaşık 1,8 Ω.' },
+    { q:'9 V’a bağlı 2 × 1 MΩ’luk bir bölücünün ortasını 200 kΩ iç dirençli analog bir ölçerle ölçerseniz ne okursunuz?',
+      o:['Tam 4,5 V','Yaklaşık 1,3 V — ölçer bölücüyü bozar','9 V','0 V'], c:1,
+      e:'Ölçerin 200 kΩ’u alttaki 1 MΩ’a paralel eklenir; ikisi birlikte ~167 kΩ eder. Bölücü artık 1 MΩ ile 167 kΩ: çıkış 1,29 V. Buna yükleme etkisi denir.' },
+    { q:'Yükleme etkisi ne zaman önemsizdir?',
+      o:['Devrenin dirençleri ölçerin iç direncinden çok küçükse','Pil yeniyse','Ölçer analogsa','Gerilim 9 V’un üstündeyse'], c:0,
+      e:'Ölçerin iç direnci devreninkinden yüzlerce kat büyükse, paralel eklenmesi devreyi neredeyse hiç değiştirmez. 1 kΩ’luk bir bölücüde 10 MΩ’luk ölçerin hatası %0,005.' },
+    { q:'Ampermetrenin şöntünde kaybolan gerilime ne denir?',
+      o:['Kaynak gerilimi','Referans gerilimi','Yük gerilimi (burden voltage)','Eşik gerilimi'], c:2,
+      e:'Ampermetrenin iç direnci üstünde küçük bir gerilim düşer ve bu gerilim devreden çalınır. Fluke 87V’nin mA kademesinde mA başına 1,8 mV.' },
+    { q:'1,8 Ω’luk bir ampermetre hangi yükte daha büyük hata yapar?',
+      o:['1 kΩ','10 kΩ','100 Ω','10 Ω'], c:3,
+      e:'Hata ölçerin direncinin yükün direncine oranından gelir. 10 Ω’luk yükte 1,8 Ω yükün beşte biridir: akım %15 düşük okunur. 1 kΩ’da hata yalnız %0,18.' },
+    { q:'Voltmetreyi yanlışlıkla seri bağlarsanız ne olur?',
+      o:['Sigorta atar','Yol tıkanır, yük çalışmaz; ekran pilin gerilimine yakın bir şey gösterir','Ölçer akımı doğru okur','Pil patlar'], c:1,
+      e:'10 MΩ’luk iç direnç yolun üstüne girince akım mikroamperlere iner. Pilin gerilimi neredeyse tamamen ölçerin üstündedir. Zararsız, ama ölçülen şey yanlış.' },
+    { q:'Ampermetreyi yanlışlıkla 9 V’luk bir pilin iki ucuna bağlarsanız ne olur?',
+      o:['Ekran 9 V gösterir','Hiçbir şey olmaz','Kısa devre: 9 V ÷ 1,8 Ω ≈ 5 A geçer, sigorta atar','Ekran 50 mA gösterir'], c:2,
+      e:'Ampermetrenin iç direnci çok küçük olduğu için pilin iki ucunu neredeyse birleştirir. Akım mA girişinin 440 mA’lik sigortasının 11 katına çıkar.' },
+    { q:'Multimetrede siyah uç hangi girişe takılır?',
+      o:['COM','VΩ','mA','10A'], c:0,
+      e:'Siyah uç her ölçümde COM’a (ortak uç) takılır. Değişen yalnızca kırmızı uçtur: gerilim ve direnç için VΩ, akım için mA ya da 10A.' },
+    { q:'Kadran V⎓’da ama kırmızı uç mA girişinde unutulmuş. Pilin gerilimini ölçmeye kalkarsanız ne olur?',
+      o:['Doğru gerilimi okur','Ekran 0 gösterir','Ölçer otomatik düzeltir','Kısa devre olur; yolu kadran değil jak belirler'], c:3,
+      e:'Kırmızı uç mA girişindeyse ölçerin içinden şönt geçer: ~1,8 Ω. Kadran V’de olsa bile pilin iki ucu kısa devre edilmiş olur ve sigorta atar.' },
+    { q:'Bir direnci ohmmetreyle ölçmeden önce ne yapılmalı?',
+      o:['Devreye 9 V vermek','Devrenin enerjisini kesmek, mümkünse direnci devreden çıkarmak','Kırmızı ucu 10A’ya takmak','Kadranı mA’ye almak'], c:1,
+      e:'Ohmmetre kendi küçük akımını gönderip gerilimi ölçer. Devrede başka bir gerilim varsa okuma bozulur; devredeki öbür parçalar da paralel yol açar.' },
+    { q:'Bir pedalın akımını ölçmek için hangisi doğrudur?',
+      o:['Uçları adaptörün iki ucuna dokundurmak','Kadranı mA’ye almak yeterlidir','Besleme kablosunun bir damarını açıp ölçeri araya koymak; kırmızı uç mA’de, kadran mA’de','Pedalın çıkış jakına dokunmak'], c:2,
+      e:'Akım ölçmek için ölçer seri girmeli: devre açılır, ölçer boşluğa konur. Kırmızı uç mA girişine taşınır, kadran mA’ye alınır. Ölçümden sonra kırmızı uç VΩ’ya geri takılır.' }
+  ];
+  var qi = 0, qok = 0, qDone = [];
+  var qT = document.getElementById('q-text'), qO = document.getElementById('q-opts'),
+      qE = document.getElementById('q-exp'), qC = document.getElementById('q-count'),
+      qN = document.getElementById('q-next');
+  function renderQ(){
+    var q = QS[qi];
+    qT.textContent = (qi+1)+'. '+q.q;
+    qE.textContent = '';
+    qO.innerHTML = '';
+    q.o.forEach(function(o, k){
+      var b = document.createElement('button');
+      b.type='button'; b.textContent = o;
+      b.addEventListener('click', function(){
+        Array.prototype.forEach.call(qO.children, function(x){ x.disabled = true; });
+        b.classList.add(k === q.c ? 'correct' : 'wrong');
+        if (k !== q.c) qO.children[q.c].classList.add('correct');
+        qE.innerHTML = q.e;
+        if (!qDone[qi]){ qDone[qi] = true; if (k === q.c) qok++; }
+        qC.textContent = qok+' / '+qDone.filter(Boolean).length+' doğru';
+      });
+      qO.appendChild(b);
+    });
+    qN.textContent = (qi === QS.length-1) ? 'Baştan başla' : 'Sonraki soru';
+  }
+  qN.addEventListener('click', function(){ qi = (qi+1)%QS.length; renderQ(); });
+
+  /* ================= başlangıç ================= */
+  tabloDoldur();
+  setMode('vm');
+  setStep(0, false);
+  renderQ();
+  sync();
+  render();
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(render);
+})();
+</script>

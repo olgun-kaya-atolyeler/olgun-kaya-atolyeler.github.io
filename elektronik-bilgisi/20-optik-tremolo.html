@@ -1,0 +1,1843 @@
+<!DOCTYPE html>
+<html lang="tr">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Optik Tremolo</title>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400..600;1,6..72,400&family=Chakra+Petch:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+  :root{
+    --ground:#E5ECF3; --panel:#FFFFFF; --panel-2:#F1F6FA;
+    --ink:#0B1620; --ink-2:#3F5265; --ink-3:#697E92;
+    --line:#C7D4E0; --line-2:#DEE7EF;
+    --sin:#A8600A; --cos:#0F5F80; --arc:#A81E6E; --brass:#4A7A12;
+    --on-sin:#FFFFFF; --ok:#1E6B45; --no:#A8203C;
+    --shadow:0 1px 2px rgba(11,22,32,.06), 0 8px 20px -14px rgba(11,22,32,.26);
+    --fs:15px;
+    --board-h:clamp(430px,43vw,520px);
+    --board-ldr:clamp(560px,56vw,644px);
+    --board-lfo:clamp(560px,56vw,644px);
+    --board-yol:clamp(560px,56vw,644px);
+    --board-ped:clamp(575px,57vw,661px);
+    --font-display:"Chakra Petch","IBM Plex Sans",sans-serif;
+    --h1:clamp(30px,4.5vw,46px);
+    --h2:clamp(21px,2.5vw,28px);
+    --track:.02em; --radius:2px; --radius-s:2px;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --ground:#070F17; --panel:#0E1720; --panel-2:#13202C;
+      --ink:#E7F2FB; --ink-2:#9FB6C9; --ink-3:#6B8296;
+      --line:#213240; --line-2:#182533;
+      --sin:#FFB01F; --cos:#4FD3FF; --arc:#FF6AC1; --brass:#A8FF60;
+      --on-sin:#0A1017; --ok:#3EE59B; --no:#FF5F86;
+      --shadow:0 0 0 1px rgba(79,211,255,.07), 0 12px 30px -18px rgba(0,0,0,.9);
+    }
+  }
+  :root[data-theme="dark"]{
+    --ground:#070F17; --panel:#0E1720; --panel-2:#13202C;
+    --ink:#E7F2FB; --ink-2:#9FB6C9; --ink-3:#6B8296;
+    --line:#213240; --line-2:#182533;
+    --sin:#FFB01F; --cos:#4FD3FF; --arc:#FF6AC1; --brass:#A8FF60;
+    --on-sin:#0A1017; --ok:#3EE59B; --no:#FF5F86;
+    --shadow:0 0 0 1px rgba(79,211,255,.07), 0 12px 30px -18px rgba(0,0,0,.9);
+  }
+  :root[data-mode="proj"]{
+    --ground:#F3F8FC; --panel:#FFFFFF; --panel-2:#EDF4F9;
+    --ink:#040B12; --ink-2:#2A3A49; --ink-3:#546678;
+    --line:#ADBFCE; --line-2:#D2DEE9;
+    --sin:#8A4D00; --cos:#084A66; --arc:#8A1258; --brass:#3A6208;
+    --on-sin:#FFFFFF; --ok:#14512F; --no:#8A1428;
+    --shadow:0 1px 2px rgba(11,22,32,.09), 0 8px 20px -14px rgba(11,22,32,.3);
+    --fs:17px;
+    --board-h:clamp(470px,47vw,572px);
+    --board-ldr:clamp(610px,61vw,700px);
+    --board-lfo:clamp(610px,61vw,700px);
+    --board-yol:clamp(610px,61vw,700px);
+    --board-ped:clamp(625px,62vw,718px);
+  }
+  @media (max-width:820px){
+    :root, :root[data-mode="proj"]{ --board-r:580px; }
+  }
+  @media (max-width:760px){
+    :root, :root[data-mode="proj"]{
+      --board-h:520px;
+      --board-ldr:860px; --board-lfo:860px; --board-yol:860px; --board-ped:860px;
+    }
+  }
+
+  *{box-sizing:border-box}
+  body{
+    background:var(--ground);color:var(--ink);
+    font-family:"IBM Plex Sans","Helvetica Neue",Arial,sans-serif;
+    font-size:var(--fs);line-height:1.6;-webkit-font-smoothing:antialiased;
+  }
+  .wrap{max-width:1160px;margin:0 auto;padding:34px 20px 60px;display:flex;flex-direction:column;gap:14px}
+
+  .topbar{display:flex;gap:28px;justify-content:space-between;align-items:flex-start;margin-bottom:12px}
+  @media (max-width:640px){.topbar{flex-direction:column-reverse;align-items:flex-start;gap:16px}}
+  .theme{display:flex;flex:0 0 auto;flex-wrap:wrap;border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;background:var(--panel);box-shadow:var(--shadow)}
+  .theme button{border:0;border-left:1px solid var(--line);border-radius:0;background:transparent;font-size:12.5px;padding:8px 12px;color:var(--ink-2)}
+  .theme button:first-child{border-left:0}
+  .theme button:hover{background:var(--panel-2);color:var(--ink)}
+  .theme button[aria-pressed="true"]{background:var(--ink);color:var(--panel);font-weight:500}
+  .theme button:focus-visible{outline:2px solid var(--arc);outline-offset:-2px}
+  header{display:flex;flex-direction:column;gap:9px;max-width:66ch}
+  .eyebrow{margin:0;font-size:11.5px;font-weight:600;letter-spacing:.13em;text-transform:uppercase;color:var(--ink-3)}
+  h1{margin:0;font-family:var(--font-display);font-weight:500;font-size:var(--h1);line-height:1.06;letter-spacing:var(--track);text-wrap:balance}
+  .lede{margin:2px 0 0;color:var(--ink-2);font-size:16.5px;text-wrap:pretty}
+  .lede b{color:var(--ink);font-weight:600}
+
+  section.sec{display:flex;flex-direction:column;gap:14px;padding-top:22px}
+  .sec-head{display:flex;align-items:baseline;gap:14px;border-bottom:1px solid var(--line);padding-bottom:9px}
+  .sec-num,.num{font-family:"IBM Plex Mono",monospace;font-size:12px;font-weight:500;color:var(--brass);letter-spacing:.06em;flex:0 0 auto;padding-top:5px}
+  .sec-head h2{margin:0;font-family:var(--font-display);font-weight:500;font-size:var(--h2);letter-spacing:var(--track);line-height:1.15;text-wrap:balance}
+  .sec-head p{margin:0;color:var(--ink-3);font-size:13px;margin-left:auto;flex:0 0 auto;text-align:right}
+  @media (max-width:620px){.sec-head p{display:none}}
+
+  .panel{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow)}
+
+  .why{display:grid;grid-template-columns:1fr 1.12fr;gap:20px 28px;align-items:center}
+  @media (max-width:860px){.why{grid-template-columns:1fr;align-items:start}}
+  .why-lead{display:flex;flex-direction:column;gap:13px;padding-bottom:4px}
+  .why-more{display:grid;grid-template-columns:repeat(auto-fit,minmax(255px,1fr));gap:16px 28px;margin-top:6px}
+  .why-lead p,.why-more p{margin:0;color:var(--ink-2)}
+  .why-lead p b,.why-more p b{color:var(--ink);font-weight:600}
+  .cols3{display:grid;grid-template-columns:repeat(3,1fr);gap:16px 28px}
+  @media (max-width:900px){.cols3{grid-template-columns:1fr}}
+  .cols3 p{margin:0;color:var(--ink-2);font-size:14px;line-height:1.6}
+  .cols3 p b{color:var(--ink);font-weight:600}
+  .cols .intro-col{display:flex;flex-direction:column;gap:12px}
+  .cols .intro-col p{margin:0;color:var(--ink-2)}
+  .cols .intro-col p b{color:var(--ink);font-weight:600}
+  p.pull{font-size:16px;color:var(--ink)!important;border-left:3px solid var(--sin);
+    padding-left:13px}
+  .panel-body.nopad{padding:0;gap:0}
+  .quiz{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);
+    box-shadow:var(--shadow);padding:16px 18px 18px;display:flex;flex-direction:column;gap:12px}
+  .q-head{display:flex;align-items:baseline;justify-content:space-between;gap:14px}
+  .q-head .count{font-family:"IBM Plex Mono",monospace;font-size:12px;color:var(--ink-3);
+    font-variant-numeric:tabular-nums;flex:0 0 auto}
+  .q-head .q-text{font-size:16px;font-weight:500;text-wrap:pretty}
+  .quiz > button{align-self:flex-start}
+  .kicker{font-family:"Newsreader",Georgia,serif;font-size:clamp(21px,2.2vw,26px);line-height:1.28;color:var(--ink);font-style:italic;max-width:29ch;letter-spacing:-.01em;text-wrap:balance}
+  .trio-list{display:flex;flex-direction:column;gap:1px;background:var(--line);
+    border:1px solid var(--line);border-radius:var(--radius);overflow:hidden}
+  .tl{background:var(--panel);padding:13px 15px 14px;border-left:3px solid var(--line)}
+  .tl-1{border-left-color:var(--sin)} .tl-2{border-left-color:var(--arc)}
+  .tl-3{border-left-color:var(--cos)}
+  .tl h3{margin:0 0 3px;font-family:var(--font-display);font-weight:500;font-size:15.5px;
+    letter-spacing:var(--track)}
+  .tl p{margin:0;font-size:13.5px;line-height:1.5;color:var(--ink-2)}
+  .tl p b{color:var(--ink);font-weight:600}
+  .tl code{font-size:.92em}
+
+  .defs{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--line);border:1px solid var(--line);border-radius:var(--radius);overflow:hidden}
+  @media (max-width:880px){.defs{grid-template-columns:repeat(2,1fr)}}
+  @media (max-width:560px){.defs{grid-template-columns:1fr}}
+  .def{background:var(--panel);padding:16px 17px 18px;display:flex;flex-direction:column;gap:7px}
+  .def h3{margin:0;font-size:14.5px;font-weight:600;display:flex;align-items:baseline;gap:8px;flex-wrap:wrap}
+  .def h3 em{font-style:normal;font-family:"IBM Plex Mono",monospace;font-size:11.5px;color:var(--ink-3);font-weight:400}
+  .def p{margin:0;font-size:13.8px;color:var(--ink-2);line-height:1.55}
+  .def p b{color:var(--ink);font-weight:600}
+  code{font-family:"IBM Plex Mono",monospace;font-size:.9em;background:var(--panel-2);border:1px solid var(--line-2);padding:1px 5px;border-radius:var(--radius-s)}
+
+  .lang{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--line);border:1px solid var(--line);border-radius:var(--radius);overflow:hidden}
+  @media (max-width:1000px){.lang{grid-template-columns:repeat(2,1fr)}}
+  @media (max-width:560px){.lang{grid-template-columns:1fr}}
+  .lg{background:var(--panel);padding:16px 17px 18px;display:flex;flex-direction:column;gap:8px}
+  .lg-top{display:flex;align-items:baseline;justify-content:space-between;gap:8px}
+  .lg h3{margin:0;font-size:14.5px;font-weight:600}
+  .lg .unit{font-family:"IBM Plex Mono",monospace;font-size:11px;color:var(--ink-3)}
+  .lg p{margin:0;font-size:13.8px;color:var(--ink-2);line-height:1.55}
+  .lg .music{margin-top:2px;font-size:12.5px;color:var(--ink);border-left:2px solid var(--brass);padding-left:9px}
+  .lg .music b{font-weight:600}
+
+  .stage{padding:0;overflow:hidden}
+  .stage-top,.stage-head{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px;padding:13px 16px;border-bottom:1px solid var(--line-2)}
+  .modes{display:flex;flex-wrap:wrap;border:1px solid var(--line);border-radius:var(--radius);overflow:hidden}
+  .modes button{border:0;border-left:1px solid var(--line);border-radius:0;background:var(--panel-2);font-size:13px;padding:8px 15px;color:var(--ink-2);font-weight:500}
+  .modes button:first-child{border-left:0}
+  .modes button:hover{color:var(--ink)}
+  .modes button[aria-pressed="true"]{background:var(--sin);color:var(--on-sin)}
+  .readout{display:flex;flex-wrap:wrap;font-family:"IBM Plex Mono",ui-monospace,monospace;font-variant-numeric:tabular-nums;font-size:13px}
+  .readout div{padding:0 13px;border-left:1px solid var(--line-2)}
+  .readout div:first-child{border-left:0;padding-left:0}
+  .readout b{font-weight:500}
+  .readout span{color:var(--ink-3);font-size:11px;letter-spacing:.06em;text-transform:uppercase;display:block;line-height:1.3}
+  .v-sin{color:var(--sin)} .v-cos{color:var(--cos)} .v-arc{color:var(--arc)}
+
+  .canvas-wrap{background:var(--panel-2);border-bottom:1px solid var(--line-2)}
+  #board{display:block;width:100%;height:var(--board-h);touch-action:none;cursor:default}
+  .stage[data-scene="ldr"] #board{height:var(--board-ldr)}
+  .stage[data-scene="lfo"] #board{height:var(--board-lfo)}
+  .stage[data-scene="yol"] #board{height:var(--board-yol)}
+  .stage[data-scene="ped"] #board{height:var(--board-ped)}
+
+  #board.tut{cursor:grab}
+  #board.tut:active{cursor:grabbing}
+
+  .controls{padding:15px 16px 17px;display:flex;flex-direction:column;gap:14px}
+  .ctl-row{display:flex;flex-wrap:wrap;gap:14px 20px;align-items:center}
+  .ctl-row[hidden]{display:none}
+  .field[hidden]{display:none}
+  .btn-group[hidden]{display:none}
+  .ctl-label{font-size:11px;font-weight:600;letter-spacing:.09em;text-transform:uppercase;color:var(--ink-3);flex:0 0 auto}
+  .field{display:flex;flex-direction:column;gap:5px;min-width:172px;flex:1 1 172px;max-width:300px}
+  .field label{font-size:11px;font-weight:600;letter-spacing:.09em;text-transform:uppercase;color:var(--ink-3);display:flex;justify-content:space-between;gap:10px}
+  .field label em{font-style:normal;font-family:"IBM Plex Mono",monospace;font-variant-numeric:tabular-nums;letter-spacing:0;text-transform:none;font-size:12px;color:var(--ink-2)}
+
+  input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:20px;background:transparent;margin:0}
+  input[type=range]::-webkit-slider-runnable-track{height:4px;background:var(--line);border-radius:2px}
+  input[type=range]::-moz-range-track{height:4px;background:var(--line);border-radius:2px}
+  input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;width:16px;height:16px;border-radius:50%;background:var(--arc);border:2px solid var(--panel);margin-top:-6px;box-shadow:0 0 0 1px var(--arc)}
+  input[type=range]::-moz-range-thumb{width:14px;height:14px;border-radius:50%;background:var(--arc);border:2px solid var(--panel);box-shadow:0 0 0 1px var(--arc)}
+  input[type=range]:focus-visible{outline:2px solid var(--arc);outline-offset:4px}
+
+  button{font:inherit;font-size:13.5px;color:var(--ink);background:var(--panel-2);border:1px solid var(--line);padding:7px 13px;border-radius:var(--radius-s);cursor:pointer;transition:background .13s,border-color .13s,color .13s}
+  button:hover{border-color:var(--ink-3)}
+  button:focus-visible{outline:2px solid var(--arc);outline-offset:2px}
+  button:disabled{opacity:.42;cursor:default}
+  button.on{background:var(--ink);border-color:var(--ink);color:var(--panel)}
+  .ctl-note{font-size:12px;color:var(--ink-3);font-family:"IBM Plex Mono",monospace;
+    letter-spacing:.01em;min-width:0;flex:1 1 138px;line-height:1.35}
+  .btn-group{display:flex;flex-wrap:wrap;gap:6px}
+  .btn-group.sm button{font-size:12.5px;padding:5px 9px}
+
+  .cols{display:grid;grid-template-columns:1.3fr 1fr;gap:16px;align-items:start}
+  @media (max-width:880px){.cols{grid-template-columns:1fr}}
+  .panel-head{display:flex;align-items:baseline;justify-content:space-between;gap:12px;padding:13px 18px 11px;border-bottom:1px solid var(--line-2)}
+  .panel-head h3{margin:0;font-family:var(--font-display);font-weight:500;font-size:19px;letter-spacing:var(--track)}
+  .panel-head .count{font-family:"IBM Plex Mono",monospace;font-size:12px;color:var(--ink-3);font-variant-numeric:tabular-nums}
+  .panel-body{padding:16px 18px 18px;display:flex;flex-direction:column;gap:13px}
+  .step-title{font-family:var(--font-display);font-size:21px;font-weight:500;line-height:1.22;margin:0;letter-spacing:var(--track);text-wrap:balance}
+  .step-body{margin:0;color:var(--ink-2)}
+  .step-body strong{color:var(--ink);font-weight:600}
+  .step-nav{display:flex;gap:8px;align-items:center;margin-top:auto;padding-top:4px;flex-wrap:wrap}
+  /* 34 nokta dar ekranda paneli tasiriyordu: sarmali ve sutunlar daralabilir. */
+  .dots{display:flex;flex-wrap:wrap;gap:5px;margin-left:auto;justify-content:flex-end}
+  .cols>*{min-width:0}
+  .dot{width:7px;height:7px;border-radius:50%;background:var(--line);border:0;padding:0;cursor:pointer}
+  .dot:hover{background:var(--ink-3)}
+  .dot[aria-current="true"]{background:var(--arc)}
+
+  table{width:100%;border-collapse:collapse;font-family:"IBM Plex Mono",monospace;font-size:12.5px;font-variant-numeric:tabular-nums}
+  th,td{text-align:right;padding:6px 8px;border-bottom:1px solid var(--line-2)}
+  th:first-child,td:first-child{text-align:left}
+  th:last-child,td:last-child{text-align:left}
+  thead th{font-family:"IBM Plex Sans",sans-serif;font-size:10.5px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-3);border-bottom:1px solid var(--line)}
+  tbody tr{cursor:pointer}
+  tbody tr:hover{background:var(--panel-2)}
+  tbody tr[aria-selected="true"]{background:color-mix(in srgb,var(--arc) 13%,var(--panel))}
+  tbody tr:last-child td{border-bottom:0}
+  td.c-cmp{font-family:"IBM Plex Sans",sans-serif;font-size:12px;color:var(--ink-2)}
+  tr.unitrow td:first-child{color:var(--brass);font-weight:500}
+  /* Dar ekranda tablo tasiyordu: en az gerekli sutun gizleniyor, kalani kayabiliyor. */
+  .tbl-scroll{overflow-x:auto;-webkit-overflow-scrolling:touch}
+  @media (max-width:620px){
+    th.c-cmp,td.c-cmp{display:none}
+    table{font-size:11.5px}
+    th,td{padding:6px 5px}
+  }
+  .tbl-note{margin:10px 18px 16px;font-size:12.5px;color:var(--ink-3);line-height:1.5}
+  .tbl-note b{color:var(--ink-2);font-weight:600}
+  .tbl-note + .tbl-note{margin-top:-4px}
+
+  .quiz-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;align-items:start}
+  @media (max-width:820px){.quiz-grid{grid-template-columns:1fr}}
+  .q-text{margin:0;font-size:16px;font-weight:500;text-wrap:pretty}
+  .q-opts{display:flex;flex-direction:column;gap:7px}
+  .q-opts button{text-align:left;padding:9px 12px}
+  .q-opts button.correct{border-color:var(--ok);background:color-mix(in srgb,var(--ok) 12%,var(--panel))}
+  .q-opts button.wrong{border-color:var(--no);background:color-mix(in srgb,var(--no) 12%,var(--panel))}
+  .q-feedback{margin:0;font-size:14px;color:var(--ink-2);min-height:1.6em}
+  .q-feedback b.y{color:var(--ok);font-weight:600}
+  .q-feedback b.n{color:var(--no);font-weight:600}
+  .recap ul{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:8px}
+  .recap li{color:var(--ink-2);font-size:14px}
+  .recap b{color:var(--ink);font-weight:600}
+
+  /* ---- video bloğu (yeni video eklemek için bu kalıbı kopyala) ---- */
+  .vid{display:grid;grid-template-columns:1.25fr 1fr;gap:16px;align-items:start}
+  @media (max-width:900px){.vid{grid-template-columns:1fr}}
+  .vid-main{display:flex;flex-direction:column;gap:9px;min-width:0}
+  .vid-frame{position:relative;aspect-ratio:16/9;width:100%;background:var(--panel-2);
+    border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);
+    overflow:hidden}
+  .vid-frame iframe{position:absolute;inset:0;z-index:1;width:100%;height:100%;border:0;display:block}
+  .vid-play{position:absolute;inset:0;z-index:0;width:100%;height:100%;
+    display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;
+    text-align:center;padding:20px;border:0;border-radius:0;background:transparent;
+    cursor:pointer;color:inherit}
+  .vid-play:hover{background:color-mix(in srgb,var(--sin) 7%,transparent);border-color:transparent}
+  .vid-play:focus-visible{outline:2px solid var(--arc);outline-offset:-4px}
+  .vid-tri{width:62px;height:62px;border-radius:50%;background:var(--sin);
+    display:block;margin-bottom:6px;position:relative;box-shadow:var(--shadow);
+    transition:transform .14s}
+  .vid-tri::after{content:"";position:absolute;top:50%;left:54%;transform:translate(-50%,-50%);
+    border-style:solid;border-width:11px 0 11px 18px;
+    border-color:transparent transparent transparent var(--on-sin)}
+  .vid-play:hover .vid-tri{transform:scale(1.07)}
+  .vid-play b{font-family:var(--font-display);font-weight:500;font-size:18px;
+    letter-spacing:var(--track);color:var(--ink);line-height:1.2;text-wrap:balance}
+  .vid-play .vid-ch{font-size:13px;color:var(--ink-3)}
+  .vid-play .vid-hint{font-style:normal;font-family:"IBM Plex Mono",monospace;
+    font-size:11.5px;color:var(--ink-3);margin-top:5px}
+  .vid-meta{margin:0;font-size:13px;color:var(--ink-2);line-height:1.5}
+  .vid-meta b{color:var(--ink);font-weight:600}
+  .vid-meta a{color:var(--cos);font-weight:600;text-underline-offset:3px}
+  .vid-meta span{display:block;margin-top:3px;font-size:12px;color:var(--ink-3)}
+  .vid-guide{background:var(--panel);border:1px solid var(--line);
+    border-left:3px solid var(--brass);border-radius:var(--radius);
+    box-shadow:var(--shadow);padding:15px 18px 17px}
+  .vid-guide h3{margin:0 0 9px;font-family:var(--font-display);font-weight:500;
+    font-size:17px;letter-spacing:var(--track)}
+  .vid-guide ol{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:9px}
+  .vid-guide li{font-size:13.5px;line-height:1.5;color:var(--ink-2)}
+  .vid-guide li b{color:var(--ink);font-weight:600}
+  .vid-guide li::marker{color:var(--brass);font-weight:600}
+  .vid-note{margin:13px 0 0;padding-top:11px;border-top:1px solid var(--line-2);
+    font-size:13px;color:var(--ink-3);line-height:1.5}
+  .vid-note b{color:var(--ink-2);font-weight:600}
+
+  .spec{display:grid;grid-template-columns:1.05fr 1fr;gap:16px;align-items:start}
+  @media (max-width:880px){.spec{grid-template-columns:1fr}}
+  .spec-card{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);
+    box-shadow:var(--shadow);padding:16px 18px 18px;font-family:"IBM Plex Mono",monospace;font-size:13px}
+  .spec-card h3{margin:0 0 10px;font-family:var(--font-display);font-size:17px;font-weight:500;letter-spacing:var(--track)}
+  .spec-row{display:flex;justify-content:space-between;gap:14px;padding:6px 0;border-bottom:1px solid var(--line-2)}
+  .spec-row:last-child{border-bottom:0}
+  .spec-row span{color:var(--ink-3)}
+  .spec-row b{font-weight:500;color:var(--ink)}
+  .spec-row.q{background:color-mix(in srgb,var(--arc) 9%,transparent);margin:0 -8px;padding:6px 8px;border-radius:2px}
+  .ask{display:flex;flex-direction:column;gap:12px}
+  .ask .a{background:var(--panel);border:1px solid var(--line);border-left:3px solid var(--arc);
+    border-radius:var(--radius);box-shadow:var(--shadow);padding:12px 15px 13px}
+  .ask .a h4{margin:0 0 3px;font-size:14px;font-weight:600}
+  .ask .a p{margin:0;font-size:13.5px;color:var(--ink-2);line-height:1.5}
+  .ask .a b{color:var(--ink);font-weight:600}
+  footer{color:var(--ink-3);font-size:12.5px;border-top:1px solid var(--line);padding-top:14px;margin-top:26px;display:flex;flex-wrap:wrap;gap:6px 18px}
+  footer b{color:var(--ink-2);font-weight:600}
+  @media (max-width:760px){
+    button{font-size:14.5px;padding:9px 14px}
+    .btn-group.sm button{font-size:13px;padding:7px 11px}
+    .theme button{padding:8px 9px;font-size:12px}
+    .modes button{padding:9px 12px;font-size:13px}
+    .q-opts button{padding:12px 14px}
+    input[type=range]{height:30px}
+    input[type=range]::-webkit-slider-thumb{width:22px;height:22px;margin-top:-9px}
+    input[type=range]::-moz-range-thumb{width:20px;height:20px}
+    .readout{width:100%}
+    .readout div{padding:0 11px 0 0;border-left:0}
+    .wrap{padding:22px 16px 44px}
+  }
+
+  /* ---- 29. atolyeye ozel ---- */
+  .cks{display:flex;flex-direction:column;gap:1px;background:var(--line);
+    border:1px solid var(--line);border-radius:var(--radius);overflow:hidden}
+  .ck{background:var(--panel);display:grid;grid-template-columns:auto 1fr;gap:3px 10px;
+    padding:10px 13px 11px;align-items:start}
+  .ck .mk{grid-row:1/3;width:20px;height:20px;border-radius:50%;display:flex;
+    align-items:center;justify-content:center;font-size:12px;font-weight:700;
+    font-family:"IBM Plex Mono",monospace;margin-top:1px}
+  .ck.ok .mk{background:color-mix(in srgb,var(--ok) 18%,var(--panel));color:var(--ok)}
+  .ck.no .mk{background:color-mix(in srgb,var(--sin) 20%,var(--panel));color:var(--sin)}
+  .ck b{font-size:13.2px;font-weight:600;line-height:1.35;color:var(--ink)}
+  .ck span{font-size:12.4px;color:var(--ink-2);line-height:1.45}
+  /* Tur seridi: sahne dugmelerinin altinda, tuvalin hemen ustunde. Tur degisince
+     yukaridaki sahne aninda degistigi icin secici gorus alaninda duruyor. */
+  .turbar{display:flex;align-items:center;gap:10px;padding:10px 16px;
+    border-bottom:1px solid var(--line-2);background:var(--panel-2)}
+  .turbar>.tb-lab{font-family:"IBM Plex Mono",monospace;font-size:10.5px;font-weight:500;
+    letter-spacing:.09em;text-transform:uppercase;color:var(--ink-3);flex:0 0 auto}
+  .turbar .tb-scroll{display:flex;gap:6px;overflow-x:auto;flex:1 1 auto;
+    scrollbar-width:thin;padding-bottom:1px}
+  .tb{flex:0 0 auto;border:1px solid var(--line);border-radius:var(--radius);
+    background:var(--panel);padding:6px 12px 7px;display:flex;flex-direction:column;
+    gap:1px;text-align:left;cursor:pointer;line-height:1.25}
+  .tb:hover{background:var(--panel-2);color:var(--ink)}
+  .tb b{font-size:12.8px;font-weight:600;color:var(--ink)}
+  .tb em{font-style:normal;font-family:"IBM Plex Mono",monospace;font-size:10.8px;
+    color:var(--ink-3);white-space:nowrap}
+  .tb[aria-pressed="true"]{border-color:var(--sin);
+    background:color-mix(in srgb,var(--sin) 12%,var(--panel))}
+  .tb[aria-pressed="true"] em{color:var(--ink-2)}
+  @media (max-width:760px){
+    .turbar{flex-direction:column;align-items:stretch;gap:6px;padding:9px 12px}
+    .tb{padding:6px 10px}
+    .tb b{font-size:12.4px}
+  }
+  .pick{display:flex;flex-direction:column;gap:1px;background:var(--line);
+    border:1px solid var(--line);border-radius:var(--radius);overflow:hidden}
+  .pk{background:var(--panel);border:0;border-left:3px solid transparent;border-radius:0;
+    text-align:left;padding:11px 14px 12px;display:flex;flex-direction:column;gap:3px;
+    cursor:pointer;width:100%}
+  .pk:hover{background:var(--panel-2)}
+  .pk[aria-pressed="true"]{border-left-color:var(--sin);
+    background:color-mix(in srgb,var(--sin) 8%,var(--panel))}
+  .pk b{font-size:13.4px;font-weight:600;color:var(--ink)}
+  .pk span{font-size:12.4px;color:var(--ink-2);line-height:1.45;font-weight:400}
+  .pk em{font-style:normal;font-family:"IBM Plex Mono",monospace;font-size:11.5px;
+    color:var(--ink-3)}
+  .tag{display:inline-block;padding:1px 6px;border-radius:2px;font-size:10.5px;font-weight:600;
+    letter-spacing:.04em;border:1px solid}
+  .tag-a{color:var(--brass);border-color:color-mix(in srgb,var(--brass) 45%,transparent);
+    background:color-mix(in srgb,var(--brass) 11%,transparent)}
+  .tag-b{color:var(--sin);border-color:color-mix(in srgb,var(--sin) 45%,transparent);
+    background:color-mix(in srgb,var(--sin) 11%,transparent)}
+  .hint{margin:0;font-size:12.5px;color:var(--ink-3);line-height:1.5}
+  .hint b{color:var(--ink-2);font-weight:600}
+  @media (prefers-reduced-motion: reduce){*{transition:none!important}}
+  .field.bilinmez label{color:var(--arc)}
+  .field.bilinmez input{opacity:.5}
+  td .hata{color:var(--ink-3);font-size:11px;margin-left:4px}
+  .sw{display:inline-block;width:12px;height:12px;border:1px solid var(--line);margin-right:6px;vertical-align:-1px;border-radius:2px}
+  td.bantlar .sw{width:14px;height:14px;margin-right:3px}
+  #palet button:disabled{opacity:.28}
+  #oSec button{min-width:92px;font-family:"IBM Plex Mono",monospace}
+  #oSec button.correct{border-color:var(--cos);background:color-mix(in srgb,var(--cos) 16%,var(--panel));opacity:1}
+  #oSec button.wrong{border-color:var(--arc);background:color-mix(in srgb,var(--arc) 16%,var(--panel));opacity:1}
+</style>
+<div class="wrap">
+  <div class="topbar">
+    <header>
+      <p class="eyebrow">Elektronik Bilgisi · Sınıf atölyesi</p>
+      <h1>Optik Tremolo</h1>
+      <p class="lede">Tremolo, sesin gürlüğünün düzenli olarak dalgalanmasıdır: eski amfilerin içinde, surf gitarının kesik sesinde, elektro
+        piyanoların “nefes alan” akorlarında. En sevilen yapılışlarından biri <b>ışıkla</b> çalışır: yavaş bir osilatör bir <b>LED</b>’i yakıp
+        söndürür, LED’in ışığı ses yolundaki bir <b>fotodirence</b> (LDR) düşer. LDR’nin ışığa biraz tembel tepki vermesi bu tremoloya
+        kendine özgü, yumuşak bir karakter verir.</p>
+    </header>
+    <div class="theme" role="group" aria-label="Görünüm">
+      <button type="button" data-t="light">Açık</button>
+      <button type="button" data-t="dark">Koyu</button>
+      <button type="button" data-t="proj">Projeksiyon</button>
+    </div>
+  </div>
+
+  <section class="sec">
+    <div class="sec-head"><span class="num">01</span><h2>Sesi saniyede birkaç kez kısıp açmak</h2>
+      <span class="kicker">Bir düğmeyi sizin yerinize çeviren devre</span></div>
+    <div class="panel">
+      <div class="panel-body">
+        <p>Bir amfinin volume düğmesini tutup saniyede dört kez hafifçe kısıp açtığınızı düşünün: bu tremolodur. Elle bunu düzenli yapmak
+          imkânsız; pedal bunu bir <b>LFO</b> (düşük frekanslı osilatör) ile yapar. Ama osilatörün gerilimini doğrudan sese karıştırmak
+          istemeyiz: saniyede birkaç kez değişen bir gerilim hoparlörde tık tık diye duyulur.</p>
+        <p>Çözüm ışık: LFO bir <b>LED</b>’i yakar, LED bir <b>LDR</b>’yi aydınlatır, LDR ses yolundaki bir <b>gerilim bölücünün</b> bir koludur.
+          İki devre arasında tel yok, yalnızca ışık. LDR aydınlanınca direnci düşer ve sinyalin bir kısmı toprağa kaçar: ses kısılır.</p>
+        <p>Atölye bu yolu izliyor: önce <b>LED ve LDR</b> (ışığa hızlı ama karanlığa yavaş tepki), sonra <b>LFO</b> (hız, tempo, dalga
+          şekli), sonra <b>ses yolu</b> (derinlik düğmesi) ve son olarak <b>pedalın tamamı</b> (dinleyerek).</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="sec">
+    <div class="sec-head"><span class="num">02</span><h2>Bilmemiz gereken dokuz kavram</h2>
+      <span class="kicker">Işıktan gürlüğe</span></div>
+    <div class="defs">
+      <div class="def"><h3>Tremolo</h3>
+        <p>Gürlüğün düzenli dalgalanması. (Vibrato ise perdenin dalgalanmasıdır; eski amfiler ikisini sık karıştırır.)</p></div>
+      <div class="def"><h3>LDR <em>fotodirenç</em></h3>
+        <p>Işık aldıkça direnci düşen parça (kadmiyum sülfür). Karanlıkta ≈ 1 MΩ, çok ışıkta birkaç kΩ.</p></div>
+      <div class="def"><h3>Vaktrol <em>optokuplör</em></h3>
+        <p>LED ve LDR’nin aynı karanlık kılıfta birleştirildiği parça. İki devreyi yalnız ışıkla bağlar.</p></div>
+      <div class="def"><h3>Tepki süresi</h3>
+        <p>LDR ışık gelince hızlı (≈ 5 ms), ışık gidince yavaş (100 kΩ’a ≈ 40 ms) değişir.</p></div>
+      <div class="def"><h3>LFO</h3>
+        <p>Düşük frekanslı osilatör: saniyede 0,5–12 kez salınan, kendi kendini süren bir devre.</p></div>
+      <div class="def"><h3>Hız <em>rate</em></h3>
+        <p>Saniyedeki salınım sayısı (Hz). 120 BPM’de sekizlik notalar 4 Hz.</p></div>
+      <div class="def"><h3>Derinlik <em>depth</em></h3>
+        <p>Gürlüğün ne kadar dalgalanacağı: en yüksek ile en düşük kazanç arasındaki fark (dB).</p></div>
+      <div class="def"><h3>Dalga şekli <em>biçim</em></h3>
+        <p>LFO’nun biçimi: sinüs yumuşak, üçgen düzgün, kare kesik kesik.</p></div>
+      <div class="def"><h3>Gerilim bölücü</h3>
+        <p>Seri iki direnç; çıkış alt koldan alınır. Alt kol küçüldükçe çıkış kısılır.</p></div>
+    </div>
+  </section>
+
+  <section class="sec">
+    <div class="sec-head"><span class="num">03</span><h2>Atölye: dört sahne</h2>
+      <span class="kicker">LDR · LFO · ses yolu · pedal</span></div>
+
+    <div class="stage" id="stage">
+      <div class="stage-head">
+        <div class="modes" role="group" aria-label="Sahne">
+          <button type="button" data-m="ldr">LED ve LDR</button>
+          <button type="button" data-m="lfo">LFO</button>
+          <button type="button" data-m="yol">Ses yolu</button>
+          <button type="button" data-m="ped">Pedal</button>
+        </div>
+        <div class="readout" id="readout"></div>
+      </div>
+
+      <div class="canvas-wrap"><canvas id="board"></canvas></div>
+
+      <div class="controls">
+        <div class="ctl-row" id="row-ldr">
+          <div class="field"><label for="f-li">LED akımı <em id="v-li"></em></label>
+            <input id="f-li" type="range" min="1" max="20" step="1" value="10"></div>
+          <span class="ctl-label">Darbe</span><div class="btn-group sm" id="gLD"></div>
+          <div class="btn-group sm"><button type="button" id="b-lcalis">Canlandır</button></div>
+          <span class="ctl-note" id="l-note"></span>
+        </div>
+
+        <div class="ctl-row" id="row-lfo" hidden>
+          <div class="field"><label for="f-fhz">Hız <em id="v-fhz"></em></label>
+            <input id="f-fhz" type="range" min="5" max="120" step="1" value="40"></div>
+          <span class="ctl-label">Biçim</span><div class="btn-group sm" id="gFS"></div>
+          <div class="btn-group sm"><button type="button" id="b-fcalis">Canlandır</button></div>
+        </div>
+        <div class="ctl-row" id="row-lfo2" hidden>
+          <span class="ctl-label">120 BPM</span><div class="btn-group sm" id="gFN"></div>
+          <span class="ctl-note" id="f-note"></span>
+        </div>
+
+        <div class="ctl-row" id="row-yol" hidden>
+          <div class="field"><label for="f-yd">Derinlik <em id="v-yd"></em></label>
+            <input id="f-yd" type="range" min="0" max="100" step="1" value="80"></div>
+          <div class="btn-group sm"><button type="button" id="b-ycalis">Canlandır</button></div>
+          <span class="ctl-note" id="y-note"></span>
+        </div>
+
+        <div class="ctl-row" id="row-ped" hidden>
+          <div class="field"><label for="f-phz">Hız <em id="v-phz"></em></label>
+            <input id="f-phz" type="range" min="1" max="24" step="1" value="10"></div>
+          <div class="field"><label for="f-pd">Derinlik <em id="v-pd"></em></label>
+            <input id="f-pd" type="range" min="0" max="100" step="1" value="80"></div>
+        </div>
+        <div class="ctl-row" id="row-ped2" hidden>
+          <span class="ctl-label">Biçim</span><div class="btn-group sm" id="gPS"></div>
+          <div class="btn-group sm"><button type="button" id="b-pldr">Işık: gerçek LDR</button><button type="button" id="b-pdinle">Dinle</button></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="cols">
+      <section class="panel">
+        <div class="panel-head"><h3>Ders akışı</h3><span class="count" id="step-count">1 / 1</span></div>
+        <div class="panel-body">
+          <h4 id="step-title"></h4>
+          <p id="step-body"></p>
+          <div class="steps"><button type="button" id="prev">Önceki</button><button type="button" id="next">Sonraki</button></div>
+          <div class="dots" id="dots"></div>
+        </div>
+      </section>
+      <section class="panel">
+        <div class="panel-head"><h3>Kendin dene</h3><span class="count" id="ner-count"></span></div>
+        <div class="panel-body">
+          <p class="tbl-note" id="ner-not"></p>
+          <p class="tbl-note">Ses yalnızca <b>Pedal</b> sahnesindeki <b>Dinle</b> düğmesiyle çalar ve sahne değişince durur. Akor sentezle üretildi
+            (Gitarın Sesi atölyesindeki gibi), 4 saniyelik döngüde iki kez çalınıyor ve bu sayfanın modeliyle (LFO → LED eşiği → LDR → bölücü)
+            örnek örnek kısılıp açılıyor. LDR değerleri temsilî (vaktrol sınıfı); amfi ve hoparlör rengi yok.</p>
+        </div>
+      </section>
+    </div>
+  </section>
+
+  <section class="sec">
+    <div class="sec-head"><span class="num">04</span><h2>Tempo, hız ve LDR’nin yetişmesi</h2>
+      <span class="kicker">Satıra tıklayın, pedal o hızla açılır</span></div>
+    <div class="panel">
+      <div class="tbl-scroll">
+      <table id="ttab">
+        <thead><tr><th>120 BPM’de</th><th>Hız</th><th>Periyot</th><th>Salınım (LDR)</th><th>Salınım (ideal)</th></tr></thead>
+        <tbody></tbody>
+      </table>
+      </div>
+      <p class="tbl-note">Sinüs, derinlik %80. “İdeal”: ışık değişince direnç anında değişseydi. Hız arttıkça ışıksız aralık kısalır ve LDR
+        yüksek dirence dönmeye vakit bulamaz; hızlı ayarlarda optik tremolo daha sığ gelir. Başka bir tempo için: hız = BPM ÷ 60 × vuruş
+        başına nota sayısı (90 BPM sekizlik: 3 Hz).</p>
+    </div>
+  </section>
+
+  <section class="sec">
+    <div class="sec-head"><span class="num">05</span><h2>Pratikte ne işe yarar?</h2><span class="kicker">Altı çıkarım</span></div>
+    <div class="cks">
+      <div class="ck ok"><span class="mk">✓</span><b>Hızı tempoya bağlayın</b>
+        <span>Tremolo şarkının temposuna oturunca müziğin parçası olur, oturmayınca “dalgalanan” bir hata gibi duyulur. 120 BPM’de 4 Hz
+          sekizlik, 6 Hz üçleme sekizlik.</span></div>
+      <div class="ck ok"><span class="mk">✓</span><b>Yumuşak için sinüs, kesik için kare</b>
+        <span>Sinüs ve orta derinlik akorlara nefes aldırır; kare ve yüksek derinlik surf ve rockabilly’nin kesik sesidir. Optik yapı
+          kareyi bile biraz yuvarlar.</span></div>
+      <div class="ck ok"><span class="mk">✓</span><b>Derinliği azaltmak çoğu zaman yeter</b>
+        <span>%100 derinlik sesi her salınımda neredeyse susturur; mikste bu çoğu zaman fazla gelir. 4–10 dB’lik bir salınım (bu sayfada
+          %50–%70) çoğu şarkıda yeterlidir.</span></div>
+      <div class="ck ok"><span class="mk">✓</span><b>Amfideki tremolo aynı fikir</b>
+        <span>Birçok eski amfide tremolo bir neon lamba ya da LED ile bir LDR’den yapılır; amfi içindeki “vibrato” yazısı çoğu zaman aslında
+          tremolodur.</span></div>
+      <div class="ck no"><span class="mk">!</span><b>Kablolu LFO sızabilir</b>
+        <span>Işık yerine transistörle doğrudan gürlük kontrol eden tasarımlarda LFO’nun gerilimi sese sızarsa hoparlörde tık tık duyulur.
+          Optik yapının sevilmesinin bir nedeni bu sessizliktir.</span></div>
+      <div class="ck no"><span class="mk">!</span><b>Pedalın ışığı dışarı kaçmamalı</b>
+        <span>LDR yalnızca LED’i görmelidir. Kendi yaptığınız devrede LDR açıkta kalırsa sahne ışıkları da tremoloyu “çalar”: kılıfı kapalı
+          bir vaktrol ya da ısı büzüşmeli makaron kullanın.</span></div>
+    </div>
+  </section>
+
+  <section class="sec">
+    <div class="sec-head"><span class="num">06</span><h2>Bu kavramların dili</h2><span class="kicker">Kitapta ve katalogda</span></div>
+    <div class="panel">
+      <div class="tbl-scroll">
+      <table id="ltable">
+        <thead><tr><th>Terim</th><th>Türkçe</th><th class="c-cmp">Ne demek</th></tr></thead>
+        <tbody>
+          <tr><td>Tremolo</td><td>Tremolo</td><td class="c-cmp">Gürlüğün düzenli dalgalanması</td></tr>
+          <tr><td>Vibrato</td><td>Vibrato</td><td class="c-cmp">Perdenin düzenli dalgalanması</td></tr>
+          <tr><td>LDR · photoresistor · photocell</td><td>Fotodirenç</td><td class="c-cmp">Işıkla direnci düşen parça</td></tr>
+          <tr><td>Vactrol · optocoupler</td><td>Vaktrol · optik bağlayıcı</td><td class="c-cmp">LED + LDR aynı kılıfta</td></tr>
+          <tr><td>LFO (low frequency oscillator)</td><td>Düşük frekanslı osilatör</td><td class="c-cmp">Yavaş salınan kontrol sinyali</td></tr>
+          <tr><td>Rate · speed</td><td>Hız</td><td class="c-cmp">Saniyedeki salınım (Hz)</td></tr>
+          <tr><td>Depth · intensity</td><td>Derinlik · şiddet</td><td class="c-cmp">Dalgalanmanın büyüklüğü</td></tr>
+          <tr><td>Shape · wave</td><td>Biçim · dalga şekli</td><td class="c-cmp">Sinüs, üçgen, kare</td></tr>
+          <tr><td>Phase-shift oscillator</td><td>Faz kaydırmalı osilatör</td><td class="c-cmp">RC basamaklarıyla salınan devre</td></tr>
+          <tr><td>Tap tempo</td><td>Vuruşla tempo</td><td class="c-cmp">Hızı ayakla vurarak ayarlama</td></tr>
+        </tbody>
+      </table>
+      </div>
+    </div>
+  </section>
+
+  <section class="sec">
+    <div class="sec-head"><span class="num">07</span><h2>Alıştırma</h2><span class="kicker">On iki soru</span></div>
+    <div class="panel quiz">
+      <div class="q-head"><span class="count" id="q-count">0 / 0 doğru</span></div>
+      <div class="panel-body">
+        <p id="q-text"></p>
+        <div class="q-opts" id="q-opts"></div>
+        <p id="q-exp" class="tbl-note"></p>
+        <div class="steps"><button type="button" id="q-next">Sonraki soru</button></div>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <span><b>LDR (temsilî):</b> karanlık ≈ 1 MΩ; LED 1 mA → 22 kΩ, 5 mA → 6 kΩ, 10 mA → 3,5 kΩ, 20 mA → 2 kΩ. Işık gelince τ ≈ 5 ms, ışık gidince 100 kΩ’a ≈ 40 ms.</span>
+    <span><b>LFO:</b> faz kaydırmalı, C = 1 µF: 2 Hz → 32 kΩ, 4 Hz → 16 kΩ, 8 Hz → 8,1 kΩ. LED eşiği LFO genliğinin %35’i; sinüste LED zamanın ≈ %60’ında yanık.</span>
+    <span><b>Ses yolu:</b> seri 100 kΩ, alt kol 1 MΩ·(1 − derinlik)³ + LDR. %80: −0,8 / −20,8 dB; %50: −0,7 / −5 dB; %100: en düşük −34 dB.</span>
+    <span><b>Pedal (sinüs, %80):</b> salınım 2 Hz 20,0 dB; 4 Hz 19,6; 8 Hz 17,3; 12 Hz 14,2 dB (idealde hepsi 20,0 dB).</span>
+  </footer>
+</div>
+
+<script>
+(function(){
+  "use strict";
+  var TAU = Math.PI*2, L10 = Math.LN10;
+  var root = document.documentElement;
+  function lg(x){ return Math.log(x)/L10; }
+  var CS = 343;
+
+  /* BU ATOLYENIN KENDI DURUM NESNESI.
+     Onbellek uyarisi: bu blok her atolyeye KOPYALANIR, paylasilmaz. 18. atolyede
+     onceki atolyenin S nesnesi kullanilinca butun sahneler cokmustu.            */
+  var S = {
+    mode:'ldr',
+    /* --- sahne 1: LED ve LDR --- */
+    lI:10e-3, lDarbe:0.05, lCalis:false,
+    /* --- sahne 2: LFO --- */
+    fHz:4, fSekil:'sin', fCalis:false,
+    /* --- sahne 3: ses yolu --- */
+    yD:0.8, yCalis:false,
+    /* --- sahne 4: pedal --- */
+    pHz:5, pD:0.8, pSekil:'sin', pLdr:true,
+    t:0, anim:0
+  };
+  /* ---------- tema ---------- */
+  var C = {}, K = { lw:1, fs:1, glow:0, faint:.32 };
+  function readColors(){
+    var s = getComputedStyle(root);
+    ['ink','ink-2','ink-3','line','line-2','sin','cos','arc','brass','panel','panel-2','ok','no'].forEach(function(k){
+      C[k.replace('-','')] = s.getPropertyValue('--'+k).trim();
+    });
+    var proj = root.getAttribute('data-mode') === 'proj';
+    var attr = root.getAttribute('data-theme');
+    var isDark = attr === 'dark' ||
+                 (!attr && window.matchMedia('(prefers-color-scheme: dark)').matches);
+    K.glow  = (isDark && !proj) ? 0.7 : 0;
+    K.lw    = proj ? 1.5 : 1;
+    K.fs    = proj ? 1.24 : 1;
+    K.faint = proj ? 0.42 : (K.glow ? 0.34 : 0.32);
+  }
+  readColors();
+
+  var MODES = { proj:'light' };
+  var themeBtns = document.querySelectorAll('.theme button');
+  function markTheme(t){
+    Array.prototype.forEach.call(themeBtns, function(b){
+      b.setAttribute('aria-pressed', b.dataset.t === t ? 'true':'false');
+    });
+  }
+  function applyTheme(t, save){
+    if (MODES[t]){ root.setAttribute('data-theme', MODES[t]); root.setAttribute('data-mode', t); }
+    else { root.setAttribute('data-theme', t); root.removeAttribute('data-mode'); }
+    if (save) { try { localStorage.setItem('dalga-tema', t); } catch(e){} }
+    markTheme(t);
+  }
+  Array.prototype.forEach.call(themeBtns, function(b){
+    b.addEventListener('click', function(){ applyTheme(b.dataset.t, true); });
+  });
+  var sysDark = window.matchMedia('(prefers-color-scheme: dark)');
+  var stored = null;
+  try { stored = localStorage.getItem('dalga-tema'); } catch(e){}
+  if (stored === 'light' || stored === 'dark' || MODES[stored]) applyTheme(stored, false);
+  else markTheme(sysDark.matches ? 'dark' : 'light');
+  sysDark.addEventListener('change', function(){
+    readColors(); render();
+    if (!root.hasAttribute('data-theme')) markTheme(sysDark.matches ? 'dark' : 'light');
+  });
+  new MutationObserver(function(){ readColors(); render(); })
+    .observe(root, {attributes:true, attributeFilter:['data-theme','data-mode']});
+
+  /* ---------- sayilar ---------- */
+  function n(v,d){
+    var x = v.toFixed(d===undefined?2:d);
+    if (/^-0[.,]?0*$/.test(x)) x = x.slice(1);
+    return x.replace('.',',').replace('-','−');
+  }
+  function fTxt(f){
+    return f >= 1000 ? n(f/1000, f >= 10000 ? 0 : 1).replace(',0','')+' kHz' : n(f,0)+' Hz';
+  }
+  function sgn(v,d){ return (v>0?'+':'')+n(v,d); }
+
+  /* ---------- canvas ---------- */
+  var board = document.getElementById('board');
+  var ctx = null, MONO = '"IBM Plex Mono", monospace', SANS = '"IBM Plex Sans", sans-serif';
+  function dash(a){ ctx.setLineDash(a ? a.map(function(v){ return v*K.lw; }) : []); }
+  function LW(v){ ctx.lineWidth = v*K.lw; }
+  function glowOn(col,amt){ if (K.glow){ ctx.shadowColor = col; ctx.shadowBlur = (amt||9)*K.lw; } }
+  function glowOff(){ ctx.shadowBlur = 0; }
+  function line(x1,y1,x2,y2){ ctx.beginPath(); ctx.moveTo(x1,y1); ctx.lineTo(x2,y2); ctx.stroke(); }
+  function dot(x,y,r,col){
+    ctx.beginPath(); ctx.arc(x,y,r*K.fs,0,TAU);
+    ctx.fillStyle = col; glowOn(col,10); ctx.fill(); glowOff();
+    LW(1.6); ctx.strokeStyle = C.panel2; ctx.stroke();
+  }
+  function txt(s,x,y,col,size,align,fam,weight){
+    ctx.fillStyle = col;
+    ctx.font = (weight||400)+' '+((size||12)*K.fs).toFixed(2)+'px '+(fam||MONO);
+    ctx.textAlign = align||'left'; ctx.textBaseline='middle';
+    ctx.fillText(s,x,y);
+  }
+  function tw(s,size,fam,weight){
+    ctx.font = (weight||400)+' '+((size||12)*K.fs).toFixed(2)+'px '+(fam||MONO);
+    return ctx.measureText(s).width;
+  }
+  function chip(s2,x,y,col,size,weight,fam){
+    var w = tw(s2,size,fam||MONO,weight||400), ph = (size+7)*K.fs;
+    ctx.fillStyle = C.panel2; ctx.globalAlpha = .92;
+    ctx.fillRect(x - w/2 - 4*K.fs, y - ph/2, w + 8*K.fs, ph);
+    ctx.globalAlpha = 1;
+    txt(s2, x, y, col, size, 'center', fam||MONO, weight||400);
+  }
+  function wrap(s, x, y, maxw, col, size, lh, weight){
+    var words = s.split(' '), ln = '', out = [];
+    words.forEach(function(w){
+      var t = ln ? ln+' '+w : w;
+      if (tw(t, size, SANS, weight) > maxw){ out.push(ln); ln = w; } else ln = t;
+    });
+    if (ln) out.push(ln);
+    out.forEach(function(l,k){ txt(l, x, y + k*lh, col, size, 'left', SANS, weight); });
+    return out.length;
+  }
+  var cw = 0, ch = 0;
+  function sized(cv){
+    var dpr = Math.min(window.devicePixelRatio||1, 2);
+    var r = cv.getBoundingClientRect();
+    if (r.width < 10) return null;
+    var W = Math.round(r.width*dpr), H = Math.round(r.height*dpr);
+    if (W !== cw || H !== ch){ cv.width = W; cv.height = H; cw = W; ch = H; }
+    var c = cv.getContext('2d');
+    c.setTransform(dpr,0,0,dpr,0,0);
+    c.clearRect(0,0,r.width,r.height);
+    c.lineJoin='round'; c.lineCap='round';
+    return { c:c, w:r.width, h:r.height };
+  }
+  function logAxis(x0, x1, f0, f1){
+    return { X: function(f){ return x0 + (lg(f) - lg(f0))/(lg(f1) - lg(f0))*(x1 - x0); },
+             F: function(x){ return f0*Math.pow(f1/f0, (x - x0)/(x1 - x0)); },
+             f0:f0, f1:f1, x0:x0, x1:x1 };
+  }
+  function drawTicks(A, y, list, fmt){
+    ctx.strokeStyle = C.line; LW(1.3);
+    line(A.x0, y, A.x1, y);
+    var dec, d;
+    for (dec = Math.floor(lg(A.f0)); dec <= Math.ceil(lg(A.f1)); dec++){
+      for (d = 1; d <= 9; d++){
+        var f = Math.pow(10, dec)*d;
+        if (f < A.f0 || f > A.f1) continue;
+        line(A.X(f), y, A.X(f), y + 2.6*K.fs);
+      }
+    }
+    list.forEach(function(v){
+      if (v < A.f0 || v > A.f1) return;
+      line(A.X(v), y, A.X(v), y + 6*K.fs);
+      txt((fmt||fTxt)(v), A.X(v), y + 16*K.fs, C.ink3, 9.5, 'center', MONO);
+    });
+  }
+  /* Hizli salinan yanitlar: her PIKSEL SUTUNU icin birkac ara deger alinip en kucuk
+     ile en buyuk arasina dikey cizgi cekiliyor. Seyrek ornekleme sahte desen uretmez. */
+  function bandCurve(A, yOf, fn, col, lw, lo, hi){
+    var px = Math.max(2, Math.round(A.x1 - A.x0)), x, k, ALT = 7;
+    ctx.strokeStyle = col; LW(lw||2.4); glowOn(col, 6);
+    ctx.beginPath();
+    for (x = 0; x <= px; x++){
+      var fa = A.f0*Math.pow(A.f1/A.f0, x/px);
+      var fb = A.f0*Math.pow(A.f1/A.f0, (x+1)/px);
+      var mn = 1e9, mx = -1e9;
+      for (k = 0; k < ALT; k++){
+        var v = fn(fa*Math.pow(fb/fa, k/(ALT-1)));
+        if (!isFinite(v)) v = lo;
+        if (v < lo) v = lo; else if (v > hi) v = hi;
+        if (v < mn) mn = v;
+        if (v > mx) mx = v;
+      }
+      ctx.moveTo(A.x0 + x, yOf(mx)); ctx.lineTo(A.x0 + x, yOf(mn));
+    }
+    ctx.stroke(); glowOff();
+  }
+
+  /* ================= cizim ================= */
+  function frame(x0,y0,w,h){
+    ctx.fillStyle = C.panel; ctx.fillRect(x0,y0,w,h);
+    ctx.strokeStyle = C.line; LW(1.2); ctx.strokeRect(x0+0.5,y0+0.5,w-1,h-1);
+  }
+  /* Yari saydam hucreler bitisik cizilince kenarlarda dikis izi birakiyor.
+     Bu yuzden renkler ONCEDEN panel rengiyle karistirilip TAM OPAK doldurulur. */
+  var RGBC = {};
+  function rgbOf(hx){
+    if (RGBC[hx]) return RGBC[hx];
+    var s2 = String(hx).trim(), r, g, b, m;
+    if (s2.charAt(0) === '#'){
+      if (s2.length === 4){
+        r = parseInt(s2.charAt(1)+s2.charAt(1),16);
+        g = parseInt(s2.charAt(2)+s2.charAt(2),16);
+        b = parseInt(s2.charAt(3)+s2.charAt(3),16);
+      } else {
+        r = parseInt(s2.substr(1,2),16); g = parseInt(s2.substr(3,2),16); b = parseInt(s2.substr(5,2),16);
+      }
+    } else {
+      m = s2.match(/(\d+)[,\s]+(\d+)[,\s]+(\d+)/);
+      r = m ? +m[1] : 128; g = m ? +m[2] : 128; b = m ? +m[3] : 128;
+    }
+    return (RGBC[hx] = [r||0, g||0, b||0]);
+  }
+  function mixc(a, b, t){
+    var A = rgbOf(a), B = rgbOf(b);
+    return 'rgb(' + Math.round(A[0]+(B[0]-A[0])*t) + ',' +
+                    Math.round(A[1]+(B[1]-A[1])*t) + ',' +
+                    Math.round(A[2]+(B[2]-A[2])*t) + ')';
+  }
+  function basincRenk(v){
+    var a = Math.min(1, Math.abs(v));
+    return mixc(C.panel, v >= 0 ? C.sin : C.cos, 0.05 + 0.84*a);
+  }
+  /* bir kesitin basinc haritasi: fu(u,v) -> [-1,1], u ve v 0..1 */
+  function harita(x0,y0,w,h,fu,NU,NV){
+    var i, j;
+    for (i=0;i<NU;i++){
+      var xa = Math.round(x0 + i*w/NU), xb = Math.round(x0 + (i+1)*w/NU);
+      for (j=0;j<NV;j++){
+        var ya = Math.round(y0 + j*h/NV), yb = Math.round(y0 + (j+1)*h/NV);
+        ctx.fillStyle = basincRenk(fu((i+0.5)/NU, (j+0.5)/NV));
+        ctx.fillRect(xa, ya, Math.max(1, xb-xa), Math.max(1, yb-ya));
+      }
+    }
+  }
+
+  /* Dar ekranda sol alt baslik ile sag ozet carpisiyordu: dar ekranda sol metin dusuyor. */
+  function sahneBaslik(w, sol, sag, sagCol, sagDar){
+    var pad = 16*K.fs, y = 16*K.fs, dar = w < 700;
+    if (!dar) txt(sol, pad, y, C.ink3, 10.5, 'left', MONO, 500);
+    var t = (dar && sagDar) ? sagDar : sag;
+    txt(t, dar ? pad : w - pad, y, sagCol, dar ? 11 : 11.5, dar ? 'left' : 'right', MONO, 600);
+  }
+
+  /* ================= OPTİK TREMOLO: SAYILAR =================
+     LED ışığı bir LDR’ye (CdS fotodirenç) düşer; LDR, ses yolundaki bir gerilim bölücünün alt koludur.
+     LDR (temsilî, vaktrol sınıfı): karanlıkta ≈ 1 MΩ, LED 20 mA’de ≈ 2 kΩ; iletkenlik ∝ akım^0,8.
+     Tepki asimetrik: ışık gelince hızlı (τ ≈ 5 ms), ışık gidince yavaş (τ ≈ 40 ms, 100 kΩ’a ≈ 40 ms’de ulaşır).
+     Ses yolu: seri 100 kΩ, alt kol LDR + derinlik direnci (1 MΩ·(1 − d)³).
+     LFO: faz kaydırmalı osilatör, f = 1 ÷ (2π·√6·R·C), C = 1 µF.                                              */
+  var LDR_RD = 1e6, LDR_RON = 2e3, LDR_IMAX = 20e-3, LDR_G = 0.8, TAU_ON = 5e-3, TAU_OFF = 40e-3;
+  var LDR_K = (1/LDR_RON - 1/LDR_RD)/Math.pow(LDR_IMAX, LDR_G);
+  function ldrHedef(i){ return 1/(1/LDR_RD + LDR_K*Math.pow(Math.max(0, i), LDR_G)); }
+  function ldrAdim(R, Rh, dt){ var x = Math.log(R), xh = Math.log(Rh), tau = xh < x ? TAU_ON : TAU_OFF; return Math.exp(xh + (x - xh)*Math.exp(-dt/tau)); }
+  var YOL_RS = 100e3, OSC_C = 1e-6;
+  function derinlikR(d){ return 1e6*Math.pow(1 - d, 3); }
+  function kazanc(R, d){ var a = R + derinlikR(d); return a/(YOL_RS + a); }
+  function oscR(f){ return 1/(2*Math.PI*Math.sqrt(6)*f*OSC_C); }
+  function frac(x){ return x - Math.floor(x); }
+  function lfoDalga(ph, sekil){
+    var p = frac(ph);
+    if (sekil === 'kare') return p < 0.5 ? 0 : 1;
+    if (sekil === 'ucg') return 1 - Math.abs(1 - 2*p);
+    return 0.5 - 0.5*Math.cos(2*Math.PI*p);
+  }
+  /* zaman benzetimi: t0’dan itibaren n örnek, dt adım; isinma saniye önce başlar (LDR yerine otursun) */
+  function simule(o){
+    var dt = o.dt, n = o.n, isin = Math.round((o.isinma || 1)/dt), R = ldrHedef(0), out = { u:[], i:[], R:[], g:[], gi:[] }, k;
+    for (k = -isin; k < n; k++){
+      var t = k*dt, u = lfoDalga(t*o.f, o.sekil), Rh = ldrHedef(ledAkim(u));
+      R = ldrAdim(R, Rh, dt);
+      if (k >= 0){ out.u.push(u); out.i.push(ledAkim(u)); out.R.push(R); out.g.push(kazanc(R, o.d)); out.gi.push(kazanc(Rh, o.d)); }
+    }
+    return out;
+  }
+  /* LED eşiği: LFO gerilimi LED’in iletim eşiğini (≈ 1,8 V) geçmeden ışık yok */
+  var LED_ESIK = 0.35;
+  function ledAkim(u){ return LDR_IMAX*Math.max(0, (u - LED_ESIK)/(1 - LED_ESIK)); }
+  function db(x){ return 20*Math.log10(Math.max(1e-9, x)); }
+
+  /* ---------- ortak: dB ekseni olan bir cerceve ---------- */
+  function dbPanel(x0, y0, w, h, lo, hi, adimlar, birim){
+    frame(x0, y0, w, h);
+    var Y = function(v){ return y0 + h - (v - lo)/(hi - lo)*h; };
+    ctx.strokeStyle = C.line2; LW(1);
+    adimlar.forEach(function(v){
+      if (v < lo || v > hi) return;
+      dash(v === 0 ? null : [2,4]);
+      ctx.strokeStyle = v === 0 ? C.line : C.line2; LW(v === 0 ? 1.3 : 1);
+      line(x0, Y(v), x0 + w, Y(v));
+      dash(null);
+      txt(sgn(v,0), x0 + 4*K.fs, Math.max(y0 + 8*K.fs, Y(v) - 6*K.fs),
+          C.ink3, 8.5, 'left', MONO);
+    });
+    if (birim) txt(birim, x0 + w - 5*K.fs, y0 + 9*K.fs, C.ink3, 8.5, 'right', MONO);
+    return Y;
+  }
+  /* ---------- ortak: zaman penceresi ---------- */
+  function zamanPanel(x0, y0, w, h, t0, t1, baslik, sag, yMax){
+    frame(x0, y0, w, h);
+    var ic = 20*K.fs, M = yMax || 1.15;
+    var X = function(t){ return x0 + 12*K.fs + (t - t0)/(t1 - t0)*(w - 24*K.fs); };
+    var Y = function(v){ return y0 + ic + (1 - (v + M)/(2*M))*(h - ic - 12*K.fs); };
+    ctx.strokeStyle = C.line; LW(1.2);
+    line(x0 + 6*K.fs, Y(0), x0 + w - 6*K.fs, Y(0));
+    if (baslik) txt(baslik, x0 + 10*K.fs, y0 + 12*K.fs, C.ink3, 9.5, 'left', MONO);
+    if (sag) txt(sag, x0 + w - 10*K.fs, y0 + 12*K.fs, C.ink3, 9.5, 'right', MONO);
+    return { X:X, Y:Y, M:M };
+  }
+  function surekli(P, t0, t1, fn, col, lw, kesik){
+    var N = 800, i;
+    ctx.beginPath();
+    for (i = 0; i <= N; i++){
+      var t = t0 + (t1 - t0)*i/N;
+      var p = [P.X(t), P.Y(Math.max(-P.M, Math.min(P.M, fn(t))))];
+      if (i === 0) ctx.moveTo(p[0], p[1]); else ctx.lineTo(p[0], p[1]);
+    }
+    ctx.strokeStyle = col; LW(lw || 2);
+    if (kesik) dash(kesik);
+    glowOn(col, 5); ctx.stroke(); glowOff();
+    dash(null);
+  }
+
+  /* ---------- ortak: etiketli olcu oku ---------- */
+  function okla(x, y1, y2, col, ad, kucuk){
+    ctx.strokeStyle = col; LW(1.6);
+    line(x, y1, x, y2);
+    [[y1, 1], [y2, -1]].forEach(function(q){
+      ctx.beginPath();
+      ctx.moveTo(x, q[0]); ctx.lineTo(x - 4*K.fs, q[0] + q[1]*7*K.fs);
+      ctx.lineTo(x + 4*K.fs, q[0] + q[1]*7*K.fs); ctx.closePath();
+      ctx.fillStyle = col; ctx.fill();
+    });
+    if (ad) chip(ad, x, (y1 + y2)/2, col, kucuk ? 8.5 : 9.5, 600);
+  }
+  /* ---------- ortak: satirli sayi paneli ---------- */
+  /* Aciklama metni panele sigmiyorsa SARILIYOR; etiket ile deger ayni satira
+     sigmiyorsa deger ALT SATIRA aliniyor. Dar ekranda ikisi de tasiyordu.   */
+  function satirlar(x0, y0, w, h, baslik, sat, lh){
+    frame(x0, y0, w, h);
+    txt(baslik, x0 + 9*K.fs, y0 + 12*K.fs, C.ink2, 9.5, 'left', MONO, 600);
+    var yy = y0 + 30*K.fs, adim = lh || 30*K.fs, i, ic = w - 18*K.fs;
+    for (i = 0; i < sat.length; i++){
+      if (yy + 14*K.fs > y0 + h) break;
+      var lw = tw(sat[i][0], 8.5, MONO, 400);
+      var vw = tw(sat[i][1], 11, MONO, 600);
+      var altSatir = (lw + vw + 14*K.fs > ic);
+      txt(sat[i][0], x0 + 9*K.fs, yy, C.ink3, 8.5, 'left', MONO);
+      if (altSatir){
+        if (yy + 14*K.fs > y0 + h) break;
+        txt(sat[i][1], x0 + w - 9*K.fs, yy + 13*K.fs, sat[i][2] || C.ink2,
+            11, 'right', MONO, 600);
+      } else {
+        txt(sat[i][1], x0 + w - 9*K.fs, yy, sat[i][2] || C.ink2, 11, 'right', MONO, 600);
+      }
+      var ay2 = yy + (altSatir ? 27 : 13)*K.fs, sn = 0;
+      if (sat[i][3] && ay2 < y0 + h - 4*K.fs)
+        sn = wrap(sat[i][3], x0 + 9*K.fs, ay2, ic, C.ink3, 8, 11*K.fs);
+      yy += Math.max(adim, (altSatir ? 30 : 17)*K.fs + sn*11*K.fs);
+    }
+  }
+
+
+  /* ---------- sayı yazımı: üstel ve birimli ---------- */
+  var UST = {'0':'⁰','1':'¹','2':'²','3':'³','4':'⁴','5':'⁵','6':'⁶','7':'⁷','8':'⁸','9':'⁹','-':'⁻'};
+  function usUst(k){ return String(k).split('').map(function(c){ return UST[c] || c; }).join(''); }
+  function usTxt(x){
+    if (x === 0) return '0';
+    var us = Math.floor(lg(Math.abs(x)) + 1e-9), m = x/Math.pow(10, us);
+    if (Math.abs(m - 1) < 0.005) return '10' + usUst(us);
+    return n(m, 2) + '×10' + usUst(us);
+  }
+  /* sondaki sıfırları at: 1,50 → 1,5 ; 2,00 → 2 */
+  function kis(v, d){ return n(v, d).replace(/(,\d*?)0+$/, '$1').replace(/,$/, ''); }
+  function ohmTxt(R){
+    if (R < 1)     return kis(R*1000, R < 0.1 ? 1 : 0) + ' mΩ';
+    if (R < 1e3)   return kis(R, R < 10 ? 3 : (R < 100 ? 2 : 1)) + ' Ω';
+    if (R < 1e6)   return kis(R/1e3, R < 1e4 ? 3 : (R < 1e5 ? 2 : 1)) + ' kΩ';
+    if (R < 1e9)   return kis(R/1e6, R < 1e7 ? 2 : 1) + ' MΩ';
+    return usTxt(R) + ' Ω';
+  }
+  function vTxt(V){
+    var a = Math.abs(V), s = V < 0 ? '−' : '';
+    if (a < 5e-4) return '0 V';
+    if (a < 1) return s + kis(a*1000, a < 0.01 ? 1 : 0) + ' mV';
+    return s + kis(a, a < 10 ? 2 : (a < 100 ? 1 : 0)) + ' V';
+  }
+  function aTxt(I){
+    if (I === 0) return '0 mA';
+    if (I < 1e-4) return kis(I*1e6, I < 1e-5 ? 2 : 1) + ' µA';
+    if (I < 1)    return kis(I*1000, I < 0.01 ? 2 : (I < 0.1 ? 1 : 0)) + ' mA';
+    return kis(I, 2) + ' A';
+  }
+  function wTxt(P){
+    if (P === 0) return '0 mW';
+    if (P < 1) return kis(P*1000, P < 0.01 ? 2 : (P < 0.1 ? 1 : 0)) + ' mW';
+    return kis(P, P < 10 ? 2 : (P < 100 ? 1 : 0)) + ' W';
+  }
+  function saatTxt(h){
+    if (h < 1) return n(h*60, 0) + ' dk';
+    return kis(h, h < 10 ? 1 : 0) + ' saat';
+  }
+  /* büyük çarpanlar: 115 000 gibi, binlik ayraçlı */
+  function katTxt(x){
+    if (x >= 1000) return String(Math.round(x)).replace(/\B(?=(\d{3})+(?!\d))/g, '\u2009');
+    if (x >= 10) return n(x, 0);
+    return n(x, 1).replace(/,0$/, '');
+  }
+
+  /* ---------- ortak devre parçaları ---------- */
+  /* dikdörtgen çevre yolu: s=0 sol-orta (pilin + ucu, üstte), saat yönünde */
+  function cevreYol(x0, y0, x1, y1){
+    var a = x1 - x0, b = y1 - y0, L = 2*(a + b);
+    return { L:L, p:function(s){
+      s = ((s % L) + L) % L;
+      var s0 = b/2;                             /* sol kenarın ortası */
+      s = (s + (L - s0)) % L;                   /* sol-alt köşeden ölç */
+      if (s < b) return [x0, y1 - s];
+      if (s < b + a) return [x0 + (s - b), y0];
+      if (s < 2*b + a) return [x1, y0 + (s - b - a)];
+      return [x1 - (s - 2*b - a), y1];
+    }};
+  }
+  function pilDik(x, y, col, etiket, sagda){           /* dikey telde pil: + üstte */
+    ctx.fillStyle = C.panel; ctx.fillRect(x - 17*K.fs, y - 12*K.fs, 34*K.fs, 24*K.fs);
+    ctx.strokeStyle = col; LW(2.6); line(x - 15*K.fs, y - 5*K.fs, x + 15*K.fs, y - 5*K.fs);
+    LW(4.2); line(x - 7*K.fs, y + 5*K.fs, x + 7*K.fs, y + 5*K.fs);
+    txt('+', x - 22*K.fs, y - 9*K.fs, col, 10.5, 'center', MONO, 600);
+    txt('−', x - 22*K.fs, y + 9*K.fs, col, 10.5, 'center', MONO, 600);
+    if (etiket) txt(etiket, sagda ? x + 22*K.fs : x - 30*K.fs, y, col, 9.5, sagda ? 'left' : 'right', MONO, 600);
+  }
+  function metre(x, y, harf, col, deger, konum){        /* ampermetre / voltmetre dairesi */
+    var r = 14*K.fs;
+    ctx.beginPath(); ctx.arc(x, y, r, 0, TAU); ctx.fillStyle = C.panel; ctx.fill();
+    ctx.strokeStyle = col; LW(2); glowOn(col, 6); ctx.stroke(); glowOff();
+    txt(harf, x, y + 0.5, col, 11.5, 'center', MONO, 600);
+    if (deger){
+      if (konum === 'ust') chip(deger, x, y - r - 11*K.fs, col, 9.5, 600);
+      else if (konum === 'alt') chip(deger, x, y + r + 11*K.fs, col, 9.5, 600);
+      else txt(deger, x + r + 6*K.fs, y, col, 9.5, 'left', MONO, 600);
+    }
+  }
+  function yonOk(x, y, dx, col){                       /* yatay küçük ok */
+    ctx.fillStyle = col; ctx.beginPath();
+    ctx.moveTo(x + dx*7*K.fs, y); ctx.lineTo(x - dx*5*K.fs, y - 5*K.fs); ctx.lineTo(x - dx*5*K.fs, y + 5*K.fs);
+    ctx.closePath(); ctx.fill();
+  }
+  function kutu(x, y, w2, h2, col, ust, alt){           /* yük / cihaz kutusu, merkezli */
+    ctx.fillStyle = mixc(C.panel, col, 0.10); ctx.fillRect(x - w2/2, y - h2/2, w2, h2);
+    ctx.strokeStyle = col; LW(2); ctx.strokeRect(x - w2/2, y - h2/2, w2, h2);
+    if (ust) txt(ust, x, y - (alt ? 7 : 0)*K.fs, col, 9.5, 'center', MONO, 600);
+    if (alt) txt(alt, x, y + 8*K.fs, C.ink2, 8.5, 'center', MONO);
+  }
+  function usCiz(x, y, v, col, size, align, weight){   /* 3,12×10 + küçük üst simge: yazı tipi ⁴–⁹ glifini başka fonttan alıyordu */
+    var us = Math.floor(lg(Math.abs(v)) + 1e-9), m = v/Math.pow(10, us);
+    var a = n(m, 2) + '×10', b = String(us).replace('-', '−');
+    var wa = tw(a, size, MONO, weight), wb = tw(b, size*0.6, MONO, weight), x0;
+    x0 = align === 'center' ? x - (wa + wb)/2 : (align === 'right' ? x - wa - wb : x);
+    txt(a, x0, y, col, size, 'left', MONO, weight);
+    txt(b, x0 + wa + 1, y - size*0.36*K.fs, col, size*0.6, 'left', MONO, weight);
+  }
+  function baslikP(s2, x, y, dar){ txt(s2, x + 9*K.fs, y + 12*K.fs, C.ink2, dar ? 8.5 : 9.5, 'left', MONO, 600); }
+
+  function wrapC(s, cx, y, maxw, col, size, lh){       /* ortalı sarma */
+    var words = s.split(' '), ln = '', out = [];
+    words.forEach(function(w2){
+      var t = ln ? ln + ' ' + w2 : w2;
+      if (tw(t, size, MONO) > maxw){ out.push(ln); ln = w2; } else ln = t;
+    });
+    if (ln) out.push(ln);
+    out.forEach(function(l, k){ txt(l, cx, y + k*lh, col, size, 'center', MONO); });
+  }
+
+  /* ---------- direnç sembolleri ---------- */
+  function dirYatay(cx, y, L, col, kopuk){
+    var i;
+    ctx.fillStyle = C.panel; ctx.fillRect(cx - L/2 - 2, y - 10*K.fs, L + 4, 20*K.fs);
+    ctx.strokeStyle = col; LW(2.2); dash(kopuk ? [3,3] : null);
+    ctx.beginPath(); ctx.moveTo(cx - L/2, y);
+    if (kopuk){
+      for (i = 1; i <= 3; i++) ctx.lineTo(cx - L/2 + L*i/8, y + (i % 2 ? -8 : 8)*K.fs);
+      ctx.stroke(); ctx.beginPath(); ctx.moveTo(cx + L/2 - L*3/8, y + 8*K.fs);
+      for (i = 6; i <= 7; i++) ctx.lineTo(cx - L/2 + L*i/8, y + (i % 2 ? -8 : 8)*K.fs);
+      ctx.lineTo(cx + L/2, y);
+    } else {
+      for (i = 1; i <= 7; i++) ctx.lineTo(cx - L/2 + L*i/8, y + (i % 2 ? -8 : 8)*K.fs);
+      ctx.lineTo(cx + L/2, y);
+    }
+    ctx.stroke(); dash(null);
+    if (kopuk){ txt('×', cx, y, C.arc, 13, 'center', MONO, 600); }
+  }
+  function dirDik(x, cy, L, col, kopuk){
+    var i;
+    ctx.fillStyle = C.panel; ctx.fillRect(x - 10*K.fs, cy - L/2 - 2, 20*K.fs, L + 4);
+    ctx.strokeStyle = col; LW(2.2);
+    ctx.beginPath(); ctx.moveTo(x, cy - L/2);
+    if (kopuk){
+      for (i = 1; i <= 3; i++) ctx.lineTo(x + (i % 2 ? -8 : 8)*K.fs, cy - L/2 + L*i/8);
+      ctx.stroke(); ctx.beginPath(); ctx.moveTo(x + 8*K.fs, cy + L/2 - L*3/8);
+      for (i = 6; i <= 7; i++) ctx.lineTo(x + (i % 2 ? -8 : 8)*K.fs, cy - L/2 + L*i/8);
+      ctx.lineTo(x, cy + L/2);
+    } else {
+      for (i = 1; i <= 7; i++) ctx.lineTo(x + (i % 2 ? -8 : 8)*K.fs, cy - L/2 + L*i/8);
+      ctx.lineTo(x, cy + L/2);
+    }
+    ctx.stroke();
+    if (kopuk) txt('×', x, cy, C.arc, 13, 'center', MONO, 600);
+  }
+  function renkK(k){ return [C.sin, C.cos, C.arc, C.ink2][k]; }
+  function yerlesim(dar, top, pad, w, h, oranlar){      /* P1 sol üst, P2 sağ üst, P3 alt */
+    var gw = w - 2*pad, gh = h - top - 6*K.fs, gap = 12*K.fs;
+    if (dar){
+      var h1 = gh*oranlar[0], h2 = gh*oranlar[1], h3 = gh - h1 - h2 - 2*gap;
+      return [[pad, top, gw, h1], [pad, top + h1 + gap, gw, h2], [pad, top + h1 + h2 + 2*gap, gw, h3]];
+    }
+    var wl = (gw - gap)*oranlar[2], wr = gw - gap - wl, hu = (gh - gap)*oranlar[3], hd = gh - gap - hu;
+    return [[pad, top, wl, hu], [pad + wl + gap, top, wr, hu], [pad, top + hu + gap, gw, hd]];
+  }
+  /* yığılmış çubuk: parçalar, ölçek üst değeri, etiket biçimi */
+  function yiginCubuk(x0, x1, y, bh, parca, ust, etiket, dar){
+    var X = function(v){ return x0 + v/ust*(x1 - x0); }, acc = 0;
+    ctx.fillStyle = mixc(C.panel, C.line, 0.45); ctx.fillRect(x0, y - bh/2, x1 - x0, bh);
+    parca.forEach(function(p){
+      var xa = X(acc), xb = X(acc + p.v);
+      ctx.fillStyle = p.col; ctx.fillRect(xa, y - bh/2, Math.max(0, xb - xa), bh);
+      ctx.strokeStyle = C.panel; LW(1.5); line(xb, y - bh/2, xb, y + bh/2);
+      var s2 = etiket(p);
+      if (s2 && xb - xa > tw(s2, dar ? 8 : 9, MONO, 600) + 10*K.fs)
+        txt(s2, (xa + xb)/2, y, C.panel, dar ? 8 : 9, 'center', MONO, 600);
+      acc += p.v;
+    });
+    return X;
+  }
+
+
+  /* ---------- kapasitör sembolleri ---------- */
+  function kapYatay(cx, y, col, elek){
+    var g = 5*K.fs, p = 11*K.fs;
+    ctx.fillStyle = C.panel; ctx.fillRect(cx - g - 3, y - p - 2, 2*g + 6, 2*p + 4);
+    ctx.strokeStyle = col; LW(2.6); line(cx - g, y - p, cx - g, y + p);
+    if (elek){ ctx.beginPath(); ctx.moveTo(cx + g + 3*K.fs, y - p); ctx.quadraticCurveTo(cx + g - 1*K.fs, y, cx + g + 3*K.fs, y + p); ctx.stroke(); }
+    else line(cx + g, y - p, cx + g, y + p);
+  }
+  function kapDik(x, cy, col){
+    var g = 5*K.fs, p = 12*K.fs;
+    ctx.fillStyle = C.panel; ctx.fillRect(x - p - 2, cy - g - 3, 2*p + 4, 2*g + 6);
+    ctx.strokeStyle = col; LW(2.6); line(x - p, cy - g, x + p, cy - g); line(x - p, cy + g, x + p, cy + g);
+  }
+  function capTxt(Cf){
+    if (Cf >= 1e-6) return kis(Cf*1e6, Cf < 1e-5 ? 2 : (Cf < 1e-4 ? 1 : 0)) + ' µF';
+    if (Cf >= 1e-9) return kis(Cf*1e9, Cf < 1e-8 ? 2 : 0) + ' nF';
+    return kis(Cf*1e12, 0) + ' pF';
+  }
+  function hzTxt(f){ return f >= 1000 ? kis(f/1000, f < 1e4 ? 2 : 1) + ' kHz' : kis(f, f < 10 ? 2 : (f < 100 ? 1 : 0)) + ' Hz'; }
+
+  function henTxt(L){
+    if (L >= 1) return kis(L, 2) + ' H';
+    if (L >= 0.95e-4) return kis(L*1e3, L < 1e-3 ? 3 : (L < 1e-2 ? 2 : (L < 0.1 ? 1 : 0))) + ' mH';
+    return kis(L*1e6, 0) + ' µH';
+  }
+  /* bobin sembolü: yatay, dört tümsek */
+  function bobinYatay(cx, y, L2, col){
+    var n = 4, r = L2/(2*n), i;
+    ctx.fillStyle = C.panel; ctx.fillRect(cx - L2/2 - 2, y - r - 4, L2 + 4, r + 6);
+    ctx.strokeStyle = col; LW(2.4); ctx.beginPath();
+    for (i = 0; i < n; i++) ctx.arc(cx - L2/2 + r*(2*i + 1), y, r, Math.PI, 0, false);
+    ctx.stroke();
+  }
+  function bobinDik(x, cy, L2, col){
+    var n = 4, r = L2/(2*n), i;
+    ctx.fillStyle = C.panel; ctx.fillRect(x - 2, cy - L2/2 - 2, r + 6, L2 + 4);
+    ctx.strokeStyle = col; LW(2.4); ctx.beginPath();
+    for (i = 0; i < n; i++) ctx.arc(x, cy - L2/2 + r*(2*i + 1), r, -Math.PI/2, Math.PI/2, false);
+    ctx.stroke();
+  }
+  /* ================= ortak yardımcılar ================= */
+  function sig(uzun, kisa, maxw, size, weight){ return tw(uzun, size, MONO, weight) <= maxw ? uzun : kisa; }
+  function sayiPanel(P, baslik, rows, dar){
+    frame(P[0], P[1], P[2], P[3]);
+    baslikP(baslik, P[0], P[1], dar);
+    var ry0 = P[1] + 34*K.fs, rs = Math.min(23*K.fs, (P[3] - 44*K.fs)/rows.length);
+    rows.forEach(function(q, k){
+      var v = q[1], lab = q[0], bos = P[2] - 36*K.fs;
+      if (q[3] && tw(v, 9.5, MONO, 600) + tw(lab, 8.5, MONO) > bos) v = q[3];
+      while (lab.length > 4 && tw(v, 9.5, MONO, 600) + tw(lab, 8.5, MONO) > bos) lab = lab.slice(0, -2) + '…';
+      txt(lab, P[0] + 12*K.fs, ry0 + k*rs, C.ink3, 8.5, 'left', MONO);
+      txt(v, P[0] + P[2] - 12*K.fs, ry0 + k*rs, q[2], 9.5, 'right', MONO, 600);
+    });
+    return ry0 + rows.length*rs;
+  }
+  function toprak(x, y){
+    ctx.strokeStyle = C.ink3; LW(1.6);
+    line(x - 9*K.fs, y, x + 9*K.fs, y); line(x - 6*K.fs, y + 4*K.fs, x + 6*K.fs, y + 4*K.fs); line(x - 3*K.fs, y + 8*K.fs, x + 3*K.fs, y + 8*K.fs);
+  }
+  function rng(seed){ return function(){ seed |= 0; seed = seed + 0x6D2B79F5 | 0; var t = Math.imul(seed ^ seed >>> 15, 1 | seed); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0)/4294967296; }; }
+  function tel(pts, col, lw){ ctx.strokeStyle = col; LW(lw || 1.8); ctx.beginPath(); pts.forEach(function(p, k){ if (k) ctx.lineTo(p[0], p[1]); else ctx.moveTo(p[0], p[1]); }); ctx.stroke(); }
+  /* akım yolu: soluk tel + akıma göre kalınlaşan renkli şerit */
+  function akimTel(pts, col, oran){
+    tel(pts, C.ink2, 1.6);
+    if (oran > 0.004){ ctx.globalAlpha = 0.28 + 0.5*Math.min(1, oran); glowOn(col, 6); tel(pts, col, 1.6 + 4.4*Math.min(1, oran)); glowOff(); ctx.globalAlpha = 1; }
+  }
+  function noktaB(x, y){ ctx.fillStyle = C.ink2; ctx.beginPath(); ctx.arc(x, y, 3*K.fs, 0, TAU); ctx.fill(); }
+  function elektron(x, y, r, al){ ctx.globalAlpha = al == null ? 1 : al; ctx.fillStyle = C.cos; ctx.beginPath(); ctx.arc(x, y, r*K.fs, 0, TAU); ctx.fill(); ctx.globalAlpha = 1; }
+  function delik(x, y, r, al){ ctx.globalAlpha = al == null ? 1 : al; ctx.strokeStyle = C.arc; LW(1.5); ctx.beginPath(); ctx.arc(x, y, r*K.fs, 0, TAU); ctx.stroke(); ctx.globalAlpha = 1; }
+  function diyotSem(x, y, col, yon, kaz){
+    var s = 9*K.fs*(kaz || 1);
+    ctx.save(); ctx.translate(x, y); ctx.rotate(yon === -1 ? Math.PI : yon === 2 ? Math.PI/2 : yon === -2 ? -Math.PI/2 : 0);
+    ctx.fillStyle = C.panel; ctx.fillRect(-s - 2, -s - 2, 2*s + 4, 2*s + 4);
+    ctx.fillStyle = col; ctx.beginPath(); ctx.moveTo(-s, -s); ctx.lineTo(-s, s); ctx.lineTo(s*0.8, 0); ctx.closePath(); ctx.fill();
+    ctx.strokeStyle = col; LW(2.2); line(s*0.8, -s, s*0.8, s);
+    ctx.restore();
+  }
+  /* NPN sembolü: taban çizgisi (x, y); dönen uçlar b, c, e */
+  function npnSem(x, y, s, col, etiket){
+    var cx = x + 0.45*s;
+    ctx.fillStyle = C.panel; ctx.beginPath(); ctx.arc(cx, y, 1.25*s, 0, TAU); ctx.fill();
+    ctx.strokeStyle = mixc(C.panel, col, 0.55); LW(1.4); ctx.stroke();
+    ctx.strokeStyle = col; LW(2.2);
+    line(x - 1.35*s, y, x, y);                                     /* taban ucu */
+    LW(3.2); line(x, y - 0.62*s, x, y + 0.62*s); LW(2.2);
+    tel([[x, y - 0.3*s], [x + 0.95*s, y - 0.85*s], [x + 0.95*s, y - 1.6*s]], col, 2.2);
+    tel([[x, y + 0.3*s], [x + 0.95*s, y + 0.85*s], [x + 0.95*s, y + 1.6*s]], col, 2.2);
+    /* emetör oku: dışa doğru */
+    var ax = x + 0.72*s, ay = y + 0.72*s, dx = 0.95, dy = 0.55, L = Math.hypot(dx, dy), a = 7*K.fs; dx /= L; dy /= L;
+    ctx.fillStyle = col; ctx.beginPath(); ctx.moveTo(ax + dx*a*0.6, ay + dy*a*0.6);
+    ctx.lineTo(ax - dx*a*0.6 - dy*a*0.55, ay - dy*a*0.6 + dx*a*0.55); ctx.lineTo(ax - dx*a*0.6 + dy*a*0.55, ay - dy*a*0.6 - dx*a*0.55); ctx.closePath(); ctx.fill();
+    if (etiket){
+      txt('B', x - 1.0*s, y - 9*K.fs, C.ink3, 8, 'center', MONO, 600);
+      txt('C', x + 0.95*s + 9*K.fs, y - 1.35*s, C.ink3, 8, 'left', MONO, 600);
+      txt('E', x + 0.95*s + 9*K.fs, y + 1.35*s, C.ink3, 8, 'left', MONO, 600);
+    }
+    return { b:[x - 1.35*s, y], c:[x + 0.95*s, y - 1.6*s], e:[x + 0.95*s, y + 1.6*s] };
+  }
+  function uvTxt(v){ return v < 1e-3 ? kis(v*1e6, v < 1e-5 ? 1 : 0) + ' µV' : vTxt(v); }
+  function dbTxt(d){ return (d >= 0.05 ? '+' : d <= -0.05 ? '−' : '') + kis(Math.abs(d), 1) + ' dB'; }
+  function ohm2(r){ return r < 1000 ? kis(r, 0) + ' Ω' : r < 1e6 ? kis(r/1000, r < 1e4 ? 1 : 0) + ' kΩ' : r < 1e9 ? kis(r/1e6, 0) + ' MΩ' : kis(r/1e9, 0) + ' GΩ'; }
+  function khz(f){ return f >= 1000 ? kis(f/1000, f < 10000 ? 1 : 0) + ' kHz' : kis(f, f < 10 ? 1 : 0) + ' Hz'; }
+  function uc(x, y, ad, alt){ ctx.fillStyle = C.panel; ctx.strokeStyle = C.ink2; LW(1.6); ctx.beginPath(); ctx.arc(x, y, 4*K.fs, 0, TAU); ctx.fill(); ctx.stroke(); if (ad) txt(ad, x, y + (alt ? -14 : 16)*K.fs, C.ink2, 7.5, 'center', MONO, 600); }
+
+  /* ================= optik tremolo çizim yardımcıları ================= */
+  function msTxt(t){ return kis(t*1e3, t < 0.01 ? 1 : 0) + ' ms'; }
+  function hzT(f){ return kis(f, f < 10 ? 1 : 0) + ' Hz'; }
+  function dbT(d){ return (d > 0.05 ? '+' : d < -0.05 ? '−' : '') + kis(Math.abs(d), 1) + ' dB'; }
+  /* LED: kubbe + parlaklık (0..1) */
+  function ledCiz(x, y, r, p){
+    var col = C.sin;
+    if (p > 0.02){ ctx.globalAlpha = 0.18 + 0.35*p; ctx.fillStyle = col; ctx.beginPath(); ctx.arc(x, y, r*(1.3 + 0.9*p), 0, TAU); ctx.fill(); ctx.globalAlpha = 1; }
+    ctx.fillStyle = mixc(C.panel, col, 0.12 + 0.88*p); ctx.strokeStyle = col; LW(1.8);
+    if (p > 0.3) glowOn(col, 14*p);
+    ctx.beginPath(); ctx.arc(x, y - r*0.2, r, Math.PI, 0); ctx.lineTo(x + r, y + r*0.9); ctx.lineTo(x - r, y + r*0.9); ctx.closePath(); ctx.fill(); ctx.stroke(); glowOff();
+    ctx.strokeStyle = C.ink2; LW(1.6); line(x - r*0.45, y + r*0.9, x - r*0.45, y + r*1.8); line(x + r*0.45, y + r*0.9, x + r*0.45, y + r*1.8);
+  }
+  /* LDR: disk + kıvrımlı CdS yolu */
+  function ldrCiz(x, y, r, aydin){
+    ctx.fillStyle = mixc(C.panel, C.ink3, 0.18); ctx.strokeStyle = C.ink3; LW(1.4); ctx.beginPath(); ctx.arc(x, y, r, 0, TAU); ctx.fill(); ctx.stroke();
+    ctx.fillStyle = mixc(C.panel, C.sin, 0.10 + 0.35*aydin); ctx.beginPath(); ctx.arc(x, y, r*0.86, 0, TAU); ctx.fill();
+    ctx.strokeStyle = C.cos; LW(1.6); ctx.beginPath();
+    var n = 6, w2 = r*0.6, y0 = y - r*0.55, st = 1.1*r/n, k;
+    ctx.moveTo(x - w2, y0);
+    for (k = 0; k <= n; k++){ var sd = k % 2 ? -1 : 1, yy = y0 + k*st; ctx.lineTo(x + sd*w2, yy); if (k < n) ctx.lineTo(x + sd*w2, yy + st); }
+    ctx.stroke();
+    ctx.strokeStyle = C.ink2; LW(1.6); line(x - r*0.4, y + r, x - r*0.4, y + r*1.7); line(x + r*0.4, y + r, x + r*0.4, y + r*1.7);
+  }
+  function isinlar(x0, x1, y, p, n){
+    if (p < 0.02) return;
+    ctx.strokeStyle = C.sin; LW(1.4); ctx.globalAlpha = 0.25 + 0.7*p;
+    for (var k = 0; k < n; k++){ var yy = y + (k - (n - 1)/2)*7*K.fs; line(x0, yy, x1 - 6*K.fs, yy); yonOk(x1 - 6*K.fs, yy, 1, C.sin); }
+    ctx.globalAlpha = 1;
+  }
+  /* devrede LDR sembolü: direnç + iki ışık oku */
+  function ldrSem(x, cy, L, col, p){
+    dirDik(x, cy, L, col, false);
+    ctx.strokeStyle = C.sin; LW(1.4); ctx.globalAlpha = 0.35 + 0.65*(p == null ? 1 : p);
+    [-1, 1].forEach(function(s){ var ya = cy + s*7*K.fs - 12*K.fs, xa = x - 26*K.fs; line(xa, ya, x - 13*K.fs, ya + 9*K.fs); ctx.fillStyle = C.sin; ctx.beginPath(); ctx.arc(x - 13*K.fs, ya + 9*K.fs, 2.2*K.fs, 0, TAU); ctx.fill(); });
+    ctx.globalAlpha = 1;
+  }
+  /* zaman grafiği iskeleti */
+  function zGrafik(P, t0, t1, solPay, sagPay){
+    var g = { x0:P[0] + (solPay || 48)*K.fs, x1:P[0] + P[2] - (sagPay || 16)*K.fs, y0:P[1] + 30*K.fs, y1:P[1] + P[3] - 26*K.fs, t0:t0, t1:t1 };
+    g.X = function(t){ return g.x0 + (t - t0)/(t1 - t0)*(g.x1 - g.x0); };
+    return g;
+  }
+  function zSeri(g, arr, dt, Y, col, lw, kesik, al){
+    ctx.strokeStyle = col; LW(lw); dash(kesik ? [5, 4] : null); if (al != null) ctx.globalAlpha = al;
+    if (lw > 2) glowOn(col, 5);
+    ctx.beginPath(); var adim = Math.max(1, Math.floor(arr.length/900));
+    for (var k = 0; k < arr.length; k += adim){ var x = g.X(g.t0 + k*dt), y = Y(arr[k]); if (k) ctx.lineTo(x, y); else ctx.moveTo(x, y); }
+    ctx.stroke(); glowOff(); dash(null); ctx.globalAlpha = 1;
+  }
+  function zImlec(g, t, col){ if (t == null) return; ctx.strokeStyle = col || C.arc; LW(1.4); dash([3, 3]); line(g.X(t), g.y0, g.X(t), g.y1); dash(null); }
+  function zZamanEks(g, adim, fmt){
+    ctx.strokeStyle = C.line; LW(1); line(g.x0, g.y1, g.x1, g.y1);
+    for (var t = g.t0; t <= g.t1 + 1e-9; t += adim) txt(fmt(t), g.X(t), g.y1 + 12*K.fs, C.ink3, 7.5, 'center', MONO);
+  }
+  var OR = 1/4000;                         /* grafik örnek adımı: 0,25 ms */
+  var onbellek = {};
+  function sakla(anahtar, fn){ if (!onbellek[anahtar]) onbellek[anahtar] = fn(); return onbellek[anahtar]; }
+
+  /* ================= SAHNE 1: LED VE LDR =================
+     Işık gelince LDR’nin direnci hızla düşer (τ ≈ 5 ms); ışık gidince yavaş toparlanır (100 kΩ’a ≈ 40 ms).
+     Grafik 300 ms; canlandırma 10 kat yavaş.                                                           */
+  var L_BAS = 0.02, L_SON = 0.3, L_YAVAS = 10;
+  function darbeSim(I, sure){
+    return sakla('d' + I + '_' + sure, function(){
+      var R = ldrHedef(0), a = [], b = [];
+      for (var k = 0; k*OR <= L_SON; k++){ var t = k*OR, on = t >= L_BAS && t < L_BAS + sure, i = on ? I : 0; R = ldrAdim(R, ldrHedef(i), OR); a.push(i); b.push(R); }
+      return { i:a, R:b };
+    });
+  }
+  function drawLdr(w, h){
+    var pad = 16*K.fs, dar = w < 760, top = 34*K.fs, D = darbeSim(S.lI, S.lDarbe);
+    var tc = S.lCalis ? (S.anim/L_YAVAS) % L_SON : null, kc = tc == null ? -1 : Math.min(D.R.length - 1, Math.round(tc/OR));
+    var Ian = kc < 0 ? S.lI : D.i[kc], Ran = kc < 0 ? ldrHedef(S.lI) : D.R[kc], p = Ian/LDR_IMAX;
+    var Rson = D.R[Math.round((L_BAS + S.lDarbe)/OR) - 1];
+    sahneBaslik(w, 'LED VE LDR  ·  LED ' + aTxt(S.lI) + '  ·  ' + (kc < 0 ? 'sürekli yanıyor' : 'darbe ' + msTxt(S.lDarbe) + ' · 10 kat yavaş'),
+      'LDR ' + ohm2(Ran), C.cos, 'LDR ' + ohm2(Ran));
+    var P = yerlesim(dar, top, pad, w, h, dar ? [0.36, 0.24] : [0.50, 0.22, 0.64, 0.58]), P1 = P[0], P2 = P[1], P3 = P[2];
+    frame(P1[0], P1[1], P1[2], P1[3]);
+    baslikP(dar ? 'IŞIK → DİRENÇ' : 'IŞIK → DİRENÇ  ·  LED ve fotodirenç aynı karanlık kılıfta', P1[0], P1[1], dar);
+    var W = P1[2], cy = P1[1] + P1[3]*0.47, r = Math.min(22*K.fs, P1[3]*0.12, W*0.055), xl = P1[0] + W*0.24, xr = P1[0] + W*0.60, xm = P1[0] + W*0.84;
+    ctx.strokeStyle = C.ink3; LW(1.2); dash([4, 4]); ctx.strokeRect(xl - r*2.2, cy - r*2.7, xr - xl + r*4.2, r*5.0); dash(null);
+    txt(dar ? 'kılıf' : 'ışık geçirmez kılıf (vaktrol)', (xl + xr)/2, cy - r*2.7 - 9*K.fs, C.ink3, 7.5, 'center', MONO);
+    isinlar(xl + r*1.3, xr - r*1.1, cy - r*0.2, p, 3);
+    ledCiz(xl, cy - r*0.2, r*0.8, p); ldrCiz(xr, cy - r*0.2, r, Math.pow(p, 0.5));
+    txt('LED', xl, cy - r*1.9, C.sin, 8.5, 'center', MONO, 600); txt(dar ? 'LDR' : 'LDR (fotodirenç)', xr, cy - r*1.9, C.cos, 8.5, 'center', MONO, 600);
+    chip(aTxt(Ian), xl, cy + r*2.9, C.sin, 8.5, 600);
+    var ya = cy + r*1.9, yb2 = cy + r*3.0, ym = (ya + yb2)/2;
+    tel([[xr + r*0.4, cy + r*1.5], [xr + r*0.4, ya], [xm - 14*K.fs, ya]], C.ink2);
+    tel([[xr - r*0.4, cy + r*1.5], [xr - r*0.4, yb2], [xm, yb2], [xm, ya + 14*K.fs]], C.ink2);
+    metre(xm, ya, 'Ω', C.cos, dar ? null : ohm2(Ran), 'sag');
+    txt(sig(p > 0.02 && Ran < 1e4 ? 'bol ışık: CdS katmanında serbest yük çok, direnç birkaç kΩ' : p > 0.02 ? 'az ışık: direnç onlarca kΩ' : kc >= 0 ? 'ışık yok: LDR yavaşça 1 MΩ’a dönüyor' : 'karanlık: ≈ 1 MΩ, neredeyse yalıtkan',
+      p > 0.02 ? 'ışık var: direnç düşük' : 'karanlık: direnç yükseliyor', P1[2] - 24*K.fs, 8.5), P1[0] + P1[2]/2, P1[1] + P1[3] - 11*K.fs, C.ink3, 8.5, 'center', MONO);
+    sayiPanel(P2, dar ? 'SAYILAR' : 'SAYILAR  ·  LDR (bu sayfa, temsilî)', [
+      ['LED akımı', aTxt(S.lI), C.sin],
+      ['sürekli yanarsa LDR', ohm2(ldrHedef(S.lI)), C.cos],
+      ['karanlıkta LDR', '≈ 1 MΩ', C.ink2],
+      ['ışık gelince (%63’e)', '≈ 5 ms', C.sin],
+      ['ışık gidince (100 kΩ’a)', '≈ 40 ms', C.arc],
+      ['darbe sonunda LDR', ohm2(Rson), C.cos]
+    ], dar);
+    frame(P3[0], P3[1], P3[2], P3[3]);
+    baslikP(dar ? 'ZAMAN · 300 ms' : 'ZAMAN  ·  300 ms  ·  üstte LED akımı, altta LDR direnci (logaritmik)', P3[0], P3[1], dar);
+    var g = zGrafik(P3, 0, L_SON, dar ? 44 : 52), ay = g.y0 + (g.y1 - g.y0)*0.28;
+    var YI = function(i){ return ay - i/LDR_IMAX*(ay - g.y0 - 4*K.fs); };
+    var YR = function(R){ return ay + 14*K.fs + (Math.log10(1e6) - Math.log10(R))/(Math.log10(1e6) - Math.log10(1e3))*(g.y1 - ay - 18*K.fs); };
+    [1e3, 1e4, 1e5, 1e6].forEach(function(R){ ctx.strokeStyle = C.line2; LW(1); line(g.x0, YR(R), g.x1, YR(R)); txt(ohm2(R), g.x0 - 6*K.fs, YR(R), C.ink3, 7.5, 'right', MONO); });
+    txt('LED', g.x0 - 6*K.fs, (ay + g.y0)/2, C.sin, 7.5, 'right', MONO, 600);
+    ctx.strokeStyle = C.line; LW(1); line(g.x0, ay, g.x1, ay);
+    zSeri(g, D.i, OR, YI, C.sin, 2.4); zSeri(g, D.R, OR, YR, C.cos, 2.8);
+    zZamanEks(g, 0.05, function(t){ return kis(t*1e3, 0) + ' ms'; });
+    var xa = g.X(L_BAS + 0.006), xb = g.X(Math.min(L_SON - 0.03, L_BAS + S.lDarbe + 0.03));
+    if (!dar){ txt('hızlı düşüş', g.X(L_BAS) - 5*K.fs, YR(3e4), C.sin, 7.5, 'right', MONO, 600); txt('yavaş toparlanma', xb + 6*K.fs, YR(D.R[Math.round((L_BAS + S.lDarbe + 0.03)/OR)]) + 12*K.fs, C.arc, 7.5, 'left', MONO, 600); }
+    zImlec(g, tc);
+  }
+
+  /* ================= SAHNE 2: LFO =================
+     Faz kaydırmalı osilatör: üç RC basamağı sinyali 180° döndürür, transistör ≈ 29 kat büyütüp geri besler.
+     Hız düğmesi R’yi değiştirir: f = 1 ÷ (2π·√6·R·C), C = 1 µF. Grafik 2 s, gerçek hızda.                */
+  var NOTALAR = [[2, 'dörtlük'], [3, 'üçleme dörtlük'], [4, 'sekizlik'], [6, 'üçleme sekizlik'], [8, 'onaltılık']];
+  function notaAd(f){ var en = null; NOTALAR.forEach(function(q){ if (Math.abs(q[0] - f) < 0.051) en = q[1]; }); return en; }
+  var SEKIL_AD = { sin:'sinüs', ucg:'üçgen', kare:'kare' };
+  function lfoSim(f, sekil){
+    return sakla('f' + f + sekil, function(){ var a = [], b = []; for (var k = 0; k*OR <= 2; k++){ var u = lfoDalga(k*OR*f, sekil); a.push(u); b.push(ledAkim(u)); } return { u:a, i:b }; });
+  }
+  function rcMerdiven(x0, y, x1, col){
+    var st = (x1 - x0)/3;
+    tel([[x0, y], [x1, y]], C.ink2);
+    for (var k = 0; k < 3; k++){ var xc = x0 + st*(k + 0.35), xr = x0 + st*(k + 0.8); kapYatay(xc, y, col, false); tel([[xr, y], [xr, y + 12*K.fs]], C.ink2); dirDik(xr, y + 30*K.fs, 28*K.fs, C.cos, false); tel([[xr, y + 44*K.fs], [xr, y + 52*K.fs]], C.ink2); toprak(xr, y + 52*K.fs); }
+  }
+  function drawLfo(w, h){
+    var pad = 16*K.fs, dar = w < 760, top = 34*K.fs, D = lfoSim(S.fHz, S.fSekil), f = S.fHz;
+    var tc = S.fCalis ? S.anim % 2 : 0.5/f, kc = Math.min(D.u.length - 1, Math.round(tc/OR)), p = D.i[kc]/LDR_IMAX, nota = notaAd(f);
+    var yanik = 0; D.i.forEach(function(i){ if (i > 0) yanik++; }); yanik /= D.i.length;
+    sahneBaslik(w, 'LFO  ·  ' + hzT(f) + ' ' + SEKIL_AD[S.fSekil] + '  ·  saniyede ' + kis(f, 1) + ' salınım' + (nota ? '  ·  120 BPM’de ' + nota : ''),
+      'periyot ' + msTxt(1/f), C.sin, hzT(f));
+    var P = yerlesim(dar, top, pad, w, h, dar ? [0.36, 0.24] : [0.50, 0.22, 0.64, 0.58]), P1 = P[0], P2 = P[1], P3 = P[2];
+    frame(P1[0], P1[1], P1[2], P1[3]);
+    baslikP(dar ? 'OSİLATÖR' : 'OSİLATÖR  ·  kendi kendine salınan bir devre, çok yavaş', P1[0], P1[1], dar);
+    var W = P1[2], y = P1[1] + P1[3]*0.36, xa = P1[0] + W*0.08, xb = P1[0] + W*(dar ? 0.56 : 0.50), xt = P1[0] + W*(dar ? 0.70 : 0.64), xled = P1[0] + W*0.88;
+    rcMerdiven(xa, y, xb, C.arc);
+    if (!dar) txt('üç RC basamağı: sinyal 180° döner', (xa + xb)/2, y - 22*K.fs, C.ink3, 7.5, 'center', MONO);
+    kutu(xt, y, dar ? 44*K.fs : 70*K.fs, 34*K.fs, C.sin, dar ? '× 29' : 'transistör', dar ? '' : '× 29');
+    tel([[xb, y], [xt - (dar ? 22 : 35)*K.fs, y]], C.ink2);
+    var yg = P1[1] + P1[3]*0.14;
+    tel([[xt + (dar ? 22 : 35)*K.fs, y], [xled - 30*K.fs, y], [xled - 30*K.fs, yg], [xa, yg], [xa, y]], C.ink2);
+    yonOk((xa + xt)/2, yg, -1, C.ink2); if (!dar) txt('geri besleme', (xa + xt)/2, yg - 10*K.fs, C.ink3, 7.5, 'center', MONO);
+    tel([[xled - 30*K.fs, y], [xled, y], [xled, y + 10*K.fs]], C.ink2);
+    ledCiz(xled, y + 28*K.fs, 12*K.fs, p);
+    txt('LED', xled, y + 64*K.fs, C.sin, 8, 'center', MONO, 600);
+    var R = oscR(f);
+    chip('R = ' + ohm2(R), xa + (xb - xa)/3*0.8, y + 76*K.fs, C.cos, 8, 600);
+    txt(sig('hız düğmesi üç direnci birlikte değiştirir: R küçüldükçe salınım hızlanır', 'hız düğmesi = R', P1[2] - 24*K.fs, 8.5), P1[0] + P1[2]/2, P1[1] + P1[3] - 11*K.fs, C.ink3, 8.5, 'center', MONO);
+    sayiPanel(P2, dar ? 'SAYILAR' : 'SAYILAR  ·  hız → R (C = 1 µF, temsilî)', [
+      ['hız', hzT(f), C.sin],
+      ['periyot', msTxt(1/f), C.sin],
+      ['dakikada', kis(60*f, 0) + ' salınım', C.ink2],
+      ['120 BPM’de', nota || '—', nota ? C.arc : C.ink3],
+      ['RC direnci', ohm2(R), C.cos],
+      ['LED’in yandığı süre', '%' + kis(yanik*100, 0), C.sin]
+    ], dar);
+    frame(P3[0], P3[1], P3[2], P3[3]);
+    baslikP(dar ? '2 SANİYE' : '2 SANİYE  ·  osilatör gerilimi (ince) ve LED akımı (kalın) · dikey çizgiler: 120 BPM vuruşları', P3[0], P3[1], dar);
+    var g = zGrafik(P3, 0, 2, dar ? 40 : 48), Y = function(u){ return g.y1 - 6*K.fs - u*(g.y1 - g.y0 - 12*K.fs); };
+    for (var b = 0; b <= 2; b += 0.5){ ctx.strokeStyle = mixc(C.panel, C.arc, 0.35); LW(1.2); line(g.X(b), g.y0, g.X(b), g.y1); }
+    ctx.fillStyle = mixc(C.panel, C.ink3, 0.10); ctx.fillRect(g.x0, Y(LED_ESIK), g.x1 - g.x0, Y(0) - Y(LED_ESIK));
+    ctx.strokeStyle = C.ink3; LW(1); dash([4, 3]); line(g.x0, Y(LED_ESIK), g.x1, Y(LED_ESIK)); dash(null);
+    txt(dar ? 'eşik' : 'LED eşiği', g.x0 - 6*K.fs, Y(LED_ESIK), C.ink3, 7.5, 'right', MONO);
+    zSeri(g, D.u, OR, Y, C.cos, 1.6);
+    zSeri(g, D.i, OR, function(i){ return Y(LED_ESIK + (1 - LED_ESIK)*i/LDR_IMAX); }, C.sin, 2.8);
+    zZamanEks(g, dar ? 1 : 0.25, function(t){ return kis(t, 2) + ' s'; });
+    if (S.fCalis) zImlec(g, tc);
+  }
+  /* ================= SAHNE 3: SES YOLU =================
+     Gitar sinyali seri 100 kΩ’dan geçer; çıkışla toprak arasında derinlik direnci + LDR var. LDR aydınlanınca
+     alt kol küçülür, sinyalin bir kısmı toprağa kaçar: ses kısılır. LFO bu sahnede sabit: 4 Hz sinüs.          */
+  var Y_F = 4;
+  function yolSim(d){ return sakla('y' + d, function(){ return simule({ f:Y_F, sekil:'sin', d:d, dt:OR, n:4001, isinma:1 }); }); }
+  function uclar(g){ var mn = 1e9, mx = -1e9; g.forEach(function(v){ var q = db(v); if (q < mn) mn = q; if (q > mx) mx = q; }); return [mn, mx]; }
+  function drawYol(w, h){
+    var pad = 16*K.fs, dar = w < 760, top = 34*K.fs, D = yolSim(S.yD), d = S.yD;
+    var tc = S.yCalis ? S.anim % 1 : 0.125, kc = Math.min(D.g.length - 1, Math.round(tc/OR)), p = D.i[kc]/LDR_IMAX, gnow = D.g[kc], U = uclar(D.g);
+    var Rd = derinlikR(d), lit = db(kazanc(LDR_RON, d)), dark = db(kazanc(LDR_RD, d));
+    sahneBaslik(w, 'SES YOLU  ·  derinlik %' + kis(d*100, 0) + '  ·  LFO 4 Hz sinüs  ·  LDR ' + ohm2(D.R[kc]),
+      'salınım ' + kis(U[1] - U[0], 1) + ' dB', C.sin, 'salınım ' + kis(U[1] - U[0], 1) + ' dB');
+    var P = yerlesim(dar, top, pad, w, h, dar ? [0.40, 0.24] : [0.52, 0.22, 0.64, 0.58]), P1 = P[0], P2 = P[1], P3 = P[2];
+    frame(P1[0], P1[1], P1[2], P1[3]);
+    baslikP(dar ? 'GERİLİM BÖLÜCÜ' : 'GERİLİM BÖLÜCÜ  ·  LDR aydınlanınca sinyal toprağa kaçar', P1[0], P1[1], dar);
+    var W = P1[2], yt = P1[1] + P1[3]*0.24, xg = P1[0] + W*0.08, xn = P1[0] + W*0.56, xo = P1[0] + W*0.90;
+    var yd = yt + P1[3]*0.20, yl = yt + P1[3]*0.47, yb = P1[1] + P1[3]*0.84, Ld = Math.min(40*K.fs, P1[3]*0.16);
+    uc(xg, yt, 'gitar', true); uc(xo, yt, dar ? 'çıkış' : 'amfiye', true);
+    tel([[xg, yt], [xo, yt]], C.ink2); dirYatay((xg + xn)/2, yt, Math.min(60*K.fs, (xn - xg)*0.5), C.cos, false);
+    txt('100 kΩ', (xg + xn)/2, yt - 16*K.fs, C.cos, 8, 'center', MONO, 600);
+    noktaB(xn, yt); tel([[xn, yt], [xn, yb]], C.ink2);
+    dirDik(xn, yd, Ld, C.arc, false); txt(dar ? ohm2(Rd) : 'derinlik ' + ohm2(Rd), xn + 14*K.fs, yd, C.arc, 8, 'left', MONO, 600);
+    ldrSem(xn, yl, Ld, C.cos, p); txt('LDR ' + ohm2(D.R[kc]), xn + 14*K.fs, yl, C.cos, 8, 'left', MONO, 600);
+    toprak(xn, yb + 2*K.fs);
+    var xled = xn - (dar ? 62 : 90)*K.fs;
+    isinlar(xled + 14*K.fs, xn - 28*K.fs, yl - 8*K.fs, p, 2);
+    ledCiz(xled, yl - 8*K.fs, 10*K.fs, p);
+    kutu(xled, yb - 4*K.fs, dar ? 50*K.fs : 70*K.fs, 26*K.fs, C.sin, 'LFO', dar ? '' : '4 Hz');
+    tel([[xled - 4.5*K.fs, yl + 10*K.fs], [xled - 4.5*K.fs, yb - 17*K.fs]], C.ink2);
+    chip('çıkış ' + dbT(db(gnow)), xo - (dar ? 20 : 30)*K.fs, yt + 26*K.fs, C.sin, 8.5, 600);
+    txt(sig(p > 0.1 ? 'ışık var: alt kol küçük, sinyalin bir kısmı toprağa gidiyor' : 'karanlık: alt kol büyük, sinyal neredeyse olduğu gibi geçiyor',
+      p > 0.1 ? 'ışık var: ses kısılıyor' : 'karanlık: ses tam', P1[2] - 24*K.fs, 8.5), P1[0] + P1[2]/2, P1[1] + P1[3] - 11*K.fs, C.ink3, 8.5, 'center', MONO);
+    sayiPanel(P2, dar ? 'SAYILAR' : 'SAYILAR  ·  seri 100 kΩ, alt kol derinlik + LDR', [
+      ['derinlik', '%' + kis(d*100, 0) + ' · ' + ohm2(Rd), C.arc, '%' + kis(d*100, 0)],
+      ['karanlıkta (1 MΩ)', dbT(dark), C.ink2],
+      ['tam ışıkta (2 kΩ)', dbT(lit), C.ink2],
+      ['4 Hz’te en yüksek', dbT(U[1]), C.sin],
+      ['4 Hz’te en düşük', dbT(U[0]), C.sin],
+      ['salınım', kis(U[1] - U[0], 1) + ' dB', C.sin]
+    ], dar);
+    frame(P3[0], P3[1], P3[2], P3[3]);
+    baslikP(dar ? 'ÇIKIŞ · 1 s' : 'ÇIKIŞ  ·  1 saniye  ·  sabit bir nota (ince) ve onun gürlüğü (kalın)', P3[0], P3[1], dar);
+    var g = zGrafik(P3, 0, 1, dar ? 40 : 48), my = (g.y0 + g.y1)/2, A = (g.y1 - g.y0)/2 - 6*K.fs;
+    ctx.strokeStyle = C.line2; LW(1); line(g.x0, my, g.x1, my); line(g.x0, my - A, g.x1, my - A); line(g.x0, my + A, g.x1, my + A);
+    txt('+1', g.x0 - 6*K.fs, my - A, C.ink3, 7.5, 'right', MONO); txt('0', g.x0 - 6*K.fs, my, C.ink3, 7.5, 'right', MONO); txt('−1', g.x0 - 6*K.fs, my + A, C.ink3, 7.5, 'right', MONO);
+    var tas = D.g.map(function(v, k){ return v*Math.sin(TAU*55*k*OR); });
+    zSeri(g, tas, OR, function(v){ return my - v*A; }, C.cos, 1.1, false, 0.8);
+    zSeri(g, D.g, OR, function(v){ return my - v*A; }, C.sin, 2.8); zSeri(g, D.g, OR, function(v){ return my + v*A; }, C.sin, 2.8);
+    zZamanEks(g, dar ? 0.5 : 0.25, function(t){ return kis(t, 2) + ' s'; });
+    if (S.yCalis) zImlec(g, tc);
+  }
+
+  /* ================= SAHNE 4: PEDALIN TAMAMI =================
+     Hız (LFO), derinlik (bölücü) ve biçim (dalga şekli). Grafik 2 s: LDR ile gerçek kazanç ve LDR’siz (ideal) kazanç.
+     Ses 4 s’lik döngü: hız 0,5 Hz adımlarla, döngüye tam oturuyor.                                            */
+  function pedSim(){ var f = S.pHz, sk = S.pSekil, d = S.pD; return sakla('p' + f + sk + d, function(){ return simule({ f:f, sekil:sk, d:d, dt:OR, n:8001, isinma:2 }); }); }
+  function potCiz(x, y, r, oran, ad, deger){
+    ctx.fillStyle = mixc(C.panel, C.ink, 0.82); ctx.strokeStyle = C.ink2; LW(1.4); ctx.beginPath(); ctx.arc(x, y, r, 0, TAU); ctx.fill(); ctx.stroke();
+    var a = Math.PI*0.75 + oran*Math.PI*1.5;
+    ctx.strokeStyle = C.panel; LW(2.4); line(x + Math.cos(a)*r*0.25, y + Math.sin(a)*r*0.25, x + Math.cos(a)*r*0.85, y + Math.sin(a)*r*0.85);
+    txt(ad, x, y - r - 9*K.fs, C.ink2, 7.5, 'center', MONO, 600); if (deger) txt(deger, x, y + r + 10*K.fs, C.sin, 7.5, 'center', MONO, 600);
+  }
+  function drawPed(w, h){
+    var pad = 16*K.fs, dar = w < 760, top = 34*K.fs, D = pedSim(), f = S.pHz, nota = notaAd(f);
+    var st = sesZaman(), tc = st == null ? null : st % 2, kc = tc == null ? Math.round(0.5/f/OR) : Math.min(D.g.length - 1, Math.round(tc/OR));
+    var gs = S.pLdr ? D.g : D.gi, U = uclar(gs), Ui = uclar(D.gi), p = D.i[kc]/LDR_IMAX;
+    sahneBaslik(w, 'PEDAL  ·  hız ' + hzT(f) + (nota ? ' (120 BPM ' + nota + ')' : '') + '  ·  derinlik %' + kis(S.pD*100, 0) + '  ·  ' + SEKIL_AD[S.pSekil] + '  ·  ' + (S.pLdr ? 'gerçek LDR' : 'ideal ışık kontrolü'),
+      'salınım ' + kis(U[1] - U[0], 1) + ' dB', C.sin, 'salınım ' + kis(U[1] - U[0], 1) + ' dB');
+    var P = yerlesim(dar, top, pad, w, h, dar ? [0.36, 0.24] : [0.48, 0.22, 0.64, 0.58]), P1 = P[0], P2 = P[1], P3 = P[2];
+    frame(P1[0], P1[1], P1[2], P1[3]);
+    baslikP(dar ? 'PEDAL' : 'PEDAL  ·  üç düğme, üç devre', P1[0], P1[1], dar);
+    var W = P1[2], H1 = P1[3];
+    /* kutu */
+    var bw = Math.min(W*0.34, 150*K.fs), bx = P1[0] + W*0.05, by = P1[1] + 28*K.fs, bh = H1 - 52*K.fs, bcx = bx + bw/2, rr = Math.min(15*K.fs, bw*0.12);
+    ctx.fillStyle = mixc(C.panel, C.ink3, 0.14); ctx.strokeStyle = C.ink2; LW(1.6); ctx.fillRect(bx, by, bw, bh); ctx.strokeRect(bx, by, bw, bh);
+    potCiz(bx + bw*0.27, by + bh*0.24, rr, (f - 0.5)/11.5, 'HIZ', hzT(f));
+    potCiz(bx + bw*0.73, by + bh*0.24, rr, S.pD, dar ? 'DER.' : 'DERİNLİK', '%' + kis(S.pD*100, 0));
+    txt(dar ? 'BİÇİM' : 'BİÇİM', bcx, by + bh*0.50, C.ink2, 7.5, 'center', MONO, 600);
+    ['sin', 'ucg', 'kare'].forEach(function(sk, k){ var xx = bx + bw*(0.2 + 0.3*k); ctx.fillStyle = sk === S.pSekil ? C.arc : mixc(C.panel, C.ink3, 0.4); ctx.beginPath(); ctx.arc(xx, by + bh*0.58, 3.5*K.fs, 0, TAU); ctx.fill(); if (!dar) txt(SEKIL_AD[sk], xx, by + bh*0.58 + 11*K.fs, sk === S.pSekil ? C.arc : C.ink3, 7, 'center', MONO); });
+    ledCiz(bcx, by + bh*0.74, 5*K.fs, st == null ? 0.6 : p);
+    ctx.fillStyle = mixc(C.panel, C.ink, 0.7); ctx.beginPath(); ctx.arc(bcx, by + bh*0.88, rr*0.8, 0, TAU); ctx.fill();
+    /* blok şema */
+    var x0 = bx + bw + (dar ? 16 : 30)*K.fs, x1 = P1[0] + W - 14*K.fs, ys = P1[1] + H1*0.34, yl = P1[1] + H1*0.70, bwid = Math.min(84*K.fs, (x1 - x0)*0.36);
+    var xs0 = x0 + 4*K.fs, xs1 = x1 - 4*K.fs, xk = (xs0 + xs1)/2;
+    uc(xs0, ys, dar ? 'gitar' : 'gitar', true); uc(xs1, ys, dar ? 'amfi' : 'amfiye', true);
+    tel([[xs0, ys], [xs1, ys]], C.ink2);
+    kutu(xk, ys, bwid, 34*K.fs, C.cos, dar ? 'bölücü' : 'bölücü + LDR', dar ? '' : 'derinlik');
+    kutu(xk, yl, bwid, 30*K.fs, C.sin, 'LFO', hzT(f));
+    ctx.strokeStyle = C.sin; LW(1.8); ctx.globalAlpha = 0.3 + 0.7*(st == null ? 0.6 : p); line(xk, yl - 15*K.fs, xk, ys + 21*K.fs); ctx.globalAlpha = 1;
+    ledCiz(xk + 22*K.fs, (ys + yl)/2 + 4*K.fs, 6*K.fs, st == null ? 0.6 : p);
+    if (!dar) txt('LED → ışık', xk + 36*K.fs, (ys + yl)/2, C.sin, 7.5, 'left', MONO, 600);
+    sayiPanel(P2, dar ? 'SAYILAR' : 'SAYILAR  ·  ' + (S.pLdr ? 'gerçek LDR' : 'ideal ışık kontrolü'), [
+      ['hız', hzT(f) + (nota ? ' · ' + nota : ''), C.sin, hzT(f)],
+      ['derinlik', '%' + kis(S.pD*100, 0), C.arc],
+      ['en yüksek kazanç', dbT(U[1]), C.sin],
+      ['en düşük kazanç', dbT(U[0]), C.sin],
+      ['salınım', kis(U[1] - U[0], 1) + ' dB', C.sin],
+      ['LDR’siz (ideal) salınım', kis(Ui[1] - Ui[0], 1) + ' dB', C.cos]
+    ], dar);
+    frame(P3[0], P3[1], P3[2], P3[3]);
+    baslikP(dar ? 'KAZANÇ · 2 s' : 'KAZANÇ  ·  2 saniye  ·  kalın: ' + (S.pLdr ? 'gerçek LDR' : 'ideal') + ', ince: ' + (S.pLdr ? 'ideal (anında tepki)' : 'gerçek LDR'), P3[0], P3[1], dar);
+    var g = zGrafik(P3, 0, 2, dar ? 44 : 52), Y = function(v){ return g.y0 + 4*K.fs + (-db(v))/36*(g.y1 - g.y0 - 8*K.fs); };
+    [0, -12, -24, -36].forEach(function(q){ var yy = g.y0 + 4*K.fs + (-q)/36*(g.y1 - g.y0 - 8*K.fs); ctx.strokeStyle = q ? C.line2 : C.line; LW(1); line(g.x0, yy, g.x1, yy); txt(q ? '−' + Math.abs(q) + ' dB' : '0 dB', g.x0 - 6*K.fs, yy, C.ink3, 7.5, 'right', MONO); });
+    zSeri(g, S.pLdr ? D.gi : D.g, OR, Y, C.cos, 1.4, true);
+    zSeri(g, gs, OR, Y, C.sin, 2.8);
+    zZamanEks(g, dar ? 1 : 0.25, function(t){ return kis(t, 2) + ' s'; });
+    zImlec(g, tc);
+  }
+
+  /* ================= SES: tremolodan geçen akor =================
+     Tel koparma sentezi (Karplus–Strong) ile Mi majör akor, 4 s’lik döngüde iki kez çalınıyor (0 ve 2 s).
+     Akor, sayfadaki modelin kazancıyla (LFO → LED eşiği → LDR → bölücü) örnek örnek çarpılıyor: ne duyuyorsanız
+     alttaki kalın eğri odur. Hız 0,5 Hz adımlı, döngüye tam oturuyor. Yalnız düğmeyle; sahne değişince durur.  */
+  var AC = null, sKaz = null, kay = null, kayKaz = null, caliyor = false, akor = null, DONGU = 4, sesZ = 0;
+  function akorUret(sr){
+    var NF = Math.round(sr*DONGU), x = new Float32Array(NF), notalar = [82.41, 123.47, 164.81, 207.65, 246.94, 329.63], R = rng(4242);
+    [0, 2].forEach(function(t0){
+      notalar.forEach(function(f, s){
+        var N = Math.round(sr/f), buf = new Float64Array(N), bas = Math.round(sr*(t0 + 0.02 + s*0.022)), p = 0;
+        for (var k = 0; k < N; k++) buf[k] = R()*2 - 1;
+        for (var t = 0; t < NF; t++){
+          var idx = (bas + t) % NF, v = buf[p], nx = buf[(p + 1) % N];
+          buf[p] = 0.4985*(v + nx); p = (p + 1) % N;
+          x[idx] += v*0.16*Math.pow(0.99994, t);
+        }
+      });
+    });
+    return x;
+  }
+  function tremoloTampon(){
+    var sr = AC.sampleRate, NF = akor.length, o = simule({ f:S.pHz, sekil:S.pSekil, d:S.pD, dt:1/sr, n:NF, isinma:DONGU }), g = S.pLdr ? o.g : o.gi;
+    var ab = AC.createBuffer(1, NF, sr), d = ab.getChannelData(0), mx = 0, k;
+    for (k = 0; k < NF; k++){ d[k] = akor[k]*g[k]; mx = Math.max(mx, Math.abs(d[k])); }
+    if (mx > 0.95) for (k = 0; k < NF; k++) d[k] *= 0.95/mx;
+    return ab;
+  }
+  function sesZaman(){ if (!caliyor || !AC || !kay || kay.__bas == null) return null; return (AC.currentTime - kay.__bas) % DONGU; }
+  function sesGuncel(){
+    if (!caliyor || !AC) return;
+    clearTimeout(sesZ);
+    sesZ = setTimeout(function(){
+      try {
+        var ab = tremoloTampon(), t = AC.currentTime, eski = kay, eskiK = kayKaz;
+        kayKaz = AC.createGain(); kayKaz.gain.value = 0; kayKaz.connect(sKaz);
+        kay = AC.createBufferSource(); kay.buffer = ab; kay.loop = true; kay.connect(kayKaz);
+        var off = eski && eski.__bas != null ? ((t - eski.__bas) % DONGU) : 0;
+        kay.start(t, off); kay.__bas = t - off; kayKaz.gain.setTargetAtTime(1, t, 0.03);
+        if (eskiK){ eskiK.gain.setTargetAtTime(0, t, 0.03); setTimeout(function(){ try { eski.stop(); } catch(e){} }, 300); }
+        animBasla();
+      } catch(e){}
+    }, 60);
+  }
+  function sesAc(){
+    try {
+      if (!AC) AC = new (window.AudioContext || window.webkitAudioContext)();
+      if (AC.state === 'suspended') AC.resume();
+      if (!akor) akor = akorUret(AC.sampleRate);
+      sKaz = AC.createGain(); sKaz.gain.value = 0; sKaz.connect(AC.destination);
+      sKaz.gain.setTargetAtTime(0.55, AC.currentTime, 0.05);
+      caliyor = true; kay = null; kayKaz = null; sesGuncel();
+    } catch(e){ caliyor = false; }
+  }
+  function sesKapat(){
+    try { if (sKaz && AC) sKaz.gain.setTargetAtTime(0, AC.currentTime, 0.03);
+      var k2 = kay; setTimeout(function(){ try { if (k2) k2.stop(); } catch(e){} }, 250); } catch(e){}
+    kay = null; kayKaz = null; caliyor = false; clearTimeout(sesZ);
+  }
+  function drawBoard(){
+    var g = sized(board); if (!g) return;
+    ctx = g.c;
+    if (S.mode === 'ldr')      drawLdr(g.w, g.h);
+    else if (S.mode === 'lfo') drawLfo(g.w, g.h);
+    else if (S.mode === 'yol') drawYol(g.w, g.h);
+    else                       drawPed(g.w, g.h);
+  }
+  function render(){ drawBoard(); }
+  if (window.ResizeObserver){ new ResizeObserver(function(){ render(); }).observe(board); }
+  window.addEventListener('resize', render);
+
+  var aRaf = 0, aSon = 0;
+  function animAcik(){ return (S.mode === 'ldr' && S.lCalis) || (S.mode === 'lfo' && S.fCalis) || (S.mode === 'yol' && S.yCalis) || (S.mode === 'ped' && caliyor); }
+  function tik2(ts){
+    aRaf = 0; if (!animAcik() || document.hidden) return;
+    var dt = aSon ? Math.min(0.05, (ts - aSon)/1000) : 0; aSon = ts; S.anim += dt; render();
+    aRaf = requestAnimationFrame(tik2);
+  }
+  function animBasla(){ if (animAcik() && !aRaf){ aSon = 0; aRaf = requestAnimationFrame(tik2); } }
+  document.addEventListener('visibilitychange', animBasla);
+
+  var ro = document.getElementById('readout');
+  function cell(lab, val, cls){ return '<div><span>'+lab+'</span><b'+(cls?' class="'+cls+'"':'')+'>'+val+'</b></div>'; }
+  function mark(sel, key, val){ Array.prototype.forEach.call(document.querySelectorAll(sel+' button'), function(b){ b.classList.toggle('on', b.dataset[key] === String(val)); }); }
+  function yaz(id, s){ document.getElementById(id).textContent = s; }
+  function dugme(id, acik, a, b){ yaz(id, acik ? a : b); document.getElementById(id).classList.toggle('on', acik); }
+
+  function sync(){
+    if (S.mode === 'ldr'){
+      ro.innerHTML = cell('LED', aTxt(S.lI), 'v-sin') + cell('LDR', ohm2(ldrHedef(S.lI)), 'v-cos') + cell('karanlıkta', '≈ 1 MΩ', '');
+      fLI.value = Math.round(S.lI*1e3); yaz('v-li', aTxt(S.lI)); mark('#gLD', 'd', S.lDarbe); dugme('b-lcalis', S.lCalis, 'Durdur', 'Canlandır (10 kat yavaş)');
+      yaz('l-note', 'LDR değerleri temsilî (vaktrol sınıfı): karanlıkta ≈ 1 MΩ, 20 mA’de ≈ 2 kΩ. Gerçek parçalar arasında iki kata varan fark olur.');
+    } else if (S.mode === 'lfo'){
+      var n2 = notaAd(S.fHz);
+      ro.innerHTML = cell('hız', hzT(S.fHz), 'v-sin') + cell('periyot', msTxt(1/S.fHz), '') + cell('120 BPM', n2 || '—', 'v-arc');
+      fFH.value = Math.round(S.fHz*10); yaz('v-fhz', hzT(S.fHz)); mark('#gFN', 'f', S.fHz); mark('#gFS', 's', S.fSekil); dugme('b-fcalis', S.fCalis, 'Durdur', 'Canlandır');
+      yaz('f-note', 'Nota değerleri 120 BPM için: dörtlük 2 Hz, sekizlik 4 Hz, onaltılık 8 Hz. Başka bir tempoda hız = BPM ÷ 60 × nota sayısı.');
+    } else if (S.mode === 'yol'){
+      var U = uclar(yolSim(S.yD).g);
+      ro.innerHTML = cell('derinlik', '%' + kis(S.yD*100, 0), 'v-arc') + cell('en düşük', dbT(U[0]), 'v-sin') + cell('salınım', kis(U[1] - U[0], 1) + ' dB', 'v-sin');
+      fYD.value = Math.round(S.yD*100); yaz('v-yd', '%' + kis(S.yD*100, 0)); dugme('b-ycalis', S.yCalis, 'Durdur', 'Canlandır');
+      yaz('y-note', 'Grafikteki nota yavaşlatılmış bir çizimdir (55 Hz); gürlüğü gösteren kalın eğri gerçek hesaptır.');
+    } else {
+      var D = pedSim(), U2 = uclar(S.pLdr ? D.g : D.gi);
+      ro.innerHTML = cell('hız', hzT(S.pHz), 'v-sin') + cell('derinlik', '%' + kis(S.pD*100, 0), 'v-arc') + cell('salınım', kis(U2[1] - U2[0], 1) + ' dB', 'v-sin');
+      fPH.value = Math.round(S.pHz*2); yaz('v-phz', hzT(S.pHz)); fPD.value = Math.round(S.pD*100); yaz('v-pd', '%' + kis(S.pD*100, 0));
+      mark('#gPS', 's', S.pSekil); dugme('b-pldr', S.pLdr, 'Işık: gerçek LDR', 'Işık: ideal'); dugme('b-pdinle', caliyor, 'Durdur', 'Dinle');
+    }
+    nerSync(); tabloSec();
+  }
+
+  var NEREDE = {
+    ldr: { c:'LDR', t:'<b>Optik tremolo pedallarının ve bazı kompresörlerin içinde</b> küçük, siyah, dört bacaklı bir parça vardır: LED ile LDR’nin birlikte kapatıldığı <b>vaktrol</b> (optokuplör). Eski amfilerde aynı işi ısı büzüşmeli makaronla kaplanmış bir neon lamba + LDR çifti yapar; ustalar ona biçiminden dolayı “hamamböceği” (roach) der.' },
+    lfo: { c:'LFO', t:'<b>LFO (düşük frekanslı osilatör)</b> sentezleyicilerde, chorus, flanger, phaser ve tremolo pedallarında aynı görevi yapar: bir şeyi yavaşça, düzenli olarak değiştirmek. Tremoloda değişen gürlük, vibratoda perde, phaserda süzgecin yeri. Transistör Uygulamaları atölyesindeki metronom da bir osilatördü; bu onun yavaş ve yumuşak kardeşi.' },
+    yol: { c:'ses yolu', t:'<b>Pedalın içini açın:</b> ses yolu çoğu zaman bir tampon, bir LDR’li bölücü ve bir çıkış tamponundan oluşur. LDR sesin geçtiği yerde durur ama LED’e hiçbir elektrik bağlantısı yoktur: iki devre yalnızca ışıkla konuşur. Bu yüzden LFO’nun tıkırtısı sese karışmaz.' },
+    ped: { c:'pedal', t:'<b>Tremolo çalarken</b> hızı şarkının temposuna göre ayarlamak yaygındır: 120 BPM’de sekizlikler için 4 Hz. Bazı pedallarda “tap tempo” düğmesi vardır; ayağınızla iki kez vurduğunuzda hızı kendisi hesaplar. Surf ve rockabilly’nin kesik tremolosu kare dalga ve yüksek derinliktir; yumuşak, “nefes alan” tremolo sinüs ve orta derinlik.' }
+  };
+  function nerSync(){ var N2 = NEREDE[S.mode]; yaz('ner-count', N2.c); document.getElementById('ner-not').innerHTML = N2.t; }
+
+  /* ================= tablo: 120 BPM nota değerleri ve LDR’nin yetişmesi ================= */
+  var TROW = [[2, 'dörtlük'], [3, 'üçleme dörtlük'], [4, 'sekizlik'], [6, 'üçleme sekizlik'], [8, 'onaltılık'], [12, 'çok hızlı']];
+  var htb = document.querySelector('#ttab tbody');
+  function tabloDoldur(){
+    htb.innerHTML = '';
+    TROW.forEach(function(q, k){
+      var o = simule({ f:q[0], sekil:'sin', d:0.8, dt:OR, n:4001, isinma:1 }), a = uclar(o.g), b = uclar(o.gi);
+      var tr = document.createElement('tr'); tr.dataset.k = String(k);
+      tr.innerHTML = '<td>' + q[1] + '</td><td>' + hzT(q[0]) + '</td><td>' + msTxt(1/q[0]) + '</td><td>' + kis(a[1] - a[0], 1) + ' dB</td><td>' + kis(b[1] - b[0], 1) + ' dB</td>';
+      tr.addEventListener('click', function(){ uygula({ mode:'ped', pHz:q[0], pSekil:'sin', pD:0.8 }); });
+      htb.appendChild(tr);
+    });
+  }
+  function tabloSec(){ Array.prototype.forEach.call(htb.children, function(tr){ var q = TROW[+tr.dataset.k]; tr.setAttribute('aria-selected', S.mode === 'ped' && S.pHz === q[0] && S.pSekil === 'sin' && S.pD === 0.8 ? 'true' : 'false'); }); }
+  function uygula(q){
+    Object.keys(q).forEach(function(k){ if (k !== 'mode') S[k] = q[k]; });
+    if (q.mode && q.mode !== S.mode) setMode(q.mode); else { sync(); render(); sesGuncel(); animBasla(); }
+  }
+
+  var SATIR = { ldr:['row-ldr'], lfo:['row-lfo', 'row-lfo2'], yol:['row-yol'], ped:['row-ped', 'row-ped2'] };
+  var modeBtns = document.querySelectorAll('.modes button[data-m]');
+  function setMode(m){
+    if (caliyor) sesKapat();
+    S.mode = m;
+    Array.prototype.forEach.call(modeBtns, function(b){ b.setAttribute('aria-pressed', b.dataset.m === m ? 'true' : 'false'); });
+    Object.keys(SATIR).forEach(function(k){ SATIR[k].forEach(function(id){ document.getElementById(id).hidden = (k !== m); }); });
+    document.getElementById('stage').dataset.scene = m;
+    sync(); render(); animBasla();
+  }
+  Array.prototype.forEach.call(modeBtns, function(b){ b.addEventListener('click', function(){ setMode(b.dataset.m); }); });
+
+  function group(host, items, set){
+    var g = document.getElementById(host);
+    items.forEach(function(o){
+      var b = document.createElement('button'); b.type = 'button'; b.textContent = o[0];
+      if (o[2]) b.dataset[o[2]] = o[1];
+      b.addEventListener('click', function(){ set(o[1]); sync(); render(); sesGuncel(); });
+      g.appendChild(b);
+    });
+  }
+  var SEKILLER = [['sinüs', 'sin', 's'], ['üçgen', 'ucg', 's'], ['kare', 'kare', 's']];
+  /* sahne 1 */
+  var fLI = document.getElementById('f-li');
+  fLI.addEventListener('input', function(){ S.lI = +fLI.value*1e-3; sync(); render(); });
+  group('gLD', [['10 ms', 0.01, 'd'], ['50 ms', 0.05, 'd'], ['150 ms', 0.15, 'd']], function(v){ S.lDarbe = v; });
+  document.getElementById('b-lcalis').addEventListener('click', function(){ S.lCalis = !S.lCalis; S.anim = 0; sync(); render(); animBasla(); });
+  /* sahne 2 */
+  var fFH = document.getElementById('f-fhz');
+  fFH.addEventListener('input', function(){ S.fHz = +fFH.value/10; sync(); render(); });
+  group('gFN', NOTALAR.map(function(q){ return [q[1], q[0], 'f']; }), function(v){ S.fHz = v; });
+  group('gFS', SEKILLER, function(v){ S.fSekil = v; });
+  document.getElementById('b-fcalis').addEventListener('click', function(){ S.fCalis = !S.fCalis; S.anim = 0; sync(); render(); animBasla(); });
+  /* sahne 3 */
+  var fYD = document.getElementById('f-yd');
+  fYD.addEventListener('input', function(){ S.yD = +fYD.value/100; sync(); render(); });
+  document.getElementById('b-ycalis').addEventListener('click', function(){ S.yCalis = !S.yCalis; S.anim = 0; sync(); render(); animBasla(); });
+  /* sahne 4 */
+  var fPH = document.getElementById('f-phz'), fPD = document.getElementById('f-pd');
+  fPH.addEventListener('input', function(){ S.pHz = +fPH.value/2; sync(); render(); sesGuncel(); });
+  fPD.addEventListener('input', function(){ S.pD = +fPD.value/100; sync(); render(); sesGuncel(); });
+  group('gPS', SEKILLER, function(v){ S.pSekil = v; });
+  document.getElementById('b-pldr').addEventListener('click', function(){ S.pLdr = !S.pLdr; sync(); render(); sesGuncel(); });
+  document.getElementById('b-pdinle').addEventListener('click', function(){ if (caliyor) sesKapat(); else sesAc(); sync(); render(); animBasla(); });
+
+  /* ================= DERS ADIMLARI ================= */
+  var STEPS = [
+    { t:'Işık direnci düşürür',
+      b:'<b>LED ve LDR</b> sahnesinde LED akımını <b>1 mA</b> yapın: LDR ≈ <b>22 kΩ</b>. Sonra <b>20 mA</b>: ≈ <b>2 kΩ</b>. LDR (fotodirenç) ışık aldıkça ' +
+        'direnci düşen bir parça. Karanlıkta ≈ 1 MΩ, yani neredeyse yalıtkan. LED ile LDR aynı karanlık kılıfta duruyor: LDR yalnızca LED’i görüyor.',
+      ap:{ mode:'ldr', lI:1e-3, lCalis:false } },
+    { t:'Işık gelince hızlı',
+      b:'LED akımını <b>10 mA</b>, darbeyi <b>50 ms</b> yapıp <b>Canlandır</b>’a basın (10 kat yavaş). LED yanınca LDR’nin direnci hızla düşüyor: ' +
+        'yolun %63’ü ≈ <b>5 ms</b>’de bitiyor ve 3,5 kΩ’a oturuyor. Alttaki grafikte direnç ekseni logaritmik: her çizgi on kat.',
+      ap:{ mode:'ldr', lI:10e-3, lDarbe:0.05, lCalis:true } },
+    { t:'Işık gidince yavaş',
+      b:'Aynı grafikte LED söndükten sonrasına bakın: direnç <b>yavaş</b> yükseliyor. 100 kΩ’a ≈ <b>40 ms</b>’de ulaşıyor, 1 MΩ’a dönmesi yüzlerce milisaniye sürüyor. ' +
+        'LDR’nin bu <b>tembelliği</b> optik tremolonun sesini belirleyecek: iniş keskin, dönüş yumuşak.',
+      ap:{ mode:'ldr', lI:10e-3, lDarbe:0.15, lCalis:true } },
+    { t:'Çok kısa bir darbe',
+      b:'Darbeyi <b>10 ms</b> yapın. LDR aşağıya inmeye vakit bulamıyor: 3,5 kΩ yerine ancak <b>7,5 kΩ</b>. LED ne kadar hızlı yanıp sönerse LDR o kadar geride kalır. ' +
+        'Bunu pedalda yüksek hızlarda duyacağız.',
+      ap:{ mode:'ldr', lI:10e-3, lDarbe:0.01, lCalis:true } },
+    { t:'Yavaş bir osilatör: LFO',
+      b:'<b>LFO</b> sahnesinde <b>Canlandır</b>’a basın. Kendi kendine salınan bir devre LED’i saniyede <b>4 kez</b> yakıp söndürüyor. Üç RC basamağı sinyali ' +
+        'yarım tur döndürüp transistöre geri veriyor; transistör ≈ 29 kat büyütüyor ve salınım kendini sürdürüyor. Transistör Uygulamaları atölyesindeki metronomun yavaş kardeşi.',
+      ap:{ mode:'lfo', fHz:4, fSekil:'sin', fCalis:true } },
+    { t:'LED eşiği',
+      b:'Grafikte gri bant <b>LED eşiği</b>: osilatörün gerilimi bu eşiği geçmeden LED yanmıyor. Sinüste LED zamanın yalnızca ≈ <b>%60</b>’ında ışık veriyor; kalan sürede ' +
+        'tamamen karanlık. Bu karanlık aralık LDR’nin toparlanmasına, yani sesin yeniden açılmasına izin veriyor.',
+      ap:{ mode:'lfo', fHz:4, fSekil:'sin', fCalis:true } },
+    { t:'Hız ve tempo',
+      b:'Nota düğmelerini deneyin. <b>120 BPM</b>’de dörtlük <b>2 Hz</b>, sekizlik <b>4 Hz</b>, onaltılık <b>8 Hz</b>; dikey çizgiler vuruşlar. Hız düğmesi üç direnci ' +
+        'birlikte değiştiriyor: 4 Hz’te 16 kΩ, 8 Hz’te 8,1 kΩ. Başka tempo için: hız = BPM ÷ 60 × vuruş başına nota sayısı.',
+      ap:{ mode:'lfo', fHz:8, fSekil:'sin', fCalis:true } },
+    { t:'Dalga şekli',
+      b:'<b>Kare</b>’yi seçin: LED ya tam yanık ya sönük, yarı yarıya. <b>Üçgen</b>’de ışık doğrusal artıp azalıyor. Tremolonun “biçim” düğmesi bu: ' +
+        'sinüs yumuşak bir dalgalanma, kare kesik kesik bir açılıp kapanma.',
+      ap:{ mode:'lfo', fHz:4, fSekil:'kare', fCalis:true } },
+    { t:'Ses yolu: bir gerilim bölücü',
+      b:'<b>Ses yolu</b> sahnesi, <b>Canlandır</b>. Gitar sinyali seri 100 kΩ’dan geçiyor; çıkışla toprak arasında <b>derinlik direnci + LDR</b>. LDR karanlıkken ' +
+        'alt kol büyük, ses neredeyse olduğu gibi geçiyor (−0,8 dB). LDR aydınlanınca alt kol küçülüyor, sinyalin çoğu toprağa kaçıyor: <b>−20,8 dB</b>.',
+      ap:{ mode:'yol', yD:0.8, yCalis:true } },
+    { t:'Derinlik düğmesi',
+      b:'Derinliği <b>%50</b> yapın: alt kolda 125 kΩ var, LDR ne kadar küçülse de alt kol 125 kΩ’un altına inemiyor. En düşük −5 dB, salınım <b>4 dB</b>. ' +
+        '<b>%0</b>’da salınım 0,3 dB (hissedilmez), <b>%100</b>’de 33 dB (ses neredeyse susuyor).',
+      ap:{ mode:'yol', yD:0.5, yCalis:true } },
+    { t:'İki devre yalnız ışıkla konuşur',
+      b:'LED ile LDR arasında hiçbir tel yok. LFO’nun kendi gerilimi ses yoluna hiç girmiyor; ses yolu yalnızca LDR’nin direncini görüyor. Bu yüzden optik ' +
+        'tremoloda LFO’nun “tıkırtısı” duyulmaz. Aynı fikir optik kompresörlerde de var.',
+      ap:{ mode:'yol', yD:0.8, yCalis:true } },
+    { t:'Pedalı dinleyin',
+      b:'<b>Pedal</b> sahnesinde <b>Dinle</b>’ye basın: 5 Hz, sinüs, derinlik %80. Kalın eğri akorun gürlüğü. Hızı ve derinliği değiştirin; ses kesilmeden güncelleniyor. ' +
+        'Hız 0,5 Hz adımlarla değişiyor (ses döngüsüne tam otursun diye).',
+      ap:{ mode:'ped', pHz:5, pD:0.8, pSekil:'sin', pLdr:true } },
+    { t:'LDR kare dalgayı yumuşatır',
+      b:'<b>Kare</b>’yi seçin ve <b>Işık: ideal</b> ile <b>gerçek LDR</b> arasında geçiş yapın. İdealde ses kesik kesik, sert köşeli. Gerçek LDR’de ' +
+        'kısılma yine hızlı ama açılış <b>yuvarlak</b>: optik tremolonun “nabız gibi” atan sesi buradan geliyor.',
+      ap:{ mode:'ped', pHz:4, pD:0.8, pSekil:'kare', pLdr:false } },
+    { t:'Çok hızlıda LDR yetişemez',
+      b:'Hızı <b>12 Hz</b>’e çıkarın (gerçek LDR). Işık gidince LDR toparlanmaya vakit bulamıyor: salınım <b>14 dB</b>’e iniyor (idealde 20 dB). ' +
+        'Optik tremolonun hızlı ayarlarda daha “sığ” gelmesinin nedeni bu. Tablodan tempoya göre satırları deneyin.',
+      ap:{ mode:'ped', pHz:12, pD:0.8, pSekil:'sin', pLdr:true } }
+  ];
+  var si = 0;
+  var stT = document.getElementById('step-title'), stB = document.getElementById('step-body'),
+      stC = document.getElementById('step-count'), dots = document.getElementById('dots');
+  STEPS.forEach(function(_, i){
+    var d = document.createElement('button'); d.type = 'button'; d.className = 'dot'; d.setAttribute('aria-label', (i+1)+'. adım');
+    d.addEventListener('click', function(){ setStep(i, true); }); dots.appendChild(d);
+  });
+  function setStep(i, uyg){
+    si = Math.max(0, Math.min(STEPS.length-1, i));
+    var s2 = STEPS[si];
+    stT.textContent = (si+1)+'. '+s2.t; stB.innerHTML = s2.b; stC.textContent = (si+1)+' / '+STEPS.length;
+    Array.prototype.forEach.call(dots.children, function(d,k){ d.setAttribute('aria-current', k === si ? 'true':'false'); });
+    document.getElementById('prev').disabled = si === 0;
+    document.getElementById('next').disabled = si === STEPS.length-1;
+    if (uyg && s2.ap){ uygula(s2.ap); animBasla(); }
+  }
+  document.getElementById('prev').addEventListener('click', function(){ setStep(si-1, true); });
+  document.getElementById('next').addEventListener('click', function(){ setStep(si+1, true); });
+
+  var QS = [
+    { q:'LDR’ye düşen ışık artınca ne olur?', o:['Direnci artar','Direnci azalır','Gerilim üretir','Hiçbir şey olmaz'], c:1,
+      e:'LDR (fotodirenç) ışık aldıkça iletkenleşir: bu sayfada karanlıkta ≈ 1 MΩ, LED 20 mA’de ≈ 2 kΩ.' },
+    { q:'LDR ışığa nasıl tepki verir?', o:['Işık gelince yavaş, gidince hızlı','Işık gelince hızlı, gidince yavaş','İkisinde de anında','İkisinde de yavaş'], c:1,
+      e:'Işık gelince direnç ≈ 5 ms’de yolun %63’ünü alır; ışık gidince 100 kΩ’a ancak ≈ 40 ms’de, 1 MΩ’a yüzlerce milisaniyede döner.' },
+    { q:'Vaktrol (optokuplör) nedir?', o:['Bir tür hoparlör','LED ile LDR’nin aynı karanlık kılıfta birleştirildiği parça','Bir kondenser','Bir güç kaynağı'], c:1,
+      e:'LED ve LDR ışık geçirmez bir kılıfta durur: LDR yalnızca LED’in ışığını görür, dışarıdaki ışıktan etkilenmez.' },
+    { q:'Tremoloda LFO’nun görevi nedir?', o:['Sesi yükseltmek','LED’i yavaşça ve düzenli olarak yakıp söndürmek','Gitarın perdesini değiştirmek','Pili şarj etmek'], c:1,
+      e:'LFO (düşük frekanslı osilatör) saniyede birkaç kez salınır ve LED’in parlaklığını, dolayısıyla LDR’yi ve gürlüğü değiştirir.' },
+    { q:'120 BPM’de sekizlik notalarla atan bir tremolo için hız kaç olmalı?', o:['1 Hz','2 Hz','4 Hz','8 Hz'], c:2,
+      e:'120 BPM = saniyede 2 vuruş; her vuruşta iki sekizlik: 4 Hz. Dörtlük 2 Hz, onaltılık 8 Hz.' },
+    { q:'Tremolodaki “biçim” düğmesi neyi değiştirir?', o:['Hızı','LFO’nun dalga şeklini (sinüs, üçgen, kare)','Derinliği','Giriş empedansını'], c:1,
+      e:'Sinüs yumuşak bir dalgalanma verir, kare ise kesik kesik açılıp kapanma.' },
+    { q:'Ses yolunda LDR nerede durur?', o:['Gitarla seri, tek başına','Çıkışla toprak arasında, bir gerilim bölücünün alt kolunda','LFO’nun içinde','Pilin artı ucunda'], c:1,
+      e:'Seri 100 kΩ ile alt kol (derinlik + LDR) bir bölücü kurar. LDR aydınlanınca alt kol küçülür, sinyal toprağa kaçar.' },
+    { q:'Derinlik %80’de LDR karanlıkken ve tam aydınlıkken çıkış yaklaşık nedir?', o:['0 dB ve 0 dB','−0,8 dB ve −20,8 dB','−20 dB ve 0 dB','−5 dB ve −5 dB'], c:1,
+      e:'Karanlıkta alt kol ≈ 1 MΩ: ses neredeyse olduğu gibi geçer. Tam ışıkta alt kol 8 + 2 kΩ: sinyalin onda biri kalır.' },
+    { q:'Derinlik düğmesi kısıldığında salınım neden azalır?', o:['LED söner','Alt koldaki seri direnç büyür; LDR ne kadar küçülse de alt kol o kadar küçülemez','LFO durur','Gitar sinyali büyür'], c:1,
+      e:'%50’de alt kolda 125 kΩ var: en düşük kazanç −5 dB, salınım yalnızca 4 dB.' },
+    { q:'Optik tremoloda LFO’nun tıkırtısı neden sese karışmaz?', o:['Çok yavaş olduğu için','LED ile LDR arasında elektrik bağlantısı olmadığı için: iki devre yalnız ışıkla konuşur','Pil kullanıldığı için','Kare dalga yüzünden'], c:1,
+      e:'Ses yolu yalnızca LDR’nin direncini görür; LFO’nun gerilimi ses yoluna hiç girmez.' },
+    { q:'Kare dalgayla sürülen optik tremolo neden tam kare gibi kesik duyulmaz?', o:['LED kare dalga yapamaz','LDR ışık gidince yavaş toparlanır: açılış yuvarlanır','Hoparlör yumuşatır','Derinlik kısıktır'], c:1,
+      e:'Kısılma hızlı (ışık gelince 5 ms), açılış yavaş (ışık gidince onlarca ms): sonuç “nabız gibi” atan bir ses.' },
+    { q:'Hız 12 Hz’e çıkınca (derinlik %80, sinüs) salınım neden azalır?', o:['LFO zayıflar','LDR toparlanmaya vakit bulamaz: 14 dB (idealde 20 dB)','LED yanar','Gitar teli durur'], c:1,
+      e:'Işıksız aralık kısalınca LDR yüksek dirence dönemez; ses tam açılmadan yeniden kısılır.' }
+  ];
+  var qi = 0, qok = 0, qDone = [];
+  var qT = document.getElementById('q-text'), qO = document.getElementById('q-opts'),
+      qE = document.getElementById('q-exp'), qC = document.getElementById('q-count'), qN = document.getElementById('q-next');
+  function renderQ(){
+    var q = QS[qi];
+    qT.textContent = (qi+1)+'. '+q.q; qE.textContent = ''; qO.innerHTML = '';
+    q.o.forEach(function(o, k){
+      var b = document.createElement('button'); b.type='button'; b.textContent = o;
+      b.addEventListener('click', function(){
+        Array.prototype.forEach.call(qO.children, function(x){ x.disabled = true; });
+        b.classList.add(k === q.c ? 'correct' : 'wrong');
+        if (k !== q.c) qO.children[q.c].classList.add('correct');
+        qE.innerHTML = q.e;
+        if (!qDone[qi]){ qDone[qi] = true; if (k === q.c) qok++; }
+        qC.textContent = qok+' / '+qDone.filter(Boolean).length+' doğru';
+      });
+      qO.appendChild(b);
+    });
+    qN.textContent = (qi === QS.length-1) ? 'Baştan başla' : 'Sonraki soru';
+  }
+  qN.addEventListener('click', function(){ qi = (qi+1)%QS.length; renderQ(); });
+
+  tabloDoldur(); setMode('ldr'); setStep(0, false); renderQ(); sync(); render();
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(render);
+})();
+</script>

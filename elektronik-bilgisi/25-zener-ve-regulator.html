@@ -1,0 +1,1926 @@
+<!DOCTYPE html>
+<html lang="tr">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Zener ve Regülatör</title>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400..600;1,6..72,400&family=Chakra+Petch:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+  :root{
+    --ground:#E5ECF3; --panel:#FFFFFF; --panel-2:#F1F6FA;
+    --ink:#0B1620; --ink-2:#3F5265; --ink-3:#697E92;
+    --line:#C7D4E0; --line-2:#DEE7EF;
+    --sin:#A8600A; --cos:#0F5F80; --arc:#A81E6E; --brass:#4A7A12;
+    --on-sin:#FFFFFF; --ok:#1E6B45; --no:#A8203C;
+    --shadow:0 1px 2px rgba(11,22,32,.06), 0 8px 20px -14px rgba(11,22,32,.26);
+    --fs:15px;
+    --board-h:clamp(430px,43vw,520px);
+    --board-zen:clamp(560px,56vw,644px);
+    --board-zrg:clamp(560px,56vw,644px);
+    --board-reg:clamp(560px,56vw,644px);
+    --board-ped:clamp(575px,57vw,661px);
+    --font-display:"Chakra Petch","IBM Plex Sans",sans-serif;
+    --h1:clamp(30px,4.5vw,46px);
+    --h2:clamp(21px,2.5vw,28px);
+    --track:.02em; --radius:2px; --radius-s:2px;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --ground:#070F17; --panel:#0E1720; --panel-2:#13202C;
+      --ink:#E7F2FB; --ink-2:#9FB6C9; --ink-3:#6B8296;
+      --line:#213240; --line-2:#182533;
+      --sin:#FFB01F; --cos:#4FD3FF; --arc:#FF6AC1; --brass:#A8FF60;
+      --on-sin:#0A1017; --ok:#3EE59B; --no:#FF5F86;
+      --shadow:0 0 0 1px rgba(79,211,255,.07), 0 12px 30px -18px rgba(0,0,0,.9);
+    }
+  }
+  :root[data-theme="dark"]{
+    --ground:#070F17; --panel:#0E1720; --panel-2:#13202C;
+    --ink:#E7F2FB; --ink-2:#9FB6C9; --ink-3:#6B8296;
+    --line:#213240; --line-2:#182533;
+    --sin:#FFB01F; --cos:#4FD3FF; --arc:#FF6AC1; --brass:#A8FF60;
+    --on-sin:#0A1017; --ok:#3EE59B; --no:#FF5F86;
+    --shadow:0 0 0 1px rgba(79,211,255,.07), 0 12px 30px -18px rgba(0,0,0,.9);
+  }
+  :root[data-mode="proj"]{
+    --ground:#F3F8FC; --panel:#FFFFFF; --panel-2:#EDF4F9;
+    --ink:#040B12; --ink-2:#2A3A49; --ink-3:#546678;
+    --line:#ADBFCE; --line-2:#D2DEE9;
+    --sin:#8A4D00; --cos:#084A66; --arc:#8A1258; --brass:#3A6208;
+    --on-sin:#FFFFFF; --ok:#14512F; --no:#8A1428;
+    --shadow:0 1px 2px rgba(11,22,32,.09), 0 8px 20px -14px rgba(11,22,32,.3);
+    --fs:17px;
+    --board-h:clamp(470px,47vw,572px);
+    --board-zen:clamp(610px,61vw,700px);
+    --board-zrg:clamp(610px,61vw,700px);
+    --board-reg:clamp(610px,61vw,700px);
+    --board-ped:clamp(625px,62vw,718px);
+  }
+  @media (max-width:820px){
+    :root, :root[data-mode="proj"]{ --board-r:580px; }
+  }
+  @media (max-width:760px){
+    :root, :root[data-mode="proj"]{
+      --board-h:520px;
+      --board-zen:860px; --board-zrg:860px; --board-reg:860px; --board-ped:860px;
+    }
+  }
+
+  *{box-sizing:border-box}
+  body{
+    background:var(--ground);color:var(--ink);
+    font-family:"IBM Plex Sans","Helvetica Neue",Arial,sans-serif;
+    font-size:var(--fs);line-height:1.6;-webkit-font-smoothing:antialiased;
+  }
+  .wrap{max-width:1160px;margin:0 auto;padding:34px 20px 60px;display:flex;flex-direction:column;gap:14px}
+
+  .topbar{display:flex;gap:28px;justify-content:space-between;align-items:flex-start;margin-bottom:12px}
+  @media (max-width:640px){.topbar{flex-direction:column-reverse;align-items:flex-start;gap:16px}}
+  .theme{display:flex;flex:0 0 auto;flex-wrap:wrap;border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;background:var(--panel);box-shadow:var(--shadow)}
+  .theme button{border:0;border-left:1px solid var(--line);border-radius:0;background:transparent;font-size:12.5px;padding:8px 12px;color:var(--ink-2)}
+  .theme button:first-child{border-left:0}
+  .theme button:hover{background:var(--panel-2);color:var(--ink)}
+  .theme button[aria-pressed="true"]{background:var(--ink);color:var(--panel);font-weight:500}
+  .theme button:focus-visible{outline:2px solid var(--arc);outline-offset:-2px}
+  header{display:flex;flex-direction:column;gap:9px;max-width:66ch}
+  .eyebrow{margin:0;font-size:11.5px;font-weight:600;letter-spacing:.13em;text-transform:uppercase;color:var(--ink-3)}
+  h1{margin:0;font-family:var(--font-display);font-weight:500;font-size:var(--h1);line-height:1.06;letter-spacing:var(--track);text-wrap:balance}
+  .lede{margin:2px 0 0;color:var(--ink-2);font-size:16.5px;text-wrap:pretty}
+  .lede b{color:var(--ink);font-weight:600}
+
+  section.sec{display:flex;flex-direction:column;gap:14px;padding-top:22px}
+  .sec-head{display:flex;align-items:baseline;gap:14px;border-bottom:1px solid var(--line);padding-bottom:9px}
+  .sec-num,.num{font-family:"IBM Plex Mono",monospace;font-size:12px;font-weight:500;color:var(--brass);letter-spacing:.06em;flex:0 0 auto;padding-top:5px}
+  .sec-head h2{margin:0;font-family:var(--font-display);font-weight:500;font-size:var(--h2);letter-spacing:var(--track);line-height:1.15;text-wrap:balance}
+  .sec-head p{margin:0;color:var(--ink-3);font-size:13px;margin-left:auto;flex:0 0 auto;text-align:right}
+  @media (max-width:620px){.sec-head p{display:none}}
+
+  .panel{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow)}
+
+  .why{display:grid;grid-template-columns:1fr 1.12fr;gap:20px 28px;align-items:center}
+  @media (max-width:860px){.why{grid-template-columns:1fr;align-items:start}}
+  .why-lead{display:flex;flex-direction:column;gap:13px;padding-bottom:4px}
+  .why-more{display:grid;grid-template-columns:repeat(auto-fit,minmax(255px,1fr));gap:16px 28px;margin-top:6px}
+  .why-lead p,.why-more p{margin:0;color:var(--ink-2)}
+  .why-lead p b,.why-more p b{color:var(--ink);font-weight:600}
+  .cols3{display:grid;grid-template-columns:repeat(3,1fr);gap:16px 28px}
+  @media (max-width:900px){.cols3{grid-template-columns:1fr}}
+  .cols3 p{margin:0;color:var(--ink-2);font-size:14px;line-height:1.6}
+  .cols3 p b{color:var(--ink);font-weight:600}
+  .cols .intro-col{display:flex;flex-direction:column;gap:12px}
+  .cols .intro-col p{margin:0;color:var(--ink-2)}
+  .cols .intro-col p b{color:var(--ink);font-weight:600}
+  p.pull{font-size:16px;color:var(--ink)!important;border-left:3px solid var(--sin);
+    padding-left:13px}
+  .panel-body.nopad{padding:0;gap:0}
+  .quiz{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);
+    box-shadow:var(--shadow);padding:16px 18px 18px;display:flex;flex-direction:column;gap:12px}
+  .q-head{display:flex;align-items:baseline;justify-content:space-between;gap:14px}
+  .q-head .count{font-family:"IBM Plex Mono",monospace;font-size:12px;color:var(--ink-3);
+    font-variant-numeric:tabular-nums;flex:0 0 auto}
+  .q-head .q-text{font-size:16px;font-weight:500;text-wrap:pretty}
+  .quiz > button{align-self:flex-start}
+  .kicker{font-family:"Newsreader",Georgia,serif;font-size:clamp(21px,2.2vw,26px);line-height:1.28;color:var(--ink);font-style:italic;max-width:29ch;letter-spacing:-.01em;text-wrap:balance}
+  .trio-list{display:flex;flex-direction:column;gap:1px;background:var(--line);
+    border:1px solid var(--line);border-radius:var(--radius);overflow:hidden}
+  .tl{background:var(--panel);padding:13px 15px 14px;border-left:3px solid var(--line)}
+  .tl-1{border-left-color:var(--sin)} .tl-2{border-left-color:var(--arc)}
+  .tl-3{border-left-color:var(--cos)}
+  .tl h3{margin:0 0 3px;font-family:var(--font-display);font-weight:500;font-size:15.5px;
+    letter-spacing:var(--track)}
+  .tl p{margin:0;font-size:13.5px;line-height:1.5;color:var(--ink-2)}
+  .tl p b{color:var(--ink);font-weight:600}
+  .tl code{font-size:.92em}
+
+  .defs{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--line);border:1px solid var(--line);border-radius:var(--radius);overflow:hidden}
+  @media (max-width:880px){.defs{grid-template-columns:repeat(2,1fr)}}
+  @media (max-width:560px){.defs{grid-template-columns:1fr}}
+  .def{background:var(--panel);padding:16px 17px 18px;display:flex;flex-direction:column;gap:7px}
+  .def h3{margin:0;font-size:14.5px;font-weight:600;display:flex;align-items:baseline;gap:8px;flex-wrap:wrap}
+  .def h3 em{font-style:normal;font-family:"IBM Plex Mono",monospace;font-size:11.5px;color:var(--ink-3);font-weight:400}
+  .def p{margin:0;font-size:13.8px;color:var(--ink-2);line-height:1.55}
+  .def p b{color:var(--ink);font-weight:600}
+  code{font-family:"IBM Plex Mono",monospace;font-size:.9em;background:var(--panel-2);border:1px solid var(--line-2);padding:1px 5px;border-radius:var(--radius-s)}
+
+  .lang{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--line);border:1px solid var(--line);border-radius:var(--radius);overflow:hidden}
+  @media (max-width:1000px){.lang{grid-template-columns:repeat(2,1fr)}}
+  @media (max-width:560px){.lang{grid-template-columns:1fr}}
+  .lg{background:var(--panel);padding:16px 17px 18px;display:flex;flex-direction:column;gap:8px}
+  .lg-top{display:flex;align-items:baseline;justify-content:space-between;gap:8px}
+  .lg h3{margin:0;font-size:14.5px;font-weight:600}
+  .lg .unit{font-family:"IBM Plex Mono",monospace;font-size:11px;color:var(--ink-3)}
+  .lg p{margin:0;font-size:13.8px;color:var(--ink-2);line-height:1.55}
+  .lg .music{margin-top:2px;font-size:12.5px;color:var(--ink);border-left:2px solid var(--brass);padding-left:9px}
+  .lg .music b{font-weight:600}
+
+  .stage{padding:0;overflow:hidden}
+  .stage-top,.stage-head{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px;padding:13px 16px;border-bottom:1px solid var(--line-2)}
+  .modes{display:flex;flex-wrap:wrap;border:1px solid var(--line);border-radius:var(--radius);overflow:hidden}
+  .modes button{border:0;border-left:1px solid var(--line);border-radius:0;background:var(--panel-2);font-size:13px;padding:8px 15px;color:var(--ink-2);font-weight:500}
+  .modes button:first-child{border-left:0}
+  .modes button:hover{color:var(--ink)}
+  .modes button[aria-pressed="true"]{background:var(--sin);color:var(--on-sin)}
+  .readout{display:flex;flex-wrap:wrap;font-family:"IBM Plex Mono",ui-monospace,monospace;font-variant-numeric:tabular-nums;font-size:13px}
+  .readout div{padding:0 13px;border-left:1px solid var(--line-2)}
+  .readout div:first-child{border-left:0;padding-left:0}
+  .readout b{font-weight:500}
+  .readout span{color:var(--ink-3);font-size:11px;letter-spacing:.06em;text-transform:uppercase;display:block;line-height:1.3}
+  .v-sin{color:var(--sin)} .v-cos{color:var(--cos)} .v-arc{color:var(--arc)}
+
+  .canvas-wrap{background:var(--panel-2);border-bottom:1px solid var(--line-2)}
+  #board{display:block;width:100%;height:var(--board-h);touch-action:none;cursor:default}
+  .stage[data-scene="zen"] #board{height:var(--board-zen)}
+  .stage[data-scene="zrg"] #board{height:var(--board-zrg)}
+  .stage[data-scene="reg"] #board{height:var(--board-reg)}
+  .stage[data-scene="ped"] #board{height:var(--board-ped)}
+
+  #board.tut{cursor:grab}
+  #board.tut:active{cursor:grabbing}
+
+  .controls{padding:15px 16px 17px;display:flex;flex-direction:column;gap:14px}
+  .ctl-row{display:flex;flex-wrap:wrap;gap:14px 20px;align-items:center}
+  .ctl-row[hidden]{display:none}
+  .field[hidden]{display:none}
+  .btn-group[hidden]{display:none}
+  .ctl-label{font-size:11px;font-weight:600;letter-spacing:.09em;text-transform:uppercase;color:var(--ink-3);flex:0 0 auto}
+  .field{display:flex;flex-direction:column;gap:5px;min-width:172px;flex:1 1 172px;max-width:300px}
+  .field label{font-size:11px;font-weight:600;letter-spacing:.09em;text-transform:uppercase;color:var(--ink-3);display:flex;justify-content:space-between;gap:10px}
+  .field label em{font-style:normal;font-family:"IBM Plex Mono",monospace;font-variant-numeric:tabular-nums;letter-spacing:0;text-transform:none;font-size:12px;color:var(--ink-2)}
+
+  input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:20px;background:transparent;margin:0}
+  input[type=range]::-webkit-slider-runnable-track{height:4px;background:var(--line);border-radius:2px}
+  input[type=range]::-moz-range-track{height:4px;background:var(--line);border-radius:2px}
+  input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;width:16px;height:16px;border-radius:50%;background:var(--arc);border:2px solid var(--panel);margin-top:-6px;box-shadow:0 0 0 1px var(--arc)}
+  input[type=range]::-moz-range-thumb{width:14px;height:14px;border-radius:50%;background:var(--arc);border:2px solid var(--panel);box-shadow:0 0 0 1px var(--arc)}
+  input[type=range]:focus-visible{outline:2px solid var(--arc);outline-offset:4px}
+
+  button{font:inherit;font-size:13.5px;color:var(--ink);background:var(--panel-2);border:1px solid var(--line);padding:7px 13px;border-radius:var(--radius-s);cursor:pointer;transition:background .13s,border-color .13s,color .13s}
+  button:hover{border-color:var(--ink-3)}
+  button:focus-visible{outline:2px solid var(--arc);outline-offset:2px}
+  button:disabled{opacity:.42;cursor:default}
+  button.on{background:var(--ink);border-color:var(--ink);color:var(--panel)}
+  .ctl-note{font-size:12px;color:var(--ink-3);font-family:"IBM Plex Mono",monospace;
+    letter-spacing:.01em;min-width:0;flex:1 1 138px;line-height:1.35}
+  .btn-group{display:flex;flex-wrap:wrap;gap:6px}
+  .btn-group.sm button{font-size:12.5px;padding:5px 9px}
+
+  .cols{display:grid;grid-template-columns:1.3fr 1fr;gap:16px;align-items:start}
+  @media (max-width:880px){.cols{grid-template-columns:1fr}}
+  .panel-head{display:flex;align-items:baseline;justify-content:space-between;gap:12px;padding:13px 18px 11px;border-bottom:1px solid var(--line-2)}
+  .panel-head h3{margin:0;font-family:var(--font-display);font-weight:500;font-size:19px;letter-spacing:var(--track)}
+  .panel-head .count{font-family:"IBM Plex Mono",monospace;font-size:12px;color:var(--ink-3);font-variant-numeric:tabular-nums}
+  .panel-body{padding:16px 18px 18px;display:flex;flex-direction:column;gap:13px}
+  .step-title{font-family:var(--font-display);font-size:21px;font-weight:500;line-height:1.22;margin:0;letter-spacing:var(--track);text-wrap:balance}
+  .step-body{margin:0;color:var(--ink-2)}
+  .step-body strong{color:var(--ink);font-weight:600}
+  .step-nav{display:flex;gap:8px;align-items:center;margin-top:auto;padding-top:4px;flex-wrap:wrap}
+  /* 34 nokta dar ekranda paneli tasiriyordu: sarmali ve sutunlar daralabilir. */
+  .dots{display:flex;flex-wrap:wrap;gap:5px;margin-left:auto;justify-content:flex-end}
+  .cols>*{min-width:0}
+  .dot{width:7px;height:7px;border-radius:50%;background:var(--line);border:0;padding:0;cursor:pointer}
+  .dot:hover{background:var(--ink-3)}
+  .dot[aria-current="true"]{background:var(--arc)}
+
+  table{width:100%;border-collapse:collapse;font-family:"IBM Plex Mono",monospace;font-size:12.5px;font-variant-numeric:tabular-nums}
+  th,td{text-align:right;padding:6px 8px;border-bottom:1px solid var(--line-2)}
+  th:first-child,td:first-child{text-align:left}
+  th:last-child,td:last-child{text-align:left}
+  thead th{font-family:"IBM Plex Sans",sans-serif;font-size:10.5px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-3);border-bottom:1px solid var(--line)}
+  tbody tr{cursor:pointer}
+  tbody tr:hover{background:var(--panel-2)}
+  tbody tr[aria-selected="true"]{background:color-mix(in srgb,var(--arc) 13%,var(--panel))}
+  tbody tr:last-child td{border-bottom:0}
+  td.c-cmp{font-family:"IBM Plex Sans",sans-serif;font-size:12px;color:var(--ink-2)}
+  tr.unitrow td:first-child{color:var(--brass);font-weight:500}
+  /* Dar ekranda tablo tasiyordu: en az gerekli sutun gizleniyor, kalani kayabiliyor. */
+  .tbl-scroll{overflow-x:auto;-webkit-overflow-scrolling:touch}
+  @media (max-width:620px){
+    th.c-cmp,td.c-cmp{display:none}
+    table{font-size:11.5px}
+    th,td{padding:6px 5px}
+  }
+  .tbl-note{margin:10px 18px 16px;font-size:12.5px;color:var(--ink-3);line-height:1.5}
+  .tbl-note b{color:var(--ink-2);font-weight:600}
+  .tbl-note + .tbl-note{margin-top:-4px}
+
+  .quiz-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;align-items:start}
+  @media (max-width:820px){.quiz-grid{grid-template-columns:1fr}}
+  .q-text{margin:0;font-size:16px;font-weight:500;text-wrap:pretty}
+  .q-opts{display:flex;flex-direction:column;gap:7px}
+  .q-opts button{text-align:left;padding:9px 12px}
+  .q-opts button.correct{border-color:var(--ok);background:color-mix(in srgb,var(--ok) 12%,var(--panel))}
+  .q-opts button.wrong{border-color:var(--no);background:color-mix(in srgb,var(--no) 12%,var(--panel))}
+  .q-feedback{margin:0;font-size:14px;color:var(--ink-2);min-height:1.6em}
+  .q-feedback b.y{color:var(--ok);font-weight:600}
+  .q-feedback b.n{color:var(--no);font-weight:600}
+  .recap ul{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:8px}
+  .recap li{color:var(--ink-2);font-size:14px}
+  .recap b{color:var(--ink);font-weight:600}
+
+  /* ---- video bloğu (yeni video eklemek için bu kalıbı kopyala) ---- */
+  .vid{display:grid;grid-template-columns:1.25fr 1fr;gap:16px;align-items:start}
+  @media (max-width:900px){.vid{grid-template-columns:1fr}}
+  .vid-main{display:flex;flex-direction:column;gap:9px;min-width:0}
+  .vid-frame{position:relative;aspect-ratio:16/9;width:100%;background:var(--panel-2);
+    border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);
+    overflow:hidden}
+  .vid-frame iframe{position:absolute;inset:0;z-index:1;width:100%;height:100%;border:0;display:block}
+  .vid-play{position:absolute;inset:0;z-index:0;width:100%;height:100%;
+    display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;
+    text-align:center;padding:20px;border:0;border-radius:0;background:transparent;
+    cursor:pointer;color:inherit}
+  .vid-play:hover{background:color-mix(in srgb,var(--sin) 7%,transparent);border-color:transparent}
+  .vid-play:focus-visible{outline:2px solid var(--arc);outline-offset:-4px}
+  .vid-tri{width:62px;height:62px;border-radius:50%;background:var(--sin);
+    display:block;margin-bottom:6px;position:relative;box-shadow:var(--shadow);
+    transition:transform .14s}
+  .vid-tri::after{content:"";position:absolute;top:50%;left:54%;transform:translate(-50%,-50%);
+    border-style:solid;border-width:11px 0 11px 18px;
+    border-color:transparent transparent transparent var(--on-sin)}
+  .vid-play:hover .vid-tri{transform:scale(1.07)}
+  .vid-play b{font-family:var(--font-display);font-weight:500;font-size:18px;
+    letter-spacing:var(--track);color:var(--ink);line-height:1.2;text-wrap:balance}
+  .vid-play .vid-ch{font-size:13px;color:var(--ink-3)}
+  .vid-play .vid-hint{font-style:normal;font-family:"IBM Plex Mono",monospace;
+    font-size:11.5px;color:var(--ink-3);margin-top:5px}
+  .vid-meta{margin:0;font-size:13px;color:var(--ink-2);line-height:1.5}
+  .vid-meta b{color:var(--ink);font-weight:600}
+  .vid-meta a{color:var(--cos);font-weight:600;text-underline-offset:3px}
+  .vid-meta span{display:block;margin-top:3px;font-size:12px;color:var(--ink-3)}
+  .vid-guide{background:var(--panel);border:1px solid var(--line);
+    border-left:3px solid var(--brass);border-radius:var(--radius);
+    box-shadow:var(--shadow);padding:15px 18px 17px}
+  .vid-guide h3{margin:0 0 9px;font-family:var(--font-display);font-weight:500;
+    font-size:17px;letter-spacing:var(--track)}
+  .vid-guide ol{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:9px}
+  .vid-guide li{font-size:13.5px;line-height:1.5;color:var(--ink-2)}
+  .vid-guide li b{color:var(--ink);font-weight:600}
+  .vid-guide li::marker{color:var(--brass);font-weight:600}
+  .vid-note{margin:13px 0 0;padding-top:11px;border-top:1px solid var(--line-2);
+    font-size:13px;color:var(--ink-3);line-height:1.5}
+  .vid-note b{color:var(--ink-2);font-weight:600}
+
+  .spec{display:grid;grid-template-columns:1.05fr 1fr;gap:16px;align-items:start}
+  @media (max-width:880px){.spec{grid-template-columns:1fr}}
+  .spec-card{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);
+    box-shadow:var(--shadow);padding:16px 18px 18px;font-family:"IBM Plex Mono",monospace;font-size:13px}
+  .spec-card h3{margin:0 0 10px;font-family:var(--font-display);font-size:17px;font-weight:500;letter-spacing:var(--track)}
+  .spec-row{display:flex;justify-content:space-between;gap:14px;padding:6px 0;border-bottom:1px solid var(--line-2)}
+  .spec-row:last-child{border-bottom:0}
+  .spec-row span{color:var(--ink-3)}
+  .spec-row b{font-weight:500;color:var(--ink)}
+  .spec-row.q{background:color-mix(in srgb,var(--arc) 9%,transparent);margin:0 -8px;padding:6px 8px;border-radius:2px}
+  .ask{display:flex;flex-direction:column;gap:12px}
+  .ask .a{background:var(--panel);border:1px solid var(--line);border-left:3px solid var(--arc);
+    border-radius:var(--radius);box-shadow:var(--shadow);padding:12px 15px 13px}
+  .ask .a h4{margin:0 0 3px;font-size:14px;font-weight:600}
+  .ask .a p{margin:0;font-size:13.5px;color:var(--ink-2);line-height:1.5}
+  .ask .a b{color:var(--ink);font-weight:600}
+  footer{color:var(--ink-3);font-size:12.5px;border-top:1px solid var(--line);padding-top:14px;margin-top:26px;display:flex;flex-wrap:wrap;gap:6px 18px}
+  footer b{color:var(--ink-2);font-weight:600}
+  @media (max-width:760px){
+    button{font-size:14.5px;padding:9px 14px}
+    .btn-group.sm button{font-size:13px;padding:7px 11px}
+    .theme button{padding:8px 9px;font-size:12px}
+    .modes button{padding:9px 12px;font-size:13px}
+    .q-opts button{padding:12px 14px}
+    input[type=range]{height:30px}
+    input[type=range]::-webkit-slider-thumb{width:22px;height:22px;margin-top:-9px}
+    input[type=range]::-moz-range-thumb{width:20px;height:20px}
+    .readout{width:100%}
+    .readout div{padding:0 11px 0 0;border-left:0}
+    .wrap{padding:22px 16px 44px}
+  }
+
+  /* ---- 29. atolyeye ozel ---- */
+  .cks{display:flex;flex-direction:column;gap:1px;background:var(--line);
+    border:1px solid var(--line);border-radius:var(--radius);overflow:hidden}
+  .ck{background:var(--panel);display:grid;grid-template-columns:auto 1fr;gap:3px 10px;
+    padding:10px 13px 11px;align-items:start}
+  .ck .mk{grid-row:1/3;width:20px;height:20px;border-radius:50%;display:flex;
+    align-items:center;justify-content:center;font-size:12px;font-weight:700;
+    font-family:"IBM Plex Mono",monospace;margin-top:1px}
+  .ck.ok .mk{background:color-mix(in srgb,var(--ok) 18%,var(--panel));color:var(--ok)}
+  .ck.no .mk{background:color-mix(in srgb,var(--sin) 20%,var(--panel));color:var(--sin)}
+  .ck b{font-size:13.2px;font-weight:600;line-height:1.35;color:var(--ink)}
+  .ck span{font-size:12.4px;color:var(--ink-2);line-height:1.45}
+  /* Tur seridi: sahne dugmelerinin altinda, tuvalin hemen ustunde. Tur degisince
+     yukaridaki sahne aninda degistigi icin secici gorus alaninda duruyor. */
+  .turbar{display:flex;align-items:center;gap:10px;padding:10px 16px;
+    border-bottom:1px solid var(--line-2);background:var(--panel-2)}
+  .turbar>.tb-lab{font-family:"IBM Plex Mono",monospace;font-size:10.5px;font-weight:500;
+    letter-spacing:.09em;text-transform:uppercase;color:var(--ink-3);flex:0 0 auto}
+  .turbar .tb-scroll{display:flex;gap:6px;overflow-x:auto;flex:1 1 auto;
+    scrollbar-width:thin;padding-bottom:1px}
+  .tb{flex:0 0 auto;border:1px solid var(--line);border-radius:var(--radius);
+    background:var(--panel);padding:6px 12px 7px;display:flex;flex-direction:column;
+    gap:1px;text-align:left;cursor:pointer;line-height:1.25}
+  .tb:hover{background:var(--panel-2);color:var(--ink)}
+  .tb b{font-size:12.8px;font-weight:600;color:var(--ink)}
+  .tb em{font-style:normal;font-family:"IBM Plex Mono",monospace;font-size:10.8px;
+    color:var(--ink-3);white-space:nowrap}
+  .tb[aria-pressed="true"]{border-color:var(--sin);
+    background:color-mix(in srgb,var(--sin) 12%,var(--panel))}
+  .tb[aria-pressed="true"] em{color:var(--ink-2)}
+  @media (max-width:760px){
+    .turbar{flex-direction:column;align-items:stretch;gap:6px;padding:9px 12px}
+    .tb{padding:6px 10px}
+    .tb b{font-size:12.4px}
+  }
+  .pick{display:flex;flex-direction:column;gap:1px;background:var(--line);
+    border:1px solid var(--line);border-radius:var(--radius);overflow:hidden}
+  .pk{background:var(--panel);border:0;border-left:3px solid transparent;border-radius:0;
+    text-align:left;padding:11px 14px 12px;display:flex;flex-direction:column;gap:3px;
+    cursor:pointer;width:100%}
+  .pk:hover{background:var(--panel-2)}
+  .pk[aria-pressed="true"]{border-left-color:var(--sin);
+    background:color-mix(in srgb,var(--sin) 8%,var(--panel))}
+  .pk b{font-size:13.4px;font-weight:600;color:var(--ink)}
+  .pk span{font-size:12.4px;color:var(--ink-2);line-height:1.45;font-weight:400}
+  .pk em{font-style:normal;font-family:"IBM Plex Mono",monospace;font-size:11.5px;
+    color:var(--ink-3)}
+  .tag{display:inline-block;padding:1px 6px;border-radius:2px;font-size:10.5px;font-weight:600;
+    letter-spacing:.04em;border:1px solid}
+  .tag-a{color:var(--brass);border-color:color-mix(in srgb,var(--brass) 45%,transparent);
+    background:color-mix(in srgb,var(--brass) 11%,transparent)}
+  .tag-b{color:var(--sin);border-color:color-mix(in srgb,var(--sin) 45%,transparent);
+    background:color-mix(in srgb,var(--sin) 11%,transparent)}
+  .hint{margin:0;font-size:12.5px;color:var(--ink-3);line-height:1.5}
+  .hint b{color:var(--ink-2);font-weight:600}
+  @media (prefers-reduced-motion: reduce){*{transition:none!important}}
+  .field.bilinmez label{color:var(--arc)}
+  .field.bilinmez input{opacity:.5}
+  td .hata{color:var(--ink-3);font-size:11px;margin-left:4px}
+  .sw{display:inline-block;width:12px;height:12px;border:1px solid var(--line);margin-right:6px;vertical-align:-1px;border-radius:2px}
+  td.bantlar .sw{width:14px;height:14px;margin-right:3px}
+  #palet button:disabled{opacity:.28}
+  #oSec button{min-width:92px;font-family:"IBM Plex Mono",monospace}
+  #oSec button.correct{border-color:var(--cos);background:color-mix(in srgb,var(--cos) 16%,var(--panel));opacity:1}
+  #oSec button.wrong{border-color:var(--arc);background:color-mix(in srgb,var(--arc) 16%,var(--panel));opacity:1}
+</style>
+<div class="wrap">
+  <div class="topbar">
+    <header>
+      <p class="eyebrow">Elektronik Bilgisi · Sınıf atölyesi</p>
+      <h1>Zener ve Regülatör</h1>
+      <p class="lede">Her pedal, her mikser, her ses kartı sabit bir gerilim ister: 9 V, 5 V, ±15 V. Oysa prizden gelen gerilim hiç sabit değildir:
+        adaptör yüklendikçe düşer, saniyede 100 kez dalgalanır. Bu atölye gerilimi sabit tutmanın iki yolunu anlatıyor: ters yönde çalışan
+        <b>zener diyot</b> ve pedal beslemelerinin içindeki <b>entegre regülatör</b>. Son sahnede de pedal tahtasının en yaygın uğultu
+        kaynağına bakıyoruz: <b>ortak toprak</b>.</p>
+    </header>
+    <div class="theme" role="group" aria-label="Görünüm">
+      <button type="button" data-t="light">Açık</button>
+      <button type="button" data-t="dark">Koyu</button>
+      <button type="button" data-t="proj">Projeksiyon</button>
+    </div>
+  </div>
+
+  <section class="sec">
+    <div class="sec-head"><span class="num">01</span><h2>Neden sabit bir gerilim?</h2>
+      <span class="kicker">Dalgalanan besleme, uğuldayan pedal</span></div>
+    <div class="panel">
+      <div class="panel-body">
+        <p>Bir pedal devresi, beslemesindeki her değişimi biraz da olsa sese geçirir. Düzensiz bir adaptörün gerilimi saniyede 100 kez
+          iner çıkar (Doğrultucu atölyesi); bu dalgalanma pedala doğrudan giderse gitarın altında sürekli bir <b>uğultu</b> duyulur.
+          Adaptör yüklenince gerilimi düşer, yük kalkınca yükselir: 9 V yazan bir adaptör boştayken 13 V verebilir.</p>
+        <p><b>Regülatör</b>, girişi ne olursa olsun çıkışta aynı gerilimi veren devredir. En basiti bir <b>zener diyot</b> ve bir dirençtir; küçük
+          akımlar için yeter. Daha çok akım gerektiğinde üç bacaklı bir <b>entegre regülatör</b> (7809 gibi) kullanılır: dalgalanmayı binde bire
+          indirir, fazla gerilimi de ısıya çevirir.</p>
+        <p>Atölye bu yolu izliyor: <b>zener diyot</b> (ters yönde iletmek), <b>zener regülatör</b> (yük değişince), <b>entegre regülatör</b>
+          (dalgalanma, düşme gerilimi ve ısı; dinleyerek) ve son olarak <b>pedal beslemesi</b> (zincirleme ve izole).</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="sec">
+    <div class="sec-head"><span class="num">02</span><h2>Bilmemiz gereken dokuz kavram</h2>
+      <span class="kicker">Zenerden izole beslemeye</span></div>
+    <div class="defs">
+      <div class="def"><h3>Zener diyot</h3>
+        <p>Ters yönde belli bir gerilimde iletmeye başlayan diyot. O gerilimi hemen hemen sabit tutar.</p></div>
+      <div class="def"><h3>Zener gerilimi</h3>
+        <p>Zenerin tuttuğu gerilim: 5,1 V, 9,1 V, 12 V … hazır değerler.</p></div>
+      <div class="def"><h3>Seri direnç</h3>
+        <p>Girişle zener arasındaki direnç. Fazla gerilimi üstlenir, akımı sınırlar.</p></div>
+      <div class="def"><h3>Regülatör</h3>
+        <p>Girişi ya da yükü değişse de çıkış gerilimini sabit tutan devre.</p></div>
+      <div class="def"><h3>Dalgalanma <em>ripple</em></h3>
+        <p>Doğrultulmuş gerilimde kalan 100 Hz’lik iniş çıkış. Kondansatör büyüdükçe küçülür.</p></div>
+      <div class="def"><h3>78xx</h3>
+        <p>Üç bacaklı sabit regülatörler: 7805 → 5 V, 7809 → 9 V, 7812 → 12 V.</p></div>
+      <div class="def"><h3>Düşme gerilimi <em>dropout</em></h3>
+        <p>Regülatörün çalışmak için girişle çıkış arasında istediği en az fark: 78xx’te ≈ 2 V.</p></div>
+      <div class="def"><h3>Isı ve soğutucu</h3>
+        <p>Regülatörde ısı = gerilim farkı × akım. Soğutucu bu ısıyı havaya taşır.</p></div>
+      <div class="def"><h3>İzole çıkış</h3>
+        <p>Her pedala ayrı sargıdan, ayrı toprakla giden besleme. Pedallar birbirinin toprağını kirletmez.</p></div>
+    </div>
+  </section>
+
+  <section class="sec">
+    <div class="sec-head"><span class="num">03</span><h2>Atölye: dört sahne</h2>
+      <span class="kicker">zener · zener regülatör · 7809 · pedal beslemesi</span></div>
+
+    <div class="stage" id="stage">
+      <div class="stage-head">
+        <div class="modes" role="group" aria-label="Sahne">
+          <button type="button" data-m="zen">Zener diyot</button>
+          <button type="button" data-m="zrg">Zener regülatör</button>
+          <button type="button" data-m="reg">Entegre regülatör</button>
+          <button type="button" data-m="ped">Pedal beslemesi</button>
+        </div>
+        <div class="readout" id="readout"></div>
+      </div>
+
+      <div class="canvas-wrap"><canvas id="board"></canvas></div>
+
+      <div class="controls">
+        <div class="ctl-row" id="row-zen">
+          <div class="field"><label for="f-dvs">Kaynak <em id="v-dvs"></em></label>
+            <input id="f-dvs" type="range" min="0" max="30" step="1" value="24"></div>
+          <span class="ctl-label">Yön</span><div class="btn-group sm" id="gDY"></div>
+        </div>
+        <div class="ctl-row" id="row-zen2" hidden>
+          <span class="ctl-label">Diyot</span><div class="btn-group sm" id="gDT"></div>
+          <span class="ctl-label">Zener</span><div class="btn-group sm" id="gDZ"></div>
+        </div>
+
+        <div class="ctl-row" id="row-zrg" hidden>
+          <div class="field"><label for="f-zvin">Giriş <em id="v-zvin"></em></label>
+            <input id="f-zvin" type="range" min="18" max="36" step="1" value="30"></div>
+          <span class="ctl-label">Rs</span><div class="btn-group sm" id="gZR"></div>
+          <span class="ctl-label">Pedal</span><div class="btn-group sm" id="gZI"></div>
+        </div>
+
+        <div class="ctl-row" id="row-reg" hidden>
+          <div class="field"><label for="f-rvin">Adaptör <em id="v-rvin"></em></label>
+            <input id="f-rvin" type="range" min="18" max="40" step="1" value="24"></div>
+          <span class="ctl-label">Yük</span><div class="btn-group sm" id="gRI"></div>
+          <span class="ctl-label">Kondansatör</span><div class="btn-group sm" id="gRC"></div>
+        </div>
+        <div class="ctl-row" id="row-reg2" hidden>
+          <span class="ctl-label">Soğutucu</span><div class="btn-group sm" id="gRS"></div>
+          <div class="btn-group sm"><button type="button" id="b-ron">Regülatör: var</button><button type="button" id="b-rdinle">Dinle</button></div>
+          <span class="ctl-note" id="r-note"></span>
+        </div>
+
+        <div class="ctl-row" id="row-ped" hidden>
+          <span class="ctl-label">Besleme</span><div class="btn-group sm" id="gPB"></div>
+          <span class="ctl-label">Adaptör</span><div class="btn-group sm" id="gPA"></div>
+        </div>
+        <div class="ctl-row" id="row-ped2" hidden>
+          <span class="ctl-label">Pedallar</span><div class="btn-group sm"><button type="button" id="b-p0">fuzz</button><button type="button" id="b-p1">overdrive</button><button type="button" id="b-p2">delay</button><button type="button" id="b-p3">reverb</button></div>
+          <span class="ctl-note" id="p-note"></span>
+        </div>
+      </div>
+    </div>
+
+    <div class="cols">
+      <section class="panel">
+        <div class="panel-head"><h3>Ders akışı</h3><span class="count" id="step-count">1 / 1</span></div>
+        <div class="panel-body">
+          <h4 id="step-title"></h4>
+          <p id="step-body"></p>
+          <div class="steps"><button type="button" id="prev">Önceki</button><button type="button" id="next">Sonraki</button></div>
+          <div class="dots" id="dots"></div>
+        </div>
+      </section>
+      <section class="panel">
+        <div class="panel-head"><h3>Kendin dene</h3><span class="count" id="ner-count"></span></div>
+        <div class="panel-body">
+          <p class="tbl-note" id="ner-not"></p>
+          <p class="tbl-note">Ses yalnızca <b>Entegre regülatör</b> sahnesindeki <b>Dinle</b> düğmesiyle çalar ve sahne değişince durur. Dört çekilmiş gitar
+            notası (Karplus–Strong) döngüde çalıyor; altına pedalın beslemesinden sızan uğultu ekleniyor. Uğultu, alttaki grafikte çizilen
+            çıkış geriliminin kendisinden hesaplanıyor: ayarları değiştirdikçe ses de değişir.</p>
+        </div>
+      </section>
+    </div>
+  </section>
+
+  <section class="sec">
+    <div class="sec-head"><span class="num">04</span><h2>Hangi besleme ne verir?</h2>
+      <span class="kicker">Satıra tıklayın, ilgili sahne o ayarla açılır</span></div>
+    <div class="panel">
+      <div class="tbl-scroll">
+      <table id="ttab">
+        <thead><tr><th>Kaynak</th><th>Çıkış</th><th>Akım</th><th class="c-cmp">Dikkat</th></tr></thead>
+        <tbody></tbody>
+      </table>
+      </div>
+      <p class="tbl-note">Değerler temsilîdir. Bir regülatörün verebileceği akımı çoğu zaman kılıfı değil <b>ısısı</b> sınırlar: aynı 7809, 12 V girişte
+        rahat çalışırken 18 V girişte soğutucusuz ısınıp kapanabilir. İzole beslemelerde her çıkışın akımı ayrı yazılır; dijital pedallar için
+        yüksek akımlı çıkışlar seçilir.</p>
+    </div>
+  </section>
+
+  <section class="sec">
+    <div class="sec-head"><span class="num">05</span><h2>Pratikte ne işe yarar?</h2><span class="kicker">Altı çıkarım</span></div>
+    <div class="cks">
+      <div class="ck ok"><span class="mk">✓</span><b>Adaptörün etiketini okuyun</b>
+        <span>Üç şey eşleşmeli: gerilim (9 V), akım (en az pedalların toplamı) ve kutup (çoğu pedalda orta uç eksi). “Regulated” yazmayan
+          ucuz adaptörler boştayken 9 V’un epey üstünde verir ve dalgalıdır.</span></div>
+      <div class="ck ok"><span class="mk">✓</span><b>Uğultu varsa beslemeden başlayın</b>
+        <span>Sürekli bir 100 Hz uğultu düzensiz bir adaptörün ya da zayıflamış bir kondansatörün işareti olabilir. Pedalı pille deneyin:
+          uğultu kayboluyorsa suçlu beslemedir.</span></div>
+      <div class="ck ok"><span class="mk">✓</span><b>Dijital ve analog pedalları ayırın</b>
+        <span>Tiz bir vızıltı ya da cızırtı çoğu zaman dijital bir pedalın ortak topraktaki darbeli akımıdır. İzole çıkışlı besleme, ya da en
+          azından dijital pedal için ayrı bir adaptör kullanın.</span></div>
+      <div class="ck ok"><span class="mk">✓</span><b>Isınan regülatör normaldir</b>
+        <span>Bir cihazın içindeki regülatörün ılık, hatta sıcak olması olağandır: gerilim farkı × akım kadar ısı üretir. Soğutucusu
+          çıkarılmamalı, havalandırma delikleri kapatılmamalıdır.</span></div>
+      <div class="ck no"><span class="mk">!</span><b>Yüksek gerilimli adaptör ≠ daha iyi ses</b>
+        <span>Bazı pedallar 18 V’u kaldırır ve daha çok headroom verir, ama bu pedalın kılavuzunda yazıyorsa. 9 V’luk bir pedala 18 V
+          vermek içindeki kondansatörleri ve entegreleri bozabilir; varsa korumadaki zener de bu yüzden yanar.</span></div>
+      <div class="ck no"><span class="mk">!</span><b>Zincirde pozitif topraklı pedal</b>
+        <span>Bazı eski germanyum fuzz’lar pozitif topraklıdır. Böyle bir pedalı öteki pedallarla aynı zincire bağlamak beslemeyi kısa devre
+          eder. Bu pedallar pille ya da izole bir çıkışla beslenmelidir.</span></div>
+    </div>
+  </section>
+
+  <section class="sec">
+    <div class="sec-head"><span class="num">06</span><h2>Bu kavramların dili</h2><span class="kicker">Kitapta ve katalogda</span></div>
+    <div class="panel">
+      <div class="tbl-scroll">
+      <table id="ltable">
+        <thead><tr><th>Terim</th><th>Türkçe</th><th class="c-cmp">Ne demek</th></tr></thead>
+        <tbody>
+          <tr><td>Zener diode · Vz</td><td>Zener diyot · zener gerilimi</td><td class="c-cmp">Ters yönde sabit gerilimde ileten diyot</td></tr>
+          <tr><td>Reverse bias · breakdown</td><td>Ters kutuplama · kırılma</td><td class="c-cmp">Diyodun ters bağlanması · iletmeye başladığı gerilim</td></tr>
+          <tr><td>Voltage regulator</td><td>Gerilim regülatörü</td><td class="c-cmp">Çıkışı sabit tutan devre</td></tr>
+          <tr><td>Linear regulator · 78xx · LM317</td><td>Doğrusal regülatör</td><td class="c-cmp">Fazla gerilimi ısıya çeviren regülatör</td></tr>
+          <tr><td>Dropout voltage</td><td>Düşme gerilimi</td><td class="c-cmp">Giriş ile çıkış arasındaki en az fark</td></tr>
+          <tr><td>Ripple · ripple rejection</td><td>Dalgalanma · dalgalanma bastırma</td><td class="c-cmp">100 Hz iniş çıkış · regülatörün onu küçültmesi (dB)</td></tr>
+          <tr><td>Heat sink · thermal shutdown</td><td>Soğutucu · ısıl koruma</td><td class="c-cmp">Isıyı taşıyan kanatlar · aşırı ısıda kapanma</td></tr>
+          <tr><td>Regulated / unregulated</td><td>Düzenli / düzensiz</td><td class="c-cmp">Regülatörlü / regülatörsüz adaptör</td></tr>
+          <tr><td>Daisy chain</td><td>Zincirleme besleme</td><td class="c-cmp">Tek adaptörden, ortak kabloyla birçok pedal</td></tr>
+          <tr><td>Isolated outputs</td><td>İzole çıkışlar</td><td class="c-cmp">Her pedala ayrı sargı ve ayrı toprak</td></tr>
+        </tbody>
+      </table>
+      </div>
+    </div>
+  </section>
+
+  <section class="sec">
+    <div class="sec-head"><span class="num">07</span><h2>Alıştırma</h2><span class="kicker">On üç soru</span></div>
+    <div class="panel quiz">
+      <div class="q-head"><span class="count" id="q-count">0 / 0 doğru</span></div>
+      <div class="panel-body">
+        <p id="q-text"></p>
+        <div class="q-opts" id="q-opts"></div>
+        <p id="q-exp" class="tbl-note"></p>
+        <div class="steps"><button type="button" id="q-next">Sonraki soru</button></div>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <span><b>Zener:</b> temsilî 1 W zener, dinamik direnç ≈ 10 Ω; ters yönde Vz’de iletir, ileri yönde ≈ 0,7 V. 9,1 V zener, 1 kΩ, 12 V: ≈ 9,11 V · 2,9 mA; 15 V: ≈ 9,15 V · 5,9 mA.</span>
+    <span><b>Zener regülatör:</b> Is = Iz + IL. 15 V, 220 Ω: en çok ≈ (15 − 9,1) / 220 ≈ 27 mA yük; 10 mA’lik pedalla Iz ≈ 16 mA, çıkış ≈ 9,26 V.</span>
+    <span><b>7809:</b> düşme ≈ 2 V (giriş ≥ 11 V), bastırma ≈ 60 dB. Dalgalanma ≈ I / (100 Hz · C): 250 mA, 2200 µF → 1,1 V. Isı = (Vgir − 9) · I; soğutucusuz ≈ 65 °C/W, soğutuculu ≈ 15 °C/W; 125 °C’de ısıl koruma.</span>
+    <span><b>Pedal tahtası:</b> temsilî akımlar 10 · 8 · 150 · 250 mA; zincirde bölüm başına ≈ 0,05 Ω, dijital akımın ≈ %40’ı darbeli → fuzz toprağında ≈ 8 mV (gitar ≈ 100 mV’un ≈ 22 dB altında).</span>
+  </footer>
+</div>
+
+<script>
+(function(){
+  "use strict";
+  var TAU = Math.PI*2, L10 = Math.LN10;
+  var root = document.documentElement;
+  function lg(x){ return Math.log(x)/L10; }
+  var CS = 343;
+
+  /* BU ATOLYENIN KENDI DURUM NESNESI.
+     Onbellek uyarisi: bu blok her atolyeye KOPYALANIR, paylasilmaz. 18. atolyede
+     onceki atolyenin S nesnesi kullanilinca butun sahneler cokmustu.            */
+  var S = {
+    mode:'zen',
+    /* --- sahne 1: zener diyot --- */
+    dVs:12, dVz:9.1, dYon:'ters', dTip:'zener',
+    /* --- sahne 2: zener regülatör --- */
+    zVin:15, zRs:220, zI:0.01,
+    /* --- sahne 3: entegre regülatör --- */
+    rVin:12, rI:0.25, rC:2200e-6, rSog:'yok', rOn:true,
+    /* --- sahne 4: pedal beslemesi --- */
+    pIzo:false, pAc:[true, true, true, true], pAd:1,
+    t:0, anim:0
+  };
+  /* ---------- tema ---------- */
+  var C = {}, K = { lw:1, fs:1, glow:0, faint:.32 };
+  function readColors(){
+    var s = getComputedStyle(root);
+    ['ink','ink-2','ink-3','line','line-2','sin','cos','arc','brass','panel','panel-2','ok','no'].forEach(function(k){
+      C[k.replace('-','')] = s.getPropertyValue('--'+k).trim();
+    });
+    var proj = root.getAttribute('data-mode') === 'proj';
+    var attr = root.getAttribute('data-theme');
+    var isDark = attr === 'dark' ||
+                 (!attr && window.matchMedia('(prefers-color-scheme: dark)').matches);
+    K.glow  = (isDark && !proj) ? 0.7 : 0;
+    K.lw    = proj ? 1.5 : 1;
+    K.fs    = proj ? 1.24 : 1;
+    K.faint = proj ? 0.42 : (K.glow ? 0.34 : 0.32);
+  }
+  readColors();
+
+  var MODES = { proj:'light' };
+  var themeBtns = document.querySelectorAll('.theme button');
+  function markTheme(t){
+    Array.prototype.forEach.call(themeBtns, function(b){
+      b.setAttribute('aria-pressed', b.dataset.t === t ? 'true':'false');
+    });
+  }
+  function applyTheme(t, save){
+    if (MODES[t]){ root.setAttribute('data-theme', MODES[t]); root.setAttribute('data-mode', t); }
+    else { root.setAttribute('data-theme', t); root.removeAttribute('data-mode'); }
+    if (save) { try { localStorage.setItem('dalga-tema', t); } catch(e){} }
+    markTheme(t);
+  }
+  Array.prototype.forEach.call(themeBtns, function(b){
+    b.addEventListener('click', function(){ applyTheme(b.dataset.t, true); });
+  });
+  var sysDark = window.matchMedia('(prefers-color-scheme: dark)');
+  var stored = null;
+  try { stored = localStorage.getItem('dalga-tema'); } catch(e){}
+  if (stored === 'light' || stored === 'dark' || MODES[stored]) applyTheme(stored, false);
+  else markTheme(sysDark.matches ? 'dark' : 'light');
+  sysDark.addEventListener('change', function(){
+    readColors(); render();
+    if (!root.hasAttribute('data-theme')) markTheme(sysDark.matches ? 'dark' : 'light');
+  });
+  new MutationObserver(function(){ readColors(); render(); })
+    .observe(root, {attributes:true, attributeFilter:['data-theme','data-mode']});
+
+  /* ---------- sayilar ---------- */
+  function n(v,d){
+    var x = v.toFixed(d===undefined?2:d);
+    if (/^-0[.,]?0*$/.test(x)) x = x.slice(1);
+    return x.replace('.',',').replace('-','−');
+  }
+  function fTxt(f){
+    return f >= 1000 ? n(f/1000, f >= 10000 ? 0 : 1).replace(',0','')+' kHz' : n(f,0)+' Hz';
+  }
+  function sgn(v,d){ return (v>0?'+':'')+n(v,d); }
+
+  /* ---------- canvas ---------- */
+  var board = document.getElementById('board');
+  var ctx = null, MONO = '"IBM Plex Mono", monospace', SANS = '"IBM Plex Sans", sans-serif';
+  function dash(a){ ctx.setLineDash(a ? a.map(function(v){ return v*K.lw; }) : []); }
+  function LW(v){ ctx.lineWidth = v*K.lw; }
+  function glowOn(col,amt){ if (K.glow){ ctx.shadowColor = col; ctx.shadowBlur = (amt||9)*K.lw; } }
+  function glowOff(){ ctx.shadowBlur = 0; }
+  function line(x1,y1,x2,y2){ ctx.beginPath(); ctx.moveTo(x1,y1); ctx.lineTo(x2,y2); ctx.stroke(); }
+  function dot(x,y,r,col){
+    ctx.beginPath(); ctx.arc(x,y,r*K.fs,0,TAU);
+    ctx.fillStyle = col; glowOn(col,10); ctx.fill(); glowOff();
+    LW(1.6); ctx.strokeStyle = C.panel2; ctx.stroke();
+  }
+  function txt(s,x,y,col,size,align,fam,weight){
+    ctx.fillStyle = col;
+    ctx.font = (weight||400)+' '+((size||12)*K.fs).toFixed(2)+'px '+(fam||MONO);
+    ctx.textAlign = align||'left'; ctx.textBaseline='middle';
+    ctx.fillText(s,x,y);
+  }
+  function tw(s,size,fam,weight){
+    ctx.font = (weight||400)+' '+((size||12)*K.fs).toFixed(2)+'px '+(fam||MONO);
+    return ctx.measureText(s).width;
+  }
+  function chip(s2,x,y,col,size,weight,fam){
+    var w = tw(s2,size,fam||MONO,weight||400), ph = (size+7)*K.fs;
+    ctx.fillStyle = C.panel2; ctx.globalAlpha = .92;
+    ctx.fillRect(x - w/2 - 4*K.fs, y - ph/2, w + 8*K.fs, ph);
+    ctx.globalAlpha = 1;
+    txt(s2, x, y, col, size, 'center', fam||MONO, weight||400);
+  }
+  function wrap(s, x, y, maxw, col, size, lh, weight){
+    var words = s.split(' '), ln = '', out = [];
+    words.forEach(function(w){
+      var t = ln ? ln+' '+w : w;
+      if (tw(t, size, SANS, weight) > maxw){ out.push(ln); ln = w; } else ln = t;
+    });
+    if (ln) out.push(ln);
+    out.forEach(function(l,k){ txt(l, x, y + k*lh, col, size, 'left', SANS, weight); });
+    return out.length;
+  }
+  var cw = 0, ch = 0;
+  function sized(cv){
+    var dpr = Math.min(window.devicePixelRatio||1, 2);
+    var r = cv.getBoundingClientRect();
+    if (r.width < 10) return null;
+    var W = Math.round(r.width*dpr), H = Math.round(r.height*dpr);
+    if (W !== cw || H !== ch){ cv.width = W; cv.height = H; cw = W; ch = H; }
+    var c = cv.getContext('2d');
+    c.setTransform(dpr,0,0,dpr,0,0);
+    c.clearRect(0,0,r.width,r.height);
+    c.lineJoin='round'; c.lineCap='round';
+    return { c:c, w:r.width, h:r.height };
+  }
+  function logAxis(x0, x1, f0, f1){
+    return { X: function(f){ return x0 + (lg(f) - lg(f0))/(lg(f1) - lg(f0))*(x1 - x0); },
+             F: function(x){ return f0*Math.pow(f1/f0, (x - x0)/(x1 - x0)); },
+             f0:f0, f1:f1, x0:x0, x1:x1 };
+  }
+  function drawTicks(A, y, list, fmt){
+    ctx.strokeStyle = C.line; LW(1.3);
+    line(A.x0, y, A.x1, y);
+    var dec, d;
+    for (dec = Math.floor(lg(A.f0)); dec <= Math.ceil(lg(A.f1)); dec++){
+      for (d = 1; d <= 9; d++){
+        var f = Math.pow(10, dec)*d;
+        if (f < A.f0 || f > A.f1) continue;
+        line(A.X(f), y, A.X(f), y + 2.6*K.fs);
+      }
+    }
+    list.forEach(function(v){
+      if (v < A.f0 || v > A.f1) return;
+      line(A.X(v), y, A.X(v), y + 6*K.fs);
+      txt((fmt||fTxt)(v), A.X(v), y + 16*K.fs, C.ink3, 9.5, 'center', MONO);
+    });
+  }
+  /* Hizli salinan yanitlar: her PIKSEL SUTUNU icin birkac ara deger alinip en kucuk
+     ile en buyuk arasina dikey cizgi cekiliyor. Seyrek ornekleme sahte desen uretmez. */
+  function bandCurve(A, yOf, fn, col, lw, lo, hi){
+    var px = Math.max(2, Math.round(A.x1 - A.x0)), x, k, ALT = 7;
+    ctx.strokeStyle = col; LW(lw||2.4); glowOn(col, 6);
+    ctx.beginPath();
+    for (x = 0; x <= px; x++){
+      var fa = A.f0*Math.pow(A.f1/A.f0, x/px);
+      var fb = A.f0*Math.pow(A.f1/A.f0, (x+1)/px);
+      var mn = 1e9, mx = -1e9;
+      for (k = 0; k < ALT; k++){
+        var v = fn(fa*Math.pow(fb/fa, k/(ALT-1)));
+        if (!isFinite(v)) v = lo;
+        if (v < lo) v = lo; else if (v > hi) v = hi;
+        if (v < mn) mn = v;
+        if (v > mx) mx = v;
+      }
+      ctx.moveTo(A.x0 + x, yOf(mx)); ctx.lineTo(A.x0 + x, yOf(mn));
+    }
+    ctx.stroke(); glowOff();
+  }
+
+  /* ================= cizim ================= */
+  function frame(x0,y0,w,h){
+    ctx.fillStyle = C.panel; ctx.fillRect(x0,y0,w,h);
+    ctx.strokeStyle = C.line; LW(1.2); ctx.strokeRect(x0+0.5,y0+0.5,w-1,h-1);
+  }
+  /* Yari saydam hucreler bitisik cizilince kenarlarda dikis izi birakiyor.
+     Bu yuzden renkler ONCEDEN panel rengiyle karistirilip TAM OPAK doldurulur. */
+  var RGBC = {};
+  function rgbOf(hx){
+    if (RGBC[hx]) return RGBC[hx];
+    var s2 = String(hx).trim(), r, g, b, m;
+    if (s2.charAt(0) === '#'){
+      if (s2.length === 4){
+        r = parseInt(s2.charAt(1)+s2.charAt(1),16);
+        g = parseInt(s2.charAt(2)+s2.charAt(2),16);
+        b = parseInt(s2.charAt(3)+s2.charAt(3),16);
+      } else {
+        r = parseInt(s2.substr(1,2),16); g = parseInt(s2.substr(3,2),16); b = parseInt(s2.substr(5,2),16);
+      }
+    } else {
+      m = s2.match(/(\d+)[,\s]+(\d+)[,\s]+(\d+)/);
+      r = m ? +m[1] : 128; g = m ? +m[2] : 128; b = m ? +m[3] : 128;
+    }
+    return (RGBC[hx] = [r||0, g||0, b||0]);
+  }
+  function mixc(a, b, t){
+    var A = rgbOf(a), B = rgbOf(b);
+    return 'rgb(' + Math.round(A[0]+(B[0]-A[0])*t) + ',' +
+                    Math.round(A[1]+(B[1]-A[1])*t) + ',' +
+                    Math.round(A[2]+(B[2]-A[2])*t) + ')';
+  }
+  function basincRenk(v){
+    var a = Math.min(1, Math.abs(v));
+    return mixc(C.panel, v >= 0 ? C.sin : C.cos, 0.05 + 0.84*a);
+  }
+  /* bir kesitin basinc haritasi: fu(u,v) -> [-1,1], u ve v 0..1 */
+  function harita(x0,y0,w,h,fu,NU,NV){
+    var i, j;
+    for (i=0;i<NU;i++){
+      var xa = Math.round(x0 + i*w/NU), xb = Math.round(x0 + (i+1)*w/NU);
+      for (j=0;j<NV;j++){
+        var ya = Math.round(y0 + j*h/NV), yb = Math.round(y0 + (j+1)*h/NV);
+        ctx.fillStyle = basincRenk(fu((i+0.5)/NU, (j+0.5)/NV));
+        ctx.fillRect(xa, ya, Math.max(1, xb-xa), Math.max(1, yb-ya));
+      }
+    }
+  }
+
+  /* Dar ekranda sol alt baslik ile sag ozet carpisiyordu: dar ekranda sol metin dusuyor. */
+  function sahneBaslik(w, sol, sag, sagCol, sagDar){
+    var pad = 16*K.fs, y = 16*K.fs, dar = w < 700;
+    if (!dar) txt(sol, pad, y, C.ink3, 10.5, 'left', MONO, 500);
+    var t = (dar && sagDar) ? sagDar : sag;
+    txt(t, dar ? pad : w - pad, y, sagCol, dar ? 11 : 11.5, dar ? 'left' : 'right', MONO, 600);
+  }
+
+  /* ================= ZENER VE REGÜLATÖR: SAYILAR =================
+     Zener (temsilî, 1N47xx sınıfı, 1 W): Vz seçilebilir (5,1 · 9,1 · 12 V), dinamik direnci rz ≈ 10 Ω, dizin yumuşak (k = 0,03 V).
+     İleri yönde sıradan bir diyot gibi (≈ 0,7 V). Sıradan diyot (1N4148 gibi) ters yönde bu sayfanın gerilimlerinde hiç iletmez (≈ 100 V’ta bozulur).
+     Entegre regülatör (78xx sınıfı, 7809): çıkış 9 V, düşme gerilimi ≈ 2 V, dalgalanma bastırma ≈ 60 dB (veri sayfasında tipik 60–70 dB),
+     TO-220 kılıf: soğutucusuz ≈ 65 °C/W, soğutucuyla ≈ 15 °C/W; ortam 25 °C, 125 °C üstünde ısıl koruma çıkışı keser.
+     Adaptörün dalgalanması (tam dalga doğrultma, 50 Hz şebeke → 100 Hz): tepe-tepe ≈ I / (100 Hz · C).                           */
+  var RZ = 10, KZ = 0.03, VF0 = 0.62, RF = 8, KF = 0.03, R_ZEN = 1000, PZ_MAX = 1, PR_MAX = 0.25;
+  function sp(x){ return x > 30 ? x : Math.log(1 + Math.exp(x)); }
+  /* ters yönde (katot +) zener akımı; normal diyotta ters yönde akım yok */
+  function izTers(v, Vz, normal){ return normal ? 0 : KZ/RZ*sp((v - Vz)/KZ); }
+  function ifIleri(v){ return KF/RF*sp((v - VF0)/KF); }
+  /* V kaynak, R seri direnç, RL yük (0 = yok), diyot ters bağlı (katot +): düğüm gerilimini ikiye bölerek bul */
+  function zCoz(Vs, R, RL, Vz, normal, ileri){
+    var lo = 0, hi = Math.max(0, Vs), k, V = 0;
+    var f = function(v){ return (Vs - v)/R - (RL > 0 ? v/RL : 0) - (ileri ? ifIleri(v) : izTers(v, Vz, normal)); };
+    for (k = 0; k < 80; k++){ V = (lo + hi)/2; if (f(V) > 0) lo = V; else hi = V; }
+    var Id = ileri ? ifIleri(V) : izTers(V, Vz, normal), IL = RL > 0 ? V/RL : 0, Is = (Vs - V)/R;
+    return { V:V, Id:Id, IL:IL, Is:Is, Pd:V*Id, Pr:(Vs - V)*(Vs - V)/R };
+  }
+  /* V–I eğrisi (anot–katot gerilimi, anottan katoda akım): ileri yön +, ters yön − */
+  function viEgri(vak, Vz, normal){ return vak >= 0 ? ifIleri(vak) : -izTers(-vak, Vz, normal); }
+  /* entegre regülatör */
+  var REG_V = 9, DROP = 2, PSRR = 60, THETA = { yok:65, var:15 }, TAMB = 25, TMAX = 125, F_DAL = 100, SIZ = 0.05;
+  function dalgaPP(I, Cf){ return I/(F_DAL*Cf); }
+  /* adaptör gerilimi, u ∈ [0, 1) bir dalgalanma periyodu: kısa dolma, doğrusal boşalma */
+  function girisU(u, vort, pp){ var vmax = vort + pp/2, vmin = vort - pp/2; return u < 0.15 ? vmin + pp*Math.sin(Math.PI/2*u/0.15) : vmax - pp*(u - 0.15)/0.85; }
+  function regAnlik(vin, on){ if (!on) return vin; var v = Math.min(REG_V, vin - DROP); return v < 0 ? 0 : v; }
+  function regHesap(vort, I, Cf, sog, on){
+    var pp = dalgaPP(I, Cf), vmin = vort - pp/2, vmax = vort + pp/2;
+    var P = on ? Math.max(0, vort - REG_V)*I : 0, T = TAMB + P*THETA[sog], kapan = on && T > TMAX;
+    var dus = on && vmin - DROP < REG_V, cmin = regAnlik(vmin, on), cmax = regAnlik(vmax, on);
+    var ppc = !on ? pp : (dus ? cmax - cmin + pp*Math.pow(10, -PSRR/20) : pp*Math.pow(10, -PSRR/20));
+    if (kapan){ cmin = 0; cmax = 0; ppc = 0; }
+    var ort = !on ? vort : kapan ? 0 : (dus ? null : REG_V);
+    return { pp:pp, vmin:vmin, vmax:vmax, cmin:cmin, cmax:cmax, ppc:ppc, P:P, T:T, kapan:kapan, dus:dus, bas:ppc > 0 ? 20*Math.log10(pp/ppc) : 0 };
+  }
+  /* pedal beslemesi: zincirde toprak dönüşü ortak kablodan geçer. Her bölüm (kablo + fiş) ≈ 0,05 Ω, dijital pedalların akımının
+     ≈ %40’ı saat hızında darbeli. Pedal toprağının adaptöre göre “titremesi” = önündeki bölümlerden geçen darbeli akım × direnç. */
+  var PEDALLAR = [ { ad:'Fuzz', kisa:'Fuzz', I:0.010, dij:false }, { ad:'Overdrive', kisa:'Drive', I:0.008, dij:false }, { ad:'Delay', kisa:'Delay', I:0.150, dij:true }, { ad:'Reverb', kisa:'Reverb', I:0.250, dij:true } ];
+  var R_BOL = 0.05, DARBE = 0.4;
+  function pedalBes(izole, acik, adaptorI){
+    var n = PEDALLAR.length, top = 0, gur = [], k, j;
+    for (k = 0; k < n; k++) if (acik[k]) top += PEDALLAR[k].I;
+    for (k = 0; k < n; k++){
+      var v = 0;
+      if (!izole) for (j = 0; j <= k; j++){          /* j. bölümden geçen darbeli akım: j ve sonrasındaki dijital pedallar */
+        var d = 0; for (var m = j; m < n; m++) if (acik[m] && PEDALLAR[m].dij) d += PEDALLAR[m].I*DARBE;
+        v += d*R_BOL;
+      }
+      gur.push(acik[k] ? v : 0);
+    }
+    return { top:top, yeter:top <= adaptorI, gur:gur };
+  }
+  function db(x){ return 20*Math.log10(Math.max(1e-12, Math.abs(x))); }
+
+  /* ---------- ortak: dB ekseni olan bir cerceve ---------- */
+  function dbPanel(x0, y0, w, h, lo, hi, adimlar, birim){
+    frame(x0, y0, w, h);
+    var Y = function(v){ return y0 + h - (v - lo)/(hi - lo)*h; };
+    ctx.strokeStyle = C.line2; LW(1);
+    adimlar.forEach(function(v){
+      if (v < lo || v > hi) return;
+      dash(v === 0 ? null : [2,4]);
+      ctx.strokeStyle = v === 0 ? C.line : C.line2; LW(v === 0 ? 1.3 : 1);
+      line(x0, Y(v), x0 + w, Y(v));
+      dash(null);
+      txt(sgn(v,0), x0 + 4*K.fs, Math.max(y0 + 8*K.fs, Y(v) - 6*K.fs),
+          C.ink3, 8.5, 'left', MONO);
+    });
+    if (birim) txt(birim, x0 + w - 5*K.fs, y0 + 9*K.fs, C.ink3, 8.5, 'right', MONO);
+    return Y;
+  }
+  /* ---------- ortak: zaman penceresi ---------- */
+  function zamanPanel(x0, y0, w, h, t0, t1, baslik, sag, yMax){
+    frame(x0, y0, w, h);
+    var ic = 20*K.fs, M = yMax || 1.15;
+    var X = function(t){ return x0 + 12*K.fs + (t - t0)/(t1 - t0)*(w - 24*K.fs); };
+    var Y = function(v){ return y0 + ic + (1 - (v + M)/(2*M))*(h - ic - 12*K.fs); };
+    ctx.strokeStyle = C.line; LW(1.2);
+    line(x0 + 6*K.fs, Y(0), x0 + w - 6*K.fs, Y(0));
+    if (baslik) txt(baslik, x0 + 10*K.fs, y0 + 12*K.fs, C.ink3, 9.5, 'left', MONO);
+    if (sag) txt(sag, x0 + w - 10*K.fs, y0 + 12*K.fs, C.ink3, 9.5, 'right', MONO);
+    return { X:X, Y:Y, M:M };
+  }
+  function surekli(P, t0, t1, fn, col, lw, kesik){
+    var N = 800, i;
+    ctx.beginPath();
+    for (i = 0; i <= N; i++){
+      var t = t0 + (t1 - t0)*i/N;
+      var p = [P.X(t), P.Y(Math.max(-P.M, Math.min(P.M, fn(t))))];
+      if (i === 0) ctx.moveTo(p[0], p[1]); else ctx.lineTo(p[0], p[1]);
+    }
+    ctx.strokeStyle = col; LW(lw || 2);
+    if (kesik) dash(kesik);
+    glowOn(col, 5); ctx.stroke(); glowOff();
+    dash(null);
+  }
+
+  /* ---------- ortak: etiketli olcu oku ---------- */
+  function okla(x, y1, y2, col, ad, kucuk){
+    ctx.strokeStyle = col; LW(1.6);
+    line(x, y1, x, y2);
+    [[y1, 1], [y2, -1]].forEach(function(q){
+      ctx.beginPath();
+      ctx.moveTo(x, q[0]); ctx.lineTo(x - 4*K.fs, q[0] + q[1]*7*K.fs);
+      ctx.lineTo(x + 4*K.fs, q[0] + q[1]*7*K.fs); ctx.closePath();
+      ctx.fillStyle = col; ctx.fill();
+    });
+    if (ad) chip(ad, x, (y1 + y2)/2, col, kucuk ? 8.5 : 9.5, 600);
+  }
+  /* ---------- ortak: satirli sayi paneli ---------- */
+  /* Aciklama metni panele sigmiyorsa SARILIYOR; etiket ile deger ayni satira
+     sigmiyorsa deger ALT SATIRA aliniyor. Dar ekranda ikisi de tasiyordu.   */
+  function satirlar(x0, y0, w, h, baslik, sat, lh){
+    frame(x0, y0, w, h);
+    txt(baslik, x0 + 9*K.fs, y0 + 12*K.fs, C.ink2, 9.5, 'left', MONO, 600);
+    var yy = y0 + 30*K.fs, adim = lh || 30*K.fs, i, ic = w - 18*K.fs;
+    for (i = 0; i < sat.length; i++){
+      if (yy + 14*K.fs > y0 + h) break;
+      var lw = tw(sat[i][0], 8.5, MONO, 400);
+      var vw = tw(sat[i][1], 11, MONO, 600);
+      var altSatir = (lw + vw + 14*K.fs > ic);
+      txt(sat[i][0], x0 + 9*K.fs, yy, C.ink3, 8.5, 'left', MONO);
+      if (altSatir){
+        if (yy + 14*K.fs > y0 + h) break;
+        txt(sat[i][1], x0 + w - 9*K.fs, yy + 13*K.fs, sat[i][2] || C.ink2,
+            11, 'right', MONO, 600);
+      } else {
+        txt(sat[i][1], x0 + w - 9*K.fs, yy, sat[i][2] || C.ink2, 11, 'right', MONO, 600);
+      }
+      var ay2 = yy + (altSatir ? 27 : 13)*K.fs, sn = 0;
+      if (sat[i][3] && ay2 < y0 + h - 4*K.fs)
+        sn = wrap(sat[i][3], x0 + 9*K.fs, ay2, ic, C.ink3, 8, 11*K.fs);
+      yy += Math.max(adim, (altSatir ? 30 : 17)*K.fs + sn*11*K.fs);
+    }
+  }
+
+
+  /* ---------- sayı yazımı: üstel ve birimli ---------- */
+  var UST = {'0':'⁰','1':'¹','2':'²','3':'³','4':'⁴','5':'⁵','6':'⁶','7':'⁷','8':'⁸','9':'⁹','-':'⁻'};
+  function usUst(k){ return String(k).split('').map(function(c){ return UST[c] || c; }).join(''); }
+  function usTxt(x){
+    if (x === 0) return '0';
+    var us = Math.floor(lg(Math.abs(x)) + 1e-9), m = x/Math.pow(10, us);
+    if (Math.abs(m - 1) < 0.005) return '10' + usUst(us);
+    return n(m, 2) + '×10' + usUst(us);
+  }
+  /* sondaki sıfırları at: 1,50 → 1,5 ; 2,00 → 2 */
+  function kis(v, d){ return n(v, d).replace(/(,\d*?)0+$/, '$1').replace(/,$/, ''); }
+  function ohmTxt(R){
+    if (R < 1)     return kis(R*1000, R < 0.1 ? 1 : 0) + ' mΩ';
+    if (R < 1e3)   return kis(R, R < 10 ? 3 : (R < 100 ? 2 : 1)) + ' Ω';
+    if (R < 1e6)   return kis(R/1e3, R < 1e4 ? 3 : (R < 1e5 ? 2 : 1)) + ' kΩ';
+    if (R < 1e9)   return kis(R/1e6, R < 1e7 ? 2 : 1) + ' MΩ';
+    return usTxt(R) + ' Ω';
+  }
+  function vTxt(V){
+    var a = Math.abs(V), s = V < 0 ? '−' : '';
+    if (a < 5e-4) return '0 V';
+    if (a < 1) return s + kis(a*1000, a < 0.01 ? 1 : 0) + ' mV';
+    return s + kis(a, a < 10 ? 2 : (a < 100 ? 1 : 0)) + ' V';
+  }
+  function aTxt(I){
+    if (I === 0) return '0 mA';
+    if (I < 1e-4) return kis(I*1e6, I < 1e-5 ? 2 : 1) + ' µA';
+    if (I < 1)    return kis(I*1000, I < 0.01 ? 2 : (I < 0.1 ? 1 : 0)) + ' mA';
+    return kis(I, 2) + ' A';
+  }
+  function wTxt(P){
+    if (P === 0) return '0 mW';
+    if (P < 1) return kis(P*1000, P < 0.01 ? 2 : (P < 0.1 ? 1 : 0)) + ' mW';
+    return kis(P, P < 10 ? 2 : (P < 100 ? 1 : 0)) + ' W';
+  }
+  function saatTxt(h){
+    if (h < 1) return n(h*60, 0) + ' dk';
+    return kis(h, h < 10 ? 1 : 0) + ' saat';
+  }
+  /* büyük çarpanlar: 115 000 gibi, binlik ayraçlı */
+  function katTxt(x){
+    if (x >= 1000) return String(Math.round(x)).replace(/\B(?=(\d{3})+(?!\d))/g, '\u2009');
+    if (x >= 10) return n(x, 0);
+    return n(x, 1).replace(/,0$/, '');
+  }
+
+  /* ---------- ortak devre parçaları ---------- */
+  /* dikdörtgen çevre yolu: s=0 sol-orta (pilin + ucu, üstte), saat yönünde */
+  function cevreYol(x0, y0, x1, y1){
+    var a = x1 - x0, b = y1 - y0, L = 2*(a + b);
+    return { L:L, p:function(s){
+      s = ((s % L) + L) % L;
+      var s0 = b/2;                             /* sol kenarın ortası */
+      s = (s + (L - s0)) % L;                   /* sol-alt köşeden ölç */
+      if (s < b) return [x0, y1 - s];
+      if (s < b + a) return [x0 + (s - b), y0];
+      if (s < 2*b + a) return [x1, y0 + (s - b - a)];
+      return [x1 - (s - 2*b - a), y1];
+    }};
+  }
+  function pilDik(x, y, col, etiket, sagda){           /* dikey telde pil: + üstte */
+    ctx.fillStyle = C.panel; ctx.fillRect(x - 17*K.fs, y - 12*K.fs, 34*K.fs, 24*K.fs);
+    ctx.strokeStyle = col; LW(2.6); line(x - 15*K.fs, y - 5*K.fs, x + 15*K.fs, y - 5*K.fs);
+    LW(4.2); line(x - 7*K.fs, y + 5*K.fs, x + 7*K.fs, y + 5*K.fs);
+    txt('+', x - 22*K.fs, y - 9*K.fs, col, 10.5, 'center', MONO, 600);
+    txt('−', x - 22*K.fs, y + 9*K.fs, col, 10.5, 'center', MONO, 600);
+    if (etiket) txt(etiket, sagda ? x + 22*K.fs : x - 30*K.fs, y, col, 9.5, sagda ? 'left' : 'right', MONO, 600);
+  }
+  function metre(x, y, harf, col, deger, konum){        /* ampermetre / voltmetre dairesi */
+    var r = 14*K.fs;
+    ctx.beginPath(); ctx.arc(x, y, r, 0, TAU); ctx.fillStyle = C.panel; ctx.fill();
+    ctx.strokeStyle = col; LW(2); glowOn(col, 6); ctx.stroke(); glowOff();
+    txt(harf, x, y + 0.5, col, 11.5, 'center', MONO, 600);
+    if (deger){
+      if (konum === 'ust') chip(deger, x, y - r - 11*K.fs, col, 9.5, 600);
+      else if (konum === 'alt') chip(deger, x, y + r + 11*K.fs, col, 9.5, 600);
+      else txt(deger, x + r + 6*K.fs, y, col, 9.5, 'left', MONO, 600);
+    }
+  }
+  function yonOk(x, y, dx, col){                       /* yatay küçük ok */
+    ctx.fillStyle = col; ctx.beginPath();
+    ctx.moveTo(x + dx*7*K.fs, y); ctx.lineTo(x - dx*5*K.fs, y - 5*K.fs); ctx.lineTo(x - dx*5*K.fs, y + 5*K.fs);
+    ctx.closePath(); ctx.fill();
+  }
+  function kutu(x, y, w2, h2, col, ust, alt){           /* yük / cihaz kutusu, merkezli */
+    ctx.fillStyle = mixc(C.panel, col, 0.10); ctx.fillRect(x - w2/2, y - h2/2, w2, h2);
+    ctx.strokeStyle = col; LW(2); ctx.strokeRect(x - w2/2, y - h2/2, w2, h2);
+    if (ust) txt(ust, x, y - (alt ? 7 : 0)*K.fs, col, 9.5, 'center', MONO, 600);
+    if (alt) txt(alt, x, y + 8*K.fs, C.ink2, 8.5, 'center', MONO);
+  }
+  function usCiz(x, y, v, col, size, align, weight){   /* 3,12×10 + küçük üst simge: yazı tipi ⁴–⁹ glifini başka fonttan alıyordu */
+    var us = Math.floor(lg(Math.abs(v)) + 1e-9), m = v/Math.pow(10, us);
+    var a = n(m, 2) + '×10', b = String(us).replace('-', '−');
+    var wa = tw(a, size, MONO, weight), wb = tw(b, size*0.6, MONO, weight), x0;
+    x0 = align === 'center' ? x - (wa + wb)/2 : (align === 'right' ? x - wa - wb : x);
+    txt(a, x0, y, col, size, 'left', MONO, weight);
+    txt(b, x0 + wa + 1, y - size*0.36*K.fs, col, size*0.6, 'left', MONO, weight);
+  }
+  function baslikP(s2, x, y, dar){ txt(s2, x + 9*K.fs, y + 12*K.fs, C.ink2, dar ? 8.5 : 9.5, 'left', MONO, 600); }
+
+  function wrapC(s, cx, y, maxw, col, size, lh){       /* ortalı sarma */
+    var words = s.split(' '), ln = '', out = [];
+    words.forEach(function(w2){
+      var t = ln ? ln + ' ' + w2 : w2;
+      if (tw(t, size, MONO) > maxw){ out.push(ln); ln = w2; } else ln = t;
+    });
+    if (ln) out.push(ln);
+    out.forEach(function(l, k){ txt(l, cx, y + k*lh, col, size, 'center', MONO); });
+  }
+
+  /* ---------- direnç sembolleri ---------- */
+  function dirYatay(cx, y, L, col, kopuk){
+    var i;
+    ctx.fillStyle = C.panel; ctx.fillRect(cx - L/2 - 2, y - 10*K.fs, L + 4, 20*K.fs);
+    ctx.strokeStyle = col; LW(2.2); dash(kopuk ? [3,3] : null);
+    ctx.beginPath(); ctx.moveTo(cx - L/2, y);
+    if (kopuk){
+      for (i = 1; i <= 3; i++) ctx.lineTo(cx - L/2 + L*i/8, y + (i % 2 ? -8 : 8)*K.fs);
+      ctx.stroke(); ctx.beginPath(); ctx.moveTo(cx + L/2 - L*3/8, y + 8*K.fs);
+      for (i = 6; i <= 7; i++) ctx.lineTo(cx - L/2 + L*i/8, y + (i % 2 ? -8 : 8)*K.fs);
+      ctx.lineTo(cx + L/2, y);
+    } else {
+      for (i = 1; i <= 7; i++) ctx.lineTo(cx - L/2 + L*i/8, y + (i % 2 ? -8 : 8)*K.fs);
+      ctx.lineTo(cx + L/2, y);
+    }
+    ctx.stroke(); dash(null);
+    if (kopuk){ txt('×', cx, y, C.arc, 13, 'center', MONO, 600); }
+  }
+  function dirDik(x, cy, L, col, kopuk){
+    var i;
+    ctx.fillStyle = C.panel; ctx.fillRect(x - 10*K.fs, cy - L/2 - 2, 20*K.fs, L + 4);
+    ctx.strokeStyle = col; LW(2.2);
+    ctx.beginPath(); ctx.moveTo(x, cy - L/2);
+    if (kopuk){
+      for (i = 1; i <= 3; i++) ctx.lineTo(x + (i % 2 ? -8 : 8)*K.fs, cy - L/2 + L*i/8);
+      ctx.stroke(); ctx.beginPath(); ctx.moveTo(x + 8*K.fs, cy + L/2 - L*3/8);
+      for (i = 6; i <= 7; i++) ctx.lineTo(x + (i % 2 ? -8 : 8)*K.fs, cy - L/2 + L*i/8);
+      ctx.lineTo(x, cy + L/2);
+    } else {
+      for (i = 1; i <= 7; i++) ctx.lineTo(x + (i % 2 ? -8 : 8)*K.fs, cy - L/2 + L*i/8);
+      ctx.lineTo(x, cy + L/2);
+    }
+    ctx.stroke();
+    if (kopuk) txt('×', x, cy, C.arc, 13, 'center', MONO, 600);
+  }
+  function renkK(k){ return [C.sin, C.cos, C.arc, C.ink2][k]; }
+  function yerlesim(dar, top, pad, w, h, oranlar){      /* P1 sol üst, P2 sağ üst, P3 alt */
+    var gw = w - 2*pad, gh = h - top - 6*K.fs, gap = 12*K.fs;
+    if (dar){
+      var h1 = gh*oranlar[0], h2 = gh*oranlar[1], h3 = gh - h1 - h2 - 2*gap;
+      return [[pad, top, gw, h1], [pad, top + h1 + gap, gw, h2], [pad, top + h1 + h2 + 2*gap, gw, h3]];
+    }
+    var wl = (gw - gap)*oranlar[2], wr = gw - gap - wl, hu = (gh - gap)*oranlar[3], hd = gh - gap - hu;
+    return [[pad, top, wl, hu], [pad + wl + gap, top, wr, hu], [pad, top + hu + gap, gw, hd]];
+  }
+  /* yığılmış çubuk: parçalar, ölçek üst değeri, etiket biçimi */
+  function yiginCubuk(x0, x1, y, bh, parca, ust, etiket, dar){
+    var X = function(v){ return x0 + v/ust*(x1 - x0); }, acc = 0;
+    ctx.fillStyle = mixc(C.panel, C.line, 0.45); ctx.fillRect(x0, y - bh/2, x1 - x0, bh);
+    parca.forEach(function(p){
+      var xa = X(acc), xb = X(acc + p.v);
+      ctx.fillStyle = p.col; ctx.fillRect(xa, y - bh/2, Math.max(0, xb - xa), bh);
+      ctx.strokeStyle = C.panel; LW(1.5); line(xb, y - bh/2, xb, y + bh/2);
+      var s2 = etiket(p);
+      if (s2 && xb - xa > tw(s2, dar ? 8 : 9, MONO, 600) + 10*K.fs)
+        txt(s2, (xa + xb)/2, y, C.panel, dar ? 8 : 9, 'center', MONO, 600);
+      acc += p.v;
+    });
+    return X;
+  }
+
+
+  /* ---------- kapasitör sembolleri ---------- */
+  function kapYatay(cx, y, col, elek){
+    var g = 5*K.fs, p = 11*K.fs;
+    ctx.fillStyle = C.panel; ctx.fillRect(cx - g - 3, y - p - 2, 2*g + 6, 2*p + 4);
+    ctx.strokeStyle = col; LW(2.6); line(cx - g, y - p, cx - g, y + p);
+    if (elek){ ctx.beginPath(); ctx.moveTo(cx + g + 3*K.fs, y - p); ctx.quadraticCurveTo(cx + g - 1*K.fs, y, cx + g + 3*K.fs, y + p); ctx.stroke(); }
+    else line(cx + g, y - p, cx + g, y + p);
+  }
+  function kapDik(x, cy, col){
+    var g = 5*K.fs, p = 12*K.fs;
+    ctx.fillStyle = C.panel; ctx.fillRect(x - p - 2, cy - g - 3, 2*p + 4, 2*g + 6);
+    ctx.strokeStyle = col; LW(2.6); line(x - p, cy - g, x + p, cy - g); line(x - p, cy + g, x + p, cy + g);
+  }
+  function capTxt(Cf){
+    if (Cf >= 1e-6) return kis(Cf*1e6, Cf < 1e-5 ? 2 : (Cf < 1e-4 ? 1 : 0)) + ' µF';
+    if (Cf >= 1e-9) return kis(Cf*1e9, Cf < 1e-8 ? 2 : 0) + ' nF';
+    return kis(Cf*1e12, 0) + ' pF';
+  }
+  function hzTxt(f){ return f >= 1000 ? kis(f/1000, f < 1e4 ? 2 : 1) + ' kHz' : kis(f, f < 10 ? 2 : (f < 100 ? 1 : 0)) + ' Hz'; }
+
+  function henTxt(L){
+    if (L >= 1) return kis(L, 2) + ' H';
+    if (L >= 0.95e-4) return kis(L*1e3, L < 1e-3 ? 3 : (L < 1e-2 ? 2 : (L < 0.1 ? 1 : 0))) + ' mH';
+    return kis(L*1e6, 0) + ' µH';
+  }
+  /* bobin sembolü: yatay, dört tümsek */
+  function bobinYatay(cx, y, L2, col){
+    var n = 4, r = L2/(2*n), i;
+    ctx.fillStyle = C.panel; ctx.fillRect(cx - L2/2 - 2, y - r - 4, L2 + 4, r + 6);
+    ctx.strokeStyle = col; LW(2.4); ctx.beginPath();
+    for (i = 0; i < n; i++) ctx.arc(cx - L2/2 + r*(2*i + 1), y, r, Math.PI, 0, false);
+    ctx.stroke();
+  }
+  function bobinDik(x, cy, L2, col){
+    var n = 4, r = L2/(2*n), i;
+    ctx.fillStyle = C.panel; ctx.fillRect(x - 2, cy - L2/2 - 2, r + 6, L2 + 4);
+    ctx.strokeStyle = col; LW(2.4); ctx.beginPath();
+    for (i = 0; i < n; i++) ctx.arc(x, cy - L2/2 + r*(2*i + 1), r, -Math.PI/2, Math.PI/2, false);
+    ctx.stroke();
+  }
+  /* ================= ortak yardımcılar ================= */
+  function sig(uzun, kisa, maxw, size, weight){ return tw(uzun, size, MONO, weight) <= maxw ? uzun : kisa; }
+  function sayiPanel(P, baslik, rows, dar){
+    frame(P[0], P[1], P[2], P[3]);
+    baslikP(baslik, P[0], P[1], dar);
+    var ry0 = P[1] + 34*K.fs, rs = Math.min(23*K.fs, (P[3] - 44*K.fs)/rows.length);
+    rows.forEach(function(q, k){
+      var v = q[1], lab = q[0], bos = P[2] - 36*K.fs;
+      if (q[3] && tw(v, 9.5, MONO, 600) + tw(lab, 8.5, MONO) > bos) v = q[3];
+      while (lab.length > 4 && tw(v, 9.5, MONO, 600) + tw(lab, 8.5, MONO) > bos) lab = lab.slice(0, -2) + '…';
+      txt(lab, P[0] + 12*K.fs, ry0 + k*rs, C.ink3, 8.5, 'left', MONO);
+      txt(v, P[0] + P[2] - 12*K.fs, ry0 + k*rs, q[2], 9.5, 'right', MONO, 600);
+    });
+    return ry0 + rows.length*rs;
+  }
+  function toprak(x, y){
+    ctx.strokeStyle = C.ink3; LW(1.6);
+    line(x - 9*K.fs, y, x + 9*K.fs, y); line(x - 6*K.fs, y + 4*K.fs, x + 6*K.fs, y + 4*K.fs); line(x - 3*K.fs, y + 8*K.fs, x + 3*K.fs, y + 8*K.fs);
+  }
+  function rng(seed){ return function(){ seed |= 0; seed = seed + 0x6D2B79F5 | 0; var t = Math.imul(seed ^ seed >>> 15, 1 | seed); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0)/4294967296; }; }
+  function tel(pts, col, lw){ ctx.strokeStyle = col; LW(lw || 1.8); ctx.beginPath(); pts.forEach(function(p, k){ if (k) ctx.lineTo(p[0], p[1]); else ctx.moveTo(p[0], p[1]); }); ctx.stroke(); }
+  /* akım yolu: soluk tel + akıma göre kalınlaşan renkli şerit */
+  function akimTel(pts, col, oran){
+    tel(pts, C.ink2, 1.6);
+    if (oran > 0.004){ ctx.globalAlpha = 0.28 + 0.5*Math.min(1, oran); glowOn(col, 6); tel(pts, col, 1.6 + 4.4*Math.min(1, oran)); glowOff(); ctx.globalAlpha = 1; }
+  }
+  function noktaB(x, y){ ctx.fillStyle = C.ink2; ctx.beginPath(); ctx.arc(x, y, 3*K.fs, 0, TAU); ctx.fill(); }
+  function elektron(x, y, r, al){ ctx.globalAlpha = al == null ? 1 : al; ctx.fillStyle = C.cos; ctx.beginPath(); ctx.arc(x, y, r*K.fs, 0, TAU); ctx.fill(); ctx.globalAlpha = 1; }
+  function delik(x, y, r, al){ ctx.globalAlpha = al == null ? 1 : al; ctx.strokeStyle = C.arc; LW(1.5); ctx.beginPath(); ctx.arc(x, y, r*K.fs, 0, TAU); ctx.stroke(); ctx.globalAlpha = 1; }
+  function diyotSem(x, y, col, yon, kaz){
+    var s = 9*K.fs*(kaz || 1);
+    ctx.save(); ctx.translate(x, y); ctx.rotate(yon === -1 ? Math.PI : yon === 2 ? Math.PI/2 : yon === -2 ? -Math.PI/2 : 0);
+    ctx.fillStyle = C.panel; ctx.fillRect(-s - 2, -s - 2, 2*s + 4, 2*s + 4);
+    ctx.fillStyle = col; ctx.beginPath(); ctx.moveTo(-s, -s); ctx.lineTo(-s, s); ctx.lineTo(s*0.8, 0); ctx.closePath(); ctx.fill();
+    ctx.strokeStyle = col; LW(2.2); line(s*0.8, -s, s*0.8, s);
+    ctx.restore();
+  }
+  /* NPN sembolü: taban çizgisi (x, y); dönen uçlar b, c, e */
+  function npnSem(x, y, s, col, etiket){
+    var cx = x + 0.45*s;
+    ctx.fillStyle = C.panel; ctx.beginPath(); ctx.arc(cx, y, 1.25*s, 0, TAU); ctx.fill();
+    ctx.strokeStyle = mixc(C.panel, col, 0.55); LW(1.4); ctx.stroke();
+    ctx.strokeStyle = col; LW(2.2);
+    line(x - 1.35*s, y, x, y);                                     /* taban ucu */
+    LW(3.2); line(x, y - 0.62*s, x, y + 0.62*s); LW(2.2);
+    tel([[x, y - 0.3*s], [x + 0.95*s, y - 0.85*s], [x + 0.95*s, y - 1.6*s]], col, 2.2);
+    tel([[x, y + 0.3*s], [x + 0.95*s, y + 0.85*s], [x + 0.95*s, y + 1.6*s]], col, 2.2);
+    /* emetör oku: dışa doğru */
+    var ax = x + 0.72*s, ay = y + 0.72*s, dx = 0.95, dy = 0.55, L = Math.hypot(dx, dy), a = 7*K.fs; dx /= L; dy /= L;
+    ctx.fillStyle = col; ctx.beginPath(); ctx.moveTo(ax + dx*a*0.6, ay + dy*a*0.6);
+    ctx.lineTo(ax - dx*a*0.6 - dy*a*0.55, ay - dy*a*0.6 + dx*a*0.55); ctx.lineTo(ax - dx*a*0.6 + dy*a*0.55, ay - dy*a*0.6 - dx*a*0.55); ctx.closePath(); ctx.fill();
+    if (etiket){
+      txt('B', x - 1.0*s, y - 9*K.fs, C.ink3, 8, 'center', MONO, 600);
+      txt('C', x + 0.95*s + 9*K.fs, y - 1.35*s, C.ink3, 8, 'left', MONO, 600);
+      txt('E', x + 0.95*s + 9*K.fs, y + 1.35*s, C.ink3, 8, 'left', MONO, 600);
+    }
+    return { b:[x - 1.35*s, y], c:[x + 0.95*s, y - 1.6*s], e:[x + 0.95*s, y + 1.6*s] };
+  }
+  function uvTxt(v){ return v < 1e-3 ? kis(v*1e6, v < 1e-5 ? 1 : 0) + ' µV' : vTxt(v); }
+  function dbTxt(d){ return (d >= 0.05 ? '+' : d <= -0.05 ? '−' : '') + kis(Math.abs(d), 1) + ' dB'; }
+  function ohm2(r){ return r < 1000 ? kis(r, 0) + ' Ω' : r < 1e6 ? kis(r/1000, r < 1e4 ? 1 : 0) + ' kΩ' : r < 1e9 ? kis(r/1e6, 0) + ' MΩ' : kis(r/1e9, 0) + ' GΩ'; }
+  function khz(f){ return f >= 1000 ? kis(f/1000, f < 10000 ? 1 : 0) + ' kHz' : kis(f, f < 10 ? 1 : 0) + ' Hz'; }
+  function uc(x, y, ad, alt){ ctx.fillStyle = C.panel; ctx.strokeStyle = C.ink2; LW(1.6); ctx.beginPath(); ctx.arc(x, y, 4*K.fs, 0, TAU); ctx.fill(); ctx.stroke(); if (ad) txt(ad, x, y + (alt ? -14 : 16)*K.fs, C.ink2, 7.5, 'center', MONO, 600); }
+
+  /* ================= fuzz çizim yardımcıları ================= */
+  function dbT(d){ return d < -120 ? 'yok' : (d > 0.05 ? '+' : d < -0.05 ? '−' : '') + kis(Math.abs(d), 1) + ' dB'; }
+  function yuzde(x){ return '%' + kis(x*100, x < 0.1 ? 1 : 0); }
+  function katT(G){ return '× ' + kis(G, G < 10 ? 1 : 0); }
+  /* dalga paneli: 2 periyot; fnGir kırpılmasaydı (ince, kesik), fnCik çıkış (kalın) */
+  function dalgaPanel(P, baslik, dar, A, fnGir, fnCik, tavanlar, opt){
+    frame(P[0], P[1], P[2], P[3]); baslikP(baslik, P[0], P[1], dar);
+    opt = opt || {};
+    var x0 = P[0] + (dar ? 42 : 44)*K.fs, x1 = P[0] + P[2] - (opt.sag || 16)*K.fs, y0 = P[1] + 30*K.fs, y1 = P[1] + P[3] - 22*K.fs, my = opt.my != null ? opt.my : (y0 + y1)/2;
+    var Y = opt.Y || function(v){ return my - v/A*((y1 - y0)/2 - 4*K.fs); }, X = function(u){ return x0 + u/2*(x1 - x0); }, N = 400, k;
+    ctx.strokeStyle = C.line; LW(1); line(x0, Y(0), x1, Y(0));
+    var gorunur = function(v){ var yy = Y(v); return yy >= y0 - 1 && yy <= y1 + 1; }, disari = [];
+    (opt.izgara || []).forEach(function(q){ if (!gorunur(q[0])) return; ctx.strokeStyle = C.line2; LW(1); line(x0, Y(q[0]), x1, Y(q[0])); txt(q[1], x0 - 6*K.fs, Y(q[0]), C.ink3, 7.5, 'right', MONO); });
+    tavanlar.forEach(function(q){ if (!gorunur(q[0])){ disari.push(q); return; } ctx.strokeStyle = C.arc; LW(1.3); dash([5, 4]); line(x0, Y(q[0]), x1, Y(q[0])); dash(null); if (q[1]) txt(q[1], x1 - 4*K.fs, Y(q[0]) + (q[2] === 'alt' ? 9 : q[2] === 'ust' ? -8 : q[0] > 0 ? -8 : 9)*K.fs, C.arc, 7.5, 'right', MONO, 600); });
+    if (disari.length && opt.disariNot) chip(opt.disariNot, (x0 + x1)/2, y0 + 8*K.fs, C.arc, 7.5, 600);
+    ctx.save(); ctx.beginPath(); ctx.rect(x0, y0 - 2, x1 - x0, y1 - y0 + 4); ctx.clip();
+    if (fnGir){ ctx.strokeStyle = C.cos; LW(1.4); dash([4, 3]); ctx.beginPath(); for (k = 0; k <= N; k++){ var u = 2*k/N, yy = Y(fnGir(Math.sin(TAU*u))); if (k) ctx.lineTo(X(u), yy); else ctx.moveTo(X(u), yy); } ctx.stroke(); dash(null); }
+    ctx.strokeStyle = C.sin; LW(2.8); glowOn(C.sin, 5); ctx.beginPath(); for (k = 0; k <= N; k++){ var u2 = 2*k/N, y2 = Y(fnCik(Math.sin(TAU*u2))); if (k) ctx.lineTo(X(u2), y2); else ctx.moveTo(X(u2), y2); } ctx.stroke(); glowOff();
+    ctx.restore();
+    return { Y:Y, x0:x0, x1:x1, y0:y0, y1:y1 };
+  }
+  /* harmonik çubukları: h (genlikler), 0 … −60 dB, tek = sıcak, çift = soğuk */
+  function spekPanel(P, baslik, dar, h, f0){
+    frame(P[0], P[1], P[2], P[3]); baslikP(baslik, P[0], P[1], dar);
+    var x0 = P[0] + (dar ? 38 : 48)*K.fs, x1 = P[0] + P[2] - 14*K.fs, y0 = P[1] + 34*K.fs, y1 = P[1] + P[3] - (dar ? 22 : 32)*K.fs, n = h.length, bw = (x1 - x0)/n;
+    var Y = function(d){ return y0 + Math.min(60, Math.max(0, -d))/60*(y1 - y0); };
+    [0, -20, -40, -60].forEach(function(d){ ctx.strokeStyle = d ? C.line2 : C.line; LW(1); line(x0, Y(d), x1, Y(d)); txt(d ? '−' + Math.abs(d) + ' dB' : '0 dB', x0 - 6*K.fs, Y(d), C.ink3, 7.5, 'right', MONO); });
+    h.forEach(function(a, k){
+      var d = db(a/h[0]), xc = x0 + bw*(k + 0.5), col = k % 2 ? C.cos : C.sin, tek = k % 2 === 0;
+      if (d > -60){ ctx.fillStyle = k ? mixc(C.panel, col, 0.75) : col; ctx.fillRect(xc - bw*0.3, Y(d), bw*0.6, Y(-60) - Y(d)); if (k && bw > 30*K.fs) txt(kis(d, 0).replace('-', '−'), xc, Y(d) - 8*K.fs, col, 7.5, 'center', MONO, 600); }
+      txt(String(k + 1), xc, y1 + 10*K.fs, tek ? C.sin : C.cos, 8, 'center', MONO, 600);
+      if (!dar && f0 && bw > 40*K.fs) txt(hzTxt(f0*(k + 1)), xc, y1 + 22*K.fs, C.ink3, 7, 'center', MONO);
+    });
+  }
+  var NH = 11, F0 = 110;
+
+  /* ================= zener / regülatör çizim yardımcıları ================= */
+  function iTxt(I){ return I < 1e-5 ? '0 mA' : aTxt(I); }
+  function isTxt(T){ return kis(T, 0) + ' °C'; }
+  /* diyot sembolü + zener kanatları. yon: 2 = üçgen aşağı (anot üstte), −2 = üçgen yukarı (katot üstte) */
+  function zenerSem(x, y, col, yon, kaz, normal){
+    var s = 9*K.fs*(kaz || 1);
+    diyotSem(x, y, col, yon, kaz);
+    if (normal) return;
+    ctx.save(); ctx.translate(x, y); ctx.rotate(yon === -1 ? Math.PI : yon === 2 ? Math.PI/2 : yon === -2 ? -Math.PI/2 : 0);
+    ctx.strokeStyle = col; LW(2.2); line(s*0.8, -s, s*0.8 - 0.4*s, -s); line(s*0.8, s, s*0.8 + 0.4*s, s);
+    ctx.restore();
+  }
+  function uyari(s2, x, y, maxw, col){ wrapC(s2, x, y, maxw, col || C.ink2, 8.5, 12*K.fs); }
+  function eksenY(x0, x1, Y, degerler, fmt, sol){
+    degerler.forEach(function(v){ ctx.strokeStyle = v === 0 ? C.line : C.line2; LW(1); line(x0, Y(v), x1, Y(v)); txt(fmt(v), sol ? x0 - 6*K.fs : x0 + 4*K.fs, sol ? Y(v) : Y(v) - 6*K.fs, C.ink3, 7.5, sol ? 'right' : 'left', MONO); });
+  }
+
+  /* ================= SAHNE 1: ZENER DİYOT =================
+     Kaynak → 1 kΩ → diyot. Sıradan diyot ters yönde akım geçirmez; zener ise ters yönde belli bir gerilimde
+     (zener gerilimi) iletmeye başlar ve gerilimi orada tutar. Fazla gerilim seri dirençte kalır.           */
+  function drawZen(w, h){
+    var pad = 16*K.fs, dar = w < 760, top = 34*K.fs, ters = S.dYon === 'ters', normal = S.dTip === 'normal';
+    var z = zCoz(S.dVs, R_ZEN, 0, S.dVz, normal, !ters), I = z.Id, Vd = z.V, ilet = I > 2e-4;
+    var ad = normal ? 'sıradan diyot' : 'zener ' + kis(S.dVz, 1) + ' V';
+    sahneBaslik(w, 'ZENER DİYOT  ·  ' + ad + '  ·  ' + (ters ? 'ters' : 'ileri') + ' yönde  ·  kaynak ' + vTxt(S.dVs) + '  ·  seri direnç 1 kΩ',
+      'diyotta ' + vTxt(Vd) + '  ·  ' + iTxt(I), ilet ? C.sin : C.ink3, vTxt(Vd) + ' · ' + iTxt(I));
+    var P = yerlesim(dar, top, pad, w, h, dar ? [0.40, 0.23] : [0.56, 0.22, 0.62, 0.50]), P1 = P[0], P2 = P[1], P3 = P[2];
+    frame(P1[0], P1[1], P1[2], P1[3]);
+    baslikP(dar ? 'DEVRE' : 'DEVRE  ·  kaynak, seri direnç ve diyot; voltmetre diyodun uçlarında', P1[0], P1[1], dar);
+    var W = P1[2], H = P1[3], xL = P1[0] + W*0.12, xR = P1[0] + W*(dar ? 0.58 : 0.56), yT = P1[1] + H*0.25, yB = P1[1] + H*0.70, ym = (yT + yB)/2, o = I/0.015;
+    akimTel([[xL, ym - 14*K.fs], [xL, yT], [xR, yT], [xR, ym - 14*K.fs]], C.sin, o);
+    akimTel([[xR, ym + 14*K.fs], [xR, yB], [xL, yB], [xL, ym + 14*K.fs]], C.sin, o);
+    pilDik(xL, ym, C.sin, vTxt(S.dVs), true);
+    var xr = (xL + xR)/2; dirYatay(xr, yT, Math.min(64*K.fs, W*0.14), C.cos, false);
+    txt('1 kΩ', xr, yT - 18*K.fs, C.cos, 8.5, 'center', MONO, 600);
+    chip('dirençte ' + vTxt(S.dVs - Vd), xr, yT + 20*K.fs, C.cos, 7.5, 600);
+    var col = ilet ? C.sin : C.ink2;
+    zenerSem(xR, ym, col, ters ? -2 : 2, 1.35, normal);
+    txt(ters ? 'katot' : 'anot', xR - 18*K.fs, ym - 13*K.fs, C.ink3, 7.5, 'right', MONO);
+    txt(ters ? 'anot' : 'katot', xR - 18*K.fs, ym + 13*K.fs, C.ink3, 7.5, 'right', MONO);
+    var xV = xR + W*(dar ? 0.14 : 0.17), y1 = ym - 30*K.fs, y2 = ym + 30*K.fs;
+    tel([[xR, y1], [xV, y1], [xV, ym - 14*K.fs]], C.arc, 1.2); tel([[xR, y2], [xV, y2], [xV, ym + 14*K.fs]], C.arc, 1.2);
+    ctx.fillStyle = C.ink2; [[xR, y1], [xR, y2]].forEach(function(p){ ctx.beginPath(); ctx.arc(p[0], p[1], 3*K.fs, 0, TAU); ctx.fill(); });
+    metre(xV, ym, 'V', C.arc, vTxt(Vd));
+    chip('akım ' + iTxt(I), xr, yB, ilet ? C.sin : C.ink3, 8, 600);
+    if (ilet){ yonOk(xr + 58*K.fs, yT, 1, C.sin); yonOk(xr + 58*K.fs, yB, -1, C.sin); }
+    var mesaj = !ters ? 'İleri yönde zener de sıradan bir diyot gibidir: ≈ 0,7 V’ta iletir.'
+      : normal ? 'Sıradan diyot ters yönde akım geçirmez: bütün gerilim diyodun üstünde kalır.'
+      : ilet ? 'Zener iletiyor ve gerilimi ' + kis(S.dVz, 1) + ' V’ta tutuyor. Fazlası (' + vTxt(S.dVs - Vd) + ') dirençte.'
+      : 'Kaynak ' + kis(S.dVz, 1) + ' V’un altında: zener henüz iletmiyor, gerilimin hepsi onun üstünde.';
+    uyari(mesaj, P1[0] + W/2, yB + 26*K.fs, W - 30*K.fs, ilet ? C.ink2 : C.ink3);
+    sayiPanel(P2, 'SAYILAR', [
+      ['kaynak', vTxt(S.dVs), C.sin],
+      ['diyottaki gerilim', vTxt(Vd), C.arc],
+      ['dirençteki gerilim', vTxt(S.dVs - Vd), C.cos],
+      ['akım', iTxt(I), C.sin],
+      ['diyotta ısı', wTxt(z.Pd), C.ink2],
+      ['durum', !ters ? 'ileri: ≈ 0,7 V' : normal ? 'iletmiyor' : ilet ? 'iletiyor: gerilim sabit' : 'henüz iletmiyor', ilet ? C.sin : C.ink3, !ters ? 'ileri' : ilet ? 'iletiyor' : 'iletmiyor']
+    ], dar);
+    /* akım–gerilim eğrisi */
+    frame(P3[0], P3[1], P3[2], P3[3]);
+    baslikP(dar ? 'AKIM–GERİLİM' : 'AKIM–GERİLİM EĞRİSİ  ·  sağ: ileri yön · sol: ters yön · kalın: seçili diyot · kesik: öteki', P3[0], P3[1], dar);
+    var x0 = P3[0] + (dar ? 44 : 56)*K.fs, x1 = P3[0] + P3[2] - 14*K.fs, gy0 = P3[1] + 30*K.fs, gy1 = P3[1] + P3[3] - 22*K.fs, V0 = -15, V1 = 2, I0 = -0.016, I1 = 0.016;
+    var X = function(v){ return x0 + (v - V0)/(V1 - V0)*(x1 - x0); }, Y = function(i){ return gy1 - (Math.max(I0, Math.min(I1, i)) - I0)/(I1 - I0)*(gy1 - gy0); };
+    eksenY(x0, x1, Y, [-0.01, 0, 0.01], function(i){ return i === 0 ? '0' : (i > 0 ? '+' : '−') + kis(Math.abs(i)*1000, 0) + ' mA'; }, true);
+    [-15, -12, -9, -6, -3, 0].forEach(function(v){ if (dar && (v === -12 || v === -6)) return; ctx.strokeStyle = v ? C.line2 : C.line; LW(1); line(X(v), gy0, X(v), gy1); txt((v < 0 ? '−' : '') + Math.abs(v) + ' V', X(v), gy1 + 11*K.fs, C.ink3, 7.5, 'center', MONO); });
+    var egri = function(nrm, colE, lw, kes){
+      ctx.save(); ctx.beginPath(); ctx.rect(x0, gy0, x1 - x0, gy1 - gy0); ctx.clip();
+      ctx.strokeStyle = colE; LW(lw); if (kes) dash([5, 4]); if (!kes) glowOn(colE, 5); ctx.beginPath();
+      for (var k = 0; k <= 600; k++){ var v = V0 + (V1 - V0)*k/600, yy = Y(viEgri(v, S.dVz, nrm)); if (k) ctx.lineTo(X(v), yy); else ctx.moveTo(X(v), yy); }
+      ctx.stroke(); glowOff(); dash(null); ctx.restore();
+    };
+    egri(!normal, C.cos, 1.4, true); egri(normal, C.sin, 2.8, false);
+    if (!normal || true){ ctx.strokeStyle = C.arc; LW(1.2); dash([3, 4]); line(X(-S.dVz), gy0, X(-S.dVz), gy1); dash(null);
+      txt(dar ? '−' + kis(S.dVz, 1) + ' V' : 'zener gerilimi −' + kis(S.dVz, 1) + ' V', X(-S.dVz) + 6*K.fs, gy0 + 9*K.fs, C.arc, 7.5, 'left', MONO, 600); }
+    if (!dar){ txt('ileri yön', X(1), Y(0) + 11*K.fs, C.ink3, 7.5, 'center', MONO); txt('ters yön: sıradan diyot iletmez', X(-4.5), Y(0) - 9*K.fs, C.ink3, 7.5, 'center', MONO); }
+    var vak = ters ? -Vd : Vd, ia = ters ? -I : I;
+    dot(X(vak), Y(ia), 5.5, C.arc);
+    chip(vTxt(Vd) + ' · ' + iTxt(I), Math.min(x1 - 50*K.fs, Math.max(x0 + 50*K.fs, X(vak) + (ters ? 58 : -58)*K.fs)), Y(ia) + (ia < -0.006 ? -14 : 14)*K.fs, C.arc, 7.5, 600);
+  }
+
+  /* ================= SAHNE 2: ZENER REGÜLATÖR =================
+     Giriş → seri direnç Rs → düğüm; düğümde zener (toprağa) ve yük (pedal) paralel. Direnç akımı ikiye ayrılır:
+     Is = Iz + IL. Yük çok akım çekerse zenere akım kalmaz ve çıkış düşer: regülasyon biter.                  */
+  var YUKLER = [[0, 'yok'], [0.005, '5 mA'], [0.01, '10 mA'], [0.02, '20 mA'], [0.04, '40 mA']];
+  function zrgHesap(Vin, Rs, Inom){ return zCoz(Vin, Rs, Inom > 0 ? 9/Inom : 0, 9.1, false, false); }
+  function drawZrg(w, h){
+    var pad = 16*K.fs, dar = w < 760, top = 34*K.fs, z = zrgHesap(S.zVin, S.zRs, S.zI), bos = S.zI > 0 && z.Id < 5e-4, imax = Math.max(0, (S.zVin - 9.1)/S.zRs);
+    sahneBaslik(w, 'ZENER REGÜLATÖR  ·  giriş ' + vTxt(S.zVin) + '  ·  Rs ' + ohm2(S.zRs) + '  ·  zener 9,1 V  ·  pedal ' + (S.zI ? '≈ ' + aTxt(S.zI) : 'yok'),
+      'çıkış ' + vTxt(z.V) + (bos ? '  ·  regülasyon yok' : ''), bos ? C.arc : C.sin, 'çıkış ' + vTxt(z.V));
+    var P = yerlesim(dar, top, pad, w, h, dar ? [0.40, 0.25] : [0.56, 0.22, 0.62, 0.52]), P1 = P[0], P2 = P[1], P3 = P[2];
+    frame(P1[0], P1[1], P1[2], P1[3]);
+    baslikP(dar ? 'DEVRE' : 'DEVRE  ·  direnç akımı ikiye ayrılır: zener + pedal', P1[0], P1[1], dar);
+    var W = P1[2], H = P1[3], xL = P1[0] + W*0.10, xN = P1[0] + W*0.50, xP = P1[0] + W*0.80, yT = P1[1] + H*0.25, yB = P1[1] + H*0.70, ym = (yT + yB)/2, S0 = 0.06;
+    akimTel([[xL, ym - 14*K.fs], [xL, yT], [xN, yT]], C.sin, z.Is/S0);
+    akimTel([[xN, yT], [xN, ym - 14*K.fs]], C.arc, z.Id/S0); akimTel([[xN, ym + 14*K.fs], [xN, yB]], C.arc, z.Id/S0);
+    akimTel([[xN, yT], [xP, yT], [xP, ym - 22*K.fs]], C.cos, z.IL/S0); akimTel([[xP, ym + 22*K.fs], [xP, yB], [xN, yB]], C.cos, z.IL/S0);
+    akimTel([[xN, yB], [xL, yB], [xL, ym + 14*K.fs]], C.sin, z.Is/S0);
+    pilDik(xL, ym, C.sin, vTxt(S.zVin), true);
+    var xr = (xL + xN)/2 + 8*K.fs; dirYatay(xr, yT, Math.min(60*K.fs, W*0.13), C.cos, false); txt('Rs ' + ohm2(S.zRs), xr, yT - 18*K.fs, C.cos, 8.5, 'center', MONO, 600);
+    zenerSem(xN, ym, z.Id > 5e-4 ? C.arc : C.ink2, -2, 1.3, false);
+    if (!dar) txt('9,1 V', xN + 16*K.fs, ym, C.arc, 8, 'left', MONO, 600);
+    if (S.zI > 0) kutu(xP, ym, Math.min(W*0.18, 84*K.fs), 44*K.fs, C.cos, 'PEDAL', '≈ ' + aTxt(S.zI));
+    else { kutu(xP, ym, Math.min(W*0.18, 84*K.fs), 44*K.fs, C.ink3, 'yük yok', ''); }
+    noktaB(xN, yT); noktaB(xN, yB);
+    chip('Is ' + iTxt(z.Is), xr, yT + 20*K.fs, C.sin, 7.5, 600);
+    chip('Iz ' + iTxt(z.Id), xN - (dar ? 34 : 40)*K.fs, ym + 28*K.fs, z.Id > 5e-4 ? C.arc : C.ink3, 7.5, 600);
+    chip('IL ' + iTxt(z.IL), (xN + xP)/2 + 6*K.fs, yT + 20*K.fs, C.cos, 7.5, 600);
+    chip('çıkış ' + vTxt(z.V), (xN + xP)/2 + 6*K.fs, yT - 13*K.fs, bos ? C.arc : C.sin, 8, 600);
+    var uy = bos ? 'Pedal zenerin payına düşen akımı da çekiyor: zenere akım kalmadı, çıkış ' + vTxt(z.V) + '’a düştü.'
+      : z.Pr > PR_MAX ? 'Dirençte ' + wTxt(z.Pr) + ' ısı: 1/4 W’lık direnç yetmez.'
+      : z.Pd > PZ_MAX ? 'Zenerde ' + wTxt(z.Pd) + ': 1 W’lık zener aşırı ısınır.'
+      : S.zI ? 'Zener fazla akımı üstlenip çıkışı ≈ 9,1 V’ta tutuyor.' : 'Yük yok: direnç akımının hepsi zenerden geçiyor ve ısıya dönüşüyor.';
+    uyari(uy, P1[0] + W/2, yB + 26*K.fs, W - 30*K.fs, (bos || z.Pr > PR_MAX || z.Pd > PZ_MAX) ? C.arc : C.ink2);
+    sayiPanel(P2, 'SAYILAR', [
+      ['giriş', vTxt(S.zVin), C.sin],
+      ['çıkış', vTxt(z.V), bos ? C.arc : C.sin],
+      ['direnç akımı Is', iTxt(z.Is), C.sin],
+      ['zener akımı Iz', iTxt(z.Id), C.arc],
+      ['pedal akımı IL', iTxt(z.IL), C.cos],
+      ['zenerde ısı', wTxt(z.Pd), z.Pd > PZ_MAX ? C.arc : C.ink2],
+      ['dirençte ısı', wTxt(z.Pr), z.Pr > PR_MAX ? C.arc : C.ink2],
+      ['en çok yük', '≈ ' + aTxt(imax), C.cos]
+    ], dar);
+    /* yük akımı → çıkış */
+    frame(P3[0], P3[1], P3[2], P3[3]);
+    baslikP(dar ? 'YÜK → ÇIKIŞ' : 'PEDAL AKIMI ARTARKEN ÇIKIŞ  ·  zener akımı bitince (pembe çizgi) çıkış düşmeye başlar', P3[0], P3[1], dar);
+    var x0 = P3[0] + (dar ? 40 : 50)*K.fs, x1 = P3[0] + P3[2] - 14*K.fs, gy0 = P3[1] + 30*K.fs, gy1 = P3[1] + P3[3] - 22*K.fs, IM = 0.05;
+    var X = function(i){ return x0 + Math.min(IM, i)/IM*(x1 - x0); }, Y = function(v){ return gy1 - Math.max(0, Math.min(12, v))/12*(gy1 - gy0); };
+    eksenY(x0, x1, Y, [0, 3, 6, 9, 12], function(v){ return v + ' V'; }, true);
+    [0, 0.01, 0.02, 0.03, 0.04, 0.05].forEach(function(i){ ctx.strokeStyle = C.line2; LW(1); line(X(i), gy0, X(i), gy1); txt(kis(i*1000, 0) + (i === 0.05 ? ' mA' : ''), X(i), gy1 + 11*K.fs, C.ink3, 7.5, 'center', MONO); });
+    ctx.fillStyle = mixc(C.panel, C.sin, 0.07); ctx.fillRect(x0, gy0, X(imax) - x0, gy1 - gy0);
+    ctx.strokeStyle = C.sin; LW(2.8); glowOn(C.sin, 5); ctx.beginPath();
+    for (var k = 0; k <= 300; k++){ var il = IM*k/300, q = zCoz(S.zVin, S.zRs, il > 0 ? 9/il : 0, 9.1, false, false); if (k) ctx.lineTo(X(q.IL), Y(q.V)); else ctx.moveTo(X(q.IL), Y(q.V)); }
+    ctx.stroke(); glowOff();
+    if (imax < IM){ ctx.strokeStyle = C.arc; LW(1.3); dash([4, 4]); line(X(imax), gy0, X(imax), gy1); dash(null);
+      txt(dar ? '≈ ' + kis(imax*1000, 0) + ' mA' : 'zener akımı biter: ≈ ' + kis(imax*1000, 0) + ' mA', X(imax) + 6*K.fs, gy0 + 9*K.fs, C.arc, 7.5, X(imax) > x1 - 150*K.fs ? 'right' : 'left', MONO, 600); }
+    if (!dar) txt('regüle bölge', x0 + 8*K.fs, Y(3), C.sin, 7.5, 'left', MONO, 600);
+    dot(X(z.IL), Y(z.V), 5.5, C.arc);
+  }
+
+  /* ================= SAHNE 3: ENTEGRE REGÜLATÖR (7809) =================
+     Düzensiz adaptör: ortalama gerilim + 100 Hz dalgalanma (yük akımı ve kondansatöre bağlı). 7809 girişi 11 V’un
+     (9 V + 2 V düşme) üstünde kaldıkça çıkışı düz 9 V tutar ve dalgalanmayı ≈ 1000 kat (60 dB) bastırır.
+     Aradaki gerilim farkı × akım ısıya dönüşür; soğutucu olmazsa ısıl koruma çıkışı keser.                            */
+  function sogutucu(x, y, bw, col){ ctx.strokeStyle = col; LW(2); var k, n = 5; ctx.fillStyle = mixc(C.panel, col, 0.15); ctx.fillRect(x - bw/2, y - 6*K.fs, bw, 6*K.fs); ctx.strokeRect(x - bw/2, y - 6*K.fs, bw, 6*K.fs); for (k = 0; k < n; k++){ var xx = x - bw/2 + bw*(k + 0.5)/n; line(xx, y - 6*K.fs, xx, y - 20*K.fs); } }
+  function drawReg(w, h){
+    var pad = 16*K.fs, dar = w < 760, top = 34*K.fs, R = regHesap(S.rVin, S.rI, S.rC, S.rSog, S.rOn);
+    var durum = !S.rOn ? 'regülatörsüz: ' + vTxt(R.pp) + ' dalgalanma' : R.kapan ? 'ısıl koruma: çıkış kesildi' : R.dus ? 'düşme sınırı altı: dalgalanma geçiyor' : 'çıkış düz 9 V';
+    sahneBaslik(w, 'ENTEGRE REGÜLATÖR 7809  ·  adaptör ' + vTxt(S.rVin) + '  ·  yük ' + aTxt(S.rI) + '  ·  C ' + capTxt(S.rC) + '  ·  soğutucu ' + S.rSog,
+      durum, (!S.rOn || R.kapan || R.dus) ? C.arc : C.sin, !S.rOn ? 'regülatörsüz' : R.kapan ? 'ısıl koruma' : R.dus ? 'dalgalanma geçiyor' : 'düz 9 V');
+    var P = yerlesim(dar, top, pad, w, h, dar ? [0.36, 0.27] : [0.52, 0.22, 0.62, 0.54]), P1 = P[0], P2 = P[1], P3 = P[2];
+    frame(P1[0], P1[1], P1[2], P1[3]);
+    baslikP(dar ? 'DEVRE' : 'DEVRE  ·  adaptör → kondansatör → 7809 → pedal', P1[0], P1[1], dar);
+    var W = P1[2], H = P1[3], yT = P1[1] + H*0.38, yB = P1[1] + H*0.76, ym = (yT + yB)/2;
+    var xA = P1[0] + W*0.11, xC = P1[0] + W*0.30, xR = P1[0] + W*0.53, xP = P1[0] + W*0.84, bw = Math.min(W*0.17, 90*K.fs), bh = 40*K.fs, o = S.rI/0.5, oc = R.kapan ? 0 : o;
+    var aw = Math.min(W*0.16, 84*K.fs);
+    akimTel([[xA, ym - 22*K.fs], [xA, yT], [xR - bw/2, yT]], C.sin, o);
+    akimTel([[xR + bw/2, yT], [xP, yT], [xP, ym - 22*K.fs]], C.sin, oc);
+    akimTel([[xP, ym + 22*K.fs], [xP, yB], [xA, yB], [xA, ym + 22*K.fs]], C.sin, o);
+    tel([[xC, yT], [xC, yB]], C.ink2, 1.6); kapDik(xC, ym, C.cos);
+    txt(capTxt(S.rC), xC + 16*K.fs, ym, C.cos, 8, 'left', MONO, 600);
+    kutu(xA, ym, aw, 44*K.fs, C.cos, 'ADAPTÖR', 'düzensiz');
+    tel([[xR, yT + bh/2], [xR, yB]], C.ink2, 1.6); noktaB(xR, yB); noktaB(xC, yT); noktaB(xC, yB);
+    if (!S.rOn){ ctx.globalAlpha = 0.35; }
+    var rc = R.kapan ? C.arc : C.brass;
+    ctx.fillStyle = mixc(C.panel, rc, 0.12); ctx.fillRect(xR - bw/2, yT - bh/2, bw, bh); ctx.strokeStyle = rc; LW(2); ctx.strokeRect(xR - bw/2, yT - bh/2, bw, bh);
+    txt('7809', xR, yT - 5*K.fs, rc, 10, 'center', MONO, 600);
+    if (bw > 70*K.fs){ txt('GİR', xR - bw/2 + 5*K.fs, yT + 10*K.fs, C.ink3, 6.5, 'left', MONO); txt('ÇIK', xR + bw/2 - 5*K.fs, yT + 10*K.fs, C.ink3, 6.5, 'right', MONO); txt('ORTAK', xR, yT + 12*K.fs, C.ink3, 6.5, 'center', MONO); }
+    if (S.rSog === 'var') sogutucu(xR, yT - bh/2, bw*0.8, C.ink2);
+    ctx.globalAlpha = 1;
+    if (!S.rOn){ ctx.strokeStyle = C.sin; LW(2.4); ctx.beginPath(); ctx.moveTo(xR - bw/2 - 6*K.fs, yT); ctx.quadraticCurveTo(xR, yT - bh*1.3, xR + bw/2 + 6*K.fs, yT); ctx.stroke(); chip('köprü: regülatör yok', xR, yT - bh*0.75, C.sin, 7.5, 600); }
+    else { var tc = R.T > TMAX ? C.arc : R.T > 80 ? C.sin : C.cos; chip('yonga ≈ ' + isTxt(Math.min(R.T, 999)) + (R.P > 0.005 ? ' · ' + wTxt(R.P) : ''), xR, yT + bh/2 + 14*K.fs, tc, 7.5, 600); }
+    kutu(xP, ym, Math.min(W*0.16, 80*K.fs), 44*K.fs, C.sin, 'PEDAL', aTxt(S.rI));
+    chip(kis(R.vmin, 1) + '…' + kis(R.vmax, 1) + ' V', dar ? xC : (xC + xR - bw/2)/2, yT - 13*K.fs, C.cos, 7.5, 600);
+    var cik = R.kapan ? '0 V' : !S.rOn || R.dus ? kis(R.cmin, 1) + '…' + kis(R.cmax, 1) + ' V' : '9 V';
+    chip(cik, (xR + bw/2 + xP)/2, yT - 13*K.fs, (!S.rOn || R.dus || R.kapan) ? C.arc : C.sin, 7.5, 600);
+    var uy = !S.rOn ? 'Regülatör yok: adaptörün ' + vTxt(R.pp) + ' tepe-tepe dalgalanması doğrudan pedala gidiyor.'
+      : R.kapan ? 'Fark × akım = ' + wTxt(R.P) + ' ısı. Soğutucusuz yonga ' + isTxt(R.T) + ' olurdu: ısıl koruma çıkışı kesiyor.'
+      : R.dus ? 'Giriş dalgalanmanın dibinde ' + kis(R.vmin, 1) + ' V’a iniyor; 9 V için en az 11 V gerek. Çıkış da dalgalanıyor.'
+      : 'Çıkış düz 9 V. Adaptörle aradaki fark (' + vTxt(S.rVin - 9) + ') × ' + aTxt(S.rI) + ' = ' + wTxt(R.P) + ' ısıya dönüşüyor.';
+    uyari(uy, P1[0] + W/2, yB + 24*K.fs, W - 30*K.fs, (!S.rOn || R.kapan || R.dus) ? C.arc : C.ink2);
+    sayiPanel(P2, 'SAYILAR', [
+      ['adaptör (ortalama)', vTxt(S.rVin), C.cos],
+      ['girişte dalgalanma', vTxt(R.pp) + ' t-t', C.cos],
+      ['en düşük giriş', vTxt(R.vmin), R.dus ? C.arc : C.cos],
+      ['çıkış', cik, (!S.rOn || R.dus || R.kapan) ? C.arc : C.sin],
+      ['çıkışta dalgalanma', R.kapan ? '—' : uvTxt(R.ppc) + ' t-t', (!S.rOn || R.dus) ? C.arc : C.sin],
+      ['bastırma', S.rOn && !R.kapan ? '≈ ' + kis(R.bas, 0) + ' dB' : '—', C.sin],
+      ['ısı', S.rOn ? wTxt(R.P) : '—', C.ink2],
+      ['yonga sıcaklığı', S.rOn ? isTxt(Math.min(R.T, 999)) : '—', R.T > TMAX ? C.arc : C.ink2]
+    ], dar);
+    /* zaman grafiği */
+    frame(P3[0], P3[1], P3[2], P3[3]);
+    baslikP(dar ? 'GERİLİM · 30 ms' : 'GERİLİM, 30 ms  ·  ince: adaptör (girişte) · kalın: pedala giden · kesik: 11 V düşme sınırı', P3[0], P3[1], dar);
+    var x0 = P3[0] + (dar ? 40 : 50)*K.fs, x1 = P3[0] + P3[2] - 14*K.fs, gy0 = P3[1] + 30*K.fs, gy1 = P3[1] + P3[3] - 22*K.fs;
+    var lo = R.kapan ? 0 : 6, hi = Math.max(15, Math.ceil(R.vmax + 1));
+    var X = function(t){ return x0 + t/0.03*(x1 - x0); }, Y = function(v){ return gy1 - (Math.max(lo, Math.min(hi, v)) - lo)/(hi - lo)*(gy1 - gy0); };
+    var ad = hi - lo > 12 ? 5 : 3, vs = []; for (var v = Math.ceil(lo/ad)*ad; v <= hi; v += ad) vs.push(v);
+    eksenY(x0, x1, Y, vs, function(v){ return v + ' V'; }, true);
+    [0, 0.01, 0.02, 0.03].forEach(function(t){ txt(kis(t*1000, 0) + ' ms', X(t), gy1 + 11*K.fs, C.ink3, 7.5, 'center', MONO); });
+    if (S.rOn){ ctx.strokeStyle = C.arc; LW(1.2); dash([5, 4]); line(x0, Y(REG_V + DROP), x1, Y(REG_V + DROP)); dash(null); txt('11 V', x0 + 4*K.fs, Y(REG_V + DROP) + 9*K.fs, C.arc, 7.5, 'left', MONO, 600); }
+    var N = 600, k;
+    ctx.strokeStyle = C.cos; LW(1.6); ctx.beginPath();
+    for (k = 0; k <= N; k++){ var t = 0.03*k/N, u = (t*F_DAL) % 1, vi = girisU(u, S.rVin, R.pp); if (k) ctx.lineTo(X(t), Y(vi)); else ctx.moveTo(X(t), Y(vi)); } ctx.stroke();
+    ctx.strokeStyle = C.sin; LW(2.8); glowOn(C.sin, 5); ctx.beginPath();
+    for (k = 0; k <= N; k++){ var t2 = 0.03*k/N, u2 = (t2*F_DAL) % 1, vo = R.kapan ? 0 : regAnlik(girisU(u2, S.rVin, R.pp), S.rOn); if (S.rOn && !R.kapan && !R.dus) vo = REG_V; if (k) ctx.lineTo(X(t2), Y(vo)); else ctx.moveTo(X(t2), Y(vo)); } ctx.stroke(); glowOff();
+    if (R.kapan) chip('çıkış 0 V (ısıl koruma)', (x0 + x1)/2, Y(0) - 12*K.fs, C.arc, 7.5, 600);
+  }
+
+  /* ================= SAHNE 4: PEDAL BESLEMESİ =================
+     Zincirleme (daisy chain): tek adaptör, bütün pedallar aynı kablodan beslenir; toprak dönüşü de ortaktır.
+     Dijital pedalların darbeli akımı ortak toprak kablosunda küçük bir gerilim düşürür: analog pedalların toprağı
+     “titrer”, bu da sese vızıltı olarak karışır. İzole çıkışlı beslemede her pedalın kendi dönüş yolu vardır.       */
+  function drawPed(w, h){
+    var pad = 16*K.fs, dar = w < 760, top = 34*K.fs, B = pedalBes(S.pIzo, S.pAc, S.pAd), n = PEDALLAR.length, gmax = Math.max.apply(null, B.gur);
+    sahneBaslik(w, 'PEDAL BESLEMESİ  ·  ' + (S.pIzo ? 'izole çıkışlı besleme' : 'zincirleme, tek adaptör') + '  ·  toplam ' + aTxt(B.top) + ' / ' + aTxt(S.pAd),
+      !B.yeter ? 'adaptör yetmiyor' : gmax > 1e-4 ? 'ortak toprakta ' + kis(gmax*1000, 0) + ' mV titreme' : 'toprak temiz', (!B.yeter || gmax > 1e-4) ? C.arc : C.sin,
+      !B.yeter ? 'yetmiyor' : gmax > 1e-4 ? 'toprak ' + kis(gmax*1000, 0) + ' mV' : 'toprak temiz');
+    var P = yerlesim(dar, top, pad, w, h, dar ? [0.40, 0.24] : [0.56, 0.22, 0.64, 0.56]), P1 = P[0], P2 = P[1], P3 = P[2];
+    frame(P1[0], P1[1], P1[2], P1[3]);
+    baslikP(dar ? 'PEDAL TAHTASI' : 'PEDAL TAHTASI  ·  üstte ses yolu, altta 9 V besleme', P1[0], P1[1], dar);
+    var W = P1[2], H = P1[3], yP = P1[1] + H*0.38, yD = P1[1] + H*0.78, pw = Math.min(W*0.15, 88*K.fs), ph = Math.min(H*0.24, 58*K.fs), xs = [], k;
+    for (k = 0; k < n; k++) xs.push(P1[0] + W*(0.22 + k*0.19));
+    var xG = P1[0] + W*0.05, xAmp = P1[0] + W*0.96;
+    tel([[xG, yP], [xAmp, yP]], C.cos, 2);
+    txt('gitar', xG, yP - 12*K.fs, C.cos, 7.5, 'left', MONO, 600); txt('amfi', xAmp, yP - 12*K.fs, C.cos, 7.5, 'right', MONO, 600);
+    /* besleme */
+    var dc = function(I){ return I/0.45; };
+    if (!S.pIzo){
+      var aw2 = Math.min(Math.max(W*0.12, 46*K.fs), 60*K.fs), xa = P1[0] + 8*K.fs + aw2/2;
+      for (k = 0; k < n; k++){
+        var akis = 0, m; for (m = k; m < n; m++) if (S.pAc[m]) akis += PEDALLAR[m].I;
+        akimTel([[k ? xs[k - 1] : xa + aw2/2, yD], [xs[k], yD]], C.sin, dc(akis));
+        if (S.pAc[k]){ akimTel([[xs[k], yD], [xs[k], yP + ph/2]], C.sin, dc(PEDALLAR[k].I)); noktaB(xs[k], yD); }
+      }
+      kutu(xa, yD, aw2, 30*K.fs, B.yeter ? C.sin : C.arc, dar ? '9 V' : 'ADAPTÖR', aTxt(S.pAd));
+      if (!dar) txt('tek kablo: + ve toprak bütün pedallarda ortak', (xs[0] + xs[n - 1])/2, yD + 16*K.fs, C.ink3, 7.5, 'center', MONO);
+    } else {
+      var bx0 = xs[0] - pw/2, bx1 = xs[n - 1] + pw/2, by = yD + 4*K.fs;
+      for (k = 0; k < n; k++) if (S.pAc[k]) akimTel([[xs[k], by - 13*K.fs], [xs[k], yP + ph/2]], C.sin, dc(PEDALLAR[k].I));
+      ctx.fillStyle = mixc(C.panel, C.sin, 0.10); ctx.fillRect(bx0, by - 13*K.fs, bx1 - bx0, 26*K.fs); ctx.strokeStyle = B.yeter ? C.sin : C.arc; LW(2); ctx.strokeRect(bx0, by - 13*K.fs, bx1 - bx0, 26*K.fs);
+      txt(sig('İZOLE ÇIKIŞLI BESLEME  ·  her çıkış ayrı sargı  ·  ' + aTxt(S.pAd), 'İZOLE BESLEME · ' + aTxt(S.pAd), bx1 - bx0 - 12*K.fs, 8, 600), (bx0 + bx1)/2, by, B.yeter ? C.sin : C.arc, 8, 'center', MONO, 600);
+    }
+    for (k = 0; k < n; k++){
+      var p = PEDALLAR[k], ac = S.pAc[k];
+      if (!ac) ctx.globalAlpha = 0.3;
+      var alt = (p.dij ? 'dijital' : 'analog') + ' · ' + aTxt(p.I), ic = pw - 10*K.fs;
+      if (tw(alt, 8.5, MONO) > ic) alt = p.dij ? 'dijital' : 'analog';
+      if (tw(alt, 8.5, MONO) > ic) alt = p.dij ? 'dij.' : 'anl.';
+      kutu(xs[k], yP, pw, ph, p.dij ? C.cos : C.sin, tw(p.ad, 9.5, MONO, 600) > ic ? p.kisa : p.ad, alt);
+      ctx.globalAlpha = 1;
+      if (!ac){ txt('kapalı', xs[k], yP + ph/2 + 11*K.fs, C.ink3, 7.5, 'center', MONO); continue; }
+      var g = B.gur[k];
+      chip(g > 1e-4 ? (dar ? '' : 'toprak ') + kis(g*1000, 0) + ' mV' : (dar ? '0 mV' : 'toprak 0 mV'), xs[k], yP - ph/2 - 12*K.fs, g > 1e-4 ? C.arc : C.ink3, 7, 600);
+    }
+    var fz = B.gur[0], sg = fz > 1e-4 ? 20*Math.log10(0.1/fz) : 0;
+    var uy = !B.yeter ? 'Pedallar ' + aTxt(B.top) + ' istiyor, adaptör ' + aTxt(S.pAd) + ' veriyor: gerilim düşer, dijital pedallar yeniden başlar ya da bozuk ses verir.'
+      : !S.pIzo && fz > 1e-4 ? 'Dijital pedalların darbeli akımı ortak toprak kablosundan dönüyor: fuzz’ın toprağı ' + kis(fz*1000, 0) + ' mV titriyor, sese vızıltı karışıyor.'
+      : !S.pIzo ? 'Dijital pedal yok: zincir sessiz. Dijital pedal eklenince ortak toprak kirlenir.'
+      : 'Her pedalın kendi + ve toprak yolu var: bir pedalın akımı ötekilerin toprağını kıpırdatmıyor.';
+    uyari(uy, P1[0] + W/2, dar ? yD + 24*K.fs : P1[1] + H - 18*K.fs, W - 30*K.fs, (!B.yeter || (!S.pIzo && fz > 1e-4)) ? C.arc : C.ink2);
+    sayiPanel(P2, 'SAYILAR', [
+      ['besleme', S.pIzo ? 'izole çıkışlı' : 'zincirleme', S.pIzo ? C.sin : C.cos],
+      ['pedalların akımı', aTxt(B.top), C.sin],
+      ['adaptör', aTxt(S.pAd), B.yeter ? C.sin : C.arc],
+      ['yeterli mi?', B.yeter ? 'evet' : 'hayır', B.yeter ? C.sin : C.arc],
+      ['fuzz’ın toprağında', fz > 1e-4 ? kis(fz*1000, 0) + ' mV t-t' : 'titreme yok', fz > 1e-4 ? C.arc : C.sin, fz > 1e-4 ? kis(fz*1000, 0) + ' mV' : 'yok'],
+      ['gitar sinyaline göre', fz > 1e-4 ? kis(sg, 0) + ' dB aşağıda' : '—', fz > 1e-4 ? C.arc : C.ink3, fz > 1e-4 ? '−' + kis(sg, 0) + ' dB' : '—']
+    ], dar);
+    /* çubuklar */
+    frame(P3[0], P3[1], P3[2], P3[3]);
+    baslikP(dar ? 'AKIM · TOPRAK' : 'HER PEDAL  ·  çektiği akım (0–300 mA) · toprağındaki titreme, tepe-tepe (0–40 mV)', P3[0], P3[1], dar);
+    var cx0 = P3[0] + (dar ? 74 : 110)*K.fs, cw2 = (P3[0] + P3[2] - 14*K.fs - cx0 - 16*K.fs)/2, cx1 = cx0 + cw2 + 16*K.fs, ry0 = P3[1] + 44*K.fs, rs = (P3[3] - 56*K.fs)/n, bh2 = Math.min(16*K.fs, rs*0.5);
+    txt('akım', cx0, ry0 - 16*K.fs, C.sin, 7.5, 'left', MONO, 600); txt('toprak titremesi', cx1, ry0 - 16*K.fs, C.arc, 7.5, 'left', MONO, 600);
+    for (k = 0; k < n; k++){
+      var yy = ry0 + rs*(k + 0.5), pI = S.pAc[k] ? PEDALLAR[k].I : 0, gg = B.gur[k];
+      txt(PEDALLAR[k].ad, P3[0] + 12*K.fs, yy, S.pAc[k] ? C.ink2 : C.ink3, 8.5, 'left', MONO, 600);
+      ctx.fillStyle = mixc(C.panel, C.line, 0.45); ctx.fillRect(cx0, yy - bh2/2, cw2, bh2); ctx.fillRect(cx1, yy - bh2/2, cw2, bh2);
+      var wI = cw2*Math.min(1, pI/0.3), wG = cw2*Math.min(1, gg/0.04);
+      ctx.fillStyle = C.sin; ctx.fillRect(cx0, yy - bh2/2, wI, bh2); ctx.fillStyle = C.arc; ctx.fillRect(cx1, yy - bh2/2, wG, bh2);
+      var tI = pI ? aTxt(pI) : '—', tG = gg > 1e-4 ? kis(gg*1000, 0) + ' mV' : '0';
+      txt(tI, wI > tw(tI, 7.5, MONO, 600) + 10*K.fs ? cx0 + wI - 4*K.fs : cx0 + wI + 4*K.fs, yy, wI > tw(tI, 7.5, MONO, 600) + 10*K.fs ? C.panel : C.ink2, 7.5, wI > tw(tI, 7.5, MONO, 600) + 10*K.fs ? 'right' : 'left', MONO, 600);
+      txt(tG, wG > tw(tG, 7.5, MONO, 600) + 10*K.fs ? cx1 + wG - 4*K.fs : cx1 + wG + 4*K.fs, yy, wG > tw(tG, 7.5, MONO, 600) + 10*K.fs ? C.panel : C.ink2, 7.5, wG > tw(tG, 7.5, MONO, 600) + 10*K.fs ? 'right' : 'left', MONO, 600);
+    }
+  }
+  /* ================= SES: adaptör uğultusu =================
+     4 saniyelik döngü: Karplus–Strong ile çekilmiş dört gitar notası + pedalın beslemesinden sese sızan uğultu.
+     Sızan kısım temsilî: pedal devresi besleme dalgalanmasının ≈ %5’ini sese geçiriyor (≈ −26 dB).
+     Uğultu, P3’teki grafikte çizilen çıkış geriliminin kendisinden hesaplanır (100 Hz, testere biçimli).
+     Isıl koruma çıkışı kesince pedal da susar. Yalnız düğmeyle; sahne değişince durur.                          */
+  var AC = null, sKaz = null, kay = null, kayKaz = null, caliyor = false, sesZ = 0, kayBas = 0, GIT = null, DUR = 4;
+  function gitarTampon(sr){
+    var N = Math.round(sr*DUR), d = new Float32Array(N), notlar = [82.41, 110, 98, 73.42], R = rng(11), k, j;
+    notlar.forEach(function(f, i){
+      var L = Math.round(sr/f), buf = new Float32Array(L), s0 = Math.round(i*sr), s1 = Math.round((i + 1)*sr), p = 0, onc = 0;
+      for (j = 0; j < L; j++){ onc = 0.5*onc + 0.5*(R()*2 - 1); buf[j] = onc; }
+      for (k = s0; k < s1; k++){
+        var v = buf[p], q = buf[(p + 1) % L]; buf[p] = 0.996*0.5*(v + q); p = (p + 1) % L;
+        var env = Math.min(1, (s1 - k)/(0.05*sr)); d[k] += 0.9*v*env;
+      }
+    });
+    var mx = 0; for (k = 0; k < N; k++) mx = Math.max(mx, Math.abs(d[k])); for (k = 0; k < N; k++) d[k] *= 0.45/mx;
+    return d;
+  }
+  function sesTampon(){
+    var sr = AC.sampleRate, N = Math.round(sr*DUR), ab = AC.createBuffer(1, N, sr), d = ab.getChannelData(0), k;
+    if (!GIT || GIT.length !== N) GIT = gitarTampon(sr);
+    var R = regHesap(S.rVin, S.rI, S.rC, S.rSog, S.rOn), a = Math.pow(10, -PSRR/20), cik = new Float32Array(N), ort = 0;
+    for (k = 0; k < N; k++){
+      var u = (k*F_DAL/sr) % 1, vi = girisU(u, S.rVin, R.pp), vo;
+      if (R.kapan) vo = 0; else if (!S.rOn) vo = vi; else vo = Math.max(0, Math.min(REG_V + (vi - S.rVin)*a, vi - DROP));
+      cik[k] = vo; ort += vo;
+    }
+    ort /= N;
+    for (k = 0; k < N; k++) d[k] = R.kapan ? 0 : GIT[k] + SIZ*2.25*(cik[k] - ort);
+    return ab;
+  }
+  function sesGuncel(){
+    if (!caliyor || !AC) return;
+    clearTimeout(sesZ);
+    sesZ = setTimeout(function(){
+      try {
+        var ab = sesTampon(), t = AC.currentTime + 0.01, eskiK = kayKaz, eski = kay;
+        if (!eski) kayBas = t;
+        kayKaz = AC.createGain(); kayKaz.gain.value = 0; kayKaz.connect(sKaz);
+        kay = AC.createBufferSource(); kay.buffer = ab; kay.loop = true; kay.connect(kayKaz); kay.start(t, ((t - kayBas) % DUR + DUR) % DUR);
+        kayKaz.gain.setTargetAtTime(1, t, 0.02);
+        if (eskiK){ eskiK.gain.setTargetAtTime(0, t, 0.02); setTimeout(function(){ try { eski.stop(); } catch(e){} }, 250); }
+      } catch(e){}
+    }, 40);
+  }
+  function sesAc(){
+    try {
+      if (!AC) AC = new (window.AudioContext || window.webkitAudioContext)();
+      if (AC.state === 'suspended') AC.resume();
+      sKaz = AC.createGain(); sKaz.gain.value = 0; sKaz.connect(AC.destination);
+      sKaz.gain.setTargetAtTime(0.5, AC.currentTime, 0.05);
+      caliyor = true; kay = null; kayKaz = null; sesGuncel();
+    } catch(e){ caliyor = false; }
+  }
+  function sesKapat(){
+    try { if (sKaz && AC) sKaz.gain.setTargetAtTime(0, AC.currentTime, 0.03);
+      var k2 = kay; setTimeout(function(){ try { if (k2) k2.stop(); } catch(e){} }, 250); } catch(e){}
+    kay = null; kayKaz = null; caliyor = false; clearTimeout(sesZ);
+  }
+  function drawBoard(){
+    var g = sized(board); if (!g) return;
+    ctx = g.c;
+    if (S.mode === 'zen')      drawZen(g.w, g.h);
+    else if (S.mode === 'zrg') drawZrg(g.w, g.h);
+    else if (S.mode === 'reg') drawReg(g.w, g.h);
+    else                       drawPed(g.w, g.h);
+  }
+  function render(){ drawBoard(); }
+  if (window.ResizeObserver){ new ResizeObserver(function(){ render(); }).observe(board); }
+  window.addEventListener('resize', render);
+  function animBasla(){}
+
+  var ro = document.getElementById('readout');
+  function cell(lab, val, cls){ return '<div><span>'+lab+'</span><b'+(cls?' class="'+cls+'"':'')+'>'+val+'</b></div>'; }
+  function mark(sel, key, val){ Array.prototype.forEach.call(document.querySelectorAll(sel+' button'), function(b){ b.classList.toggle('on', b.dataset[key] === String(val)); }); }
+  function yaz(id, s){ document.getElementById(id).textContent = s; }
+  function dugme(id, acik, a, b){ yaz(id, acik ? a : b); document.getElementById(id).classList.toggle('on', acik); }
+
+  function sync(){
+    if (S.mode === 'zen'){
+      var ters = S.dYon === 'ters', nrm = S.dTip === 'normal', z = zCoz(S.dVs, R_ZEN, 0, S.dVz, nrm, !ters);
+      ro.innerHTML = cell('kaynak', vTxt(S.dVs), 'v-sin') + cell('diyotta', vTxt(z.V), 'v-arc') + cell('akım', iTxt(z.Id), z.Id > 2e-4 ? 'v-sin' : '');
+      fDV.value = Math.round(S.dVs*2); yaz('v-dvs', vTxt(S.dVs));
+      mark('#gDY', 'y', S.dYon); mark('#gDT', 't', S.dTip); mark('#gDZ', 'z', S.dVz);
+      Array.prototype.forEach.call(document.querySelectorAll('#gDZ button'), function(b){ b.disabled = nrm; });
+    } else if (S.mode === 'zrg'){
+      var q = zrgHesap(S.zVin, S.zRs, S.zI);
+      ro.innerHTML = cell('giriş', vTxt(S.zVin), 'v-sin') + cell('çıkış', vTxt(q.V), q.Id < 5e-4 && S.zI ? 'v-arc' : 'v-sin') + cell('zener akımı', iTxt(q.Id), 'v-arc');
+      fZV.value = Math.round(S.zVin*2); yaz('v-zvin', vTxt(S.zVin));
+      mark('#gZR', 'r', S.zRs); mark('#gZI', 'i', S.zI);
+    } else if (S.mode === 'reg'){
+      var R = regHesap(S.rVin, S.rI, S.rC, S.rSog, S.rOn);
+      ro.innerHTML = cell('adaptör', vTxt(S.rVin) + ' ± ' + vTxt(R.pp/2), 'v-cos') + cell('pedala', R.kapan ? '0 V' : (!S.rOn || R.dus) ? kis(R.cmin, 1) + '…' + kis(R.cmax, 1) + ' V' : '9 V', (!S.rOn || R.dus || R.kapan) ? 'v-arc' : 'v-sin') + cell('yonga', S.rOn ? isTxt(Math.min(R.T, 999)) : '—', R.T > TMAX ? 'v-arc' : '');
+      fRV.value = Math.round(S.rVin*2); yaz('v-rvin', vTxt(S.rVin));
+      mark('#gRI', 'i', S.rI); mark('#gRC', 'c', S.rC); mark('#gRS', 's', S.rSog);
+      dugme('b-ron', S.rOn, 'Regülatör: var', 'Regülatör: yok'); dugme('b-rdinle', caliyor, 'Durdur', 'Dinle');
+      yaz('r-note', 'Dinle: dört gitar notası ve pedalın beslemesinden sese sızan uğultu (100 Hz). Temsilî: pedal devresi besleme dalgalanmasının ≈ %5’ini sese geçiriyor.');
+    } else {
+      var B = pedalBes(S.pIzo, S.pAc, S.pAd), gm = Math.max.apply(null, B.gur);
+      ro.innerHTML = cell('besleme', S.pIzo ? 'izole' : 'zincir', S.pIzo ? 'v-sin' : 'v-cos') + cell('akım', aTxt(B.top) + ' / ' + aTxt(S.pAd), B.yeter ? 'v-sin' : 'v-arc') + cell('toprak', gm > 1e-4 ? kis(gm*1000, 0) + ' mV' : 'temiz', gm > 1e-4 ? 'v-arc' : 'v-sin');
+      mark('#gPB', 'b', S.pIzo ? 'izo' : 'zin'); mark('#gPA', 'a', S.pAd);
+      [0, 1, 2, 3].forEach(function(i){ var b = document.getElementById('b-p' + i); b.classList.toggle('on', S.pAc[i]); b.textContent = PEDALLAR[i].ad.toLowerCase() + (S.pAc[i] ? ': açık' : ': kapalı'); });
+      yaz('p-note', 'Akımlar ve kablo direnci (bölüm başına ≈ 0,05 Ω) temsilî; dijital pedalların akımının ≈ %40’ı darbeli sayıldı. Gitar sinyali ≈ 100 mV.');
+    }
+    nerSync(); tabloSec();
+  }
+
+  var NEREDE = {
+    zen: { c:'zener', t:'<b>Pedalların içinde</b> zener diyotlar çoğunlukla koruma içindir: besleme girişine konan bir zener (örneğin 15 V’luk) yanlış adaptörle gelen yüksek gerilimde iletip devreyi korur. Bazı devrelerde de sabit bir <b>referans gerilimi</b> üretir. Zener, ters yönde çalışması istenen tek yaygın diyottur.' },
+    zrg: { c:'zener regülatör', t:'<b>Nerede kullanılır?</b> Az akım çeken yerlerde: bir fuzz’ın ya da bir preamp katının beslemesini sabitlemek, bir mikrodenetleyiciye referans vermek. Pedal tahtasının tamamını beslemek için uygun değildir: direnç ve zener boşuna ısınır, yük artınca regülasyon biter.' },
+    reg: { c:'7809', t:'<b>Pedal ve cihazların içinde:</b> 78xx ailesi (7805: 5 V, 7809: 9 V, 7812: 12 V) ve ayarlanabilir LM317 hemen her ses cihazının beslemesinde bulunur. Bir mikserin içinde çoğu zaman ±15 V için 7815/7915 çifti vardır. Isınan parçanın arkasındaki alüminyum kanatlar soğutucudur.' },
+    ped: { c:'pedal tahtası', t:'<b>Pratik kural:</b> analog pedalları dijital pedallarla aynı zincire bağlamayın; tiz bir vızıltı ya da “dijital cızırtı” duyuyorsanız ilk şüpheli ortak topraktır. İzole çıkışlı bir besleme (her çıkış ayrı sargı) bu sorunu kökten çözer. Zincire mecbursanız dijital pedalı zincirin başına, adaptöre en yakın yere koyun ve toplam akımı adaptörün etiketindeki değerle karşılaştırın.' }
+  };
+  function nerSync(){ var N2 = NEREDE[S.mode]; yaz('ner-count', N2.c); document.getElementById('ner-not').innerHTML = N2.t; }
+
+  /* ================= tablo: beslemeler ================= */
+  var TROW = [
+    { ad:'Zener + direnç', cik:'≈ 9,1 V', akim:'≈ 27 mA (15 V girişte, 220 Ω)', not:'boştayken de ısınır; yük artınca regülasyon biter', ap:{ mode:'zrg', zVin:15, zRs:220, zI:0.01 } },
+    { ad:'7809, soğutucusuz', cik:'9 V', akim:'≈ 0,25 A (12 V girişte ≈ 0,75 W)', not:'girişte en az 11 V gerek', ap:{ mode:'reg', rVin:12, rI:0.25, rC:2200e-6, rSog:'yok', rOn:true } },
+    { ad:'7809, soğutuculu', cik:'9 V', akim:'≈ 1 A’e kadar', not:'fark × akım ısısını soğutucu taşır', ap:{ mode:'reg', rVin:15, rI:0.5, rC:4700e-6, rSog:'var', rOn:true } },
+    { ad:'Düzensiz adaptör', cik:'9–13 V, dalgalı', akim:'etiketteki değer', not:'boşta yüksek gerilim; uğultu', ap:{ mode:'reg', rVin:12, rI:0.25, rC:2200e-6, rSog:'yok', rOn:false } },
+    { ad:'Zincirleme kablo', cik:'9 V, ortak', akim:'adaptörün toplamı', not:'ortak toprak: dijital pedal vızıltısı', ap:{ mode:'ped', pIzo:false, pAc:[true, true, true, true], pAd:1 } },
+    { ad:'İzole çıkışlı besleme', cik:'9 V, ayrı ayrı', akim:'çıkış başına 100–500 mA', not:'her çıkış ayrı: toprak karışmaz', ap:{ mode:'ped', pIzo:true, pAc:[true, true, true, true], pAd:1 } }
+  ];
+  var htb = document.querySelector('#ttab tbody'), tSec = -1;
+  function tabloDoldur(){
+    htb.innerHTML = '';
+    TROW.forEach(function(r, i){
+      var tr = document.createElement('tr'); tr.dataset.k = String(i);
+      tr.innerHTML = '<td>' + r.ad + '</td><td>' + r.cik + '</td><td>' + r.akim + '</td><td class="c-cmp">' + r.not + '</td>';
+      tr.addEventListener('click', function(){ tSec = i; uygula(r.ap); });
+      htb.appendChild(tr);
+    });
+  }
+  function tabloSec(){ Array.prototype.forEach.call(htb.children, function(tr){ tr.setAttribute('aria-selected', +tr.dataset.k === tSec && TROW[tSec].ap.mode === S.mode ? 'true' : 'false'); }); }
+  function uygula(q){
+    Object.keys(q).forEach(function(k){ if (k !== 'mode') S[k] = Array.isArray(q[k]) ? q[k].slice() : q[k]; });
+    if (q.mode && q.mode !== S.mode) setMode(q.mode); else { sync(); render(); sesGuncel(); }
+  }
+
+  var SATIR = { zen:['row-zen', 'row-zen2'], zrg:['row-zrg'], reg:['row-reg', 'row-reg2'], ped:['row-ped', 'row-ped2'] };
+  var modeBtns = document.querySelectorAll('.modes button[data-m]');
+  function setMode(m){
+    if (caliyor) sesKapat();
+    S.mode = m;
+    Array.prototype.forEach.call(modeBtns, function(b){ b.setAttribute('aria-pressed', b.dataset.m === m ? 'true' : 'false'); });
+    Object.keys(SATIR).forEach(function(k){ SATIR[k].forEach(function(id){ document.getElementById(id).hidden = (k !== m); }); });
+    document.getElementById('stage').dataset.scene = m;
+    sync(); render();
+  }
+  Array.prototype.forEach.call(modeBtns, function(b){ b.addEventListener('click', function(){ setMode(b.dataset.m); }); });
+
+  function group(host, items, set){
+    var g = document.getElementById(host);
+    items.forEach(function(o){
+      var b = document.createElement('button'); b.type = 'button'; b.textContent = o[0];
+      if (o[2]) b.dataset[o[2]] = o[1];
+      b.addEventListener('click', function(){ set(o[1]); tSec = -1; sync(); render(); sesGuncel(); });
+      g.appendChild(b);
+    });
+  }
+  /* sahne 1 */
+  var fDV = document.getElementById('f-dvs');
+  fDV.addEventListener('input', function(){ S.dVs = +fDV.value/2; sync(); render(); });
+  group('gDY', [['ters (katot +)', 'ters', 'y'], ['ileri (anot +)', 'ileri', 'y']], function(v){ S.dYon = v; });
+  group('gDT', [['zener', 'zener', 't'], ['sıradan diyot', 'normal', 't']], function(v){ S.dTip = v; });
+  group('gDZ', [['5,1 V', 5.1, 'z'], ['9,1 V', 9.1, 'z'], ['12 V', 12, 'z']], function(v){ S.dVz = +v; });
+  /* sahne 2 */
+  var fZV = document.getElementById('f-zvin');
+  fZV.addEventListener('input', function(){ S.zVin = +fZV.value/2; tSec = -1; sync(); render(); });
+  group('gZR', [['1 kΩ', 1000, 'r'], ['470 Ω', 470, 'r'], ['220 Ω', 220, 'r'], ['100 Ω', 100, 'r']], function(v){ S.zRs = +v; });
+  group('gZI', YUKLER.map(function(q){ return [q[1], q[0], 'i']; }), function(v){ S.zI = +v; });
+  /* sahne 3 */
+  var fRV = document.getElementById('f-rvin');
+  fRV.addEventListener('input', function(){ S.rVin = +fRV.value/2; tSec = -1; sync(); render(); sesGuncel(); });
+  group('gRI', [['50 mA', 0.05, 'i'], ['100 mA', 0.1, 'i'], ['250 mA', 0.25, 'i'], ['500 mA', 0.5, 'i']], function(v){ S.rI = +v; });
+  group('gRC', [['1000 µF', 1000e-6, 'c'], ['2200 µF', 2200e-6, 'c'], ['4700 µF', 4700e-6, 'c']], function(v){ S.rC = +v; });
+  group('gRS', [['yok', 'yok', 's'], ['var', 'var', 's']], function(v){ S.rSog = v; });
+  document.getElementById('b-ron').addEventListener('click', function(){ S.rOn = !S.rOn; tSec = -1; sync(); render(); sesGuncel(); });
+  document.getElementById('b-rdinle').addEventListener('click', function(){ if (caliyor) sesKapat(); else sesAc(); sync(); });
+  /* sahne 4 */
+  group('gPB', [['zincirleme', 'zin', 'b'], ['izole çıkışlı', 'izo', 'b']], function(v){ S.pIzo = v === 'izo'; });
+  group('gPA', [['300 mA', 0.3, 'a'], ['1 A', 1, 'a'], ['2 A', 2, 'a']], function(v){ S.pAd = +v; });
+  [0, 1, 2, 3].forEach(function(i){ document.getElementById('b-p' + i).addEventListener('click', function(){ S.pAc[i] = !S.pAc[i]; tSec = -1; sync(); render(); }); });
+
+  /* ================= DERS ADIMLARI ================= */
+  var STEPS = [
+    { t:'Sıradan diyot ters yönde',
+      b:'<b>Zener diyot</b> sahnesinde <b>sıradan diyot</b> ve <b>ters</b> yönü seçin, kaynağı <b>12 V</b> yapın. Akım yok: bütün gerilim (12 V) diyodun üstünde. ' +
+        'Doğrultucu atölyesinden hatırlayın: diyot tek yönlü bir kapıdır, ters yönde kapalıdır.',
+      ap:{ mode:'zen', dVs:12, dVz:9.1, dYon:'ters', dTip:'normal' } },
+    { t:'Zener ters yönde iletir',
+      b:'<b>Zener</b>’i seçin. Aynı bağlantıda şimdi akım var (≈ 2,9 mA) ve diyodun uçlarında <b>9,1 V</b> kalıyor. Zener, ters yönde <b>kendi geriliminde</b> ' +
+        'iletmeye başlar ve gerilimin o değeri geçmesine izin vermez. Fazlası (2,9 V) seri dirençte kalır.',
+      ap:{ mode:'zen', dVs:12, dVz:9.1, dYon:'ters', dTip:'zener' } },
+    { t:'Kaynak değişir, gerilim kalır',
+      b:'Kaynağı <b>15 V</b>’a çıkarın. Akım iki katına çıktı (≈ 5,9 mA) ama zenerin gerilimi hemen hemen aynı: <b>9,15 V</b>. Alttaki eğride nokta dik çizginin ' +
+        'üstünde yukarı aşağı kayıyor: akım çok değişiyor, gerilim çok az. Regülatörün sırrı bu dik çizgi.',
+      ap:{ mode:'zen', dVs:15, dVz:9.1, dYon:'ters', dTip:'zener' } },
+    { t:'Zener geriliminin altında',
+      b:'Kaynağı <b>6 V</b>’a indirin. Zener 9,1 V’a ulaşılmadığı için iletmiyor; bir sıradan diyot gibi kapalı ve 6 V’un hepsi onun üstünde. ' +
+        'Zener bir sınır koyar, gerilim yaratmaz: kaynak en az zener gerilimi kadar olmalı.',
+      ap:{ mode:'zen', dVs:6, dVz:9.1, dYon:'ters', dTip:'zener' } },
+    { t:'Başka zenerler, ileri yön',
+      b:'Kaynak 12 V’ta <b>5,1 V</b>’luk zeneri seçin: bu kez 5,1 V’ta tutuyor. Zenerler 2,4 V’tan 200 V’a kadar hazır değerlerde üretilir. Sonra <b>ileri</b> yönü seçin: ' +
+        'zener de sıradan bir diyot gibi ≈ 0,7 V’ta iletir. Zener her zaman <b>ters</b> bağlanarak kullanılır.',
+      ap:{ mode:'zen', dVs:12, dVz:5.1, dYon:'ileri', dTip:'zener' } },
+    { t:'Zener regülatör',
+      b:'<b>Zener regülatör</b> sahnesi: 15 V giriş, 220 Ω, 9,1 V zener ve ≈ 10 mA çeken bir pedal. Dirençten 26 mA geçiyor ve düğümde ikiye ayrılıyor: ' +
+        '<b>10 mA pedala</b>, <b>16 mA zenere</b>. Zener fazla akımı üstlenerek çıkışı <b>9,26 V</b>’ta tutuyor.',
+      ap:{ mode:'zrg', zVin:15, zRs:220, zI:0.01 } },
+    { t:'Giriş değişince',
+      b:'Girişi <b>12 V</b>’a indirin, sonra <b>18 V</b>’a çıkarın. Çıkış 9,12 V ile 9,39 V arasında kalıyor. Girişteki 6 V’luk değişimi zener üstlenip ' +
+        'akımını değiştiriyor (3 mA ile 29 mA arası). Pedal hep aynı akımı alıyor.',
+      ap:{ mode:'zrg', zVin:12, zRs:220, zI:0.01 } },
+    { t:'Yük büyüyünce',
+      b:'Giriş 15 V’ta pedalı <b>40 mA</b> yapın. Direnç en çok ≈ 27 mA verebiliyor; pedal hepsini alıyor, zenere hiç kalmıyor ve çıkış <b>7,6 V</b>’a düşüyor. ' +
+        'Alttaki grafikte nokta pembe çizginin sağına geçti: <b>regülasyon bitti</b>. Zener regülatör yalnızca küçük akımlar için.',
+      ap:{ mode:'zrg', zVin:15, zRs:220, zI:0.04 } },
+    { t:'Boşa giden ısı',
+      b:'Pedalı çıkarın (<b>yok</b>), <b>100 Ω</b> ve <b>18 V</b> seçin. Hiçbir şey beslenmediği hâlde zener 0,8 W, direnç 0,65 W ısı üretiyor: ' +
+        '1/4 W’lık direnç yanar. Zener regülatörü, yük olsun olmasın, en büyük yükün akımını <b>sürekli</b> harcar.',
+      ap:{ mode:'zrg', zVin:18, zRs:100, zI:0 } },
+    { t:'Entegre regülatör',
+      b:'<b>Entegre regülatör</b> sahnesi: 12 V’luk düzensiz bir adaptör 250 mA çeken bir pedal düzenini besliyor. Adaptörün gerilimi saniyede 100 kez ' +
+        '<b>1,1 V</b> dalgalanıyor (ince çizgi). 7809’un çıkışı düz <b>9 V</b>: dalgalanma ≈ 1000 kat küçülmüş (≈ 1 mV).',
+      ap:{ mode:'reg', rVin:12, rI:0.25, rC:2200e-6, rSog:'yok', rOn:true } },
+    { t:'Dinleyin: uğultu',
+      b:'<b>Dinle</b>’ye basın, sonra <b>Regülatör: yok</b>’a geçin. Adaptörün dalgalanması doğrudan pedala gidiyor ve gitarın altına 100 Hz’lik bir ' +
+        '<b>uğultu</b> karışıyor. Regülatörü geri açın: uğultu kayboluyor.',
+      ap:{ mode:'reg', rVin:12, rI:0.25, rC:2200e-6, rSog:'yok', rOn:false } },
+    { t:'Düşme gerilimi',
+      b:'Regülatörü açın, yükü <b>500 mA</b>, kondansatörü <b>1000 µF</b> yapın. Dalgalanma 5 V’a çıktı ve dibi 9,5 V’a iniyor. 7809’un 9 V verebilmesi için ' +
+        'girişin en az <b>11 V</b> olması gerek (<b>düşme gerilimi</b> ≈ 2 V). Dipte çıkış da düşüyor: uğultu geri geliyor. Dinleyin.',
+      ap:{ mode:'reg', rVin:12, rI:0.5, rC:1000e-6, rSog:'yok', rOn:true } },
+    { t:'Isı',
+      b:'Kondansatörü <b>2200 µF</b>, adaptörü <b>18 V</b> yapın. Aradaki 9 V’luk fark × 0,5 A = <b>4,5 W</b> ısı. Soğutucusuz küçük kılıf bunu atamaz: ' +
+        'yonga 125 °C’yi geçiyor ve <b>ısıl koruma</b> çıkışı kesiyor. Pedal susuyor.',
+      ap:{ mode:'reg', rVin:18, rI:0.5, rC:2200e-6, rSog:'yok', rOn:true } },
+    { t:'Soğutucu',
+      b:'<b>Soğutucu: var</b>. Aynı 4,5 W, ama kanatlar ısıyı havaya taşıyor: yonga ≈ 93 °C, çıkış yine 9 V. Daha iyi çözüm ise adaptörü ihtiyaca yakın seçmek: ' +
+        '12 V’luk bir adaptörle ısı 1,5 W’a iner.',
+      ap:{ mode:'reg', rVin:18, rI:0.5, rC:2200e-6, rSog:'var', rOn:true } },
+    { t:'Zincirleme besleme',
+      b:'<b>Pedal beslemesi</b> sahnesi: dört pedal tek bir 9 V adaptörden <b>zincirleme</b> (daisy chain) kabloyla besleniyor. İki dijital pedal 400 mA çekiyor ve ' +
+        'bu akımın darbeli kısmı <b>ortak toprak</b> kablosundan dönüyor. Fuzz’ın toprağı <b>8 mV</b> titriyor: gitarın 22 dB altında, duyulur bir vızıltı.',
+      ap:{ mode:'ped', pIzo:false, pAc:[true, true, true, true], pAd:1 } },
+    { t:'Suçlu kim?',
+      b:'<b>Delay</b> ve <b>reverb</b>’ü kapatın. Toprak titremesi kayboldu: analog pedallar az ve düzgün akım çeker. Vızıltının kaynağı dijital pedalların darbeli ' +
+        'akımıydı; ortak kablo onu bütün pedallara dağıtıyordu.',
+      ap:{ mode:'ped', pIzo:false, pAc:[true, true, false, false], pAd:1 } },
+    { t:'İzole çıkışlar',
+      b:'Bütün pedalları açın ve <b>izole çıkışlı</b> beslemeyi seçin. Her çıkışın kendi sargısı ve kendi toprak dönüşü var: dijital pedalın akımı ' +
+        'ötekilerin toprağını kıpırdatmıyor. Titreme sıfır.',
+      ap:{ mode:'ped', pIzo:true, pAc:[true, true, true, true], pAd:1 } },
+    { t:'Akımı toplayın',
+      b:'Adaptörü <b>300 mA</b> yapın. Pedallar toplam 418 mA istiyor: adaptör yetmez, gerilim çöker ve dijital pedallar yeniden başlar. Pedal satın alırken ' +
+        'kutusundaki <b>mA</b> değerine bakın; toplamı beslemenin gücüyle karşılaştırın ve biraz pay bırakın.',
+      ap:{ mode:'ped', pIzo:false, pAc:[true, true, true, true], pAd:0.3 } }
+  ];
+  var si = 0;
+  var stT = document.getElementById('step-title'), stB = document.getElementById('step-body'),
+      stC = document.getElementById('step-count'), dots = document.getElementById('dots');
+  STEPS.forEach(function(_, i){
+    var d = document.createElement('button'); d.type = 'button'; d.className = 'dot'; d.setAttribute('aria-label', (i+1)+'. adım');
+    d.addEventListener('click', function(){ setStep(i, true); }); dots.appendChild(d);
+  });
+  function setStep(i, uyg){
+    si = Math.max(0, Math.min(STEPS.length-1, i));
+    var s2 = STEPS[si];
+    stT.textContent = (si+1)+'. '+s2.t; stB.innerHTML = s2.b; stC.textContent = (si+1)+' / '+STEPS.length;
+    Array.prototype.forEach.call(dots.children, function(d,k){ d.setAttribute('aria-current', k === si ? 'true':'false'); });
+    document.getElementById('prev').disabled = si === 0;
+    document.getElementById('next').disabled = si === STEPS.length-1;
+    if (uyg && s2.ap){ uygula(s2.ap); animBasla(); }
+  }
+  document.getElementById('prev').addEventListener('click', function(){ setStep(si-1, true); });
+  document.getElementById('next').addEventListener('click', function(){ setStep(si+1, true); });
+
+  var QS = [
+    { q:'Sıradan bir diyot ters yönde bağlanınca (12 V) ne olur?', o:['İletir, 0,7 V düşer','Akım geçirmez, gerilimin hepsi diyotta kalır','Yanar','9,1 V’ta tutar'], c:1,
+      e:'Diyot tek yönlü bir kapıdır. Ters yönde bu gerilimlerde kapalıdır; sıradan bir diyot ancak ≈ 100 V gibi çok yüksek bir gerilimde bozulur.' },
+    { q:'Zener diyodu sıradan diyottan ayıran nedir?', o:['Ters yönde belli bir gerilimde iletip gerilimi orada tutması','Işık vermesi','İleri yönde iletmemesi','Ses üretmesi'], c:0,
+      e:'Zener ters yönde kendi geriliminde (ör. 9,1 V) iletir. Akım çok değişse de uçlarındaki gerilim az değişir.' },
+    { q:'9,1 V’luk zener, 1 kΩ üzerinden 15 V’a bağlı. Zenerin uçlarında kaç volt olur?', o:['15 V','≈ 5,9 V','≈ 9,1 V','0,7 V'], c:2,
+      e:'Zener gerilimi ≈ 9,15 V’ta tutar; fazlası (≈ 5,9 V) dirençte kalır ve akımı belirler: ≈ 5,9 mA.' },
+    { q:'Aynı zener 6 V’luk bir kaynağa bağlanırsa?', o:['İletmez; uçlarında 6 V olur','9,1 V üretir','Kısa devre olur','Gerilimi iki katına çıkarır'], c:0,
+      e:'Zener bir üst sınır koyar, gerilim yaratmaz. Kaynak zener geriliminin altındaysa zener kapalıdır.' },
+    { q:'Zener regülatörde seri direncin görevi nedir?', o:['Sesi süzmek','Fazla gerilimi üstlenip akımı sınırlamak','Zeneri soğutmak','Frekansı ayarlamak'], c:1,
+      e:'Giriş ile zener gerilimi arasındaki fark dirençte kalır. Direnç olmasaydı zenerden sınırsız akım geçer ve zener yanardı.' },
+    { q:'Zener regülatörde pedal çok akım çekerse ne olur?', o:['Zenere akım kalmaz, çıkış düşer','Zener daha çok akım alır','Giriş yükselir','Hiçbir şey'], c:0,
+      e:'Direnç akımı zener ile pedal arasında paylaşılır. Pedal hepsini alınca zener susar ve regülasyon biter. 15 V, 220 Ω için sınır ≈ 27 mA.' },
+    { q:'Zener regülatör neden bütün bir pedal tahtasını beslemeye uygun değildir?', o:['Çok pahalı olduğu için','Büyük akımda direnç ve zener çok ısınır, boşta bile enerji harcar','Gürültü ürettiği için','Yalnız 5 V verdiği için'], c:1,
+      e:'En büyük yükün akımı dirençten sürekli akar; pedal çekmediği kısmı zener ısıya çevirir. Büyük akımlar için entegre regülatör kullanılır.' },
+    { q:'7809’un 9 V verebilmesi için girişi en az kaç volt olmalı?', o:['9 V','18 V','≈ 11 V (düşme gerilimi ≈ 2 V)','5 V'], c:2,
+      e:'78xx regülatörleri içeride ≈ 2 V’a ihtiyaç duyar. Adaptörün dalgalanmasının dibi 11 V’un altına inerse çıkış da dalgalanır.' },
+    { q:'Düzensiz bir adaptörün 100 Hz’lik dalgalanması pedala doğrudan giderse ne duyulur?', o:['Tiz bir ıslık','Gitarın altında 100 Hz’lik bir uğultu','Hiçbir şey','Ses yükselir'], c:1,
+      e:'Şebeke 50 Hz, tam dalga doğrultma 100 Hz dalgalanma verir. Pedal devresi bunun bir kısmını sese geçirir: uğultu.' },
+    { q:'7809 12 V’tan 9 V’a 0,5 A verirse ne kadar ısı üretir?', o:['4,5 W','1,5 W','0,5 W','9 W'], c:1,
+      e:'Isı = gerilim farkı × akım = (12 − 9) × 0,5 = 1,5 W. 18 V’luk bir adaptörle 4,5 W olurdu.' },
+    { q:'Kondansatörü büyütmek (1000 → 4700 µF) adaptörün dalgalanmasını nasıl etkiler?', o:['Büyütür','Değiştirmez','Frekansını iki katına çıkarır','Küçültür: kondansatör dalgaların arasını daha iyi doldurur'], c:3,
+      e:'Dalgalanma ≈ akım / (100 Hz × C). Aynı akımda C beş kat büyüyünce dalgalanma beş kat küçülür.' },
+    { q:'Zincirleme (daisy chain) beslemede analog bir pedalda vızıltı varsa ilk şüpheli nedir?', o:['Gitar telleri','Aynı zincirdeki dijital pedalların ortak topraktaki darbeli akımı','Amfinin lambaları','Pedalın rengi'], c:1,
+      e:'Dijital pedalların darbeli akımı ortak toprak kablosundan döner ve bütün pedalların toprağını titretir. İzole çıkışlı besleme bunu önler.' },
+    { q:'Pedallar 150, 250, 10 ve 8 mA çekiyor. 300 mA’lik bir adaptör yeter mi?', o:['Evet','Yalnızca izole ise','Hayır: toplam 418 mA','Yalnız dijital pedallar için'], c:2,
+      e:'Akımlar toplanır: 418 mA. Adaptörün etiketindeki değer en az bu kadar olmalı, biraz da pay bırakılmalı.' }
+  ];
+  var qi = 0, qok = 0, qDone = [];
+  var qT = document.getElementById('q-text'), qO = document.getElementById('q-opts'),
+      qE = document.getElementById('q-exp'), qC = document.getElementById('q-count'), qN = document.getElementById('q-next');
+  function renderQ(){
+    var q = QS[qi];
+    qT.textContent = (qi+1)+'. '+q.q; qE.textContent = ''; qO.innerHTML = '';
+    q.o.forEach(function(o, k){
+      var b = document.createElement('button'); b.type='button'; b.textContent = o;
+      b.addEventListener('click', function(){
+        Array.prototype.forEach.call(qO.children, function(x){ x.disabled = true; });
+        b.classList.add(k === q.c ? 'correct' : 'wrong');
+        if (k !== q.c) qO.children[q.c].classList.add('correct');
+        qE.innerHTML = q.e;
+        if (!qDone[qi]){ qDone[qi] = true; if (k === q.c) qok++; }
+        qC.textContent = qok+' / '+qDone.filter(Boolean).length+' doğru';
+      });
+      qO.appendChild(b);
+    });
+    qN.textContent = (qi === QS.length-1) ? 'Baştan başla' : 'Sonraki soru';
+  }
+  qN.addEventListener('click', function(){ qi = (qi+1)%QS.length; renderQ(); });
+
+  tabloDoldur(); setMode('zen'); setStep(0, false); renderQ(); sync(); render();
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(render);
+})();
+</script>

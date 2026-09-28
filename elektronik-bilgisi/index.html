@@ -1,0 +1,342 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Elektronik Bilgisi — Ders Atölyeleri</title>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+  :root{
+    --ground:#E5ECF3; --panel:#FFFFFF; --panel-2:#F1F6FA;
+    --ink:#0B1620; --ink-2:#3F5265; --ink-3:#697E92;
+    --line:#C7D4E0; --line-2:#DEE7EF;
+    --sin:#A8600A; --cos:#0F5F80; --arc:#A81E6E; --brass:#4A7A12;
+    --shadow:0 1px 2px rgba(11,22,32,.06), 0 8px 20px -14px rgba(11,22,32,.26);
+    --fs:15px; --on-sin:#FFFFFF;
+    color-scheme:light dark;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --ground:#070F17; --panel:#0E1720; --panel-2:#13202C;
+      --ink:#E7F2FB; --ink-2:#9FB6C9; --ink-3:#6B8296;
+      --line:#213240; --line-2:#182533;
+      --sin:#FFB01F; --cos:#4FD3FF; --arc:#FF6AC1; --brass:#A8FF60;
+      --shadow:0 0 0 1px rgba(79,211,255,.07), 0 12px 30px -18px rgba(0,0,0,.9);
+    }
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{
+    background:var(--ground); color:var(--ink);
+    font-family:"IBM Plex Sans","Helvetica Neue",Arial,sans-serif;
+    font-size:var(--fs); line-height:1.6; -webkit-font-smoothing:antialiased;
+  }
+  .wrap{max-width:1080px;margin:0 auto;padding:40px 20px 56px}
+  .eyebrow{margin:0;font-size:11.5px;font-weight:600;letter-spacing:.13em;text-transform:uppercase;color:var(--ink-3)}
+  h1{
+    margin:8px 0 0;font-family:"Chakra Petch","IBM Plex Sans",sans-serif;font-weight:500;
+    font-size:clamp(30px,4.5vw,44px);line-height:1.06;letter-spacing:.02em;
+  }
+  .lede{margin:10px 0 0;color:var(--ink-2);font-size:16.5px;max-width:64ch}
+  .lede b{color:var(--ink);font-weight:600}
+  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(290px,1fr));gap:16px;margin-top:32px}
+  .card{
+    display:flex;flex-direction:column;gap:10px;
+    background:var(--panel);border:1px solid var(--line);border-radius:2px;
+    box-shadow:var(--shadow);padding:20px;text-decoration:none;color:inherit;
+    transition:border-color .14s, transform .14s;
+  }
+  .card:hover{border-color:var(--sin);transform:translateY(-2px)}
+  .card:focus-visible{outline:2px solid var(--arc);outline-offset:2px}
+  .card h2{
+    margin:0;font-family:"Chakra Petch","IBM Plex Sans",sans-serif;font-weight:500;
+    font-size:22px;letter-spacing:.02em;line-height:1.15;
+  }
+  .card p{margin:0;color:var(--ink-2);font-size:13.8px;line-height:1.55}
+  .card h2 .no{font-family:"IBM Plex Mono",monospace;font-size:13px;font-weight:500;
+    color:var(--brass);margin-right:9px;letter-spacing:.04em;vertical-align:.12em}
+  .secs{
+    margin:2px 0 0;padding-left:18px;display:flex;flex-direction:column;gap:3px;
+    font-family:"IBM Plex Mono",monospace;font-size:11.5px;color:var(--ink-3);
+  }
+  .open{
+    margin-top:auto;padding-top:8px;font-size:13px;font-weight:500;color:var(--sin);
+  }
+  .note{
+    margin-top:28px;padding:16px 18px;background:var(--panel);border:1px solid var(--line);
+    border-radius:2px;box-shadow:var(--shadow);
+  }
+  .note h3{margin:0 0 6px;font-size:14px;font-weight:600}
+  .note p{margin:0 0 8px;color:var(--ink-2);font-size:13.5px}
+  .note p:last-child{margin-bottom:0}
+  .note b{color:var(--ink);font-weight:600}
+  .gridhead{margin:26px 0 12px;font-family:"Chakra Petch","IBM Plex Sans",sans-serif;font-weight:500;font-size:19px;letter-spacing:.02em;color:var(--ink);border-bottom:1px solid var(--line);padding-bottom:7px;display:flex;align-items:baseline;gap:12px}
+  .gridhead span{font-family:"IBM Plex Sans",sans-serif;font-size:12.5px;font-weight:400;color:var(--ink-3);margin-left:auto}
+  .gridhead:first-of-type{margin-top:10px}
+  footer{margin-top:26px;padding-top:14px;border-top:1px solid var(--line);color:var(--ink-3);font-size:12.5px}
+
+  /* ---------- tema secimi (site geneli ile ayni) ---------- */
+  :root[data-theme="dark"]{
+    --ground:#070F17; --panel:#0E1720; --panel-2:#13202C;
+    --ink:#E7F2FB; --ink-2:#9FB6C9; --ink-3:#6B8296;
+    --line:#213240; --line-2:#182533;
+    --sin:#FFB01F; --cos:#4FD3FF; --arc:#FF6AC1; --brass:#A8FF60;
+    --on-sin:#07131B;
+    --shadow:0 0 0 1px rgba(79,211,255,.07), 0 12px 30px -18px rgba(0,0,0,.9);
+    color-scheme:dark;
+  }
+  :root[data-mode="proj"]{
+    --ground:#F3F8FC; --panel:#FFFFFF; --panel-2:#EDF4F9;
+    --ink:#040B12; --ink-2:#2A3A49; --ink-3:#546678;
+    --line:#ADBFCE; --line-2:#D2DEE9;
+    --sin:#8A4D00; --cos:#084A66; --arc:#8A1258; --brass:#3A6208;
+    --on-sin:#FFFFFF;
+    --fs:17.5px;
+    color-scheme:light;
+  }
+  .topbar{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-bottom:22px}
+  .backlink{font-family:"IBM Plex Mono",monospace;font-size:11.5px;letter-spacing:.06em;
+    text-transform:uppercase;color:var(--ink-3);text-decoration:none;border:1px solid var(--line);
+    border-radius:2px;padding:9px 13px;background:var(--panel)}
+  .backlink:hover{color:var(--sin);border-color:var(--sin)}
+  .themebar{display:flex;gap:0;border:1px solid var(--line);border-radius:2px;overflow:hidden;
+    flex-shrink:0;margin-left:auto}
+  .themebar button{font-family:"IBM Plex Mono",monospace;font-size:11.5px;letter-spacing:.06em;
+    text-transform:uppercase;background:var(--panel);color:var(--ink-2);border:0;
+    border-left:1px solid var(--line);padding:9px 13px;cursor:pointer}
+  .themebar button:first-child{border-left:0}
+  .themebar button[aria-pressed="true"]{background:var(--sin);color:var(--on-sin);font-weight:600}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="topbar">
+    <a class="backlink" href="../">← Ders merkezi</a>
+    <div class="themebar" role="group" aria-label="Tema seçimi">
+      <button type="button" data-t="light" aria-pressed="false">Açık</button>
+      <button type="button" data-t="dark" aria-pressed="false">Koyu</button>
+      <button type="button" data-t="proj" aria-pressed="false">Projeksiyon</button>
+    </div>
+  </div>
+  <p class="eyebrow">Ders Atölyeleri</p>
+  <h1>Elektronik Bilgisi</h1>
+  <p class="lede">Stüdyodaki her cihazın içinde aynı birkaç kural çalışıyor. Bu ders onları en baştan, <b>formülsüz</b> kuruyor: yük ve akım, direnç ve Ohm kanunu, sonra devre elemanları ve sinyalin yolculuğu. Her atölye bir kavramı <b>stüdyodaki gerçek bir sayıyla</b> eşleştiriyor.</p>
+
+  <div class="gridhead">Atölyeler<span>temel kavramlardan devreye</span></div>
+  <div class="grid">
+    <a class="card" href="01-elektrik-nedir.html">
+      <h2><span class="no">01</span>Elektrik Nedir?</h2>
+      <p>Işık düğmeye basınca anında yanar, ama elektronlar bakır telde saniyede yalnızca <b>0,07 mm</b> ilerler — bir metreyi dört saatte. Atölye bu şaşırtıcı sayıdan yola çıkıyor. <b>Yük:</b> sürtünen iki cisim arasında elektron geçişi, aynıların itmesi, zıtların çekmesi, mesafe yarıya inince kuvvetin 4 katına çıkması. <b>İletken ve yalıtkan:</b> bir telin içinde serbest elektronların sürüklenmesi, gümüşten teflona <b>32 basamaklık</b> özdirenç cetveli. <b>Gerilim, akım, direnç:</b> su benzetmesi, aynı devre ve düz I–V çizgisi yan yana — akım = gerilim ÷ direnç. Son sahnede stüdyonun gerçek sayıları: mikrofon 2 mV, hat 1,23 V, phantom 48 V (en çok 14 mA), priz 230 V — ve tehlikeyi neden gerilimin değil <b>akımın</b> yaptığı.</p>
+      <ol class="secs"><li>Neden buradan başlıyoruz?</li><li>Dokuz kavram</li><li>Atölye: dört sahne</li><li>Malzemelerin özdirenci</li><li>Pratikte ne işe yarar?</li><li>Bu kavramların dili</li><li>Alıştırma</li></ol>
+      <span class="open">Aç →</span>
+    </a>
+    <a class="card" href="02-akim-gerilim-direnc-ve-ohm-yasasi.html">
+      <h2><span class="no">02</span>Akım, Gerilim, Direnç ve Ohm Yasası</h2>
+      <p>Bir pedaldan önce ve sonra ölçülen akım <b>aynıdır</b>: akım harcanmaz, harcanan enerjidir. Atölye bu yanlış sezgiden yola çıkıyor. <b>Akım:</b> iki ampermetreli devre, saniyede geçen elektronu sayan kapı, adaptörün yazdığı akımın bir tavan olduğu, 550 mAh pilin analog pedalı 11 saat, dijital reverbi 2 saatten az çalıştırması. <b>Gerilim:</b> üst üste 1,5 V hücreler, iki uçlu voltmetre, teldeki kuş, toprağı değiştirince kayan ama farkı değişmeyen “yükseklik haritası”. <b>Direnç:</b> hoparlör kablosunda uzunluk ve kesit, gidiş-dönüş 2 × boy, <b>%5 kuralı</b>. Son sahnede <b>Ohm üçgeni</b>, I–V doğrusu ve alanı güce eşit dikdörtgen: 8 Ω yerine 4 Ω bağlamak gücü iki katına çıkarır.</p>
+      <ol class="secs"><li>Neden ayrı ayrı bakıyoruz?</li><li>Dokuz kavram</li><li>Atölye: dört sahne</li><li>Ohm yasası stüdyoda</li><li>Pratikte ne işe yarar?</li><li>Bu kavramların dili</li><li>Alıştırma</li></ol>
+      <span class="open">Aç →</span>
+    </a>
+    <a class="card" href="03-seri-ve-paralel-devreler.html">
+      <h2><span class="no">03</span>Seri ve Paralel Devreler</h2>
+      <p>Aynı iki 8 Ω kabin, bağlantıya göre amfiye <b>16 Ω</b> ya da <b>4 Ω</b> görünür: atölye bu farktan yola çıkıyor. <b>Seri:</b> tek yol, her yerde aynı akım, dirençlerle orantılı gerilim payları; bir direnç kopunca her şey durur. <b>Paralel:</b> her dalda aynı 9 V, akımlar toplanır, eşdeğer en küçük daldan da küçük; papatya zincirinde 20 + 30 + 65 = <b>115 mA</b>. <b>Potansiyometre:</b> ses düğmesi bir gerilim bölücü; lineer potta yarıda yalnız −6 dB, logaritmik potta %10 ve −20 dB — farkı <b>dinleyerek</b> karşılaştırma. Son sahnede hoparlörleri seri, paralel ve seri-paralel bağlayıp amfinin en küçük yüküyle karşılaştırıyoruz.</p>
+      <ol class="secs"><li>Neden bağlantı biçimi önemli?</li><li>Dokuz kavram</li><li>Atölye: dört sahne</li><li>8 Ω hoparlörlerle beş bağlantı</li><li>Pratikte ne işe yarar?</li><li>Bu kavramların dili</li><li>Alıştırma</li></ol>
+      <span class="open">Aç →</span>
+    </a>
+    <a class="card" href="04-olcum-cihazlari.html">
+      <h2><span class="no">04</span>Ölçüm Cihazları: Voltmetre ve Ampermetre</h2>
+      <p>Voltmetre <b>paralel</b>, ampermetre <b>seri</b> bağlanır — ve ikisinin iç direnci tam tersidir. <b>Voltmetre:</b> 10 MΩ’luk dijital ölçer 1 kΩ’luk bölücüde görünmez, ama 1 MΩ’luk bölücüde %4,8, 20 kΩ/V’luk analog ölçer <b>%71</b> düşük okur (yükleme etkisi). <b>Ampermetre:</b> mA kademesinin ~1,8 Ω’u 30 Ω’luk yükte akımı %5,7 azaltır; hata pilin gerilimine değil yükün direncine bağlı. <b>Yanlış bağlantı:</b> seri voltmetre yolu tıkar, paralel ampermetre 5 A ile sigortayı attırır. Son sahnede kadran, jak ve uçların yeriyle bir multimetreyi doğru kuruyoruz.</p>
+      <ol class="secs"><li>Neden iki farklı bağlantı?</li><li>Dokuz kavram</li><li>Atölye: dört sahne</li><li>Voltmetre devreyi ne kadar bozar?</li><li>Pratikte ne işe yarar?</li><li>Bu kavramların dili</li><li>Alıştırma</li></ol>
+      <span class="open">Aç →</span>
+    </a>
+    <a class="card" href="05-direncler-ve-renk-kodlari.html">
+      <h2><span class="no">05</span>Dirençler ve Renk Kodları</h2>
+      <p>6,5 mm’lik bir gövdeye sayı yazılmaz; renkli halkalar yazılır. <b>Renk kodu:</b> banda dokunup rengini seçerek 4 ve 5 bantlı dirençleri okuma — iki rakam, kaç sıfır, ne kadar şaşar; sarı–mor–kırmızı–altın = <b>4,7 kΩ ±%5</b>. <b>Tolerans:</b> 1 kΩ ±%5’in 950–1050 Ω penceresi ve bir kutudan ölçülmüş 20 direnç. <b>E serileri:</b> neden 5 kΩ yok — 4,7 kΩ ±%10 zaten kapsıyor; pencerelerin arasındaki küçük boşluklar da görünür. Son sahnede rastgele dirençlerle <b>okuma ve boyama alıştırması</b>, sınıfta yarışma olarak.</p>
+      <ol class="secs"><li>Neden renkler?</li><li>Dokuz kavram</li><li>Atölye: dört sahne</li><li>Ses devrelerinde sık görülen dirençler</li><li>Pratikte ne işe yarar?</li><li>Bu kavramların dili</li><li>Alıştırma</li></ol>
+      <span class="open">Aç →</span>
+    </a>
+    <a class="card" href="06-kirchhoff-kanunlari.html">
+      <h2><span class="no">06</span>Kirchhoff Kanunları</h2>
+      <p>İki kural, bütün devreler için. <b>Akım kuralı:</b> bir düğüme giren akım çıkana eşittir — papatya zincirinde 20 + 30 + 65 = 115 mA; bir dal ters yönde akınca da kural tutar. <b>Gerilim kuralı:</b> halkayı bir nokta gibi dolaşıp yükseklik haritasında pilin yükselttiğini dirençlerin alçalttığını görmek; tur sonunda toplam hep 0. <b>LED direnci:</b> 9 V = LED + direnç; kırmızı LED ve 1 kΩ → 7 mA, dirençsiz bağlarsanız LED yanar. Son sahnede küçük bir devreyi Ohm ve iki kuralla <b>adım adım</b> çözüp akım kuralıyla kontrol ediyoruz.</p>
+      <ol class="secs"><li>Neden iki kural daha?</li><li>Altı kavram</li><li>Atölye: dört sahne</li><li>9 V’ta LED akımları</li><li>Pratikte ne işe yarar?</li><li>Bu kavramların dili</li><li>Alıştırma</li></ol>
+      <span class="open">Aç →</span>
+    </a>
+    <a class="card" href="07-kapasitorler.html">
+      <h2><span class="no">07</span>Kapasitörler</h2>
+      <p>Phantom’un 48 V’unu durdurup mikrofonun sesini geçiren parça. <b>Kapasitör nedir:</b> iki levha ve aralarında yalıtkan; kova benzetmesiyle Q = C × V. <b>Dolma ve boşalma:</b> τ = R × C, bir τ’da %63, beş τ’da %99; amfinin besleme kondansatörlerinin fiş çekildikten sonra da neden tehlikeli olduğu. <b>Frekansla davranış:</b> reaktans frekans büyüdükçe küçülür, DC’de sonsuz; küçük bir kuplaj kapasitörü basları da keser. Son sahnede <b>RC filtre</b>: kuplaj (yüksek geçiren) ve gitar ton düğmesi (alçak geçiren), kesim frekansını çevirip <b>dinleyerek</b>.</p>
+      <ol class="secs"><li>Neden kapasitör?</li><li>Dokuz kavram</li><li>Atölye: dört sahne</li><li>Kapasitörün üstünde ne yazar?</li><li>Pratikte ne işe yarar?</li><li>Bu kavramların dili</li><li>Alıştırma</li></ol>
+      <span class="open">Aç →</span>
+    </a>
+    <a class="card" href="08-induktorler.html">
+      <h2><span class="no">08</span>İndüktörler</h2>
+      <p>İki yollu bir monitörde basları woofer’a, tizleri tweeter’a yollayan parça. <b>Bobin nedir:</b> sarılmış tel ve çevresindeki manyetik alan; sarım iki kat → endüktans dört kat, demir çekirdek binlerce kata kadar. <b>Akım değişimine karşı koyar:</b> τ = L ÷ R, bir τ’da %63; akımı birden kesilen bobinin gerilim sıçraması ve kıvılcım. <b>Frekansla davranış:</b> reaktans frekansla büyür, kapasitörün tam tersi; gitar manyetiği de bir bobin. Son sahnede <b>hoparlör crossover</b>: bobin ve kapasitörle ikiye bölünen ses, woofer ve tweeter yolunu ayrı ayrı <b>dinleyerek</b>.</p>
+      <ol class="secs"><li>Neden bobin?</li><li>Dokuz kavram</li><li>Atölye: dört sahne</li><li>Crossover için bobin ve kapasitör</li><li>Pratikte ne işe yarar?</li><li>Bu kavramların dili</li><li>Alıştırma</li></ol>
+      <span class="open">Aç →</span>
+    </a>
+    <a class="card" href="09-rlc-devreleri-ve-crossover-lar.html">
+      <h2><span class="no">09</span>RLC Devreleri ve Crossover’lar</h2>
+      <p>Bobin ve kapasitör aynı devrede buluşunca: rezonans. <b>Rezonans:</b> iki reaktans eşitlenince etkileri birbirini götürür, empedans R’ye iner, akım tepe yapar; kaynak 1 V iken bobinin üstünde 10 V. <b>Q ve wah pedalı:</b> 500 mH’lik bobin ve pedalla değişen kapasite, tepe 450 Hz – 1,6 kHz; bant genişliği = f0 ÷ Q. <b>İkinci derece crossover:</b> 12 dB/oktav, Linkwitz-Riley ve Butterworth, tweeter neden ters bağlanır. Son sahnede <b>üç yollu crossover</b>: orta yol bir seri RLC. Wah ve crossover sahnelerinde <b>dinleyerek</b>.</p>
+      <ol class="secs"><li>Neden RLC?</li><li>Dokuz kavram</li><li>Atölye: dört sahne</li><li>İkinci derece crossover değerleri</li><li>Pratikte ne işe yarar?</li><li>Bu kavramların dili</li><li>Alıştırma</li></ol>
+      <span class="open">Aç →</span>
+    </a>
+    <a class="card" href="10-transformatorler.html">
+      <h2><span class="no">10</span>Transformatörler</h2>
+      <p>İki bobin, tek demir çekirdek: gerilimi değiştiren ve iki devreyi yalıtan parça. <b>Nasıl çalışır:</b> değişen akım değişen alan, alan ikinci bobinde gerilim (3B bobinler). <b>Sarım oranı:</b> gerilim sarım sayısıyla orantılı. <b>Empedans dönüştürme:</b> oranın karesiyle; DI kutusu ve mikrofon trafosu. Son sahnede <b>yalıtım ve toprak döngüsü</b>: uğultuyu <b>dinleyerek</b>.</p>
+      <ol class="secs"><li>Neden trafo?</li><li>Bilmemiz gereken dokuz kavram</li><li>Atölye: dört sahne</li><li>Stüdyodaki trafolar</li><li>Pratikte ne işe yarar?</li><li>Bu kavramların dili</li><li>Alıştırma</li></ol>
+      <span class="open">Aç →</span>
+    </a>
+    <a class="card" href="11-yari-iletkenler-ve-diyot.html">
+      <h2><span class="no">11</span>Yarı İletkenler ve Diyot</h2>
+      <p>Silisyum, katkılama ve tek yönlü kapı. <b>Yarı iletken nedir:</b> bağlar, ısı ve serbest elektronlar. <b>Katkılama:</b> N ve P tipi. <b>PN birleşimi:</b> tükenme bölgesi, doğru ve ters kutuplama, eşik gerilimi. Son sahnede <b>diyot ne işe yarar</b>: yarım dalga doğrultma, ters kutup koruması ve distortion kırpmasını <b>dinleyerek</b>.</p>
+      <ol class="secs"><li>Neden yarı iletken?</li><li>Bilmemiz gereken dokuz kavram</li><li>Atölye: dört sahne</li><li>Sık karşılaşılan diyotlar</li><li>Pratikte ne işe yarar?</li><li>Bu kavramların dili</li><li>Alıştırma</li></ol>
+      <span class="open">Aç →</span>
+    </a>
+    <a class="card" href="12-adaptor.html">
+      <h2><span class="no">12</span>Adaptör: Prizden Pedala</h2>
+      <p>Trafo, köprü doğrultucu, filtre kapasitörü ve regülatör bir arada. <b>Trafo</b> 230 V’u indirir, <b>tam dalga doğrultma</b> iki yarımı da artıya çevirir, <b>filtre kapasitörü</b> dalgalanmayı düzeltir. Son sahnede <b>adaptörün tamamı</b>: yük arttıkça dalgalanmanın uğultusunu <b>dinleyerek</b>.</p>
+      <ol class="secs"><li>Neden adaptör?</li><li>Bilmemiz gereken dokuz kavram</li><li>Atölye: dört sahne</li><li>Adaptörün etiketini okumak</li><li>Pratikte ne işe yarar?</li><li>Bu kavramların dili</li><li>Alıştırma</li></ol>
+      <span class="open">Aç →</span>
+    </a>
+    <a class="card" href="13-gitarin-sesi.html">
+      <h2><span class="no">13</span>Gitarın Sesi: Manyetik, Pot ve Kablo</h2>
+      <p>Öğrenilenlerin gitarda buluştuğu uygulama atölyesi. <b>Manyetik:</b> 3B mıknatıs, bobin ve titreşen tel; bobinin kendi rezonansı. <b>Kablo:</b> metre başına ≈ 100 pF, kablo uzadıkça tepe iner. <b>Volume ve ton:</b> temsili bir gitarın düğmeleriyle. Son sahnede <b>tüm zincir</b> ve tampon pedal; sesle.</p>
+      <ol class="secs"><li>Neden bu uygulama?</li><li>Bilmemiz gereken dokuz kavram</li><li>Atölye: dört sahne</li><li>Manyetiklerin değerleri</li><li>Pratikte ne işe yarar?</li><li>Bu kavramların dili</li><li>Alıştırma</li></ol>
+      <span class="open">Aç →</span>
+    </a>
+    <a class="card" href="14-transistor-ve-anahtarlama.html">
+      <h2><span class="no">14</span>Transistör ve Anahtarlama</h2>
+      <p>Küçük akım büyük akımı açar. <b>Transistör nedir:</b> N-P-N katmanları, tükenme bölgeleri, musluk benzetmesi. <b>Kapalı / açık:</b> kesim, yarı açık, doyum ve ısı. <b>LED’i yak:</b> taban ve LED direnci seçimi. Son sahnede <b>röle</b>: gitar sinyalini anahtarlamak ve koruma diyodu.</p>
+      <ol class="secs"><li>Neden transistör?</li><li>Bilmemiz gereken dokuz kavram</li><li>Atölye: dört sahne</li><li>Sık karşılaşılan küçük NPN transistörler</li><li>Pratikte ne işe yarar?</li><li>Bu kavramların dili</li><li>Alıştırma</li></ol>
+      <span class="open">Aç →</span>
+    </a>
+    <a class="card" href="15-yukseltec.html">
+      <h2><span class="no">15</span>Yükselteç: Tek Transistörlü Amfi</h2>
+      <p>Transistör ortada tutulunca yükselteç olur. <b>Yükseltme fikri:</b> taban ve kolektör aynı ölçekte, × 22 ve ters. <b>Çalışma noktası:</b> R2 ile kolektörü ortada tutmak, kaymışsa kırpma. <b>Kazanç:</b> ≈ Rc ÷ Re. Son sahnede <b>booster pedalı</b>: temiz ve humbucker’la sürülmüş hâlini <b>dinleyerek</b>.</p>
+      <ol class="secs"><li>Neden yükselteç?</li><li>Bilmemiz gereken dokuz kavram</li><li>Atölye: dört sahne</li><li>Kaynak seviyesi ve booster</li><li>Pratikte ne işe yarar?</li><li>Bu kavramların dili</li><li>Alıştırma</li></ol>
+      <span class="open">Aç →</span>
+    </a>
+    <a class="card" href="16-amfi-cesitleri.html">
+      <h2><span class="no">16</span>Amfi Çeşitleri: Class A, AB, D ve Preamp</h2>
+      <p>Aynı iş, farklı ısı. <b>Class A:</b> hep açık, ses yokken bile sıcak. <b>Class B ve AB:</b> itme–çekme ve geçiş bozulması, bias ile çözümü (<b>dinleyerek</b>). <b>Class D:</b> anahtarlama, darbe genişliği ve LC süzgeç. Son sahnede <b>preamp</b>: mikrofon, gitar ve hat seviyesi.</p>
+      <ol class="secs"><li>Neden bu kadar çok çeşit?</li><li>Bilmemiz gereken dokuz kavram</li><li>Atölye: dört sahne</li><li>Sınıflar yan yana</li><li>Pratikte ne işe yarar?</li><li>Bu kavramların dili</li><li>Alıştırma</li></ol>
+      <span class="open">Aç →</span>
+    </a>
+    <a class="card" href="17-transistor-uygulamalari.html">
+      <h2><span class="no">17</span>Transistör Uygulamaları</h2>
+      <p>Dünyayı bir dirence çeviren dört devre. <b>Su seviyesi:</b> problar, üç LED ve buzzer; damıtık su neden iletmez. <b>Karanlıkta yanan lamba:</b> LDR ve hassasiyet. <b>Dokunmatik anahtar:</b> deri direnci ve Darlington. Son sahnede <b>iki transistörlü osilatör</b>: metronomdan duyulur tona, <b>dinleyerek</b>.</p>
+      <ol class="secs"><li>Dört devrenin ortak sırrı</li><li>Bilmemiz gereken dokuz kavram</li><li>Atölye: dört uygulama</li><li>Dört uygulama yan yana</li><li>Laboratuvarda kurarken</li><li>Bu kavramların dili</li><li>Alıştırma</li></ol>
+      <span class="open">Aç →</span>
+    </a>
+    <a class="card" href="18-tampon.html">
+      <h2><span class="no">18</span>Tampon: Emetör İzleyici</h2>
+      <p>Kazancı 1 olan yükselteç neye yarar? <b>Emetör izleyici:</b> çıkış tabanı izler, akım β kat. <b>Empedans:</b> kaynak ve yük bir gerilim bölücü, köprüleme kuralı. <b>Gitar + uzun kablo:</b> tizlerin kaybı ve tamponun kurtarması (<b>dinleyerek</b>). Son sahnede <b>pedal panosu</b>: tampon nereye konur, fuzz neden önce.</p>
+      <ol class="secs"><li>Kazancı 1 olan bir yükselteç neye yarar?</li><li>Bilmemiz gereken dokuz kavram</li><li>Atölye: dört sahne</li><li>Kaynak ve yük örnekleri</li><li>Pratikte ne işe yarar?</li><li>Bu kavramların dili</li><li>Alıştırma</li></ol>
+      <span class="open">Aç →</span>
+    </a>
+    <a class="card" href="19-jfet-ve-kondenser-mikrofon.html">
+      <h2><span class="no">19</span>JFET ve Kondenser Mikrofon</h2>
+      <p>Kondenser mikrofonun içinde neden bir transistör var? <b>JFET:</b> kapı gerilimi kanalı musluk gibi daraltır, kapıdan akım geçmez. <b>Kondenser kapsül:</b> diyafram ve arka plaka, 60 V kutuplama, electret. <b>Empedans dönüştürücü:</b> kapsül + yük bir yüksek geçiren süzgeç, kablo bir bölücü (<b>dinleyerek</b>). Son sahnede <b>phantom güç</b>: 48 V, iki 6,8 kΩ, dinamik mikrofon neden etkilenmez.</p>
+      <ol class="secs"><li>Kondenser mikrofonun içinde neden bir transistör var?</li><li>Bilmemiz gereken dokuz kavram</li><li>Atölye: dört sahne</li><li>Kapsül neye bağlanırsa</li><li>Pratikte ne işe yarar?</li><li>Bu kavramların dili</li><li>Alıştırma</li></ol>
+      <span class="open">Aç →</span>
+    </a>
+    <a class="card" href="20-optik-tremolo.html">
+      <h2><span class="no">20</span>Optik Tremolo</h2>
+      <p>Sesi saniyede birkaç kez kısıp açmak. <b>LED ve LDR:</b> ışık direnci düşürür; ışık gelince hızlı, gidince yavaş. <b>LFO:</b> faz kaydırmalı osilatör, hız ve tempo (120 BPM sekizlik = 4 Hz), dalga şekli. <b>Ses yolu:</b> LDR’li gerilim bölücü ve derinlik düğmesi. Son sahnede <b>pedalın tamamı</b> (<b>dinleyerek</b>): gerçek LDR ile ideal ışık kontrolünün farkı.</p>
+      <ol class="secs"><li>Sesi saniyede birkaç kez kısıp açmak</li><li>Bilmemiz gereken dokuz kavram</li><li>Atölye: dört sahne</li><li>Tempo, hız ve LDR’nin yetişmesi</li><li>Pratikte ne işe yarar?</li><li>Bu kavramların dili</li><li>Alıştırma</li></ol>
+      <span class="open">Aç →</span>
+    </a>
+    <a class="card" href="21-fuzz.html">
+      <h2><span class="no">21</span>Fuzz</h2>
+      <p>Bir hatayı sese dönüştürmek. <b>Kırpma:</b> dalga tavana çarpar, yumuşak ve sert kırpma, harmonikler (<b>dinleyerek</b>). <b>Simetri:</b> simetrik kırpma tek, asimetrik çift harmonikleri de getirir. <b>Fuzz Face:</b> iki transistör, fuzz düğmesi, 4,5 V kutuplama, germanyum ve silisyum. Son sahnede <b>volume düğmesi</b>: fuzz neden temizlenir, tampon neden bunu bozar (<b>dinleyerek</b>).</p>
+      <ol class="secs"><li>Bir hatayı sese dönüştürmek</li><li>Bilmemiz gereken dokuz kavram</li><li>Atölye: dört sahne</li><li>Transistör ve kutuplama durumları</li><li>Pratikte ne işe yarar?</li><li>Bu kavramların dili</li><li>Alıştırma</li></ol>
+      <span class="open">Aç →</span>
+    </a>
+    <a class="card" href="22-op-amp.html">
+      <h2><span class="no">22</span>Op-amp</h2>
+      <p>Transistörler yerine bir kara kutu. <b>Kara kutu:</b> iki girişin farkı 100 000 kat, çıkış hemen beslemeye dayanır. <b>Geri besleme:</b> izleyici ve iki altın kural. <b>Kazanç:</b> evirmeyen ve evirici yükselteç, kazanç × bant genişliği (<b>dinleyerek</b>). Son sahnede <b>besleme ve pay</b>: ±15 V mikser, 9 V pedal, +4 dBu ve −10 dBV (<b>dinleyerek</b>).</p>
+      <ol class="secs"><li>Transistörler yerine bir kara kutu</li><li>Bilmemiz gereken dokuz kavram</li><li>Atölye: dört sahne</li><li>Sık karşılaşılan op-amp’lar</li><li>Pratikte ne işe yarar?</li><li>Bu kavramların dili</li><li>Alıştırma</li></ol>
+      <span class="open">Aç →</span>
+    </a>
+    <a class="card" href="23-op-amp-uygulamalari.html">
+      <h2><span class="no">23</span>Op-amp Uygulamaları</h2>
+      <p>Bir mikserin içinde kaç op-amp var? <b>Mikser:</b> evirici toplayıcı, sanal toprak, mix bus’ın kırpılması, pasif karıştırmanın kaybı (<b>dinleyerek</b>). <b>Dengeli giriş:</b> fark yükselteci, uğultu reddi ve dirençlerin uyumu (<b>dinleyerek</b>). <b>Aktif ton:</b> Baxandall bas ve tiz. Son sahnede <b>mikrofon preamp’ı</b>: gürültü ile kırpma arasında doğru kazanç, PAD, dBFS.</p>
+      <ol class="secs"><li>Bir mikserin içinde kaç op-amp var?</li><li>Bilmemiz gereken dokuz kavram</li><li>Atölye: dört sahne</li><li>Kaynağa göre kazanç</li><li>Pratikte ne işe yarar?</li><li>Bu kavramların dili</li><li>Alıştırma</li></ol>
+      <span class="open">Aç →</span>
+    </a>
+    <a class="card" href="24-mantik-kapilari.html">
+      <h2><span class="no">24</span>Mantık Kapıları</h2>
+      <p>Dijital elektroniğe giriş: neden yalnızca iki değer? <b>0 ve 1:</b> gürültü eşiği geçmedikçe bit bozulmaz, analogda gürültü kalır. <b>Kapılar:</b> DEĞİL, VE, VEYA, VE-DEĞİL, ÖZEL-VEYA; anahtar–lamba benzetmesi, <b>içindeki transistörler</b> (açılıp kapanan NPN’ler) ve doğruluk tablosu. <b>Birleştirme:</b> REC ışığı, “kayıtta” ışığı, talkback, merdiven lambası. Son sahnede <b>bellek ve bölücü</b>: flip-flop, sayıcı ve oktav aşağı (<b>dinleyerek</b>).</p>
+      <ol class="secs"><li>Neden yalnızca iki değer?</li><li>Bilmemiz gereken dokuz kavram</li><li>Atölye: dört sahne</li><li>Beş temel kapı</li><li>Pratikte ne işe yarar?</li><li>Bu kavramların dili</li><li>Alıştırma</li></ol>
+      <span class="open">Aç →</span>
+    </a>
+    <a class="card" href="25-zener-ve-regulator.html">
+      <h2><span class="no">25</span>Zener ve Regülatör</h2>
+      <p>Neden sabit bir gerilim? <b>Zener diyot:</b> ters yönde belli bir gerilimde iletir ve orada tutar; sıradan diyotla karşılaştırma. <b>Zener regülatör:</b> direnç akımı zener ile pedal arasında paylaşılır, yük büyüyünce regülasyon biter, boşa giden ısı. <b>Entegre regülatör:</b> 7809, 100 Hz dalgalanma, düşme gerilimi, ısı ve soğutucu (<b>dinleyerek</b>: uğultu). Son sahnede <b>pedal beslemesi</b>: zincirleme ve izole çıkış, ortak toprak, toplam akım.</p>
+      <ol class="secs"><li>Neden sabit bir gerilim?</li><li>Bilmemiz gereken dokuz kavram</li><li>Atölye: dört sahne</li><li>Hangi besleme ne verir?</li><li>Pratikte ne işe yarar?</li><li>Bu kavramların dili</li><li>Alıştırma</li></ol>
+      <span class="open">Aç →</span>
+    </a>
+    <a class="card" href="26-toprak-dongusu-ve-ugultu.html">
+      <h2><span class="no">26</span>Toprak Döngüsü ve Uğultu</h2>
+      <p>Uğultu nereden geliyor? <b>Toprak nedir:</b> iki prizin “sıfırı” aynı değil; aynı çoklu priz, aynı hat, başka hat (<b>dinleyerek</b>). <b>Döngü:</b> kalkan ve güç kabloları bir halka kurar, manyetik alan halkada akım dolaştırır (<b>dinleyerek</b>). <b>Çözümler:</b> dengeli bağlantı, ground lift, izolasyon trafosu ve asla yapılmaması gereken (<b>dinleyerek</b>). Son sahnede <b>stüdyo</b>: dizüstü şarjda, USB, aktif monitörler (<b>dinleyerek</b>).</p>
+      <ol class="secs"><li>Uğultu nereden geliyor?</li><li>Bilmemiz gereken dokuz kavram</li><li>Atölye: dört sahne</li><li>Belirtiden nedene</li><li>Pratikte ne işe yarar?</li><li>Bu kavramların dili</li><li>Alıştırma</li></ol>
+      <span class="open">Aç →</span>
+    </a>
+    <a class="card" href="27-ikilik-sayilar-ve-midi.html">
+      <h2><span class="no">27</span>İkilik Sayılar ve MIDI</h2>
+      <p>Sayıları neden ikilik yazarız? <b>İkilik sayma:</b> sekiz lamba, basamak değerleri, bayt (0–255) ve MIDI’nin 7 biti (0–127). <b>Step sequencer:</b> saat, 3 bitlik sayıcı, tempo ve adımlar (<b>dinleyerek</b>). <b>MIDI mesajı:</b> Note On’un üç baytı, tür, kanal, nota numarası, velocity (<b>dinleyerek</b>). Son sahnede <b>MIDI kablosu</b>: 31 250 bit/s, akorun süresi, running status, optokuplör (<b>dinleyerek</b>).</p>
+      <ol class="secs"><li>Sayıları neden ikilik yazarız?</li><li>Bilmemiz gereken dokuz kavram</li><li>Atölye: dört sahne</li><li>Sık kullanılan MIDI mesajları</li><li>Pratikte ne işe yarar?</li><li>Bu kavramların dili</li><li>Alıştırma</li></ol>
+      <span class="open">Aç →</span>
+    </a>
+    <a class="card" href="28-ariza-bulma-multimetreyle-pratik.html">
+      <h2><span class="no">28</span>Arıza Bulma: Multimetreyle Pratik</h2>
+      <p>Ölçü Aletleri’nin devamı: tahmin etmeden önce ölçün. <b>Kablo testi:</b> süreklilik (bip), kopuk, kısa, ters bağlı, kalkan kopuk; on iki ölçümlük test tablosu ve gizli arıza. <b>Pil ve adaptör:</b> boşta ve yükte gerilim, zayıf pil, düzensiz adaptör, merkez eksi. <b>Pedal içinde gerilim:</b> 9 V, koruma diyodu, 4,5 V ön gerilim; beklenenden sapan ilk nokta. Son sahnede <b>parça testi</b>: diyot, LED, transistör, sigorta, hoparlör bobini.</p>
+      <ol class="secs"><li>Tahmin etmeden önce ölçün</li><li>Bilmemiz gereken dokuz kavram</li><li>Atölye: dört sahne</li><li>Ölçüm rehberi</li><li>Pratikte ne işe yarar?</li><li>Bu kavramların dili</li><li>Alıştırma</li></ol>
+      <span class="open">Aç →</span>
+    </a>
+  </div>
+
+  <div class="note">
+    <h3>Sınıfta kullanım</h3>
+    <p>Her atölyenin sağ üstünde <b>Açık / Koyu / Projeksiyon</b> düğmeleri var. Projektörle anlatırken <b>Projeksiyon</b>'u seçin: yazı büyür, çizgiler kalınlaşır, renkler koyulaşır. Seçim tarayıcıda hatırlanır.</p>
+    <p><b>Ses</b> yalnızca "Duy" düğmesine basınca çalar, kendiliğinden çalmaz. Her atölyede bir <b>Ders akışı</b> paneli var — İleri'ye basarak sırayla anlatabilirsiniz; her adım aracı doğru duruma getirir.</p>
+    <p>Telefon ve tabletle de çalışır; çizimler dar ekranda dikey düzene geçer.</p>
+  </div>
+
+  <div class="note">
+    <h3>Önerilen sıra</h3>
+    <p>Ders <b>en küçükten</b> kuruluyor: önce yükün ve akımın ne olduğu, sonra onu sınırlayan direnç, sonra devreyi oluşturan elemanlar. Her atölye bir öncekinin sayılarını kullanır; bu yüzden sırayla ilerlemek en kolayı. Ortak temellerdeki <b>Büyük ve Küçük Sayılar</b> atölyesi (10’un kuvvetleri, mili/mikro/kilo ön ekleri) bu dersin sayılarını okumak için iyi bir hazırlık.</p>
+  </div>
+
+  <footer>Bu dosyalar bağımsızdır — kopyalayabilir, öğrencilere gönderebilir, USB'ye atabilirsiniz. Yazı tipleri internet varsa yüklenir; yoksa sistem yazı tipleriyle açılır.</footer>
+</div>
+<script>
+(function(){
+'use strict';
+var root=document.documentElement;
+var mqDark=window.matchMedia('(prefers-color-scheme: dark)');
+var tBtns=[].slice.call(document.querySelectorAll('.themebar button'));
+function syncTheme(){
+  var cur;
+  if(root.getAttribute('data-mode')==='proj') cur='proj';
+  else if(root.getAttribute('data-theme')==='dark') cur='dark';
+  else if(root.getAttribute('data-theme')==='light') cur='light';
+  else cur = mqDark.matches ? 'dark' : 'light';
+  tBtns.forEach(function(b){ b.setAttribute('aria-pressed', b.dataset.t===cur?'true':'false'); });
+}
+function applyTheme(v,store){
+  if(v==='light'){ root.setAttribute('data-theme','light'); root.removeAttribute('data-mode'); }
+  else if(v==='dark'){ root.setAttribute('data-theme','dark'); root.removeAttribute('data-mode'); }
+  else if(v==='proj'){ root.setAttribute('data-theme','light'); root.setAttribute('data-mode','proj'); }
+  if(store){ try{ localStorage.setItem('mt-tema',v); }catch(e){} }
+  syncTheme();
+}
+tBtns.forEach(function(b){ b.addEventListener('click',function(){ applyTheme(b.dataset.t,true); }); });
+(function(){
+  var v=null; try{ v=localStorage.getItem('mt-tema'); }catch(e){}
+  if(v==='light'||v==='dark'||v==='proj') applyTheme(v,false); else syncTheme();
+})();
+if(mqDark.addEventListener) mqDark.addEventListener('change',syncTheme);
+})();
+</script>
+</body>
+</html>

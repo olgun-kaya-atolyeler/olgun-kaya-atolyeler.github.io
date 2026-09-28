@@ -1,0 +1,1839 @@
+<!DOCTYPE html>
+<html lang="tr">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Yükselteç: Tek Transistörlü Amfi</title>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400..600;1,6..72,400&family=Chakra+Petch:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+  :root{
+    --ground:#E5ECF3; --panel:#FFFFFF; --panel-2:#F1F6FA;
+    --ink:#0B1620; --ink-2:#3F5265; --ink-3:#697E92;
+    --line:#C7D4E0; --line-2:#DEE7EF;
+    --sin:#A8600A; --cos:#0F5F80; --arc:#A81E6E; --brass:#4A7A12;
+    --on-sin:#FFFFFF; --ok:#1E6B45; --no:#A8203C;
+    --shadow:0 1px 2px rgba(11,22,32,.06), 0 8px 20px -14px rgba(11,22,32,.26);
+    --fs:15px;
+    --board-h:clamp(430px,43vw,520px);
+    --board-fik:clamp(560px,56vw,644px);
+    --board-nok:clamp(560px,56vw,644px);
+    --board-kaz:clamp(560px,56vw,644px);
+    --board-boo:clamp(575px,57vw,661px);
+    --font-display:"Chakra Petch","IBM Plex Sans",sans-serif;
+    --h1:clamp(30px,4.5vw,46px);
+    --h2:clamp(21px,2.5vw,28px);
+    --track:.02em; --radius:2px; --radius-s:2px;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --ground:#070F17; --panel:#0E1720; --panel-2:#13202C;
+      --ink:#E7F2FB; --ink-2:#9FB6C9; --ink-3:#6B8296;
+      --line:#213240; --line-2:#182533;
+      --sin:#FFB01F; --cos:#4FD3FF; --arc:#FF6AC1; --brass:#A8FF60;
+      --on-sin:#0A1017; --ok:#3EE59B; --no:#FF5F86;
+      --shadow:0 0 0 1px rgba(79,211,255,.07), 0 12px 30px -18px rgba(0,0,0,.9);
+    }
+  }
+  :root[data-theme="dark"]{
+    --ground:#070F17; --panel:#0E1720; --panel-2:#13202C;
+    --ink:#E7F2FB; --ink-2:#9FB6C9; --ink-3:#6B8296;
+    --line:#213240; --line-2:#182533;
+    --sin:#FFB01F; --cos:#4FD3FF; --arc:#FF6AC1; --brass:#A8FF60;
+    --on-sin:#0A1017; --ok:#3EE59B; --no:#FF5F86;
+    --shadow:0 0 0 1px rgba(79,211,255,.07), 0 12px 30px -18px rgba(0,0,0,.9);
+  }
+  :root[data-mode="proj"]{
+    --ground:#F3F8FC; --panel:#FFFFFF; --panel-2:#EDF4F9;
+    --ink:#040B12; --ink-2:#2A3A49; --ink-3:#546678;
+    --line:#ADBFCE; --line-2:#D2DEE9;
+    --sin:#8A4D00; --cos:#084A66; --arc:#8A1258; --brass:#3A6208;
+    --on-sin:#FFFFFF; --ok:#14512F; --no:#8A1428;
+    --shadow:0 1px 2px rgba(11,22,32,.09), 0 8px 20px -14px rgba(11,22,32,.3);
+    --fs:17px;
+    --board-h:clamp(470px,47vw,572px);
+    --board-fik:clamp(610px,61vw,700px);
+    --board-nok:clamp(610px,61vw,700px);
+    --board-kaz:clamp(610px,61vw,700px);
+    --board-boo:clamp(625px,62vw,718px);
+  }
+  @media (max-width:820px){
+    :root, :root[data-mode="proj"]{ --board-r:580px; }
+  }
+  @media (max-width:760px){
+    :root, :root[data-mode="proj"]{
+      --board-h:520px;
+      --board-fik:860px; --board-nok:860px; --board-kaz:860px; --board-boo:860px;
+    }
+  }
+
+  *{box-sizing:border-box}
+  body{
+    background:var(--ground);color:var(--ink);
+    font-family:"IBM Plex Sans","Helvetica Neue",Arial,sans-serif;
+    font-size:var(--fs);line-height:1.6;-webkit-font-smoothing:antialiased;
+  }
+  .wrap{max-width:1160px;margin:0 auto;padding:34px 20px 60px;display:flex;flex-direction:column;gap:14px}
+
+  .topbar{display:flex;gap:28px;justify-content:space-between;align-items:flex-start;margin-bottom:12px}
+  @media (max-width:640px){.topbar{flex-direction:column-reverse;align-items:flex-start;gap:16px}}
+  .theme{display:flex;flex:0 0 auto;flex-wrap:wrap;border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;background:var(--panel);box-shadow:var(--shadow)}
+  .theme button{border:0;border-left:1px solid var(--line);border-radius:0;background:transparent;font-size:12.5px;padding:8px 12px;color:var(--ink-2)}
+  .theme button:first-child{border-left:0}
+  .theme button:hover{background:var(--panel-2);color:var(--ink)}
+  .theme button[aria-pressed="true"]{background:var(--ink);color:var(--panel);font-weight:500}
+  .theme button:focus-visible{outline:2px solid var(--arc);outline-offset:-2px}
+  header{display:flex;flex-direction:column;gap:9px;max-width:66ch}
+  .eyebrow{margin:0;font-size:11.5px;font-weight:600;letter-spacing:.13em;text-transform:uppercase;color:var(--ink-3)}
+  h1{margin:0;font-family:var(--font-display);font-weight:500;font-size:var(--h1);line-height:1.06;letter-spacing:var(--track);text-wrap:balance}
+  .lede{margin:2px 0 0;color:var(--ink-2);font-size:16.5px;text-wrap:pretty}
+  .lede b{color:var(--ink);font-weight:600}
+
+  section.sec{display:flex;flex-direction:column;gap:14px;padding-top:22px}
+  .sec-head{display:flex;align-items:baseline;gap:14px;border-bottom:1px solid var(--line);padding-bottom:9px}
+  .sec-num,.num{font-family:"IBM Plex Mono",monospace;font-size:12px;font-weight:500;color:var(--brass);letter-spacing:.06em;flex:0 0 auto;padding-top:5px}
+  .sec-head h2{margin:0;font-family:var(--font-display);font-weight:500;font-size:var(--h2);letter-spacing:var(--track);line-height:1.15;text-wrap:balance}
+  .sec-head p{margin:0;color:var(--ink-3);font-size:13px;margin-left:auto;flex:0 0 auto;text-align:right}
+  @media (max-width:620px){.sec-head p{display:none}}
+
+  .panel{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow)}
+
+  .why{display:grid;grid-template-columns:1fr 1.12fr;gap:20px 28px;align-items:center}
+  @media (max-width:860px){.why{grid-template-columns:1fr;align-items:start}}
+  .why-lead{display:flex;flex-direction:column;gap:13px;padding-bottom:4px}
+  .why-more{display:grid;grid-template-columns:repeat(auto-fit,minmax(255px,1fr));gap:16px 28px;margin-top:6px}
+  .why-lead p,.why-more p{margin:0;color:var(--ink-2)}
+  .why-lead p b,.why-more p b{color:var(--ink);font-weight:600}
+  .cols3{display:grid;grid-template-columns:repeat(3,1fr);gap:16px 28px}
+  @media (max-width:900px){.cols3{grid-template-columns:1fr}}
+  .cols3 p{margin:0;color:var(--ink-2);font-size:14px;line-height:1.6}
+  .cols3 p b{color:var(--ink);font-weight:600}
+  .cols .intro-col{display:flex;flex-direction:column;gap:12px}
+  .cols .intro-col p{margin:0;color:var(--ink-2)}
+  .cols .intro-col p b{color:var(--ink);font-weight:600}
+  p.pull{font-size:16px;color:var(--ink)!important;border-left:3px solid var(--sin);
+    padding-left:13px}
+  .panel-body.nopad{padding:0;gap:0}
+  .quiz{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);
+    box-shadow:var(--shadow);padding:16px 18px 18px;display:flex;flex-direction:column;gap:12px}
+  .q-head{display:flex;align-items:baseline;justify-content:space-between;gap:14px}
+  .q-head .count{font-family:"IBM Plex Mono",monospace;font-size:12px;color:var(--ink-3);
+    font-variant-numeric:tabular-nums;flex:0 0 auto}
+  .q-head .q-text{font-size:16px;font-weight:500;text-wrap:pretty}
+  .quiz > button{align-self:flex-start}
+  .kicker{font-family:"Newsreader",Georgia,serif;font-size:clamp(21px,2.2vw,26px);line-height:1.28;color:var(--ink);font-style:italic;max-width:29ch;letter-spacing:-.01em;text-wrap:balance}
+  .trio-list{display:flex;flex-direction:column;gap:1px;background:var(--line);
+    border:1px solid var(--line);border-radius:var(--radius);overflow:hidden}
+  .tl{background:var(--panel);padding:13px 15px 14px;border-left:3px solid var(--line)}
+  .tl-1{border-left-color:var(--sin)} .tl-2{border-left-color:var(--arc)}
+  .tl-3{border-left-color:var(--cos)}
+  .tl h3{margin:0 0 3px;font-family:var(--font-display);font-weight:500;font-size:15.5px;
+    letter-spacing:var(--track)}
+  .tl p{margin:0;font-size:13.5px;line-height:1.5;color:var(--ink-2)}
+  .tl p b{color:var(--ink);font-weight:600}
+  .tl code{font-size:.92em}
+
+  .defs{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--line);border:1px solid var(--line);border-radius:var(--radius);overflow:hidden}
+  @media (max-width:880px){.defs{grid-template-columns:repeat(2,1fr)}}
+  @media (max-width:560px){.defs{grid-template-columns:1fr}}
+  .def{background:var(--panel);padding:16px 17px 18px;display:flex;flex-direction:column;gap:7px}
+  .def h3{margin:0;font-size:14.5px;font-weight:600;display:flex;align-items:baseline;gap:8px;flex-wrap:wrap}
+  .def h3 em{font-style:normal;font-family:"IBM Plex Mono",monospace;font-size:11.5px;color:var(--ink-3);font-weight:400}
+  .def p{margin:0;font-size:13.8px;color:var(--ink-2);line-height:1.55}
+  .def p b{color:var(--ink);font-weight:600}
+  code{font-family:"IBM Plex Mono",monospace;font-size:.9em;background:var(--panel-2);border:1px solid var(--line-2);padding:1px 5px;border-radius:var(--radius-s)}
+
+  .lang{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--line);border:1px solid var(--line);border-radius:var(--radius);overflow:hidden}
+  @media (max-width:1000px){.lang{grid-template-columns:repeat(2,1fr)}}
+  @media (max-width:560px){.lang{grid-template-columns:1fr}}
+  .lg{background:var(--panel);padding:16px 17px 18px;display:flex;flex-direction:column;gap:8px}
+  .lg-top{display:flex;align-items:baseline;justify-content:space-between;gap:8px}
+  .lg h3{margin:0;font-size:14.5px;font-weight:600}
+  .lg .unit{font-family:"IBM Plex Mono",monospace;font-size:11px;color:var(--ink-3)}
+  .lg p{margin:0;font-size:13.8px;color:var(--ink-2);line-height:1.55}
+  .lg .music{margin-top:2px;font-size:12.5px;color:var(--ink);border-left:2px solid var(--brass);padding-left:9px}
+  .lg .music b{font-weight:600}
+
+  .stage{padding:0;overflow:hidden}
+  .stage-top,.stage-head{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px;padding:13px 16px;border-bottom:1px solid var(--line-2)}
+  .modes{display:flex;flex-wrap:wrap;border:1px solid var(--line);border-radius:var(--radius);overflow:hidden}
+  .modes button{border:0;border-left:1px solid var(--line);border-radius:0;background:var(--panel-2);font-size:13px;padding:8px 15px;color:var(--ink-2);font-weight:500}
+  .modes button:first-child{border-left:0}
+  .modes button:hover{color:var(--ink)}
+  .modes button[aria-pressed="true"]{background:var(--sin);color:var(--on-sin)}
+  .readout{display:flex;flex-wrap:wrap;font-family:"IBM Plex Mono",ui-monospace,monospace;font-variant-numeric:tabular-nums;font-size:13px}
+  .readout div{padding:0 13px;border-left:1px solid var(--line-2)}
+  .readout div:first-child{border-left:0;padding-left:0}
+  .readout b{font-weight:500}
+  .readout span{color:var(--ink-3);font-size:11px;letter-spacing:.06em;text-transform:uppercase;display:block;line-height:1.3}
+  .v-sin{color:var(--sin)} .v-cos{color:var(--cos)} .v-arc{color:var(--arc)}
+
+  .canvas-wrap{background:var(--panel-2);border-bottom:1px solid var(--line-2)}
+  #board{display:block;width:100%;height:var(--board-h);touch-action:none;cursor:default}
+  .stage[data-scene="fik"] #board{height:var(--board-fik)}
+  .stage[data-scene="nok"] #board{height:var(--board-nok)}
+  .stage[data-scene="kaz"] #board{height:var(--board-kaz)}
+  .stage[data-scene="boo"] #board{height:var(--board-boo)}
+
+  #board.tut{cursor:grab}
+  #board.tut:active{cursor:grabbing}
+
+  .controls{padding:15px 16px 17px;display:flex;flex-direction:column;gap:14px}
+  .ctl-row{display:flex;flex-wrap:wrap;gap:14px 20px;align-items:center}
+  .ctl-row[hidden]{display:none}
+  .field[hidden]{display:none}
+  .btn-group[hidden]{display:none}
+  .ctl-label{font-size:11px;font-weight:600;letter-spacing:.09em;text-transform:uppercase;color:var(--ink-3);flex:0 0 auto}
+  .field{display:flex;flex-direction:column;gap:5px;min-width:172px;flex:1 1 172px;max-width:300px}
+  .field label{font-size:11px;font-weight:600;letter-spacing:.09em;text-transform:uppercase;color:var(--ink-3);display:flex;justify-content:space-between;gap:10px}
+  .field label em{font-style:normal;font-family:"IBM Plex Mono",monospace;font-variant-numeric:tabular-nums;letter-spacing:0;text-transform:none;font-size:12px;color:var(--ink-2)}
+
+  input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:20px;background:transparent;margin:0}
+  input[type=range]::-webkit-slider-runnable-track{height:4px;background:var(--line);border-radius:2px}
+  input[type=range]::-moz-range-track{height:4px;background:var(--line);border-radius:2px}
+  input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;width:16px;height:16px;border-radius:50%;background:var(--arc);border:2px solid var(--panel);margin-top:-6px;box-shadow:0 0 0 1px var(--arc)}
+  input[type=range]::-moz-range-thumb{width:14px;height:14px;border-radius:50%;background:var(--arc);border:2px solid var(--panel);box-shadow:0 0 0 1px var(--arc)}
+  input[type=range]:focus-visible{outline:2px solid var(--arc);outline-offset:4px}
+
+  button{font:inherit;font-size:13.5px;color:var(--ink);background:var(--panel-2);border:1px solid var(--line);padding:7px 13px;border-radius:var(--radius-s);cursor:pointer;transition:background .13s,border-color .13s,color .13s}
+  button:hover{border-color:var(--ink-3)}
+  button:focus-visible{outline:2px solid var(--arc);outline-offset:2px}
+  button:disabled{opacity:.42;cursor:default}
+  button.on{background:var(--ink);border-color:var(--ink);color:var(--panel)}
+  .ctl-note{font-size:12px;color:var(--ink-3);font-family:"IBM Plex Mono",monospace;
+    letter-spacing:.01em;min-width:0;flex:1 1 138px;line-height:1.35}
+  .btn-group{display:flex;flex-wrap:wrap;gap:6px}
+  .btn-group.sm button{font-size:12.5px;padding:5px 9px}
+
+  .cols{display:grid;grid-template-columns:1.3fr 1fr;gap:16px;align-items:start}
+  @media (max-width:880px){.cols{grid-template-columns:1fr}}
+  .panel-head{display:flex;align-items:baseline;justify-content:space-between;gap:12px;padding:13px 18px 11px;border-bottom:1px solid var(--line-2)}
+  .panel-head h3{margin:0;font-family:var(--font-display);font-weight:500;font-size:19px;letter-spacing:var(--track)}
+  .panel-head .count{font-family:"IBM Plex Mono",monospace;font-size:12px;color:var(--ink-3);font-variant-numeric:tabular-nums}
+  .panel-body{padding:16px 18px 18px;display:flex;flex-direction:column;gap:13px}
+  .step-title{font-family:var(--font-display);font-size:21px;font-weight:500;line-height:1.22;margin:0;letter-spacing:var(--track);text-wrap:balance}
+  .step-body{margin:0;color:var(--ink-2)}
+  .step-body strong{color:var(--ink);font-weight:600}
+  .step-nav{display:flex;gap:8px;align-items:center;margin-top:auto;padding-top:4px;flex-wrap:wrap}
+  /* 34 nokta dar ekranda paneli tasiriyordu: sarmali ve sutunlar daralabilir. */
+  .dots{display:flex;flex-wrap:wrap;gap:5px;margin-left:auto;justify-content:flex-end}
+  .cols>*{min-width:0}
+  .dot{width:7px;height:7px;border-radius:50%;background:var(--line);border:0;padding:0;cursor:pointer}
+  .dot:hover{background:var(--ink-3)}
+  .dot[aria-current="true"]{background:var(--arc)}
+
+  table{width:100%;border-collapse:collapse;font-family:"IBM Plex Mono",monospace;font-size:12.5px;font-variant-numeric:tabular-nums}
+  th,td{text-align:right;padding:6px 8px;border-bottom:1px solid var(--line-2)}
+  th:first-child,td:first-child{text-align:left}
+  th:last-child,td:last-child{text-align:left}
+  thead th{font-family:"IBM Plex Sans",sans-serif;font-size:10.5px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-3);border-bottom:1px solid var(--line)}
+  tbody tr{cursor:pointer}
+  tbody tr:hover{background:var(--panel-2)}
+  tbody tr[aria-selected="true"]{background:color-mix(in srgb,var(--arc) 13%,var(--panel))}
+  tbody tr:last-child td{border-bottom:0}
+  td.c-cmp{font-family:"IBM Plex Sans",sans-serif;font-size:12px;color:var(--ink-2)}
+  tr.unitrow td:first-child{color:var(--brass);font-weight:500}
+  /* Dar ekranda tablo tasiyordu: en az gerekli sutun gizleniyor, kalani kayabiliyor. */
+  .tbl-scroll{overflow-x:auto;-webkit-overflow-scrolling:touch}
+  @media (max-width:620px){
+    th.c-cmp,td.c-cmp{display:none}
+    table{font-size:11.5px}
+    th,td{padding:6px 5px}
+  }
+  .tbl-note{margin:10px 18px 16px;font-size:12.5px;color:var(--ink-3);line-height:1.5}
+  .tbl-note b{color:var(--ink-2);font-weight:600}
+  .tbl-note + .tbl-note{margin-top:-4px}
+
+  .quiz-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;align-items:start}
+  @media (max-width:820px){.quiz-grid{grid-template-columns:1fr}}
+  .q-text{margin:0;font-size:16px;font-weight:500;text-wrap:pretty}
+  .q-opts{display:flex;flex-direction:column;gap:7px}
+  .q-opts button{text-align:left;padding:9px 12px}
+  .q-opts button.correct{border-color:var(--ok);background:color-mix(in srgb,var(--ok) 12%,var(--panel))}
+  .q-opts button.wrong{border-color:var(--no);background:color-mix(in srgb,var(--no) 12%,var(--panel))}
+  .q-feedback{margin:0;font-size:14px;color:var(--ink-2);min-height:1.6em}
+  .q-feedback b.y{color:var(--ok);font-weight:600}
+  .q-feedback b.n{color:var(--no);font-weight:600}
+  .recap ul{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:8px}
+  .recap li{color:var(--ink-2);font-size:14px}
+  .recap b{color:var(--ink);font-weight:600}
+
+  /* ---- video bloğu (yeni video eklemek için bu kalıbı kopyala) ---- */
+  .vid{display:grid;grid-template-columns:1.25fr 1fr;gap:16px;align-items:start}
+  @media (max-width:900px){.vid{grid-template-columns:1fr}}
+  .vid-main{display:flex;flex-direction:column;gap:9px;min-width:0}
+  .vid-frame{position:relative;aspect-ratio:16/9;width:100%;background:var(--panel-2);
+    border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);
+    overflow:hidden}
+  .vid-frame iframe{position:absolute;inset:0;z-index:1;width:100%;height:100%;border:0;display:block}
+  .vid-play{position:absolute;inset:0;z-index:0;width:100%;height:100%;
+    display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;
+    text-align:center;padding:20px;border:0;border-radius:0;background:transparent;
+    cursor:pointer;color:inherit}
+  .vid-play:hover{background:color-mix(in srgb,var(--sin) 7%,transparent);border-color:transparent}
+  .vid-play:focus-visible{outline:2px solid var(--arc);outline-offset:-4px}
+  .vid-tri{width:62px;height:62px;border-radius:50%;background:var(--sin);
+    display:block;margin-bottom:6px;position:relative;box-shadow:var(--shadow);
+    transition:transform .14s}
+  .vid-tri::after{content:"";position:absolute;top:50%;left:54%;transform:translate(-50%,-50%);
+    border-style:solid;border-width:11px 0 11px 18px;
+    border-color:transparent transparent transparent var(--on-sin)}
+  .vid-play:hover .vid-tri{transform:scale(1.07)}
+  .vid-play b{font-family:var(--font-display);font-weight:500;font-size:18px;
+    letter-spacing:var(--track);color:var(--ink);line-height:1.2;text-wrap:balance}
+  .vid-play .vid-ch{font-size:13px;color:var(--ink-3)}
+  .vid-play .vid-hint{font-style:normal;font-family:"IBM Plex Mono",monospace;
+    font-size:11.5px;color:var(--ink-3);margin-top:5px}
+  .vid-meta{margin:0;font-size:13px;color:var(--ink-2);line-height:1.5}
+  .vid-meta b{color:var(--ink);font-weight:600}
+  .vid-meta a{color:var(--cos);font-weight:600;text-underline-offset:3px}
+  .vid-meta span{display:block;margin-top:3px;font-size:12px;color:var(--ink-3)}
+  .vid-guide{background:var(--panel);border:1px solid var(--line);
+    border-left:3px solid var(--brass);border-radius:var(--radius);
+    box-shadow:var(--shadow);padding:15px 18px 17px}
+  .vid-guide h3{margin:0 0 9px;font-family:var(--font-display);font-weight:500;
+    font-size:17px;letter-spacing:var(--track)}
+  .vid-guide ol{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:9px}
+  .vid-guide li{font-size:13.5px;line-height:1.5;color:var(--ink-2)}
+  .vid-guide li b{color:var(--ink);font-weight:600}
+  .vid-guide li::marker{color:var(--brass);font-weight:600}
+  .vid-note{margin:13px 0 0;padding-top:11px;border-top:1px solid var(--line-2);
+    font-size:13px;color:var(--ink-3);line-height:1.5}
+  .vid-note b{color:var(--ink-2);font-weight:600}
+
+  .spec{display:grid;grid-template-columns:1.05fr 1fr;gap:16px;align-items:start}
+  @media (max-width:880px){.spec{grid-template-columns:1fr}}
+  .spec-card{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);
+    box-shadow:var(--shadow);padding:16px 18px 18px;font-family:"IBM Plex Mono",monospace;font-size:13px}
+  .spec-card h3{margin:0 0 10px;font-family:var(--font-display);font-size:17px;font-weight:500;letter-spacing:var(--track)}
+  .spec-row{display:flex;justify-content:space-between;gap:14px;padding:6px 0;border-bottom:1px solid var(--line-2)}
+  .spec-row:last-child{border-bottom:0}
+  .spec-row span{color:var(--ink-3)}
+  .spec-row b{font-weight:500;color:var(--ink)}
+  .spec-row.q{background:color-mix(in srgb,var(--arc) 9%,transparent);margin:0 -8px;padding:6px 8px;border-radius:2px}
+  .ask{display:flex;flex-direction:column;gap:12px}
+  .ask .a{background:var(--panel);border:1px solid var(--line);border-left:3px solid var(--arc);
+    border-radius:var(--radius);box-shadow:var(--shadow);padding:12px 15px 13px}
+  .ask .a h4{margin:0 0 3px;font-size:14px;font-weight:600}
+  .ask .a p{margin:0;font-size:13.5px;color:var(--ink-2);line-height:1.5}
+  .ask .a b{color:var(--ink);font-weight:600}
+  footer{color:var(--ink-3);font-size:12.5px;border-top:1px solid var(--line);padding-top:14px;margin-top:26px;display:flex;flex-wrap:wrap;gap:6px 18px}
+  footer b{color:var(--ink-2);font-weight:600}
+  @media (max-width:760px){
+    button{font-size:14.5px;padding:9px 14px}
+    .btn-group.sm button{font-size:13px;padding:7px 11px}
+    .theme button{padding:8px 9px;font-size:12px}
+    .modes button{padding:9px 12px;font-size:13px}
+    .q-opts button{padding:12px 14px}
+    input[type=range]{height:30px}
+    input[type=range]::-webkit-slider-thumb{width:22px;height:22px;margin-top:-9px}
+    input[type=range]::-moz-range-thumb{width:20px;height:20px}
+    .readout{width:100%}
+    .readout div{padding:0 11px 0 0;border-left:0}
+    .wrap{padding:22px 16px 44px}
+  }
+
+  /* ---- 29. atolyeye ozel ---- */
+  .cks{display:flex;flex-direction:column;gap:1px;background:var(--line);
+    border:1px solid var(--line);border-radius:var(--radius);overflow:hidden}
+  .ck{background:var(--panel);display:grid;grid-template-columns:auto 1fr;gap:3px 10px;
+    padding:10px 13px 11px;align-items:start}
+  .ck .mk{grid-row:1/3;width:20px;height:20px;border-radius:50%;display:flex;
+    align-items:center;justify-content:center;font-size:12px;font-weight:700;
+    font-family:"IBM Plex Mono",monospace;margin-top:1px}
+  .ck.ok .mk{background:color-mix(in srgb,var(--ok) 18%,var(--panel));color:var(--ok)}
+  .ck.no .mk{background:color-mix(in srgb,var(--sin) 20%,var(--panel));color:var(--sin)}
+  .ck b{font-size:13.2px;font-weight:600;line-height:1.35;color:var(--ink)}
+  .ck span{font-size:12.4px;color:var(--ink-2);line-height:1.45}
+  /* Tur seridi: sahne dugmelerinin altinda, tuvalin hemen ustunde. Tur degisince
+     yukaridaki sahne aninda degistigi icin secici gorus alaninda duruyor. */
+  .turbar{display:flex;align-items:center;gap:10px;padding:10px 16px;
+    border-bottom:1px solid var(--line-2);background:var(--panel-2)}
+  .turbar>.tb-lab{font-family:"IBM Plex Mono",monospace;font-size:10.5px;font-weight:500;
+    letter-spacing:.09em;text-transform:uppercase;color:var(--ink-3);flex:0 0 auto}
+  .turbar .tb-scroll{display:flex;gap:6px;overflow-x:auto;flex:1 1 auto;
+    scrollbar-width:thin;padding-bottom:1px}
+  .tb{flex:0 0 auto;border:1px solid var(--line);border-radius:var(--radius);
+    background:var(--panel);padding:6px 12px 7px;display:flex;flex-direction:column;
+    gap:1px;text-align:left;cursor:pointer;line-height:1.25}
+  .tb:hover{background:var(--panel-2);color:var(--ink)}
+  .tb b{font-size:12.8px;font-weight:600;color:var(--ink)}
+  .tb em{font-style:normal;font-family:"IBM Plex Mono",monospace;font-size:10.8px;
+    color:var(--ink-3);white-space:nowrap}
+  .tb[aria-pressed="true"]{border-color:var(--sin);
+    background:color-mix(in srgb,var(--sin) 12%,var(--panel))}
+  .tb[aria-pressed="true"] em{color:var(--ink-2)}
+  @media (max-width:760px){
+    .turbar{flex-direction:column;align-items:stretch;gap:6px;padding:9px 12px}
+    .tb{padding:6px 10px}
+    .tb b{font-size:12.4px}
+  }
+  .pick{display:flex;flex-direction:column;gap:1px;background:var(--line);
+    border:1px solid var(--line);border-radius:var(--radius);overflow:hidden}
+  .pk{background:var(--panel);border:0;border-left:3px solid transparent;border-radius:0;
+    text-align:left;padding:11px 14px 12px;display:flex;flex-direction:column;gap:3px;
+    cursor:pointer;width:100%}
+  .pk:hover{background:var(--panel-2)}
+  .pk[aria-pressed="true"]{border-left-color:var(--sin);
+    background:color-mix(in srgb,var(--sin) 8%,var(--panel))}
+  .pk b{font-size:13.4px;font-weight:600;color:var(--ink)}
+  .pk span{font-size:12.4px;color:var(--ink-2);line-height:1.45;font-weight:400}
+  .pk em{font-style:normal;font-family:"IBM Plex Mono",monospace;font-size:11.5px;
+    color:var(--ink-3)}
+  .tag{display:inline-block;padding:1px 6px;border-radius:2px;font-size:10.5px;font-weight:600;
+    letter-spacing:.04em;border:1px solid}
+  .tag-a{color:var(--brass);border-color:color-mix(in srgb,var(--brass) 45%,transparent);
+    background:color-mix(in srgb,var(--brass) 11%,transparent)}
+  .tag-b{color:var(--sin);border-color:color-mix(in srgb,var(--sin) 45%,transparent);
+    background:color-mix(in srgb,var(--sin) 11%,transparent)}
+  .hint{margin:0;font-size:12.5px;color:var(--ink-3);line-height:1.5}
+  .hint b{color:var(--ink-2);font-weight:600}
+  @media (prefers-reduced-motion: reduce){*{transition:none!important}}
+  .field.bilinmez label{color:var(--arc)}
+  .field.bilinmez input{opacity:.5}
+  td .hata{color:var(--ink-3);font-size:11px;margin-left:4px}
+  .sw{display:inline-block;width:12px;height:12px;border:1px solid var(--line);margin-right:6px;vertical-align:-1px;border-radius:2px}
+  td.bantlar .sw{width:14px;height:14px;margin-right:3px}
+  #palet button:disabled{opacity:.28}
+  #oSec button{min-width:92px;font-family:"IBM Plex Mono",monospace}
+  #oSec button.correct{border-color:var(--cos);background:color-mix(in srgb,var(--cos) 16%,var(--panel));opacity:1}
+  #oSec button.wrong{border-color:var(--arc);background:color-mix(in srgb,var(--arc) 16%,var(--panel));opacity:1}
+</style>
+<div class="wrap">
+  <div class="topbar">
+    <header>
+      <p class="eyebrow">Elektronik Bilgisi · Sınıf atölyesi</p>
+      <h1>Yükselteç: Tek Transistörlü Amfi</h1>
+      <p class="lede">Bir önceki atölyede transistörü hep iki uçta kullandık: kapalı ya da tam açık. Bu kez onu tam ortada, <b>yarı açık</b>
+        tutuyoruz. Orada tabandaki küçük bir değişim, kolektörde yirmi kat büyük bir değişim olarak çıkar: <b>yükselteç</b>. Tek transistör ve
+        dört dirençle kurulan bu devre, bir amfinin ilk katının ve en basit booster pedalının ta kendisi.</p>
+    </header>
+    <div class="theme" role="group" aria-label="Görünüm">
+      <button type="button" data-t="light">Açık</button>
+      <button type="button" data-t="dark">Koyu</button>
+      <button type="button" data-t="proj">Projeksiyon</button>
+    </div>
+  </div>
+
+  <section class="sec">
+    <div class="sec-head"><span class="num">01</span><h2>Neden yükselteç?</h2>
+      <span class="kicker">Birkaç yüz milivolttan onlarca volta</span></div>
+    <div class="panel">
+      <div class="panel-body">
+        <p>Gitarın manyetiği tel titreşirken birkaç yüz milivoltluk bir gerilim üretir (Gitarın Sesi atölyesi). Bir hoparlörü duyulur biçimde
+          sürmek için ise onlarca volt ve birkaç amper gerekir. Aradaki farkı kapatan cihazın adı <b>yükselteç</b>, gündelik dilde
+          <b>amfi</b>. Bir gitar amfisinde önce birkaç yükselteç katı gerilimi büyütür, en sonda bir güç katı hoparlörü sürer.</p>
+        <p>Yükseltmenin fikri çok basit: transistörü ne kapalı ne tam açık, <b>ortada</b> tutmak. Taban biraz yükselince kolektör akımı biraz
+          artar; bu akım bir dirençten geçerken gerilime dönüşür. Tabandaki 0,1 V’luk oynama kolektörde 2 V’luk bir oynama olur.</p>
+        <p>Atölye bu yolu izliyor: önce <b>yükseltme fikri</b>, sonra transistörü ortada tutan <b>çalışma noktası</b>, sonra ne kadar
+          büyüteceğini belirleyen <b>kazanç</b> ve son olarak hepsinin bir araya geldiği <b>booster pedalı</b>: dinleyerek.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="sec">
+    <div class="sec-head"><span class="num">02</span><h2>Bilmemiz gereken dokuz kavram</h2>
+      <span class="kicker">Yarı açık transistörden overdrive’a</span></div>
+    <div class="defs">
+      <div class="def"><h3>Yükselteç <em>amplifier</em></h3>
+        <p>Girişteki küçük bir sinyali aynı biçimde ama daha büyük olarak çıkaran devre. Enerjiyi sinyalden değil, 9 V’luk beslemeden alır.</p></div>
+      <div class="def"><h3>Kazanç <em>gain</em></h3>
+        <p>Çıkışın girişe oranı. ×22 kazanç ≈ 27 dB (Desibel atölyesi: her ×10, +20 dB).</p></div>
+      <div class="def"><h3>Ortak emetör</h3>
+        <p>Girişin tabana, çıkışın kolektörden alındığı, emetörün toprağa yakın durduğu en yaygın tek transistörlü düzen.</p></div>
+      <div class="def"><h3>Çalışma noktası <em>bias</em></h3>
+        <p>Sinyal yokken transistörün durduğu yer. Kolektör beslemenin yaklaşık yarısında olmalı: iki yöne de salınabilsin.</p></div>
+      <div class="def"><h3>Taban bölücüsü</h3>
+        <p>R1 ve R2: tabanı sabit bir gerilimde (≈ 0,7 V) tutan gerilim bölücü (Seri ve Paralel atölyesi).</p></div>
+      <div class="def"><h3>Rc ve Re</h3>
+        <p>Rc akım değişimini gerilime çevirir; Re kazancı sınırlar ve sabitler. Kazanç kabaca <b>Rc ÷ Re</b>.</p></div>
+      <div class="def"><h3>Ters çevirme</h3>
+        <p>Taban yükselirken kolektör iner: çıkış girişin tersidir. Kulak bu ters dönmeyi tek başına duymaz.</p></div>
+      <div class="def"><h3>Kırpma <em>clipping</em></h3>
+        <p>Çıkış 9 V’luk tavana ya da emetörün üstündeki tabana çarpınca dalganın tepesi düzleşir: overdrive ve distortion.</p></div>
+      <div class="def"><h3>Bağlama kapasitörü</h3>
+        <p>Giriş ve çıkıştaki kapasitör: sesi geçirir, doğru gerilimi (çalışma noktasını) içeride tutar (Kapasitörler atölyesi).</p></div>
+    </div>
+  </section>
+
+  <section class="sec">
+    <div class="sec-head"><span class="num">03</span><h2>Atölye: dört sahne</h2>
+      <span class="kicker">Fikir · çalışma noktası · kazanç · pedal</span></div>
+
+    <div class="stage" id="stage">
+      <div class="stage-head">
+        <div class="modes" role="group" aria-label="Sahne">
+          <button type="button" data-m="fik">Yükseltme fikri</button>
+          <button type="button" data-m="nok">Çalışma noktası</button>
+          <button type="button" data-m="kaz">Kazanç</button>
+          <button type="button" data-m="boo">Booster pedalı</button>
+        </div>
+        <div class="readout" id="readout"></div>
+      </div>
+
+      <div class="canvas-wrap"><canvas id="board"></canvas></div>
+
+      <div class="controls">
+        <div class="ctl-row" id="row-fik">
+          <div class="field"><label for="f-fgir">Giriş <em id="v-fgir"></em></label>
+            <input id="f-fgir" type="range" min="10" max="150" step="5" value="100"></div>
+          <div class="btn-group sm"><button type="button" id="b-fcalis">Canlandır</button></div>
+          <span class="ctl-note" id="f-note"></span>
+        </div>
+
+        <div class="ctl-row" id="row-nok" hidden>
+          <div class="field"><label for="f-nr2">R2 <em id="v-nr2"></em></label>
+            <input id="f-nr2" type="range" min="25" max="70" step="1" value="43"></div>
+          <span class="ctl-label">Giriş</span><div class="btn-group sm" id="gNG"></div>
+          <div class="btn-group sm"><button type="button" id="b-ndinle">Dinle</button></div>
+          <span class="ctl-note" id="n-note"></span>
+        </div>
+
+        <div class="ctl-row" id="row-kaz" hidden>
+          <span class="ctl-label">Re</span><div class="btn-group sm" id="gKR"></div>
+          <span class="ctl-label">Giriş</span><div class="btn-group sm" id="gKG"></div>
+          <div class="btn-group sm"><button type="button" id="b-kdinle">Dinle</button></div>
+          <span class="ctl-note" id="k-note"></span>
+        </div>
+
+        <div class="ctl-row" id="row-boo" hidden>
+          <div class="btn-group sm"><button type="button" id="b-bac">Pedal: açık</button></div>
+          <span class="ctl-label">Kaynak</span><div class="btn-group sm" id="gBM"></div>
+          <div class="field"><label for="f-bvol">Volume <em id="v-bvol"></em></label>
+            <input id="f-bvol" type="range" min="0" max="100" step="1" value="70"></div>
+          <div class="btn-group sm"><button type="button" id="b-bdinle">Dinle</button></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="cols">
+      <section class="panel">
+        <div class="panel-head"><h3>Ders akışı</h3><span class="count" id="step-count">1 / 1</span></div>
+        <div class="panel-body">
+          <h4 id="step-title"></h4>
+          <p id="step-body"></p>
+          <div class="steps"><button type="button" id="prev">Önceki</button><button type="button" id="next">Sonraki</button></div>
+          <div class="dots" id="dots"></div>
+        </div>
+      </section>
+      <section class="panel">
+        <div class="panel-head"><h3>Kendin dene</h3><span class="count" id="ner-count"></span></div>
+        <div class="panel-body">
+          <p class="tbl-note" id="ner-not"></p>
+          <p class="tbl-note">Ses yalnızca <b>Dinle</b> düğmesine basınca çalar ve sahne değişince durur. Akor sentezle üretildi (Gitarın Sesi
+            atölyesindeki gibi) ve her örneği bu sayfadaki devrenin modelinden geçiyor; amfi ve hoparlör rengi yok. Bypass ile açık arasındaki
+            seviye farkı gerçek oranında: bypass’ta ses kısık gelir. Seviyeyi önce düşük tutun.</p>
+        </div>
+      </section>
+    </div>
+  </section>
+
+  <section class="sec">
+    <div class="sec-head"><span class="num">04</span><h2>Kaynak seviyesi ve booster</h2>
+      <span class="kicker">Satıra tıklayın, pedal sahnesi o kaynakla açılır</span></div>
+    <div class="panel">
+      <div class="tbl-scroll">
+      <table id="atab">
+        <thead><tr><th>Kaynak</th><th>Tepe gerilimi</th><th>Booster çıkışı (volume 10)</th><th class="c-cmp">Durum</th></tr></thead>
+        <tbody></tbody>
+      </table>
+      </div>
+      <p class="tbl-note">Kaynak seviyeleri tipik ve temsilî: aynı gitar bile sert ve yumuşak çalışta birkaç kat fark verir. Çıkışlar bu sayfanın
+        modelinden (β = 200, 9 V, 430 kΩ / 43 kΩ, 10 kΩ / 390 Ω). Temiz kalabilen en büyük giriş ≈ 170 mV; üstünde kırpma başlar.</p>
+    </div>
+  </section>
+
+  <section class="sec">
+    <div class="sec-head"><span class="num">05</span><h2>Pratikte ne işe yarar?</h2><span class="kicker">Altı çıkarım</span></div>
+    <div class="cks">
+      <div class="ck ok"><span class="mk">✓</span><b>Kolektör besleme yarısında</b>
+        <span>Bir transistörlü devreyi ölçerken ilk bakılacak yer: sinyal yokken kolektör, beslemenin yaklaşık yarısında mı? 9 V’ta 4–5 V
+          sağlıklı; 8,5 V ya da 0,5 V ise çalışma noktası kaymış, ses bir yandan kırpılır.</span></div>
+      <div class="ck ok"><span class="mk">✓</span><b>Kazanç dirençlerle ayarlanır</b>
+        <span>Rc ÷ Re kuralı sayesinde kazanç transistörün β’sına pek bağlı değildir: β’sı 200 ya da 400 olan iki transistör aynı devrede
+          hemen hemen aynı kazancı verir. Bu, seri üretimde her pedalın aynı çalmasını sağlar.</span></div>
+      <div class="ck ok"><span class="mk">✓</span><b>Kırpma bir hata değil, bir renk</b>
+        <span>Temiz yükseltecin sınırı aşılınca ses kırpılır. Overdrive ve fuzz pedalları bunu bilerek yapar; amfiyi booster’la sert sürmek
+          de aynı fikir.</span></div>
+      <div class="ck ok"><span class="mk">✓</span><b>Booster tüplü amfiyi zorlar</b>
+        <span>Temiz bir booster sesi olduğu gibi büyütür; amfinin ilk katı daha güçlü bir sinyalle karşılaşıp kendisi kırpmaya başlar.
+          Gitaristlerin “amfiyi booster’la itmek” dediği şey.</span></div>
+      <div class="ck no"><span class="mk">!</span><b>Tek transistör hoparlör süremez</b>
+        <span>Bu devrenin çıkış direnci ≈ 10 kΩ (Rc). 8 Ω’luk bir hoparlör bağlanırsa sinyal neredeyse sıfıra iner. Hoparlörü sürmek için
+          çok akım verebilen ayrı bir güç katı gerekir.</span></div>
+      <div class="ck no"><span class="mk">!</span><b>Kapasitörler çalışma noktasını korur</b>
+        <span>Giriş kapasitörü olmadan gitarın manyetiği (birkaç kΩ) tabanı toprağa çeker ve çalışma noktası kayar; çıkış kapasitörü olmadan
+          4,5 V’luk doğru gerilim sonraki pedala gider. İkisi de gerekli.</span></div>
+    </div>
+  </section>
+
+  <section class="sec">
+    <div class="sec-head"><span class="num">06</span><h2>Bu kavramların dili</h2><span class="kicker">Kitapta ve katalogda</span></div>
+    <div class="panel">
+      <div class="tbl-scroll">
+      <table id="ltable">
+        <thead><tr><th>Terim</th><th>Türkçe</th><th class="c-cmp">Ne demek</th></tr></thead>
+        <tbody>
+          <tr><td>Amplifier · preamp · power amp</td><td>Yükselteç · ön yükselteç · güç yükselteci</td><td class="c-cmp">Gerilimi büyüten · hoparlörü süren</td></tr>
+          <tr><td>Gain · voltage gain</td><td>Kazanç · gerilim kazancı</td><td class="c-cmp">Çıkış ÷ giriş; dB ile de söylenir</td></tr>
+          <tr><td>Common emitter</td><td>Ortak emetör</td><td class="c-cmp">En yaygın tek transistörlü yükselteç</td></tr>
+          <tr><td>Bias · operating point · Q-point</td><td>Öngerilim · çalışma noktası</td><td class="c-cmp">Sinyal yokken durulan yer</td></tr>
+          <tr><td>Voltage divider bias</td><td>Bölücülü öngerilim</td><td class="c-cmp">R1–R2 ile tabanın ayarlanması</td></tr>
+          <tr><td>Collector / emitter resistor</td><td>Kolektör / emetör direnci</td><td class="c-cmp">Rc · Re; kazanç ≈ Rc ÷ Re</td></tr>
+          <tr><td>Emitter degeneration</td><td>Emetör geri beslemesi</td><td class="c-cmp">Re’nin kazancı sınırlayıp sabitlemesi</td></tr>
+          <tr><td>Inverting</td><td>Ters çeviren (faz çeviren)</td><td class="c-cmp">Çıkış girişin tersi</td></tr>
+          <tr><td>Headroom · clipping</td><td>Tavan payı · kırpma</td><td class="c-cmp">Kırpılmadan önceki boşluk · düzleşen tepe</td></tr>
+          <tr><td>Coupling capacitor</td><td>Bağlama kapasitörü</td><td class="c-cmp">Sesi geçirir, doğru gerilimi tutar</td></tr>
+          <tr><td>Clean boost · overdrive</td><td>Temiz yükseltme · aşırı sürme</td><td class="c-cmp">Kırpmasız · hafif kırpmalı</td></tr>
+        </tbody>
+      </table>
+      </div>
+    </div>
+  </section>
+
+  <section class="sec">
+    <div class="sec-head"><span class="num">07</span><h2>Alıştırma</h2><span class="kicker">On iki soru</span></div>
+    <div class="panel quiz">
+      <div class="q-head"><span class="count" id="q-count">0 / 0 doğru</span></div>
+      <div class="panel-body">
+        <p id="q-text"></p>
+        <div class="q-opts" id="q-opts"></div>
+        <p id="q-exp" class="tbl-note"></p>
+        <div class="steps"><button type="button" id="q-next">Sonraki soru</button></div>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <span><b>Fikir:</b> taban 0,73 V’ta, kolektör 4,47 V’ta durur. Tabandaki 100 mV’luk oynama kolektörde 2,2 V olur, ters yönde: ×22 (27 dB).</span>
+    <span><b>Çalışma noktası:</b> R2 43 kΩ → kolektör 4,47 V (iki yöne ≈ 4 V pay). R2 30 kΩ → 7,7 V, üstten kırpılır; R2 55 kΩ → 1,8 V, alttan kırpılır.</span>
+    <span><b>Kazanç:</b> ≈ Rc ÷ (Re + re), re ≈ 26 mV ÷ Ic ≈ 57 Ω. Re 1 kΩ → ×9, 390 Ω → ×22, 150 Ω → ×48, 47 Ω → ≈ ×95 ve çarpık.</span>
+    <span><b>Booster:</b> tek bobin 100 mV → 2,2 V (volume 10). Temiz sınır ≈ 170 mV; humbucker (300 mV) kırpılır: overdrive.</span>
+  </footer>
+</div>
+
+<script>
+(function(){
+  "use strict";
+  var TAU = Math.PI*2, L10 = Math.LN10;
+  var root = document.documentElement;
+  function lg(x){ return Math.log(x)/L10; }
+  var CS = 343;
+
+  /* BU ATOLYENIN KENDI DURUM NESNESI.
+     Onbellek uyarisi: bu blok her atolyeye KOPYALANIR, paylasilmaz. 18. atolyede
+     onceki atolyenin S nesnesi kullanilinca butun sahneler cokmustu.            */
+  var S = {
+    mode:'fik',
+    /* --- sahne 1: yükseltme fikri --- */
+    fGir:0.1, fCalis:false,
+    /* --- sahne 2: çalışma noktası --- */
+    nR2:43e3, nGir:0.1,
+    /* --- sahne 3: kazanç --- */
+    kRe:390, kGir:0.1,
+    /* --- sahne 4: booster pedalı --- */
+    bAcik:true, bVol:0.7, bMan:'tek',
+    t:0, anim:0
+  };
+  /* ---------- tema ---------- */
+  var C = {}, K = { lw:1, fs:1, glow:0, faint:.32 };
+  function readColors(){
+    var s = getComputedStyle(root);
+    ['ink','ink-2','ink-3','line','line-2','sin','cos','arc','brass','panel','panel-2','ok','no'].forEach(function(k){
+      C[k.replace('-','')] = s.getPropertyValue('--'+k).trim();
+    });
+    var proj = root.getAttribute('data-mode') === 'proj';
+    var attr = root.getAttribute('data-theme');
+    var isDark = attr === 'dark' ||
+                 (!attr && window.matchMedia('(prefers-color-scheme: dark)').matches);
+    K.glow  = (isDark && !proj) ? 0.7 : 0;
+    K.lw    = proj ? 1.5 : 1;
+    K.fs    = proj ? 1.24 : 1;
+    K.faint = proj ? 0.42 : (K.glow ? 0.34 : 0.32);
+  }
+  readColors();
+
+  var MODES = { proj:'light' };
+  var themeBtns = document.querySelectorAll('.theme button');
+  function markTheme(t){
+    Array.prototype.forEach.call(themeBtns, function(b){
+      b.setAttribute('aria-pressed', b.dataset.t === t ? 'true':'false');
+    });
+  }
+  function applyTheme(t, save){
+    if (MODES[t]){ root.setAttribute('data-theme', MODES[t]); root.setAttribute('data-mode', t); }
+    else { root.setAttribute('data-theme', t); root.removeAttribute('data-mode'); }
+    if (save) { try { localStorage.setItem('dalga-tema', t); } catch(e){} }
+    markTheme(t);
+  }
+  Array.prototype.forEach.call(themeBtns, function(b){
+    b.addEventListener('click', function(){ applyTheme(b.dataset.t, true); });
+  });
+  var sysDark = window.matchMedia('(prefers-color-scheme: dark)');
+  var stored = null;
+  try { stored = localStorage.getItem('dalga-tema'); } catch(e){}
+  if (stored === 'light' || stored === 'dark' || MODES[stored]) applyTheme(stored, false);
+  else markTheme(sysDark.matches ? 'dark' : 'light');
+  sysDark.addEventListener('change', function(){
+    readColors(); render();
+    if (!root.hasAttribute('data-theme')) markTheme(sysDark.matches ? 'dark' : 'light');
+  });
+  new MutationObserver(function(){ readColors(); render(); })
+    .observe(root, {attributes:true, attributeFilter:['data-theme','data-mode']});
+
+  /* ---------- sayilar ---------- */
+  function n(v,d){
+    var x = v.toFixed(d===undefined?2:d);
+    if (/^-0[.,]?0*$/.test(x)) x = x.slice(1);
+    return x.replace('.',',').replace('-','−');
+  }
+  function fTxt(f){
+    return f >= 1000 ? n(f/1000, f >= 10000 ? 0 : 1).replace(',0','')+' kHz' : n(f,0)+' Hz';
+  }
+  function sgn(v,d){ return (v>0?'+':'')+n(v,d); }
+
+  /* ---------- canvas ---------- */
+  var board = document.getElementById('board');
+  var ctx = null, MONO = '"IBM Plex Mono", monospace', SANS = '"IBM Plex Sans", sans-serif';
+  function dash(a){ ctx.setLineDash(a ? a.map(function(v){ return v*K.lw; }) : []); }
+  function LW(v){ ctx.lineWidth = v*K.lw; }
+  function glowOn(col,amt){ if (K.glow){ ctx.shadowColor = col; ctx.shadowBlur = (amt||9)*K.lw; } }
+  function glowOff(){ ctx.shadowBlur = 0; }
+  function line(x1,y1,x2,y2){ ctx.beginPath(); ctx.moveTo(x1,y1); ctx.lineTo(x2,y2); ctx.stroke(); }
+  function dot(x,y,r,col){
+    ctx.beginPath(); ctx.arc(x,y,r*K.fs,0,TAU);
+    ctx.fillStyle = col; glowOn(col,10); ctx.fill(); glowOff();
+    LW(1.6); ctx.strokeStyle = C.panel2; ctx.stroke();
+  }
+  function txt(s,x,y,col,size,align,fam,weight){
+    ctx.fillStyle = col;
+    ctx.font = (weight||400)+' '+((size||12)*K.fs).toFixed(2)+'px '+(fam||MONO);
+    ctx.textAlign = align||'left'; ctx.textBaseline='middle';
+    ctx.fillText(s,x,y);
+  }
+  function tw(s,size,fam,weight){
+    ctx.font = (weight||400)+' '+((size||12)*K.fs).toFixed(2)+'px '+(fam||MONO);
+    return ctx.measureText(s).width;
+  }
+  function chip(s2,x,y,col,size,weight,fam){
+    var w = tw(s2,size,fam||MONO,weight||400), ph = (size+7)*K.fs;
+    ctx.fillStyle = C.panel2; ctx.globalAlpha = .92;
+    ctx.fillRect(x - w/2 - 4*K.fs, y - ph/2, w + 8*K.fs, ph);
+    ctx.globalAlpha = 1;
+    txt(s2, x, y, col, size, 'center', fam||MONO, weight||400);
+  }
+  function wrap(s, x, y, maxw, col, size, lh, weight){
+    var words = s.split(' '), ln = '', out = [];
+    words.forEach(function(w){
+      var t = ln ? ln+' '+w : w;
+      if (tw(t, size, SANS, weight) > maxw){ out.push(ln); ln = w; } else ln = t;
+    });
+    if (ln) out.push(ln);
+    out.forEach(function(l,k){ txt(l, x, y + k*lh, col, size, 'left', SANS, weight); });
+    return out.length;
+  }
+  var cw = 0, ch = 0;
+  function sized(cv){
+    var dpr = Math.min(window.devicePixelRatio||1, 2);
+    var r = cv.getBoundingClientRect();
+    if (r.width < 10) return null;
+    var W = Math.round(r.width*dpr), H = Math.round(r.height*dpr);
+    if (W !== cw || H !== ch){ cv.width = W; cv.height = H; cw = W; ch = H; }
+    var c = cv.getContext('2d');
+    c.setTransform(dpr,0,0,dpr,0,0);
+    c.clearRect(0,0,r.width,r.height);
+    c.lineJoin='round'; c.lineCap='round';
+    return { c:c, w:r.width, h:r.height };
+  }
+  function logAxis(x0, x1, f0, f1){
+    return { X: function(f){ return x0 + (lg(f) - lg(f0))/(lg(f1) - lg(f0))*(x1 - x0); },
+             F: function(x){ return f0*Math.pow(f1/f0, (x - x0)/(x1 - x0)); },
+             f0:f0, f1:f1, x0:x0, x1:x1 };
+  }
+  function drawTicks(A, y, list, fmt){
+    ctx.strokeStyle = C.line; LW(1.3);
+    line(A.x0, y, A.x1, y);
+    var dec, d;
+    for (dec = Math.floor(lg(A.f0)); dec <= Math.ceil(lg(A.f1)); dec++){
+      for (d = 1; d <= 9; d++){
+        var f = Math.pow(10, dec)*d;
+        if (f < A.f0 || f > A.f1) continue;
+        line(A.X(f), y, A.X(f), y + 2.6*K.fs);
+      }
+    }
+    list.forEach(function(v){
+      if (v < A.f0 || v > A.f1) return;
+      line(A.X(v), y, A.X(v), y + 6*K.fs);
+      txt((fmt||fTxt)(v), A.X(v), y + 16*K.fs, C.ink3, 9.5, 'center', MONO);
+    });
+  }
+  /* Hizli salinan yanitlar: her PIKSEL SUTUNU icin birkac ara deger alinip en kucuk
+     ile en buyuk arasina dikey cizgi cekiliyor. Seyrek ornekleme sahte desen uretmez. */
+  function bandCurve(A, yOf, fn, col, lw, lo, hi){
+    var px = Math.max(2, Math.round(A.x1 - A.x0)), x, k, ALT = 7;
+    ctx.strokeStyle = col; LW(lw||2.4); glowOn(col, 6);
+    ctx.beginPath();
+    for (x = 0; x <= px; x++){
+      var fa = A.f0*Math.pow(A.f1/A.f0, x/px);
+      var fb = A.f0*Math.pow(A.f1/A.f0, (x+1)/px);
+      var mn = 1e9, mx = -1e9;
+      for (k = 0; k < ALT; k++){
+        var v = fn(fa*Math.pow(fb/fa, k/(ALT-1)));
+        if (!isFinite(v)) v = lo;
+        if (v < lo) v = lo; else if (v > hi) v = hi;
+        if (v < mn) mn = v;
+        if (v > mx) mx = v;
+      }
+      ctx.moveTo(A.x0 + x, yOf(mx)); ctx.lineTo(A.x0 + x, yOf(mn));
+    }
+    ctx.stroke(); glowOff();
+  }
+
+  /* ================= cizim ================= */
+  function frame(x0,y0,w,h){
+    ctx.fillStyle = C.panel; ctx.fillRect(x0,y0,w,h);
+    ctx.strokeStyle = C.line; LW(1.2); ctx.strokeRect(x0+0.5,y0+0.5,w-1,h-1);
+  }
+  /* Yari saydam hucreler bitisik cizilince kenarlarda dikis izi birakiyor.
+     Bu yuzden renkler ONCEDEN panel rengiyle karistirilip TAM OPAK doldurulur. */
+  var RGBC = {};
+  function rgbOf(hx){
+    if (RGBC[hx]) return RGBC[hx];
+    var s2 = String(hx).trim(), r, g, b, m;
+    if (s2.charAt(0) === '#'){
+      if (s2.length === 4){
+        r = parseInt(s2.charAt(1)+s2.charAt(1),16);
+        g = parseInt(s2.charAt(2)+s2.charAt(2),16);
+        b = parseInt(s2.charAt(3)+s2.charAt(3),16);
+      } else {
+        r = parseInt(s2.substr(1,2),16); g = parseInt(s2.substr(3,2),16); b = parseInt(s2.substr(5,2),16);
+      }
+    } else {
+      m = s2.match(/(\d+)[,\s]+(\d+)[,\s]+(\d+)/);
+      r = m ? +m[1] : 128; g = m ? +m[2] : 128; b = m ? +m[3] : 128;
+    }
+    return (RGBC[hx] = [r||0, g||0, b||0]);
+  }
+  function mixc(a, b, t){
+    var A = rgbOf(a), B = rgbOf(b);
+    return 'rgb(' + Math.round(A[0]+(B[0]-A[0])*t) + ',' +
+                    Math.round(A[1]+(B[1]-A[1])*t) + ',' +
+                    Math.round(A[2]+(B[2]-A[2])*t) + ')';
+  }
+  function basincRenk(v){
+    var a = Math.min(1, Math.abs(v));
+    return mixc(C.panel, v >= 0 ? C.sin : C.cos, 0.05 + 0.84*a);
+  }
+  /* bir kesitin basinc haritasi: fu(u,v) -> [-1,1], u ve v 0..1 */
+  function harita(x0,y0,w,h,fu,NU,NV){
+    var i, j;
+    for (i=0;i<NU;i++){
+      var xa = Math.round(x0 + i*w/NU), xb = Math.round(x0 + (i+1)*w/NU);
+      for (j=0;j<NV;j++){
+        var ya = Math.round(y0 + j*h/NV), yb = Math.round(y0 + (j+1)*h/NV);
+        ctx.fillStyle = basincRenk(fu((i+0.5)/NU, (j+0.5)/NV));
+        ctx.fillRect(xa, ya, Math.max(1, xb-xa), Math.max(1, yb-ya));
+      }
+    }
+  }
+
+  /* Dar ekranda sol alt baslik ile sag ozet carpisiyordu: dar ekranda sol metin dusuyor. */
+  function sahneBaslik(w, sol, sag, sagCol, sagDar){
+    var pad = 16*K.fs, y = 16*K.fs, dar = w < 700;
+    if (!dar) txt(sol, pad, y, C.ink3, 10.5, 'left', MONO, 500);
+    var t = (dar && sagDar) ? sagDar : sag;
+    txt(t, dar ? pad : w - pad, y, sagCol, dar ? 11 : 11.5, dar ? 'left' : 'right', MONO, 600);
+  }
+
+  /* ================= YÜKSELTEÇ: SAYILAR =================
+     Ortak emetörlü tek transistör (klasik booster düzeni): 9 V → Rc → kolektör; emetör → Re → toprak;
+     taban iki dirençli bölücüyle (R1 üstte, R2 altta) "ortada" tutulur. Giriş ve çıkış kapasitörle
+     bağlanır: yalnızca değişen kısım (ses) geçer. Model (bu sayfa): Ib = Is·e^(Vbe/Vt), Ic = β·Ib;
+     kolektör gerilimi emetörün 0,15 V üstüne kadar inebilir (doyum), 9 V'un üstüne çıkamaz (kesim).
+     Kaynaklar: Lessons in Electric Circuits Vol. III (BJT, biasing), electronics-tutorials (common
+     emitter), Coda Effects LPB-1 analizi (tek transistörlü booster).                            */
+  var VT = 0.02585, IS_B = 1.2e-15, BETA = 200, VCE_SAT = 0.15, VCC = 9;
+  function vbeOf(ib){ return VT*Math.log(Math.max(ib, 0)/IS_B + 1); }
+  /* çalışma: Thevenin taban kaynağı (Vth, Rth) + giriş sinyali */
+  function calis(vb, rth, rc, re){
+    /* etkin bölge çözümü: Vth − Ib·Rth − Vbe(Ib) − (β+1)·Ib·Re = 0 */
+    var lo = 0, hi = Math.max(1e-12, vb/Math.max(rth, 1)), m, k;
+    if (vb <= 0) return { ib:0, ic:0, ie:0, vc:VCC, ve:0, vbn:vb, dur:'kesim' };
+    for (k = 0; k < 64; k++){ m = (lo + hi)/2; if (vb - m*rth - vbeOf(m) - (BETA + 1)*m*re > 0) lo = m; else hi = m; }
+    var ib = (lo + hi)/2, ic = BETA*ib, ie = ib + ic, ve = ie*re, vc = VCC - ic*rc;
+    if (vc >= ve + VCE_SAT) return { ib:ib, ic:ic, ie:ie, vc:vc, ve:ve, vbn:vb - ib*rth, dur: ic < 1e-6 ? 'kesim' : 'etkin' };
+    /* doyum: Ic = (Vcc − Vsat − Ib·Re)/(Rc + Re) */
+    lo = 0; hi = vb/Math.max(rth, 1);
+    for (k = 0; k < 64; k++){ m = (lo + hi)/2; var icS = Math.max(0, (VCC - VCE_SAT - m*re)/(rc + re)); if (vb - m*rth - vbeOf(m) - (m + icS)*re > 0) lo = m; else hi = m; }
+    ib = (lo + hi)/2; ic = Math.max(0, (VCC - VCE_SAT - ib*re)/(rc + re)); ie = ib + ic; ve = ie*re;
+    return { ib:ib, ic:ic, ie:ie, vc:ve + VCE_SAT, ve:ve, vbn:vb - ib*rth, dur:'doyum' };
+  }
+  function bolucu(r1, r2){ return { vth:VCC*r2/(r1 + r2), rth:r1*r2/(r1 + r2) }; }
+  /* devre: {r1, r2, rc, re} → çalışma noktası ve giriş→çıkış tablosu */
+  function devre(d){
+    var B = bolucu(d.r1, d.r2), o = calis(B.vth, B.rth, d.rc, d.re);
+    return { B:B, o:o, re_:VT/Math.max(o.ie, 1e-9), kaz:d.rc/(d.re + VT/Math.max(o.ie, 1e-9)) };
+  }
+  /* giriş kapasitörle doğrudan tabana: taban düğümü = DC değeri + giriş (bölücü paralelde kalır) */
+  var TB_N = 1601, TB_MAX = 1.6;                       /* giriş −1,6 … +1,6 V */
+  function tablo(d){
+    var B = bolucu(d.r1, d.r2), o0 = calis(B.vth, B.rth, d.rc, d.re), t = new Float64Array(TB_N);
+    for (var k = 0; k < TB_N; k++){ var v = -TB_MAX + 2*TB_MAX*k/(TB_N - 1); t[k] = calis(o0.vbn + v, 0, d.rc, d.re).vc - o0.vc; }
+    return { t:t, vc0:o0.vc };
+  }
+  function tabOku(T, v){ var x = (v + TB_MAX)/(2*TB_MAX)*(TB_N - 1); if (x <= 0) return T.t[0]; if (x >= TB_N - 1) return T.t[TB_N - 1]; var i = Math.floor(x), f = x - i; return T.t[i]*(1 - f) + T.t[i + 1]*f; }
+
+  /* ---------- ortak: dB ekseni olan bir cerceve ---------- */
+  function dbPanel(x0, y0, w, h, lo, hi, adimlar, birim){
+    frame(x0, y0, w, h);
+    var Y = function(v){ return y0 + h - (v - lo)/(hi - lo)*h; };
+    ctx.strokeStyle = C.line2; LW(1);
+    adimlar.forEach(function(v){
+      if (v < lo || v > hi) return;
+      dash(v === 0 ? null : [2,4]);
+      ctx.strokeStyle = v === 0 ? C.line : C.line2; LW(v === 0 ? 1.3 : 1);
+      line(x0, Y(v), x0 + w, Y(v));
+      dash(null);
+      txt(sgn(v,0), x0 + 4*K.fs, Math.max(y0 + 8*K.fs, Y(v) - 6*K.fs),
+          C.ink3, 8.5, 'left', MONO);
+    });
+    if (birim) txt(birim, x0 + w - 5*K.fs, y0 + 9*K.fs, C.ink3, 8.5, 'right', MONO);
+    return Y;
+  }
+  /* ---------- ortak: zaman penceresi ---------- */
+  function zamanPanel(x0, y0, w, h, t0, t1, baslik, sag, yMax){
+    frame(x0, y0, w, h);
+    var ic = 20*K.fs, M = yMax || 1.15;
+    var X = function(t){ return x0 + 12*K.fs + (t - t0)/(t1 - t0)*(w - 24*K.fs); };
+    var Y = function(v){ return y0 + ic + (1 - (v + M)/(2*M))*(h - ic - 12*K.fs); };
+    ctx.strokeStyle = C.line; LW(1.2);
+    line(x0 + 6*K.fs, Y(0), x0 + w - 6*K.fs, Y(0));
+    if (baslik) txt(baslik, x0 + 10*K.fs, y0 + 12*K.fs, C.ink3, 9.5, 'left', MONO);
+    if (sag) txt(sag, x0 + w - 10*K.fs, y0 + 12*K.fs, C.ink3, 9.5, 'right', MONO);
+    return { X:X, Y:Y, M:M };
+  }
+  function surekli(P, t0, t1, fn, col, lw, kesik){
+    var N = 800, i;
+    ctx.beginPath();
+    for (i = 0; i <= N; i++){
+      var t = t0 + (t1 - t0)*i/N;
+      var p = [P.X(t), P.Y(Math.max(-P.M, Math.min(P.M, fn(t))))];
+      if (i === 0) ctx.moveTo(p[0], p[1]); else ctx.lineTo(p[0], p[1]);
+    }
+    ctx.strokeStyle = col; LW(lw || 2);
+    if (kesik) dash(kesik);
+    glowOn(col, 5); ctx.stroke(); glowOff();
+    dash(null);
+  }
+
+  /* ---------- ortak: etiketli olcu oku ---------- */
+  function okla(x, y1, y2, col, ad, kucuk){
+    ctx.strokeStyle = col; LW(1.6);
+    line(x, y1, x, y2);
+    [[y1, 1], [y2, -1]].forEach(function(q){
+      ctx.beginPath();
+      ctx.moveTo(x, q[0]); ctx.lineTo(x - 4*K.fs, q[0] + q[1]*7*K.fs);
+      ctx.lineTo(x + 4*K.fs, q[0] + q[1]*7*K.fs); ctx.closePath();
+      ctx.fillStyle = col; ctx.fill();
+    });
+    if (ad) chip(ad, x, (y1 + y2)/2, col, kucuk ? 8.5 : 9.5, 600);
+  }
+  /* ---------- ortak: satirli sayi paneli ---------- */
+  /* Aciklama metni panele sigmiyorsa SARILIYOR; etiket ile deger ayni satira
+     sigmiyorsa deger ALT SATIRA aliniyor. Dar ekranda ikisi de tasiyordu.   */
+  function satirlar(x0, y0, w, h, baslik, sat, lh){
+    frame(x0, y0, w, h);
+    txt(baslik, x0 + 9*K.fs, y0 + 12*K.fs, C.ink2, 9.5, 'left', MONO, 600);
+    var yy = y0 + 30*K.fs, adim = lh || 30*K.fs, i, ic = w - 18*K.fs;
+    for (i = 0; i < sat.length; i++){
+      if (yy + 14*K.fs > y0 + h) break;
+      var lw = tw(sat[i][0], 8.5, MONO, 400);
+      var vw = tw(sat[i][1], 11, MONO, 600);
+      var altSatir = (lw + vw + 14*K.fs > ic);
+      txt(sat[i][0], x0 + 9*K.fs, yy, C.ink3, 8.5, 'left', MONO);
+      if (altSatir){
+        if (yy + 14*K.fs > y0 + h) break;
+        txt(sat[i][1], x0 + w - 9*K.fs, yy + 13*K.fs, sat[i][2] || C.ink2,
+            11, 'right', MONO, 600);
+      } else {
+        txt(sat[i][1], x0 + w - 9*K.fs, yy, sat[i][2] || C.ink2, 11, 'right', MONO, 600);
+      }
+      var ay2 = yy + (altSatir ? 27 : 13)*K.fs, sn = 0;
+      if (sat[i][3] && ay2 < y0 + h - 4*K.fs)
+        sn = wrap(sat[i][3], x0 + 9*K.fs, ay2, ic, C.ink3, 8, 11*K.fs);
+      yy += Math.max(adim, (altSatir ? 30 : 17)*K.fs + sn*11*K.fs);
+    }
+  }
+
+
+  /* ---------- sayı yazımı: üstel ve birimli ---------- */
+  var UST = {'0':'⁰','1':'¹','2':'²','3':'³','4':'⁴','5':'⁵','6':'⁶','7':'⁷','8':'⁸','9':'⁹','-':'⁻'};
+  function usUst(k){ return String(k).split('').map(function(c){ return UST[c] || c; }).join(''); }
+  function usTxt(x){
+    if (x === 0) return '0';
+    var us = Math.floor(lg(Math.abs(x)) + 1e-9), m = x/Math.pow(10, us);
+    if (Math.abs(m - 1) < 0.005) return '10' + usUst(us);
+    return n(m, 2) + '×10' + usUst(us);
+  }
+  /* sondaki sıfırları at: 1,50 → 1,5 ; 2,00 → 2 */
+  function kis(v, d){ return n(v, d).replace(/(,\d*?)0+$/, '$1').replace(/,$/, ''); }
+  function ohmTxt(R){
+    if (R < 1)     return kis(R*1000, R < 0.1 ? 1 : 0) + ' mΩ';
+    if (R < 1e3)   return kis(R, R < 10 ? 3 : (R < 100 ? 2 : 1)) + ' Ω';
+    if (R < 1e6)   return kis(R/1e3, R < 1e4 ? 3 : (R < 1e5 ? 2 : 1)) + ' kΩ';
+    if (R < 1e9)   return kis(R/1e6, R < 1e7 ? 2 : 1) + ' MΩ';
+    return usTxt(R) + ' Ω';
+  }
+  function vTxt(V){
+    var a = Math.abs(V), s = V < 0 ? '−' : '';
+    if (a < 5e-4) return '0 V';
+    if (a < 1) return s + kis(a*1000, a < 0.01 ? 1 : 0) + ' mV';
+    return s + kis(a, a < 10 ? 2 : (a < 100 ? 1 : 0)) + ' V';
+  }
+  function aTxt(I){
+    if (I === 0) return '0 mA';
+    if (I < 1e-4) return kis(I*1e6, I < 1e-5 ? 2 : 1) + ' µA';
+    if (I < 1)    return kis(I*1000, I < 0.01 ? 2 : (I < 0.1 ? 1 : 0)) + ' mA';
+    return kis(I, 2) + ' A';
+  }
+  function wTxt(P){
+    if (P === 0) return '0 mW';
+    if (P < 1) return kis(P*1000, P < 0.01 ? 2 : (P < 0.1 ? 1 : 0)) + ' mW';
+    return kis(P, P < 10 ? 2 : (P < 100 ? 1 : 0)) + ' W';
+  }
+  function saatTxt(h){
+    if (h < 1) return n(h*60, 0) + ' dk';
+    return kis(h, h < 10 ? 1 : 0) + ' saat';
+  }
+  /* büyük çarpanlar: 115 000 gibi, binlik ayraçlı */
+  function katTxt(x){
+    if (x >= 1000) return String(Math.round(x)).replace(/\B(?=(\d{3})+(?!\d))/g, '\u2009');
+    if (x >= 10) return n(x, 0);
+    return n(x, 1).replace(/,0$/, '');
+  }
+
+  /* ---------- ortak devre parçaları ---------- */
+  /* dikdörtgen çevre yolu: s=0 sol-orta (pilin + ucu, üstte), saat yönünde */
+  function cevreYol(x0, y0, x1, y1){
+    var a = x1 - x0, b = y1 - y0, L = 2*(a + b);
+    return { L:L, p:function(s){
+      s = ((s % L) + L) % L;
+      var s0 = b/2;                             /* sol kenarın ortası */
+      s = (s + (L - s0)) % L;                   /* sol-alt köşeden ölç */
+      if (s < b) return [x0, y1 - s];
+      if (s < b + a) return [x0 + (s - b), y0];
+      if (s < 2*b + a) return [x1, y0 + (s - b - a)];
+      return [x1 - (s - 2*b - a), y1];
+    }};
+  }
+  function pilDik(x, y, col, etiket, sagda){           /* dikey telde pil: + üstte */
+    ctx.fillStyle = C.panel; ctx.fillRect(x - 17*K.fs, y - 12*K.fs, 34*K.fs, 24*K.fs);
+    ctx.strokeStyle = col; LW(2.6); line(x - 15*K.fs, y - 5*K.fs, x + 15*K.fs, y - 5*K.fs);
+    LW(4.2); line(x - 7*K.fs, y + 5*K.fs, x + 7*K.fs, y + 5*K.fs);
+    txt('+', x - 22*K.fs, y - 9*K.fs, col, 10.5, 'center', MONO, 600);
+    txt('−', x - 22*K.fs, y + 9*K.fs, col, 10.5, 'center', MONO, 600);
+    if (etiket) txt(etiket, sagda ? x + 22*K.fs : x - 30*K.fs, y, col, 9.5, sagda ? 'left' : 'right', MONO, 600);
+  }
+  function metre(x, y, harf, col, deger, konum){        /* ampermetre / voltmetre dairesi */
+    var r = 14*K.fs;
+    ctx.beginPath(); ctx.arc(x, y, r, 0, TAU); ctx.fillStyle = C.panel; ctx.fill();
+    ctx.strokeStyle = col; LW(2); glowOn(col, 6); ctx.stroke(); glowOff();
+    txt(harf, x, y + 0.5, col, 11.5, 'center', MONO, 600);
+    if (deger){
+      if (konum === 'ust') chip(deger, x, y - r - 11*K.fs, col, 9.5, 600);
+      else if (konum === 'alt') chip(deger, x, y + r + 11*K.fs, col, 9.5, 600);
+      else txt(deger, x + r + 6*K.fs, y, col, 9.5, 'left', MONO, 600);
+    }
+  }
+  function yonOk(x, y, dx, col){                       /* yatay küçük ok */
+    ctx.fillStyle = col; ctx.beginPath();
+    ctx.moveTo(x + dx*7*K.fs, y); ctx.lineTo(x - dx*5*K.fs, y - 5*K.fs); ctx.lineTo(x - dx*5*K.fs, y + 5*K.fs);
+    ctx.closePath(); ctx.fill();
+  }
+  function kutu(x, y, w2, h2, col, ust, alt){           /* yük / cihaz kutusu, merkezli */
+    ctx.fillStyle = mixc(C.panel, col, 0.10); ctx.fillRect(x - w2/2, y - h2/2, w2, h2);
+    ctx.strokeStyle = col; LW(2); ctx.strokeRect(x - w2/2, y - h2/2, w2, h2);
+    if (ust) txt(ust, x, y - (alt ? 7 : 0)*K.fs, col, 9.5, 'center', MONO, 600);
+    if (alt) txt(alt, x, y + 8*K.fs, C.ink2, 8.5, 'center', MONO);
+  }
+  function usCiz(x, y, v, col, size, align, weight){   /* 3,12×10 + küçük üst simge: yazı tipi ⁴–⁹ glifini başka fonttan alıyordu */
+    var us = Math.floor(lg(Math.abs(v)) + 1e-9), m = v/Math.pow(10, us);
+    var a = n(m, 2) + '×10', b = String(us).replace('-', '−');
+    var wa = tw(a, size, MONO, weight), wb = tw(b, size*0.6, MONO, weight), x0;
+    x0 = align === 'center' ? x - (wa + wb)/2 : (align === 'right' ? x - wa - wb : x);
+    txt(a, x0, y, col, size, 'left', MONO, weight);
+    txt(b, x0 + wa + 1, y - size*0.36*K.fs, col, size*0.6, 'left', MONO, weight);
+  }
+  function baslikP(s2, x, y, dar){ txt(s2, x + 9*K.fs, y + 12*K.fs, C.ink2, dar ? 8.5 : 9.5, 'left', MONO, 600); }
+
+  function wrapC(s, cx, y, maxw, col, size, lh){       /* ortalı sarma */
+    var words = s.split(' '), ln = '', out = [];
+    words.forEach(function(w2){
+      var t = ln ? ln + ' ' + w2 : w2;
+      if (tw(t, size, MONO) > maxw){ out.push(ln); ln = w2; } else ln = t;
+    });
+    if (ln) out.push(ln);
+    out.forEach(function(l, k){ txt(l, cx, y + k*lh, col, size, 'center', MONO); });
+  }
+
+  /* ---------- direnç sembolleri ---------- */
+  function dirYatay(cx, y, L, col, kopuk){
+    var i;
+    ctx.fillStyle = C.panel; ctx.fillRect(cx - L/2 - 2, y - 10*K.fs, L + 4, 20*K.fs);
+    ctx.strokeStyle = col; LW(2.2); dash(kopuk ? [3,3] : null);
+    ctx.beginPath(); ctx.moveTo(cx - L/2, y);
+    if (kopuk){
+      for (i = 1; i <= 3; i++) ctx.lineTo(cx - L/2 + L*i/8, y + (i % 2 ? -8 : 8)*K.fs);
+      ctx.stroke(); ctx.beginPath(); ctx.moveTo(cx + L/2 - L*3/8, y + 8*K.fs);
+      for (i = 6; i <= 7; i++) ctx.lineTo(cx - L/2 + L*i/8, y + (i % 2 ? -8 : 8)*K.fs);
+      ctx.lineTo(cx + L/2, y);
+    } else {
+      for (i = 1; i <= 7; i++) ctx.lineTo(cx - L/2 + L*i/8, y + (i % 2 ? -8 : 8)*K.fs);
+      ctx.lineTo(cx + L/2, y);
+    }
+    ctx.stroke(); dash(null);
+    if (kopuk){ txt('×', cx, y, C.arc, 13, 'center', MONO, 600); }
+  }
+  function dirDik(x, cy, L, col, kopuk){
+    var i;
+    ctx.fillStyle = C.panel; ctx.fillRect(x - 10*K.fs, cy - L/2 - 2, 20*K.fs, L + 4);
+    ctx.strokeStyle = col; LW(2.2);
+    ctx.beginPath(); ctx.moveTo(x, cy - L/2);
+    if (kopuk){
+      for (i = 1; i <= 3; i++) ctx.lineTo(x + (i % 2 ? -8 : 8)*K.fs, cy - L/2 + L*i/8);
+      ctx.stroke(); ctx.beginPath(); ctx.moveTo(x + 8*K.fs, cy + L/2 - L*3/8);
+      for (i = 6; i <= 7; i++) ctx.lineTo(x + (i % 2 ? -8 : 8)*K.fs, cy - L/2 + L*i/8);
+      ctx.lineTo(x, cy + L/2);
+    } else {
+      for (i = 1; i <= 7; i++) ctx.lineTo(x + (i % 2 ? -8 : 8)*K.fs, cy - L/2 + L*i/8);
+      ctx.lineTo(x, cy + L/2);
+    }
+    ctx.stroke();
+    if (kopuk) txt('×', x, cy, C.arc, 13, 'center', MONO, 600);
+  }
+  function renkK(k){ return [C.sin, C.cos, C.arc, C.ink2][k]; }
+  function yerlesim(dar, top, pad, w, h, oranlar){      /* P1 sol üst, P2 sağ üst, P3 alt */
+    var gw = w - 2*pad, gh = h - top - 6*K.fs, gap = 12*K.fs;
+    if (dar){
+      var h1 = gh*oranlar[0], h2 = gh*oranlar[1], h3 = gh - h1 - h2 - 2*gap;
+      return [[pad, top, gw, h1], [pad, top + h1 + gap, gw, h2], [pad, top + h1 + h2 + 2*gap, gw, h3]];
+    }
+    var wl = (gw - gap)*oranlar[2], wr = gw - gap - wl, hu = (gh - gap)*oranlar[3], hd = gh - gap - hu;
+    return [[pad, top, wl, hu], [pad + wl + gap, top, wr, hu], [pad, top + hu + gap, gw, hd]];
+  }
+  /* yığılmış çubuk: parçalar, ölçek üst değeri, etiket biçimi */
+  function yiginCubuk(x0, x1, y, bh, parca, ust, etiket, dar){
+    var X = function(v){ return x0 + v/ust*(x1 - x0); }, acc = 0;
+    ctx.fillStyle = mixc(C.panel, C.line, 0.45); ctx.fillRect(x0, y - bh/2, x1 - x0, bh);
+    parca.forEach(function(p){
+      var xa = X(acc), xb = X(acc + p.v);
+      ctx.fillStyle = p.col; ctx.fillRect(xa, y - bh/2, Math.max(0, xb - xa), bh);
+      ctx.strokeStyle = C.panel; LW(1.5); line(xb, y - bh/2, xb, y + bh/2);
+      var s2 = etiket(p);
+      if (s2 && xb - xa > tw(s2, dar ? 8 : 9, MONO, 600) + 10*K.fs)
+        txt(s2, (xa + xb)/2, y, C.panel, dar ? 8 : 9, 'center', MONO, 600);
+      acc += p.v;
+    });
+    return X;
+  }
+
+
+  /* ---------- kapasitör sembolleri ---------- */
+  function kapYatay(cx, y, col, elek){
+    var g = 5*K.fs, p = 11*K.fs;
+    ctx.fillStyle = C.panel; ctx.fillRect(cx - g - 3, y - p - 2, 2*g + 6, 2*p + 4);
+    ctx.strokeStyle = col; LW(2.6); line(cx - g, y - p, cx - g, y + p);
+    if (elek){ ctx.beginPath(); ctx.moveTo(cx + g + 3*K.fs, y - p); ctx.quadraticCurveTo(cx + g - 1*K.fs, y, cx + g + 3*K.fs, y + p); ctx.stroke(); }
+    else line(cx + g, y - p, cx + g, y + p);
+  }
+  function kapDik(x, cy, col){
+    var g = 5*K.fs, p = 12*K.fs;
+    ctx.fillStyle = C.panel; ctx.fillRect(x - p - 2, cy - g - 3, 2*p + 4, 2*g + 6);
+    ctx.strokeStyle = col; LW(2.6); line(x - p, cy - g, x + p, cy - g); line(x - p, cy + g, x + p, cy + g);
+  }
+  function capTxt(Cf){
+    if (Cf >= 1e-6) return kis(Cf*1e6, Cf < 1e-5 ? 2 : (Cf < 1e-4 ? 1 : 0)) + ' µF';
+    if (Cf >= 1e-9) return kis(Cf*1e9, Cf < 1e-8 ? 2 : 0) + ' nF';
+    return kis(Cf*1e12, 0) + ' pF';
+  }
+  function hzTxt(f){ return f >= 1000 ? kis(f/1000, f < 1e4 ? 2 : 1) + ' kHz' : kis(f, f < 10 ? 2 : (f < 100 ? 1 : 0)) + ' Hz'; }
+
+  function henTxt(L){
+    if (L >= 1) return kis(L, 2) + ' H';
+    if (L >= 0.95e-4) return kis(L*1e3, L < 1e-3 ? 3 : (L < 1e-2 ? 2 : (L < 0.1 ? 1 : 0))) + ' mH';
+    return kis(L*1e6, 0) + ' µH';
+  }
+  /* bobin sembolü: yatay, dört tümsek */
+  function bobinYatay(cx, y, L2, col){
+    var n = 4, r = L2/(2*n), i;
+    ctx.fillStyle = C.panel; ctx.fillRect(cx - L2/2 - 2, y - r - 4, L2 + 4, r + 6);
+    ctx.strokeStyle = col; LW(2.4); ctx.beginPath();
+    for (i = 0; i < n; i++) ctx.arc(cx - L2/2 + r*(2*i + 1), y, r, Math.PI, 0, false);
+    ctx.stroke();
+  }
+  function bobinDik(x, cy, L2, col){
+    var n = 4, r = L2/(2*n), i;
+    ctx.fillStyle = C.panel; ctx.fillRect(x - 2, cy - L2/2 - 2, r + 6, L2 + 4);
+    ctx.strokeStyle = col; LW(2.4); ctx.beginPath();
+    for (i = 0; i < n; i++) ctx.arc(x, cy - L2/2 + r*(2*i + 1), r, -Math.PI/2, Math.PI/2, false);
+    ctx.stroke();
+  }
+  /* ================= ortak yardımcılar ================= */
+  function sig(uzun, kisa, maxw, size, weight){ return tw(uzun, size, MONO, weight) <= maxw ? uzun : kisa; }
+  function sayiPanel(P, baslik, rows, dar){
+    frame(P[0], P[1], P[2], P[3]);
+    baslikP(baslik, P[0], P[1], dar);
+    var ry0 = P[1] + 34*K.fs, rs = Math.min(23*K.fs, (P[3] - 44*K.fs)/rows.length);
+    rows.forEach(function(q, k){
+      var v = q[1], lab = q[0], bos = P[2] - 36*K.fs;
+      if (q[3] && tw(v, 9.5, MONO, 600) + tw(lab, 8.5, MONO) > bos) v = q[3];
+      while (lab.length > 4 && tw(v, 9.5, MONO, 600) + tw(lab, 8.5, MONO) > bos) lab = lab.slice(0, -2) + '…';
+      txt(lab, P[0] + 12*K.fs, ry0 + k*rs, C.ink3, 8.5, 'left', MONO);
+      txt(v, P[0] + P[2] - 12*K.fs, ry0 + k*rs, q[2], 9.5, 'right', MONO, 600);
+    });
+    return ry0 + rows.length*rs;
+  }
+  function toprak(x, y){
+    ctx.strokeStyle = C.ink3; LW(1.6);
+    line(x - 9*K.fs, y, x + 9*K.fs, y); line(x - 6*K.fs, y + 4*K.fs, x + 6*K.fs, y + 4*K.fs); line(x - 3*K.fs, y + 8*K.fs, x + 3*K.fs, y + 8*K.fs);
+  }
+  function rng(seed){ return function(){ seed |= 0; seed = seed + 0x6D2B79F5 | 0; var t = Math.imul(seed ^ seed >>> 15, 1 | seed); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0)/4294967296; }; }
+  function tel(pts, col, lw){ ctx.strokeStyle = col; LW(lw || 1.8); ctx.beginPath(); pts.forEach(function(p, k){ if (k) ctx.lineTo(p[0], p[1]); else ctx.moveTo(p[0], p[1]); }); ctx.stroke(); }
+  /* akım yolu: soluk tel + akıma göre kalınlaşan renkli şerit */
+  function akimTel(pts, col, oran){
+    tel(pts, C.ink2, 1.6);
+    if (oran > 0.004){ ctx.globalAlpha = 0.28 + 0.5*Math.min(1, oran); glowOn(col, 6); tel(pts, col, 1.6 + 4.4*Math.min(1, oran)); glowOff(); ctx.globalAlpha = 1; }
+  }
+  function noktaB(x, y){ ctx.fillStyle = C.ink2; ctx.beginPath(); ctx.arc(x, y, 3*K.fs, 0, TAU); ctx.fill(); }
+  function elektron(x, y, r, al){ ctx.globalAlpha = al == null ? 1 : al; ctx.fillStyle = C.cos; ctx.beginPath(); ctx.arc(x, y, r*K.fs, 0, TAU); ctx.fill(); ctx.globalAlpha = 1; }
+  function delik(x, y, r, al){ ctx.globalAlpha = al == null ? 1 : al; ctx.strokeStyle = C.arc; LW(1.5); ctx.beginPath(); ctx.arc(x, y, r*K.fs, 0, TAU); ctx.stroke(); ctx.globalAlpha = 1; }
+  function diyotSem(x, y, col, yon, kaz){
+    var s = 9*K.fs*(kaz || 1);
+    ctx.save(); ctx.translate(x, y); ctx.rotate(yon === -1 ? Math.PI : yon === 2 ? Math.PI/2 : yon === -2 ? -Math.PI/2 : 0);
+    ctx.fillStyle = C.panel; ctx.fillRect(-s - 2, -s - 2, 2*s + 4, 2*s + 4);
+    ctx.fillStyle = col; ctx.beginPath(); ctx.moveTo(-s, -s); ctx.lineTo(-s, s); ctx.lineTo(s*0.8, 0); ctx.closePath(); ctx.fill();
+    ctx.strokeStyle = col; LW(2.2); line(s*0.8, -s, s*0.8, s);
+    ctx.restore();
+  }
+  /* NPN sembolü: taban çizgisi (x, y); dönen uçlar b, c, e */
+  function npnSem(x, y, s, col, etiket){
+    var cx = x + 0.45*s;
+    ctx.fillStyle = C.panel; ctx.beginPath(); ctx.arc(cx, y, 1.25*s, 0, TAU); ctx.fill();
+    ctx.strokeStyle = mixc(C.panel, col, 0.55); LW(1.4); ctx.stroke();
+    ctx.strokeStyle = col; LW(2.2);
+    line(x - 1.35*s, y, x, y);                                     /* taban ucu */
+    LW(3.2); line(x, y - 0.62*s, x, y + 0.62*s); LW(2.2);
+    tel([[x, y - 0.3*s], [x + 0.95*s, y - 0.85*s], [x + 0.95*s, y - 1.6*s]], col, 2.2);
+    tel([[x, y + 0.3*s], [x + 0.95*s, y + 0.85*s], [x + 0.95*s, y + 1.6*s]], col, 2.2);
+    /* emetör oku: dışa doğru */
+    var ax = x + 0.72*s, ay = y + 0.72*s, dx = 0.95, dy = 0.55, L = Math.hypot(dx, dy), a = 7*K.fs; dx /= L; dy /= L;
+    ctx.fillStyle = col; ctx.beginPath(); ctx.moveTo(ax + dx*a*0.6, ay + dy*a*0.6);
+    ctx.lineTo(ax - dx*a*0.6 - dy*a*0.55, ay - dy*a*0.6 + dx*a*0.55); ctx.lineTo(ax - dx*a*0.6 + dy*a*0.55, ay - dy*a*0.6 - dx*a*0.55); ctx.closePath(); ctx.fill();
+    if (etiket){
+      txt('B', x - 1.0*s, y - 9*K.fs, C.ink3, 8, 'center', MONO, 600);
+      txt('C', x + 0.95*s + 9*K.fs, y - 1.35*s, C.ink3, 8, 'left', MONO, 600);
+      txt('E', x + 0.95*s + 9*K.fs, y + 1.35*s, C.ink3, 8, 'left', MONO, 600);
+    }
+    return { b:[x - 1.35*s, y], c:[x + 0.95*s, y - 1.6*s], e:[x + 0.95*s, y + 1.6*s] };
+  }
+  function potDik(x, cy, L, col, deger){       /* dikey direnç + sağdan ok (sürgü) */
+    dirDik(x, cy, L, col, false);
+    var yw = cy + L/2 - L*deger;
+    ctx.strokeStyle = C.arc; LW(1.6); line(x + 22*K.fs, yw, x + 9*K.fs, yw);
+    ctx.fillStyle = C.arc; ctx.beginPath(); ctx.moveTo(x + 9*K.fs, yw); ctx.lineTo(x + 15*K.fs, yw - 4*K.fs); ctx.lineTo(x + 15*K.fs, yw + 4*K.fs); ctx.closePath(); ctx.fill();
+    return yw;
+  }
+  function dbTxt(d){ return (d >= 0.05 ? '+' : d <= -0.05 ? '−' : '') + kis(Math.abs(d), 1) + ' dB'; }
+  function aTaper(p){ return (Math.pow(81, p) - 1)/80; }
+  /* küçük dalga simgesi: genlik piksel cinsinden (kırpılırsa düzleşir) */
+  function miniDalga(x, y, w, A, col, kirp){
+    ctx.strokeStyle = col; LW(1.8); ctx.beginPath();
+    for (var k = 0; k <= 40; k++){ var u = k/40, v = Math.sin(u*TAU*2)*A; if (kirp) v = Math.max(-kirp, Math.min(kirp, v)); var xx = x - w/2 + w*u; if (k) ctx.lineTo(xx, y - v); else ctx.moveTo(xx, y - v); }
+    glowOn(col, 5); ctx.stroke(); glowOff();
+  }
+
+  /* ================= ORTAK: DEVRE ŞEMASI =================
+     R1 üstte, R2 altta: taban bölücüsü. Rc kolektörde, Re emetörde. Giriş ve çıkış kapasitörle.
+     opt: {gir (V tepe), cik (V tepe, işaretli), kirpUst, kirpAlt, boo:{acik, vol}}                 */
+  function devreCiz(Q, d, D, opt, dar){
+    var o = D.o, s = Math.min(18*K.fs, Q[3]*0.075);
+    var yt = Q[1] + Q[3]*0.10, yb = Q[1] + Q[3]*0.90, my = Q[1] + Q[3]*0.56;
+    var xin = Q[0] + Q[2]*0.06, xci = Q[0] + Q[2]*0.19, xb = Q[0] + Q[2]*(dar ? 0.34 : 0.32);
+    var xt = xb + 1.35*s, T = { b:[xb, my], c:[xt + 0.95*s, my - 1.6*s], e:[xt + 0.95*s, my + 1.6*s] }, xc = T.c[0];
+    var boo = opt.boo, ycn = T.c[1] - 10*K.fs, xco = xc + Q[2]*0.14, xv = xc + Q[2]*(boo ? 0.36 : 0.30), xout = Q[0] + Q[2]*0.94;
+    var sol = boo && !boo.acik;
+    var tc = sol ? mixc(C.panel, C.ink2, 0.45) : C.ink2;
+    /* raylar */
+    tel([[xb, yt], [xc, yt]], tc); tel([[xb, yb], [boo ? xv : T.e[0], yb]], tc);
+    txt('+9 V', xb - 8*K.fs, yt, C.sin, 8.5, 'right', MONO, 600); noktaB(xb, yt);
+    toprak((xb + xc)/2, yb + 2*K.fs);
+    /* taban bölücüsü */
+    tel([[xb, yt], [xb, yb]], tc);
+    var LR = Math.min(40*K.fs, (my - yt)*0.5);
+    dirDik(xb, (yt + my)/2, LR, C.cos, false); dirDik(xb, (my + yb)/2, LR, C.cos, false);
+    txt(dar ? ohmTxt(d.r1) : 'R1 ' + ohmTxt(d.r1), xb - 14*K.fs, (yt + my)/2, C.cos, 7.5, 'right', MONO, 600);
+    txt(dar ? ohmTxt(d.r2) : 'R2 ' + ohmTxt(d.r2), xb - 14*K.fs, (my + yb)/2, C.cos, 7.5, 'right', MONO, 600);
+    noktaB(xb, my);
+    /* giriş */
+    tel([[xin, my], [xb, my]], tc); kapYatay(xci, my, C.ink2, false);
+    ctx.fillStyle = C.panel; ctx.strokeStyle = C.ink2; LW(1.6); ctx.beginPath(); ctx.arc(xin, my, 4*K.fs, 0, TAU); ctx.fill(); ctx.stroke();
+    txt(dar ? 'giriş' : 'GİRİŞ', xin, my + 16*K.fs, C.ink2, 7.5, 'center', MONO, 600);
+    /* kolektör ve emetör */
+    tel([[xc, yt], [xc, T.c[1]]], tc); tel([[T.e[0], T.e[1]], [T.e[0], yb]], tc);
+    var LC = Math.min(40*K.fs, (ycn - yt)*0.6), LE = Math.min(34*K.fs, (yb - T.e[1])*0.6);
+    dirDik(xc, (yt + ycn)/2, LC, C.sin, false); dirDik(T.e[0], (T.e[1] + yb)/2, LE, C.sin, false);
+    txt(dar ? ohmTxt(d.rc) : 'Rc ' + ohmTxt(d.rc), xc + 14*K.fs, (yt + ycn)/2, C.sin, 7.5, 'left', MONO, 600);
+    txt(dar ? ohmTxt(d.re) : 'Re ' + ohmTxt(d.re), T.e[0] + 14*K.fs, (T.e[1] + yb)/2, C.sin, 7.5, 'left', MONO, 600);
+    npnSem(xt, my, s, sol ? C.ink3 : C.ink, false);
+    /* çıkış */
+    noktaB(xc, ycn); tel([[xc, ycn], [boo ? xv : xout, ycn]], tc); kapYatay(xco, ycn, C.ink2, false);
+    var xo2 = xout, yo2 = ycn;
+    if (boo){
+      tel([[xv, ycn], [xv, yb]], tc);
+      var LV = Math.min(50*K.fs, (yb - ycn)*0.55), yw = potDik(xv, (ycn + yb)/2, LV, C.arc, aTaper(boo.vol));
+      tel([[xv + 22*K.fs, yw], [xout, yw]], tc); yo2 = yw;
+      if (!dar) txt('volume', xv - 14*K.fs, (ycn + yb)/2, C.arc, 7.5, 'right', MONO, 600);
+      if (!boo.acik){                                             /* bypass: giriş doğrudan çıkışa */
+        var yby = Q[1] + Q[3]*0.02 + 2*K.fs;
+        akimTel([[xin, my], [xin, yby], [xout, yby], [xout, yw]], C.cos, 0.6);
+        txt('bypass: sinyal devreye girmeden çıkışa', (xin + xout)/2, yby + 10*K.fs, C.cos, 7.5, 'center', MONO, 600);
+      }
+    }
+    ctx.fillStyle = C.panel; ctx.strokeStyle = C.ink2; LW(1.6); ctx.beginPath(); ctx.arc(xo2, yo2, 4*K.fs, 0, TAU); ctx.fill(); ctx.stroke();
+    txt(dar ? 'çıkış' : 'ÇIKIŞ', xo2, yo2 + 16*K.fs, C.ink2, 7.5, 'center', MONO, 600);
+    /* düğüm gerilimleri */
+    if (!sol){
+      if (dar) chip('Vb ' + vTxt(o.vbn), xb + 30*K.fs, my + 24*K.fs, C.cos, 7.5, 600); else chip('Vb ' + vTxt(o.vbn), xb - 36*K.fs, my - 13*K.fs, C.cos, 7.5, 600);
+      chip('Vc ' + vTxt(o.vc), xc + (dar ? 36 : 44)*K.fs, ycn + 13*K.fs, C.sin, 7.5, 600);
+      if (!dar) chip('Ve ' + vTxt(o.ve), T.e[0] + 40*K.fs, T.e[1] + 2*K.fs, C.ink2, 7.5, 600);
+    }
+    /* mini dalgalar: aynı ölçekle */
+    if (opt.gir != null){
+      var olc = Math.min(22*K.fs, (my - yt)*0.45)/4.5, mw = Math.min(46*K.fs, Q[2]*0.1);
+      var ay = (boo && !boo.acik) ? my - 34*K.fs : my - 30*K.fs;
+      miniDalga(xin + mw/2 - 4*K.fs, ay, mw, Math.max(0.8, opt.gir*olc), C.cos);
+      var cy2 = yo2 - 30*K.fs, ca = Math.abs(opt.cik)*olc;
+      miniDalga(xo2 - mw/2 + 4*K.fs, cy2, mw, -Math.max(0.8, ca), C.sin, opt.kirp ? opt.kirp*olc : null);
+    }
+    return { xb:xb, my:my, xc:xc, ycn:ycn };
+  }
+
+  /* ================= ORTAK: VOLT GRAFİĞİ (aynı ölçek) =================
+     0–9 V ekseninde tabanın ve kolektörün zamanla değişimi. İki dalga aynı ölçekte: girişin ne kadar
+     küçük, çıkışın ne kadar büyük ve ters olduğu doğrudan görünür.                                 */
+  function voltCiz(P, D, T, A, t0, baslik, dar){
+    frame(P[0], P[1], P[2], P[3]);
+    baslikP(baslik, P[0], P[1], dar);
+    var x0 = P[0] + 42*K.fs, x1 = P[0] + P[2] - (dar ? 14 : 110)*K.fs, y0 = P[1] + 28*K.fs, y1 = P[1] + P[3] - 16*K.fs;
+    var Y = function(v){ return y1 - v/9.5*(y1 - y0); }, o = D.o, alt = o.ve + VCE_SAT;
+    ctx.strokeStyle = C.line; LW(1); line(x0, y0, x0, y1); line(x0, Y(0), x1, Y(0));
+    [0, 3, 6, 9].forEach(function(v){ txt(kis(v, 0) + ' V', x0 - 6*K.fs, Y(v), C.ink3, 7.5, 'right', MONO); });
+    ctx.strokeStyle = C.ink3; LW(1); dash([4, 4]); line(x0, Y(9), x1, Y(9)); line(x0, Y(alt), x1, Y(alt)); dash(null);
+    if (!dar){ txt('üst sınır 9 V', x1 + 8*K.fs, Y(9), C.ink3, 7.5, 'left', MONO); txt('alt sınır ' + vTxt(alt), x1 + 8*K.fs, Y(alt) + 9*K.fs, C.ink3, 7.5, 'left', MONO); }
+    var fn = function(u){ return A*Math.sin(TAU*(2*u + t0)); };
+    var ciz = function(g, col, lw){ ctx.strokeStyle = col; LW(lw); ctx.beginPath(); for (var k = 0; k <= 300; k++){ var u = k/300, yy = Y(g(u)); if (k) ctx.lineTo(x0 + (x1 - x0)*u, yy); else ctx.moveTo(x0 + (x1 - x0)*u, yy); } glowOn(col, 5); ctx.stroke(); glowOff(); };
+    ctx.strokeStyle = mixc(C.panel, C.sin, 0.5); LW(1); dash([2, 3]); line(x0, Y(o.vc), x1, Y(o.vc)); dash(null);
+    ciz(function(u){ return o.vbn + fn(u); }, C.cos, 2);
+    ciz(function(u){ return o.vc + tabOku(T, fn(u)); }, C.sin, 2.8);
+    if (!dar){
+      txt('kolektör', x1 + 8*K.fs, Y(o.vc), C.sin, 8, 'left', MONO, 600);
+      txt('taban', x1 + 8*K.fs, Y(o.vbn) - 8*K.fs, C.cos, 8, 'left', MONO, 600);
+    }
+    /* tepe noktasında ters olduğunu gösteren işaret */
+    var up = (((0.25 - t0)/2) % 0.5 + 0.5) % 0.5, xu = x0 + (x1 - x0)*up;
+    ctx.strokeStyle = C.ink3; LW(1); dash([2, 3]); line(xu, Y(o.vbn + A), xu, Y(o.vc + tabOku(T, A))); dash(null);
+    if (!dar) chip('taban tepede → kolektör dipte', xu + 80*K.fs > x1 ? xu - 80*K.fs : xu + 80*K.fs, (Y(o.vbn + A) + Y(o.vc + tabOku(T, A)))/2, C.ink2, 7.5, 600);
+  }
+  /* kırpılma durumu: giriş tepesi A için */
+  function kirpDurum(T, D, A){
+    /* kırpma: çıkış sınıra dayanınca eğim çöker. Tepede eğim küçük-sinyal eğiminin %30'unun altındaysa kırpılıyor */
+    var h = 0.002, egim = function(v){ return Math.abs(tabOku(T, v + h) - tabOku(T, v - h))/(2*h); };
+    var g0 = egim(0), eu = egim(-A) < 0.3*g0, ed = egim(A) < 0.3*g0, up = tabOku(T, -A), dn = tabOku(T, A);
+    return { ust:eu, alt:ed, cikUst:up, cikAlt:dn, ad: eu && ed ? 'iki yandan kırpılıyor' : eu ? 'üstten kırpılıyor' : ed ? 'alttan kırpılıyor' : 'temiz', kisa: eu && ed ? 'iki yan' : eu ? 'üstten' : ed ? 'alttan' : 'temiz' };
+  }
+  /* ================= SAHNE 1: YÜKSELTME FİKRİ =================
+     Transistör yarı açık bölgede tutulur. Tabandaki küçük gerilim değişimi kolektör akımını değiştirir;
+     Rc bu akım değişimini gerilime çevirir. Akım artınca Rc'de daha çok gerilim düşer: kolektör iner.
+     Çıkış giriş ile ters yönde ve Rc ÷ Re kadar büyük.                                               */
+  var DEV = { r1:430e3, r2:43e3, rc:10e3, re:390 };
+  var TCACHE = {};
+  function tabloAl(d){ var k = d.r1 + '|' + d.r2 + '|' + d.rc + '|' + d.re; if (!TCACHE[k]){ TCACHE[k] = { T:tablo(d), D:devre(d) }; } return TCACHE[k]; }
+  function drawFik(w, h){
+    var pad = 16*K.fs, dar = w < 760, top = 34*K.fs, X = tabloAl(DEV), T = X.T, D = X.D, A = S.fGir, K2 = kirpDurum(T, D, A);
+    var cik = (tabOku(T, -A) - tabOku(T, A))/2;
+    sahneBaslik(w, 'YÜKSELTME FİKRİ  ·  giriş ' + vTxt(A) + ' tepe → çıkış ' + vTxt(cik) + ' tepe, ters',
+      'kazanç × ' + kis(cik/A, 0) + '  ·  ' + dbTxt(20*lg(cik/A)), C.sin, '× ' + kis(cik/A, 0));
+    var P = yerlesim(dar, top, pad, w, h, dar ? [0.44, 0.20] : [0.58, 0.22, 0.64, 0.56]), P1 = P[0], P2 = P[1], P3 = P[2];
+    frame(P1[0], P1[1], P1[2], P1[3]);
+    baslikP(dar ? 'DEVRE' : 'DEVRE  ·  ortak emetörlü tek transistör: en basit yükselteç', P1[0], P1[1], dar);
+    devreCiz([P1[0], P1[1] + 16*K.fs, P1[2], P1[3] - 36*K.fs], DEV, D, { gir:A, cik:cik, kirp:K2.ust || K2.alt ? Math.min(Math.abs(K2.cikUst), Math.abs(K2.cikAlt)) : null }, dar);
+    txt(sig('taban biraz yükselince kolektör akımı artar, Rc’de daha çok gerilim düşer: kolektör iner', 'küçük giriş, büyük ve ters çıkış', P1[2] - 24*K.fs, 8.5),
+      P1[0] + P1[2]/2, P1[1] + P1[3] - 11*K.fs, C.ink3, 8.5, 'center', MONO);
+    sayiPanel(P2, dar ? 'SAYILAR' : 'SAYILAR  ·  β = 200 (bu sayfa)', [
+      ['giriş (tepe)', vTxt(A), C.cos],
+      ['çıkış (tepe)', vTxt(cik), C.sin],
+      ['kazanç', '× ' + kis(cik/A, 1) + ' (' + dbTxt(20*lg(cik/A)) + ')', C.sin, '× ' + kis(cik/A, 0)],
+      ['Rc ÷ (Re + re)', '× ' + kis(D.kaz, 1), C.ink2],
+      ['kolektör akımı', aTxt(D.o.ic), C.ink2],
+      ['durum', K2.ad, K2.ust || K2.alt ? C.arc : C.ink, K2.kisa]
+    ], dar);
+    voltCiz(P3, D, T, A, S.anim*0.25, dar ? 'AYNI ÖLÇEKTE' : 'AYNI ÖLÇEKTE  ·  ince: taban, kalın: kolektör · 0–9 V', dar);
+  }
+
+  /* ================= SAHNE 2: ÇALIŞMA NOKTASI =================
+     R2 tabanın dinlenme gerilimini, o da kolektörün dinlenme gerilimini belirler. Sinyal bu noktanın
+     etrafında iki yöne salınır: yukarıda 9 V, aşağıda emetörün hemen üstü. Ortada durmazsa bir yandan
+     kırpılır.                                                                                          */
+  function drawNok(w, h){
+    var pad = 16*K.fs, dar = w < 760, top = 34*K.fs, d = { r1:DEV.r1, r2:S.nR2, rc:DEV.rc, re:DEV.re }, X = tabloAl(d), T = X.T, D = X.D, A = S.nGir, K2 = kirpDurum(T, D, A);
+    var o = D.o, ustPay = VCC - o.vc, altPay = o.vc - o.ve - VCE_SAT;
+    sahneBaslik(w, 'ÇALIŞMA NOKTASI  ·  R2 ' + ohmTxt(S.nR2) + '  ·  kolektör dinlenmede ' + vTxt(o.vc) + '  ·  giriş ' + vTxt(A),
+      K2.ad, K2.ust || K2.alt ? C.arc : C.sin, K2.kisa);
+    var P = yerlesim(dar, top, pad, w, h, dar ? [0.44, 0.20] : [0.58, 0.22, 0.64, 0.56]), P1 = P[0], P2 = P[1], P3 = P[2];
+    frame(P1[0], P1[1], P1[2], P1[3]);
+    baslikP(dar ? 'DEVRE' : 'DEVRE  ·  R2 tabanın, taban da kolektörün dinlenme gerilimini belirler', P1[0], P1[1], dar);
+    var cik = (tabOku(T, -A) - tabOku(T, A))/2;
+    var Q = dar ? [P1[0], P1[1] + 16*K.fs, P1[2], P1[3] - 36*K.fs] : [P1[0], P1[1] + 16*K.fs, P1[2]*0.78, P1[3] - 36*K.fs];
+    devreCiz(Q, d, D, { gir:A, cik:cik, kirp:K2.ust || K2.alt ? Math.min(Math.abs(K2.cikUst), Math.abs(K2.cikAlt)) : null }, dar);
+    /* dikey gösterge: 0–9 V ve kolektörün dinlenme noktası */
+    if (!dar){
+      var gx = P1[0] + P1[2]*0.89, g0 = P1[1] + 40*K.fs, g1 = P1[1] + P1[3] - 44*K.fs, GY = function(v){ return g1 - v/9*(g1 - g0); };
+      ctx.fillStyle = mixc(C.panel, C.ink3, 0.12); ctx.fillRect(gx - 7*K.fs, g0, 14*K.fs, g1 - g0);
+      ctx.fillStyle = mixc(C.panel, C.sin, 0.35); ctx.fillRect(gx - 7*K.fs, GY(Math.min(9, o.vc + cik)), 14*K.fs, GY(Math.max(o.ve + VCE_SAT, o.vc - cik)) - GY(Math.min(9, o.vc + cik)));
+      ctx.fillStyle = C.sin; ctx.fillRect(gx - 11*K.fs, GY(o.vc) - 1.5, 22*K.fs, 3);
+      txt('9 V', gx, g0 - 9*K.fs, C.ink3, 7.5, 'center', MONO); txt('0', gx, g1 + 9*K.fs, C.ink3, 7.5, 'center', MONO);
+      txt('Vc', gx - 14*K.fs, GY(o.vc), C.sin, 8, 'right', MONO, 600);
+      txt('salınım', gx, g1 + 22*K.fs, C.ink3, 7.5, 'center', MONO);
+    }
+    txt(sig(K2.ust ? 'kolektör 9 V’a çok yakın: tepeler tavana çarpıyor (transistör kapanıyor)' : K2.alt ? 'kolektör çok aşağıda: dipler tabana çarpıyor (transistör tam açılıyor)' : 'kolektör ortaya yakın: sinyal iki yöne de rahatça salınıyor',
+      K2.ad, P1[2] - 24*K.fs, 8.5), P1[0] + P1[2]/2, P1[1] + P1[3] - 11*K.fs, K2.ust || K2.alt ? C.arc : C.ink3, 8.5, 'center', MONO);
+    sayiPanel(P2, dar ? 'SAYILAR' : 'SAYILAR  ·  R1 430 kΩ, Rc 10 kΩ, Re 390 Ω', [
+      ['taban (dinlenme)', vTxt(o.vbn), C.cos],
+      ['kolektör (dinlenme)', vTxt(o.vc), C.sin],
+      ['yukarı pay', vTxt(Math.max(0, ustPay)), C.ink2],
+      ['aşağı pay', vTxt(Math.max(0, altPay)), C.ink2],
+      ['çıkış tepe (temiz olsa)', vTxt(D.kaz*A), C.sin, vTxt(D.kaz*A)],
+      ['durum', K2.ad, K2.ust || K2.alt ? C.arc : C.ink, K2.kisa]
+    ], dar);
+    voltCiz(P3, D, T, A, S.anim*0.25, dar ? 'AYNI ÖLÇEKTE' : 'AYNI ÖLÇEKTE  ·  kesikli çizgiler: kolektörün gidebileceği tavan ve taban', dar);
+  }
+  /* ================= SAHNE 3: KAZANÇ =================
+     Kazanç kabaca Rc ÷ Re. Re küçüldükçe kazanç büyür; ama çok küçülünce transistörün kendi iç
+     direnci re (≈ 26 mV ÷ Ic) belirleyici olur: kazanç artık dirençlere değil transistöre bağlıdır
+     ve sinyal biraz çarpılır. Her Re için taban bölücüsü yeniden ayarlandı (kolektör 4,5 V'ta).    */
+  var RE_SEC = [1000, 390, 150, 47];
+  var RE_R2 = {};
+  function r2Icin(re){
+    if (RE_R2[re]) return RE_R2[re];
+    var lo = 1e3, hi = 400e3;
+    for (var k = 0; k < 50; k++){ var m = (lo + hi)/2; if (devre({ r1:DEV.r1, r2:m, rc:DEV.rc, re:re }).o.vc > 4.5) lo = m; else hi = m; }
+    return (RE_R2[re] = Math.round((lo + hi)/2/100)*100);
+  }
+  function drawKaz(w, h){
+    var pad = 16*K.fs, dar = w < 760, top = 34*K.fs, d = { r1:DEV.r1, r2:r2Icin(S.kRe), rc:DEV.rc, re:S.kRe }, X = tabloAl(d), T = X.T, D = X.D, A = S.kGir, K2 = kirpDurum(T, D, A);
+    var cik = (tabOku(T, -A) - tabOku(T, A))/2, kucuk = (tabOku(T, -0.005) - tabOku(T, 0.005))/0.01;
+    sahneBaslik(w, 'KAZANÇ  ·  Re ' + ohmTxt(S.kRe) + '  ·  kazanç × ' + kis(kucuk, 0) + '  ·  giriş ' + vTxt(A),
+      K2.ad + '  ·  çıkış ' + vTxt(cik), K2.ust || K2.alt ? C.arc : C.sin, '× ' + kis(kucuk, 0));
+    var P = yerlesim(dar, top, pad, w, h, dar ? [0.44, 0.20] : [0.58, 0.22, 0.64, 0.56]), P1 = P[0], P2 = P[1], P3 = P[2];
+    frame(P1[0], P1[1], P1[2], P1[3]);
+    baslikP(dar ? 'DEVRE' : 'DEVRE  ·  emetör direnci Re kazancı belirler', P1[0], P1[1], dar);
+    var Q = dar ? [P1[0], P1[1] + 16*K.fs, P1[2], P1[3] - 36*K.fs] : [P1[0], P1[1] + 16*K.fs, P1[2]*0.72, P1[3] - 36*K.fs];
+    devreCiz(Q, d, D, { gir:A, cik:cik, kirp:K2.ust || K2.alt ? Math.min(Math.abs(K2.cikUst), Math.abs(K2.cikAlt)) : null }, dar);
+    if (!dar){
+      /* sağda: dört Re için kazanç çubukları */
+      var bx0 = P1[0] + P1[2]*0.76, bx1 = P1[0] + P1[2] - 14*K.fs, by = P1[1] + 44*K.fs, rs = Math.min(40*K.fs, (P1[3] - 100*K.fs)/4);
+      txt('küçük sinyalde kazanç', (bx0 + bx1)/2, by - 16*K.fs, C.ink2, 7.5, 'center', MONO, 600);
+      RE_SEC.forEach(function(re, k){
+        var dd = { r1:DEV.r1, r2:r2Icin(re), rc:DEV.rc, re:re }, XX = tabloAl(dd), g = (tabOku(XX.T, -0.005) - tabOku(XX.T, 0.005))/0.01, yy = by + k*rs + 8*K.fs, sec = re === S.kRe;
+        var L = (bx1 - bx0)*Math.min(1, g/100);
+        txt(ohmTxt(re), bx0, yy - 9*K.fs, sec ? C.ink : C.ink3, 7.5, 'left', MONO, 600);
+        ctx.fillStyle = mixc(C.panel, C.sin, sec ? 0.9 : 0.35); ctx.fillRect(bx0, yy, L, 7*K.fs);
+        txt('× ' + kis(g, 0), bx1, yy - 9*K.fs, sec ? C.sin : C.ink3, 7.5, 'right', MONO, 600);
+      });
+      txt('Rc ÷ (Re + re)', (bx0 + bx1)/2, by + 4*rs + 16*K.fs, C.ink3, 7.5, 'center', MONO);
+    }
+    txt(sig(S.kRe <= 47 ? 'Re çok küçük: kazanç transistörün iç direncine bağlı kaldı, sinyal çarpılıyor' : K2.ust || K2.alt ? 'kazanç büyük, giriş de büyük: çıkış 9 V’luk alana sığmıyor' : 'kazanç ≈ Rc ÷ Re: dirençlerle ayarlanır, transistöre pek bağlı değil',
+      K2.ad, P1[2] - 24*K.fs, 8.5), P1[0] + P1[2]/2, P1[1] + P1[3] - 11*K.fs, K2.ust || K2.alt ? C.arc : C.ink3, 8.5, 'center', MONO);
+    sayiPanel(P2, dar ? 'SAYILAR' : 'SAYILAR  ·  Rc 10 kΩ, kolektör 4,5 V’ta', [
+      ['Re', ohmTxt(S.kRe), C.sin],
+      ['Rc ÷ Re', '× ' + kis(DEV.rc/S.kRe, 0), C.ink2],
+      ['transistörün re', kis(D.re_, 0) + ' Ω', C.ink2],
+      ['kazanç (küçük sinyal)', '× ' + kis(kucuk, 0) + ' (' + dbTxt(20*lg(kucuk)) + ')', C.sin, '× ' + kis(kucuk, 0)],
+      ['temiz en büyük giriş', vTxt(temizSinir(T, D)), C.cos],
+      ['durum', K2.ad, K2.ust || K2.alt ? C.arc : C.ink, K2.kisa]
+    ], dar);
+    voltCiz(P3, D, T, A, S.anim*0.25, dar ? 'AYNI ÖLÇEKTE' : 'AYNI ÖLÇEKTE  ·  ince: taban, kalın: kolektör · 0–9 V', dar);
+  }
+  function temizSinir(T, D){ for (var a = 0.005; a < 1.5; a += 0.005){ var k = kirpDurum(T, D, a); if (k.ust || k.alt) return a - 0.005; } return 1.5; }
+
+  /* ================= SAHNE 4: BOOSTER PEDALI =================
+     Aynı devre, girişte ve çıkışta kapasitör (yalnız değişen kısım geçer) ve çıkışta bir volume
+     potu. Temiz bir booster: gitar sinyalini ≈ 22 kat (27 dB) büyütür. Humbucker gibi güçlü bir
+     kaynakla sürülünce kırpılır: overdrive'ın en basit hâli.                                     */
+  var MANS = { yum:{ ad:'yumuşak çalış', v:0.05 }, tek:{ ad:'tek bobin', v:0.1 }, hum:{ ad:'humbucker', v:0.3 }, akt:{ ad:'aktif manyetik', v:1.0 } };
+  function booHesap(){
+    var X = tabloAl(DEV), A = MANS[S.bMan].v, vol = aTaper(S.bVol), K2 = kirpDurum(X.T, X.D, A);
+    var cik = S.bAcik ? (tabOku(X.T, -A) - tabOku(X.T, A))/2*vol : A;
+    return { X:X, A:A, vol:vol, K2:K2, cik:cik, db:20*lg(cik/A) };
+  }
+  function drawBoo(w, h){
+    var pad = 16*K.fs, dar = w < 760, top = 34*K.fs, H = booHesap(), X = H.X, D = X.D, T = X.T, A = H.A, kir = S.bAcik && (H.K2.ust || H.K2.alt);
+    sahneBaslik(w, 'BOOSTER  ·  ' + (S.bAcik ? 'açık' : 'bypass') + '  ·  ' + MANS[S.bMan].ad + ' ' + vTxt(A) + '  ·  volume ' + kis(S.bVol*10, 1),
+      (S.bAcik ? dbTxt(H.db) : 'bypass') + (kir ? '  ·  kırpılıyor (overdrive)' : ''), kir ? C.arc : C.sin, S.bAcik ? dbTxt(H.db) : 'bypass');
+    var P = yerlesim(dar, top, pad, w, h, dar ? [0.46, 0.20] : [0.58, 0.22, 0.64, 0.56]), P1 = P[0], P2 = P[1], P3 = P[2];
+    frame(P1[0], P1[1], P1[2], P1[3]);
+    baslikP(dar ? 'PEDAL' : 'PEDAL  ·  tek transistörlü temiz booster: giriş ve çıkışta kapasitör, çıkışta volume', P1[0], P1[1], dar);
+    devreCiz([P1[0], P1[1] + 16*K.fs, P1[2], P1[3] - 36*K.fs], DEV, D, { gir:A, cik:S.bAcik ? H.cik : A, kirp:kir ? Math.min(Math.abs(H.K2.cikUst), Math.abs(H.K2.cikAlt))*H.vol : null, boo:{ acik:S.bAcik, vol:S.bVol } }, dar);
+    txt(sig(!S.bAcik ? 'bypass: gitar doğrudan amfiye; pedalın devresi devre dışı' : kir ? 'güçlü giriş: çıkış tavana ve tabana çarpıyor, ses kırpılıyor: overdrive' : 'temiz booster: aynı ses, daha yüksek; volume ile ayarlanır',
+      S.bAcik ? (kir ? 'overdrive' : 'temiz') : 'bypass', P1[2] - 24*K.fs, 8.5), P1[0] + P1[2]/2, P1[1] + P1[3] - 11*K.fs, kir ? C.arc : C.ink3, 8.5, 'center', MONO);
+    sayiPanel(P2, dar ? 'SAYILAR' : 'SAYILAR  ·  430 k / 43 k, 10 k / 390 Ω', [
+      ['giriş (tepe)', vTxt(A), C.cos],
+      ['çıkış (volume sonrası)', vTxt(H.cik), C.sin, vTxt(H.cik)],
+      ['seviye farkı', S.bAcik ? dbTxt(H.db) : '0 dB', C.sin],
+      ['devrenin kazancı', '× ' + kis(D.kaz, 0) + ' (' + dbTxt(20*lg(D.kaz)) + ')', C.ink2, '× ' + kis(D.kaz, 0)],
+      ['volume', kis(S.bVol*10, 1) + ' → %' + kis(H.vol*100, 0), C.arc],
+      ['durum', !S.bAcik ? 'bypass' : kir ? 'kırpılıyor' : 'temiz', kir ? C.arc : C.ink]
+    ], dar);
+    /* P3: giriş ve çıkış, aynı ölçekte, sıfır ortada */
+    frame(P3[0], P3[1], P3[2], P3[3]);
+    baslikP(dar ? 'GİRİŞ VE ÇIKIŞ' : 'GİRİŞ VE ÇIKIŞ  ·  aynı ölçek, sıfır ortada · ince: gitar, kalın: pedal çıkışı', P3[0], P3[1], dar);
+    var x0 = P3[0] + 42*K.fs, x1 = P3[0] + P3[2] - 16*K.fs, y0 = P3[1] + 28*K.fs, y1 = P3[1] + P3[3] - 14*K.fs, ym = (y0 + y1)/2;
+    var Y = function(v){ return ym - v/5*(y1 - y0)/2; };
+    ctx.strokeStyle = C.line; LW(1); line(x0, ym, x1, ym); line(x0, y0, x0, y1);
+    [-4, -2, 0, 2, 4].forEach(function(v){ txt((v > 0 ? '+' : v < 0 ? '−' : '') + Math.abs(v) + ' V', x0 - 6*K.fs, Y(v), C.ink3, 7.5, 'right', MONO); });
+    var t0 = S.anim*0.25, fn = function(u){ return A*Math.sin(TAU*(3*u + t0)); };
+    var ciz = function(g, col, lw){ ctx.strokeStyle = col; LW(lw); ctx.beginPath(); for (var k = 0; k <= 400; k++){ var u = k/400, yy = Y(Math.max(-5, Math.min(5, g(u)))); if (k) ctx.lineTo(x0 + (x1 - x0)*u, yy); else ctx.moveTo(x0 + (x1 - x0)*u, yy); } glowOn(col, 5); ctx.stroke(); glowOff(); };
+    ciz(fn, C.cos, 2);
+    ciz(function(u){ return S.bAcik ? tabOku(T, fn(u))*H.vol : fn(u); }, C.sin, 2.8);
+  }
+  /* ================= SES: devreden geçen akor =================
+     Tel koparma sentezi (Karplus–Strong) ile bir Mi majör akoru; tepe değeri seçilen giriş seviyesine
+     ölçeklenir ve her örnek bu sayfadaki devrenin giriş→çıkış tablosundan geçer (kırpma dahil).
+     Giriş kapasitörü (≈ 58 Hz) ve çıkış kapasitörü (≈ 15 Hz) birer basit alçak kesen süzgeç.
+     Ses düzeyi: 1 V → 1/6. Bypass ile açık arasındaki fark gerçek oranında duyulur.            */
+  var AC = null, sKaz = null, kay = null, kayKaz = null, caliyor = false, ham = null, NF = 131072, sesZ = 0, SES_OLC = 1/6;
+  function akorUret(sr){
+    var x = new Float64Array(NF), notalar = [82.41, 123.47, 164.81, 207.65, 246.94, 329.63], R = rng(4242), mx = 0, k;
+    notalar.forEach(function(f, s){
+      var N = Math.round(sr/f), buf = new Float64Array(N), bas = Math.round(sr*(0.02 + s*0.022)), p = 0;
+      for (var q = 0; q < N; q++) buf[q] = R()*2 - 1;
+      for (var t = 0; t < NF; t++){
+        var idx = (bas + t) % NF, v = buf[p], nx = buf[(p + 1) % N];
+        buf[p] = 0.4985*(v + nx); p = (p + 1) % N;
+        x[idx] += v*0.18*Math.pow(0.99995, t);
+      }
+    });
+    for (k = 0; k < NF; k++) mx = Math.max(mx, Math.abs(x[k]));
+    for (k = 0; k < NF; k++) x[k] /= mx;
+    return x;
+  }
+  function hp1(x, fc, sr){                                   /* tek kutuplu alçak kesen */
+    var a = 1/(1 + TAU*fc/sr), y = new Float64Array(x.length), px = 0, py = 0;
+    for (var k = 0; k < x.length; k++){ py = a*(py + x[k] - px); px = x[k]; y[k] = py; }
+    return y;
+  }
+  function sesAyar(){
+    if (S.mode === 'nok') return { T:tabloAl({ r1:DEV.r1, r2:S.nR2, rc:DEV.rc, re:DEV.re }).T, A:S.nGir, vol:1, by:false };
+    if (S.mode === 'kaz') return { T:tabloAl({ r1:DEV.r1, r2:r2Icin(S.kRe), rc:DEV.rc, re:S.kRe }).T, A:S.kGir, vol:1, by:false };
+    return { T:tabloAl(DEV).T, A:MANS[S.bMan].v, vol:aTaper(S.bVol), by:!S.bAcik };
+  }
+  function islenmis(){
+    var a = sesAyar(), sr = AC.sampleRate, x = new Float64Array(NF), k;
+    for (k = 0; k < NF; k++) x[k] = ham[k]*a.A;
+    var y;
+    if (a.by) y = x;
+    else { var xi = hp1(x, 58, sr); y = new Float64Array(NF); for (k = 0; k < NF; k++) y[k] = tabOku(a.T, xi[k])*a.vol; y = hp1(y, 15, sr); }
+    var ab = AC.createBuffer(1, NF, sr), dd = ab.getChannelData(0);
+    for (k = 0; k < NF; k++) dd[k] = Math.max(-0.98, Math.min(0.98, y[k]*SES_OLC));
+    return ab;
+  }
+  function sesGuncel(){
+    if (!caliyor || !AC) return;
+    clearTimeout(sesZ);
+    sesZ = setTimeout(function(){
+      try {
+        var ab = islenmis(), t = AC.currentTime, eski = kay, eskiK = kayKaz;
+        kayKaz = AC.createGain(); kayKaz.gain.value = 0; kayKaz.connect(sKaz);
+        kay = AC.createBufferSource(); kay.buffer = ab; kay.loop = true; kay.connect(kayKaz);
+        var off = eski && eski.__bas != null ? ((t - eski.__bas) % (NF/AC.sampleRate)) : 0;
+        kay.start(t, off); kay.__bas = t - off; kayKaz.gain.setTargetAtTime(1, t, 0.03);
+        if (eskiK){ eskiK.gain.setTargetAtTime(0, t, 0.03); setTimeout(function(){ try { eski.stop(); } catch(e){} }, 300); }
+      } catch(e){}
+    }, 60);
+  }
+  function sesAc(){
+    try {
+      if (!AC) AC = new (window.AudioContext || window.webkitAudioContext)();
+      if (AC.state === 'suspended') AC.resume();
+      if (!ham) ham = akorUret(AC.sampleRate);
+      sKaz = AC.createGain(); sKaz.gain.value = 0; sKaz.connect(AC.destination);
+      sKaz.gain.setTargetAtTime(0.9, AC.currentTime, 0.05);
+      caliyor = true; kay = null; kayKaz = null; sesGuncel();
+    } catch(e){ caliyor = false; }
+  }
+  function sesKapat(){
+    try { if (sKaz && AC) sKaz.gain.setTargetAtTime(0, AC.currentTime, 0.03);
+      var k2 = kay; setTimeout(function(){ try { if (k2) k2.stop(); } catch(e){} }, 250); } catch(e){}
+    kay = null; kayKaz = null; caliyor = false; clearTimeout(sesZ);
+  }
+  function drawBoard(){
+    var g = sized(board); if (!g) return;
+    ctx = g.c;
+    if (S.mode === 'fik')      drawFik(g.w, g.h);
+    else if (S.mode === 'nok') drawNok(g.w, g.h);
+    else if (S.mode === 'kaz') drawKaz(g.w, g.h);
+    else                       drawBoo(g.w, g.h);
+  }
+  function render(){ drawBoard(); }
+  if (window.ResizeObserver){ new ResizeObserver(function(){ render(); }).observe(board); }
+  window.addEventListener('resize', render);
+
+  /* canlandırma: yalnız düğmeyle; dalgalar yavaşça kayar */
+  var aRaf = 0, aSon = 0;
+  function animAcik(){ return S.fCalis; }
+  function tik(ts){
+    aRaf = 0; if (!animAcik() || document.hidden) return;
+    var dt = aSon ? Math.min(0.05, (ts - aSon)/1000) : 0; aSon = ts; S.anim += dt; render();
+    aRaf = requestAnimationFrame(tik);
+  }
+  function animBasla(){ if (animAcik() && !aRaf){ aSon = 0; aRaf = requestAnimationFrame(tik); } }
+  document.addEventListener('visibilitychange', animBasla);
+
+  var ro = document.getElementById('readout');
+  function cell(lab, val, cls){ return '<div><span>'+lab+'</span><b'+(cls?' class="'+cls+'"':'')+'>'+val+'</b></div>'; }
+  function mark(sel, key, val){ Array.prototype.forEach.call(document.querySelectorAll(sel+' button'), function(b){ b.classList.toggle('on', b.dataset[key] === String(val)); }); }
+  function yaz(id, s){ document.getElementById(id).textContent = s; }
+  function dugme(id, acik, a, b){ yaz(id, acik ? a : b); document.getElementById(id).classList.toggle('on', acik); }
+
+  function sync(){
+    var X, K2, cik;
+    if (S.mode === 'fik'){
+      X = tabloAl(DEV); cik = (tabOku(X.T, -S.fGir) - tabOku(X.T, S.fGir))/2;
+      ro.innerHTML = cell('giriş', vTxt(S.fGir), 'v-cos') + cell('çıkış', vTxt(cik), 'v-sin') + cell('kazanç', '× ' + kis(cik/S.fGir, 0), '');
+      fFG.value = Math.round(S.fGir*1000); yaz('v-fgir', vTxt(S.fGir) + ' tepe'); dugme('b-fcalis', S.fCalis, 'Durdur', 'Canlandır');
+      yaz('f-note', 'Çıkış girişin tersi: taban yükselirken kolektör iner. Kulak bu ters dönmeyi duymaz.');
+    } else if (S.mode === 'nok'){
+      var d = { r1:DEV.r1, r2:S.nR2, rc:DEV.rc, re:DEV.re }; X = tabloAl(d); K2 = kirpDurum(X.T, X.D, S.nGir);
+      ro.innerHTML = cell('R2', ohmTxt(S.nR2), 'v-cos') + cell('kolektör', vTxt(X.D.o.vc), 'v-sin') + cell('durum', K2.kisa, '');
+      fNR.value = Math.round(S.nR2/1000); yaz('v-nr2', ohmTxt(S.nR2)); mark('#gNG', 'v', S.nGir); dugme('b-ndinle', caliyor, 'Durdur', 'Dinle');
+      yaz('n-note', 'Booster’larda bu ayar çoğu zaman bir iç trimpotla (bias) yapılır; kolektör besleme geriliminin yaklaşık yarısında tutulur.');
+    } else if (S.mode === 'kaz'){
+      X = tabloAl({ r1:DEV.r1, r2:r2Icin(S.kRe), rc:DEV.rc, re:S.kRe }); K2 = kirpDurum(X.T, X.D, S.kGir);
+      var g = (tabOku(X.T, -0.005) - tabOku(X.T, 0.005))/0.01;
+      ro.innerHTML = cell('Re', ohmTxt(S.kRe), 'v-sin') + cell('kazanç', '× ' + kis(g, 0), '') + cell('durum', K2.kisa, '');
+      mark('#gKR', 'r', S.kRe); mark('#gKG', 'v', S.kGir); dugme('b-kdinle', caliyor, 'Durdur', 'Dinle');
+      yaz('k-note', 'Her Re için R2 yeniden seçildi: kolektör hep 4,5 V’ta. Böylece yalnız kazancın etkisi görünür.');
+    } else {
+      var H = booHesap();
+      ro.innerHTML = cell('pedal', S.bAcik ? 'açık' : 'bypass', '') + cell('giriş', vTxt(H.A), 'v-cos') + cell('çıkış', vTxt(H.cik), 'v-sin') + cell('fark', S.bAcik ? dbTxt(H.db) : '0 dB', '');
+      dugme('b-bac', S.bAcik, 'Pedal: açık', 'Pedal: bypass'); mark('#gBM', 'm', S.bMan); fBV.value = Math.round(S.bVol*100); yaz('v-bvol', kis(S.bVol*10, 1));
+      dugme('b-bdinle', caliyor, 'Durdur', 'Dinle');
+    }
+    nerSync(); tabloSec();
+  }
+
+  var NEREDE = {
+    fik: { c:'yükseltme', t:'<b>Gitar manyetiği birkaç yüz milivolt verir;</b> bir hoparlörü sürmek için ise onlarca volt ve amperler gerekir. Arada her zaman yükselteçler vardır. Bu sahnedeki devre en basit hâli: tek transistör, dört direnç. Bir amfinin ilk katı da, çoğu booster pedalı da bu düzende.' },
+    nok: { c:'çalışma noktası', t:'<b>Tüp ya da transistör, her yükselteçte</b> “bias” (öngerilim) ayarı vardır: sinyal yokken parçanın durduğu nokta. Tüplü amfilerde servisçinin ayarladığı “bias” da aynı fikir: çalışma noktası kayarsa ses bir yandan kırpılır, amfi farklı (çoğu zaman kötü) tınlar.' },
+    kaz: { c:'kazanç', t:'<b>Pedallardaki “gain” ya da “drive” düğmesi</b> çoğu zaman bu sahnedeki Re’nin yerine konmuş bir pottur (ya da onun yanına eklenmiş bir kapasitörle kazancı değiştirir). Kazanç büyüdükçe temiz kalabilen en büyük giriş küçülür: overdrive’ın başladığı yer.' },
+    boo: { c:'booster', t:'<b>Temiz booster</b> sesin karakterini pek değiştirmeden seviyesini yükseltir: solo için ya da tüplü amfinin girişini daha sert sürmek için. Tek transistörlü klasik booster’lar (1960’lardan beri) tam bu sahnedeki düzendedir; bazı modeller giriş kapasitörünü küçültüp yalnız tizleri yükseltir: treble booster.' }
+  };
+  function nerSync(){ var N2 = NEREDE[S.mode]; yaz('ner-count', N2.c); document.getElementById('ner-not').innerHTML = N2.t; }
+
+  /* ================= tablo: giriş seviyeleri ve booster ================= */
+  var AROW = ['yum', 'tek', 'hum', 'akt'];
+  var htb = document.querySelector('#atab tbody');
+  function tabloDoldur(){
+    htb.innerHTML = '';
+    var X = tabloAl(DEV);
+    AROW.forEach(function(m, k){
+      var A = MANS[m].v, K2 = kirpDurum(X.T, X.D, A), c = (tabOku(X.T, -A) - tabOku(X.T, A))/2;
+      var tr = document.createElement('tr'); tr.dataset.k = String(k);
+      tr.innerHTML = '<td>' + MANS[m].ad + '</td><td>' + vTxt(A) + '</td><td>' + vTxt(c) + '</td><td class="c-cmp">' + (K2.ust || K2.alt ? 'kırpılıyor (overdrive)' : 'temiz') + '</td>';
+      tr.addEventListener('click', function(){ uygula({ mode:'boo', bMan:m, bAcik:true, bVol:1 }); });
+      htb.appendChild(tr);
+    });
+  }
+  function tabloSec(){
+    Array.prototype.forEach.call(htb.children, function(tr){ tr.setAttribute('aria-selected', S.mode === 'boo' && S.bMan === AROW[+tr.dataset.k] ? 'true' : 'false'); });
+  }
+  function uygula(q){
+    Object.keys(q).forEach(function(k){ if (k !== 'mode') S[k] = q[k]; });
+    if (q.mode && q.mode !== S.mode) setMode(q.mode); else { sync(); render(); sesGuncel(); }
+  }
+
+  var SATIR = { fik:['row-fik'], nok:['row-nok'], kaz:['row-kaz'], boo:['row-boo'] };
+  var modeBtns = document.querySelectorAll('.modes button[data-m]');
+  function setMode(m){
+    if (caliyor) sesKapat();
+    S.mode = m;
+    Array.prototype.forEach.call(modeBtns, function(b){ b.setAttribute('aria-pressed', b.dataset.m === m ? 'true' : 'false'); });
+    Object.keys(SATIR).forEach(function(k){ SATIR[k].forEach(function(id){ document.getElementById(id).hidden = (k !== m); }); });
+    document.getElementById('stage').dataset.scene = m;
+    sync(); render(); animBasla();
+  }
+  Array.prototype.forEach.call(modeBtns, function(b){ b.addEventListener('click', function(){ setMode(b.dataset.m); }); });
+
+  function group(host, items, set){
+    var g = document.getElementById(host);
+    items.forEach(function(o){
+      var b = document.createElement('button'); b.type = 'button'; b.textContent = o[0];
+      if (o[2]) b.dataset[o[2]] = o[1];
+      b.addEventListener('click', function(){ set(o[1]); sync(); render(); sesGuncel(); });
+      g.appendChild(b);
+    });
+  }
+  function dinleDugme(id){ document.getElementById(id).addEventListener('click', function(){ if (caliyor) sesKapat(); else sesAc(); sync(); }); }
+  var GIR = [['50 mV', 0.05, 'v'], ['100 mV', 0.1, 'v'], ['200 mV', 0.2, 'v'], ['400 mV', 0.4, 'v']];
+  /* sahne 1 */
+  var fFG = document.getElementById('f-fgir');
+  fFG.addEventListener('input', function(){ S.fGir = +fFG.value/1000; sync(); render(); });
+  document.getElementById('b-fcalis').addEventListener('click', function(){ S.fCalis = !S.fCalis; sync(); render(); animBasla(); });
+  /* sahne 2 */
+  var fNR = document.getElementById('f-nr2');
+  fNR.addEventListener('input', function(){ S.nR2 = +fNR.value*1000; sync(); render(); sesGuncel(); });
+  group('gNG', GIR.slice(0, 3), function(v){ S.nGir = v; });
+  dinleDugme('b-ndinle');
+  /* sahne 3 */
+  group('gKR', RE_SEC.map(function(r){ return [ohmTxt(r), r, 'r']; }), function(v){ S.kRe = v; });
+  group('gKG', GIR, function(v){ S.kGir = v; });
+  dinleDugme('b-kdinle');
+  /* sahne 4 */
+  document.getElementById('b-bac').addEventListener('click', function(){ S.bAcik = !S.bAcik; sync(); render(); sesGuncel(); });
+  group('gBM', AROW.map(function(m){ return [MANS[m].ad, m, 'm']; }), function(v){ S.bMan = v; });
+  var fBV = document.getElementById('f-bvol');
+  fBV.addEventListener('input', function(){ S.bVol = +fBV.value/100; sync(); render(); sesGuncel(); });
+  dinleDugme('b-bdinle');
+  /* ================= DERS ADIMLARI ================= */
+  var STEPS = [
+    { t:'Transistör ortada',
+      b:'<b>Yükseltme fikri</b> sahnesinde <b>Canlandır</b>’a basın. Transistör ne kapalı ne tam açık: taban <b>0,73 V</b>’ta, kolektör ' +
+        '<b>4,47 V</b>’ta, yani 9 V’un yaklaşık yarısında duruyor. Bir önceki atölyede kaçındığımız “yarı açık” bölge, yükseltecin çalıştığı yer.',
+      ap:{ mode:'fik', fGir:0.1, fCalis:true } },
+    { t:'Küçük oynama, büyük oynama',
+      b:'Gitardan gelen <b>100 mV</b>’luk sinyal tabanı biraz yukarı biraz aşağı oynatıyor. Taban yükselince kolektör akımı artar; bu akım Rc’den ' +
+        'geçerken Rc’nin üstünde daha çok gerilim düşer ve kolektör <b>iner</b>. Alttaki grafikte ikisi aynı ölçekte: taban neredeyse düz, kolektör ' +
+        '<b>2,2 V</b> oynuyor.',
+      ap:{ mode:'fik', fGir:0.1, fCalis:true } },
+    { t:'Kazanç: × 22',
+      b:'2,2 V ÷ 0,1 V = <b>22 kat</b>, yani <b>27 dB</b> (Desibel atölyesi: ×10 = +20 dB). Çıkış girişin tersi: taban tepedeyken kolektör dipte. ' +
+        'Enerji girişten değil 9 V’luk pilden geliyor; transistör yalnızca musluğu açıp kısıyor.',
+      ap:{ mode:'fik', fGir:0.1, fCalis:true } },
+    { t:'Daha küçük bir giriş',
+      b:'Girişi <b>20 mV</b>’a indirin: çıkış <b>0,45 V</b>. Oran aynı kalıyor: yükselteç sinyalin biçimini bozmadan her şeyi aynı oranda büyütüyor. ' +
+        '“Doğrusal” denmesinin sebebi bu.',
+      ap:{ mode:'fik', fGir:0.02, fCalis:true } },
+    { t:'Çalışma noktası: R2',
+      b:'<b>Çalışma noktası</b> sahnesi. R1 ve R2 bir gerilim bölücü: tabanı sabit bir gerilimde tutuyor. R2 <b>43 kΩ</b>’ken kolektör 4,47 V’ta: ' +
+        'yukarıya 4,5 V, aşağıya 4,1 V pay var. Sağdaki gösterge kolektörün dinlenme noktası ve sinyalin salındığı aralık.',
+      ap:{ mode:'nok', nR2:43e3, nGir:0.1 } },
+    { t:'Çok yukarıda: üstten kırpılır',
+      b:'R2’yi <b>30 kΩ</b>’a indirin. Taban 0,57 V’a düştü, transistör neredeyse kapalı: kolektör <b>7,7 V</b>’ta. Yukarıya yalnızca 1,3 V pay kaldı; ' +
+        'tepeler 9 V’luk tavana çarpıp <b>düzleşiyor</b>. Sinyalin o yarısında transistör tamamen kapanıyor.',
+      ap:{ mode:'nok', nR2:30e3, nGir:0.1 } },
+    { t:'Çok aşağıda: alttan kırpılır',
+      b:'R2’yi <b>55 kΩ</b>’a çıkarın. Kolektör <b>1,8 V</b>’a indi; aşağıya yalnızca 1,4 V pay var ve dipler düzleşiyor: transistör o anlarda tam açık ' +
+        '(doyum). Doğru çalışma noktası ortadır.',
+      ap:{ mode:'nok', nR2:55e3, nGir:0.1 } },
+    { t:'Dinleyin',
+      b:'<b>Dinle</b>’ye basın ve R2 kaydırıcısını 43 kΩ’dan iki yöne sürün. Ortada akor temiz; iki uçta da kırpılmış, ama iki uçta farklı ' +
+        'tınlıyor: yalnız bir yanın kırpılması tek yönlü, “asimetrik” bir çarpıklık.',
+      ap:{ mode:'nok', nR2:43e3, nGir:0.1 } },
+    { t:'Kazanç: Rc ÷ Re',
+      b:'<b>Kazanç</b> sahnesi. Kolektör direnci Rc 10 kΩ, emetör direnci Re <b>390 Ω</b>: kazanç kabaca 10 000 ÷ 390 ≈ 26; transistörün kendi küçük ' +
+        'iç direnci (re ≈ 57 Ω) da eklenince <b>× 22</b>. Kazancı dirençler belirliyor, transistörün β’sı değil.',
+      ap:{ mode:'kaz', kRe:390, kGir:0.1 } },
+    { t:'Büyük Re, küçük kazanç',
+      b:'Re’yi <b>1 kΩ</b> yapın: kazanç <b>× 9</b>. 100 mV’luk giriş 0,9 V oluyor; temiz kalabilecek en büyük giriş 370 mV’a çıktı. Az kazanç, çok pay.',
+      ap:{ mode:'kaz', kRe:1000, kGir:0.1 } },
+    { t:'Küçük Re, büyük kazanç',
+      b:'Re’yi <b>150 Ω</b> yapın: kazanç <b>× 48</b>. Aynı 100 mV artık sığmıyor: temiz sınır 80 mV. Re’yi <b>47 Ω</b> yapın: kazanç ≈ × 95, ama artık ' +
+        'Rc ÷ Re kuralı tutmuyor; kazancı transistörün kendisi belirliyor ve dalganın iki yarısı farklı büyüyor. <b>Dinle</b> ile karşılaştırın.',
+      ap:{ mode:'kaz', kRe:150, kGir:0.1 } },
+    { t:'Booster pedalı',
+      b:'<b>Booster pedalı</b> sahnesi: aynı devre, girişte ve çıkışta birer kapasitör (sesi geçirir, 4,5 V’luk doğru gerilimi içeride tutar) ve ' +
+        'çıkışta bir volume potu. Tek bobinli bir gitarla (100 mV), volume 7’de çıkış <b>0,57 V</b>: <b>+15 dB</b>.',
+      ap:{ mode:'boo', bAcik:true, bMan:'tek', bVol:0.7 } },
+    { t:'Açık ve bypass',
+      b:'<b>Dinle</b>’ye basın ve <b>Pedal: açık / bypass</b> ile karşılaştırın. Bypass’ta gitar doğrudan amfiye gidiyor; ses belirgin biçimde kısık. ' +
+        'Booster’ın işi bu kadar: aynı ses, daha yüksek.',
+      ap:{ mode:'boo', bAcik:false, bMan:'tek', bVol:0.7 } },
+    { t:'Humbucker ile sürün',
+      b:'Kaynağı <b>humbucker</b> (300 mV) yapın. Temiz sınır 170 mV’tu: çıkış artık tavana ve tabana çarpıyor, akorun tepeleri kırpılıyor. ' +
+        '<b>Overdrive</b>’ın en basit hâli bu. Volume’ü kısmak kırpmayı gidermez; kırpma devrenin içinde, volume ondan sonra.',
+      ap:{ mode:'boo', bAcik:true, bMan:'hum', bVol:0.7 } },
+    { t:'Bir amfiye doğru',
+      b:'Bir gitar amfisi bu fikrin büyüğü: birkaç yükselteç katı arka arkaya gerilimi büyütür, ton devreleri araya girer, en sonda çok akım ' +
+        'verebilen bir güç katı hoparlörü sürer. Tüp ya da transistör: her katın çalışma noktası, kazancı ve kırpma sınırı bu atölyedekiyle aynı mantıktadır.',
+      ap:{ mode:'boo', bAcik:true, bMan:'tek', bVol:1 } }
+  ];
+  var si = 0;
+  var stT = document.getElementById('step-title'), stB = document.getElementById('step-body'),
+      stC = document.getElementById('step-count'), dots = document.getElementById('dots');
+  STEPS.forEach(function(_, i){
+    var d = document.createElement('button'); d.type = 'button'; d.className = 'dot'; d.setAttribute('aria-label', (i+1)+'. adım');
+    d.addEventListener('click', function(){ setStep(i, true); }); dots.appendChild(d);
+  });
+  function setStep(i, uyg){
+    si = Math.max(0, Math.min(STEPS.length-1, i));
+    var s2 = STEPS[si];
+    stT.textContent = (si+1)+'. '+s2.t; stB.innerHTML = s2.b; stC.textContent = (si+1)+' / '+STEPS.length;
+    Array.prototype.forEach.call(dots.children, function(d,k){ d.setAttribute('aria-current', k === si ? 'true':'false'); });
+    document.getElementById('prev').disabled = si === 0;
+    document.getElementById('next').disabled = si === STEPS.length-1;
+    if (uyg && s2.ap){ uygula(s2.ap); animBasla(); }
+  }
+  document.getElementById('prev').addEventListener('click', function(){ setStep(si-1, true); });
+  document.getElementById('next').addEventListener('click', function(){ setStep(si+1, true); });
+
+  var QS = [
+    { q:'Yükselteç olarak kullanılan transistör hangi bölgede tutulur?', o:['Kesimde (kapalı)','Doyumda (tam açık)','Aradaki yarı açık bölgede','Her an kapanıp açılarak'], c:2,
+      e:'Yalnız yarı açık (etkin) bölgede taban akımındaki küçük bir değişim kolektör akımında orantılı bir değişim yaratır. Kapalı ya da tam açık transistör anahtardır.' },
+    { q:'Tabandaki 50 mV’luk oynama kolektörde 1,1 V oynama olarak çıkıyor. Kazanç kaçtır?', o:['× 2','× 22','× 55','× 1100'], c:1,
+      e:'1,1 V ÷ 0,05 V = 22. Desibelle ≈ 27 dB.' },
+    { q:'Taban biraz yükselince kolektör gerilimi ne olur?', o:['Yükselir','Değişmez','Düşer','Sıfıra iner'], c:2,
+      e:'Kolektör akımı artar, Rc’de düşen gerilim artar, kolektörde kalan gerilim azalır. Bu yüzden ortak emetörlü yükselteç ters çevirir.' },
+    { q:'Yükseltecin çıkışındaki fazla enerji nereden gelir?', o:['Gitarın manyetiğinden','9 V’luk beslemeden','Transistörün kendisinden','Kapasitörlerden'], c:1,
+      e:'Transistör enerji üretmez; beslemeden gelen akımı tabandaki küçük sinyale göre ayarlar. Musluk benzetmesi: suyu şebeke verir, siz yalnız musluğu çevirirsiniz.' },
+    { q:'Sinyal yokken kolektörün beslemenin yaklaşık yarısında olması neden istenir?', o:['Transistör daha az ısınsın diye','Sinyal iki yöne de eşit pay bulsun, kırpılmasın diye','Kazanç sıfır olsun diye','Pil daha uzun gitsin diye'], c:1,
+      e:'Kolektör yukarıda 9 V’a, aşağıda emetörün üstüne kadar gidebilir. Ortada durursa sinyal iki yöne de rahatça salınır.' },
+    { q:'Kolektör sinyal yokken 8,5 V’ta duruyorsa ne olur?', o:['Sinyal üst tepelerinden kırpılır','Sinyal alt tepelerinden kırpılır','Kazanç iki katına çıkar','Hiçbir şey olmaz'], c:0,
+      e:'Yukarıya yalnızca 0,5 V pay kalmıştır: çıkış 9 V’luk tavana çarpar. Transistör o anlarda tamamen kapanır.' },
+    { q:'Taban bölücüsündeki R1 ve R2 ne işe yarar?', o:['Sesi süzer','Tabanı sabit bir gerilimde tutarak çalışma noktasını belirler','Kazancı belirler','Pili korur'], c:1,
+      e:'R1–R2 bir gerilim bölücüdür (Seri ve Paralel atölyesi): tabanı ≈ 0,7 V’ta tutar, o da kolektörün dinlenme gerilimini belirler.' },
+    { q:'Rc = 10 kΩ ve Re = 1 kΩ olan bir ortak emetörlü yükseltecin kazancı yaklaşık kaçtır?', o:['× 1','× 10','× 100','× 1000'], c:1,
+      e:'Kazanç ≈ Rc ÷ Re = 10. Transistörün küçük iç direnci eklenince biraz daha az: bu sayfada × 9.' },
+    { q:'Re küçüldükçe ne olur?', o:['Kazanç azalır','Kazanç artar ve temiz kalabilecek en büyük giriş küçülür','Çalışma noktası hiç değişmez ve her şey aynı kalır','Çıkış ters dönmez'], c:1,
+      e:'Kazanç artar; çıkışın sığabileceği alan aynı (≈ 9 V) olduğu için daha küçük bir giriş bile kırpılmaya başlar.' },
+    { q:'Giriş ve çıkıştaki bağlama kapasitörleri ne işe yarar?', o:['Kazancı artırır','Sesi geçirir, doğru gerilimi (çalışma noktasını) içeride tutar','Kırpmayı engeller','Bas frekansları yükseltir'], c:1,
+      e:'Kapasitör değişen sinyali geçirir, sabit gerilimi geçirmez. Böylece ne gitar tabanın ayarını bozar ne de 4,5 V sonraki cihaza gider.' },
+    { q:'Temiz bir booster’a humbucker gibi güçlü bir sinyal girince ne olur?', o:['Ses kısılır','Hiçbir şey değişmez','Çıkış sınırlara çarpar, tepeler kırpılır: overdrive','Pedal kapanır'], c:2,
+      e:'Bu sayfadaki devre ≈ 170 mV’a kadar temiz. 300 mV × 22 = 6,6 V; çıkışın sığabileceği alan ise ≈ ±4 V. Tepeler düzleşir.' },
+    { q:'Bu tek transistörlü devreye doğrudan 8 Ω’luk bir hoparlör bağlamak neden işe yaramaz?', o:['Hoparlör ters bağlanır','Devrenin çıkış direnci ≈ 10 kΩ; 8 Ω’luk yükte sinyal neredeyse sıfıra iner','Transistör hoparlörü tanımaz','Hoparlör yalnız tüplü amfiyle çalışır'], c:1,
+      e:'Rc = 10 kΩ ile 8 Ω bir gerilim bölücü gibi davranır: çıkışın ancak binde biri kalır. Hoparlör için çok akım verebilen bir güç katı gerekir.' }
+  ];
+  var qi = 0, qok = 0, qDone = [];
+  var qT = document.getElementById('q-text'), qO = document.getElementById('q-opts'),
+      qE = document.getElementById('q-exp'), qC = document.getElementById('q-count'), qN = document.getElementById('q-next');
+  function renderQ(){
+    var q = QS[qi];
+    qT.textContent = (qi+1)+'. '+q.q; qE.textContent = ''; qO.innerHTML = '';
+    q.o.forEach(function(o, k){
+      var b = document.createElement('button'); b.type='button'; b.textContent = o;
+      b.addEventListener('click', function(){
+        Array.prototype.forEach.call(qO.children, function(x){ x.disabled = true; });
+        b.classList.add(k === q.c ? 'correct' : 'wrong');
+        if (k !== q.c) qO.children[q.c].classList.add('correct');
+        qE.innerHTML = q.e;
+        if (!qDone[qi]){ qDone[qi] = true; if (k === q.c) qok++; }
+        qC.textContent = qok+' / '+qDone.filter(Boolean).length+' doğru';
+      });
+      qO.appendChild(b);
+    });
+    qN.textContent = (qi === QS.length-1) ? 'Baştan başla' : 'Sonraki soru';
+  }
+  qN.addEventListener('click', function(){ qi = (qi+1)%QS.length; renderQ(); });
+
+  tabloDoldur(); setMode('fik'); setStep(0, false); renderQ(); sync(); render();
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(render);
+})();
+</script>

@@ -1,0 +1,1982 @@
+<!DOCTYPE html>
+<html lang="tr">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Yarı İletkenler ve Diyot</title>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400..600;1,6..72,400&family=Chakra+Petch:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+  :root{
+    --ground:#E5ECF3; --panel:#FFFFFF; --panel-2:#F1F6FA;
+    --ink:#0B1620; --ink-2:#3F5265; --ink-3:#697E92;
+    --line:#C7D4E0; --line-2:#DEE7EF;
+    --sin:#A8600A; --cos:#0F5F80; --arc:#A81E6E; --brass:#4A7A12;
+    --on-sin:#FFFFFF; --ok:#1E6B45; --no:#A8203C;
+    --shadow:0 1px 2px rgba(11,22,32,.06), 0 8px 20px -14px rgba(11,22,32,.26);
+    --fs:15px;
+    --board-h:clamp(430px,43vw,520px);
+    --board-yar:clamp(560px,56vw,644px);
+    --board-katki:clamp(560px,56vw,644px);
+    --board-pn:clamp(560px,56vw,644px);
+    --board-is:clamp(575px,57vw,661px);
+    --font-display:"Chakra Petch","IBM Plex Sans",sans-serif;
+    --h1:clamp(30px,4.5vw,46px);
+    --h2:clamp(21px,2.5vw,28px);
+    --track:.02em; --radius:2px; --radius-s:2px;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --ground:#070F17; --panel:#0E1720; --panel-2:#13202C;
+      --ink:#E7F2FB; --ink-2:#9FB6C9; --ink-3:#6B8296;
+      --line:#213240; --line-2:#182533;
+      --sin:#FFB01F; --cos:#4FD3FF; --arc:#FF6AC1; --brass:#A8FF60;
+      --on-sin:#0A1017; --ok:#3EE59B; --no:#FF5F86;
+      --shadow:0 0 0 1px rgba(79,211,255,.07), 0 12px 30px -18px rgba(0,0,0,.9);
+    }
+  }
+  :root[data-theme="dark"]{
+    --ground:#070F17; --panel:#0E1720; --panel-2:#13202C;
+    --ink:#E7F2FB; --ink-2:#9FB6C9; --ink-3:#6B8296;
+    --line:#213240; --line-2:#182533;
+    --sin:#FFB01F; --cos:#4FD3FF; --arc:#FF6AC1; --brass:#A8FF60;
+    --on-sin:#0A1017; --ok:#3EE59B; --no:#FF5F86;
+    --shadow:0 0 0 1px rgba(79,211,255,.07), 0 12px 30px -18px rgba(0,0,0,.9);
+  }
+  :root[data-mode="proj"]{
+    --ground:#F3F8FC; --panel:#FFFFFF; --panel-2:#EDF4F9;
+    --ink:#040B12; --ink-2:#2A3A49; --ink-3:#546678;
+    --line:#ADBFCE; --line-2:#D2DEE9;
+    --sin:#8A4D00; --cos:#084A66; --arc:#8A1258; --brass:#3A6208;
+    --on-sin:#FFFFFF; --ok:#14512F; --no:#8A1428;
+    --shadow:0 1px 2px rgba(11,22,32,.09), 0 8px 20px -14px rgba(11,22,32,.3);
+    --fs:17px;
+    --board-h:clamp(470px,47vw,572px);
+    --board-yar:clamp(610px,61vw,700px);
+    --board-katki:clamp(610px,61vw,700px);
+    --board-pn:clamp(610px,61vw,700px);
+    --board-is:clamp(625px,62vw,718px);
+  }
+  @media (max-width:820px){
+    :root, :root[data-mode="proj"]{ --board-r:580px; }
+  }
+  @media (max-width:760px){
+    :root, :root[data-mode="proj"]{
+      --board-h:520px;
+      --board-yar:860px; --board-katki:860px; --board-pn:860px; --board-is:860px;
+    }
+  }
+
+  *{box-sizing:border-box}
+  body{
+    background:var(--ground);color:var(--ink);
+    font-family:"IBM Plex Sans","Helvetica Neue",Arial,sans-serif;
+    font-size:var(--fs);line-height:1.6;-webkit-font-smoothing:antialiased;
+  }
+  .wrap{max-width:1160px;margin:0 auto;padding:34px 20px 60px;display:flex;flex-direction:column;gap:14px}
+
+  .topbar{display:flex;gap:28px;justify-content:space-between;align-items:flex-start;margin-bottom:12px}
+  @media (max-width:640px){.topbar{flex-direction:column-reverse;align-items:flex-start;gap:16px}}
+  .theme{display:flex;flex:0 0 auto;flex-wrap:wrap;border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;background:var(--panel);box-shadow:var(--shadow)}
+  .theme button{border:0;border-left:1px solid var(--line);border-radius:0;background:transparent;font-size:12.5px;padding:8px 12px;color:var(--ink-2)}
+  .theme button:first-child{border-left:0}
+  .theme button:hover{background:var(--panel-2);color:var(--ink)}
+  .theme button[aria-pressed="true"]{background:var(--ink);color:var(--panel);font-weight:500}
+  .theme button:focus-visible{outline:2px solid var(--arc);outline-offset:-2px}
+  header{display:flex;flex-direction:column;gap:9px;max-width:66ch}
+  .eyebrow{margin:0;font-size:11.5px;font-weight:600;letter-spacing:.13em;text-transform:uppercase;color:var(--ink-3)}
+  h1{margin:0;font-family:var(--font-display);font-weight:500;font-size:var(--h1);line-height:1.06;letter-spacing:var(--track);text-wrap:balance}
+  .lede{margin:2px 0 0;color:var(--ink-2);font-size:16.5px;text-wrap:pretty}
+  .lede b{color:var(--ink);font-weight:600}
+
+  section.sec{display:flex;flex-direction:column;gap:14px;padding-top:22px}
+  .sec-head{display:flex;align-items:baseline;gap:14px;border-bottom:1px solid var(--line);padding-bottom:9px}
+  .sec-num,.num{font-family:"IBM Plex Mono",monospace;font-size:12px;font-weight:500;color:var(--brass);letter-spacing:.06em;flex:0 0 auto;padding-top:5px}
+  .sec-head h2{margin:0;font-family:var(--font-display);font-weight:500;font-size:var(--h2);letter-spacing:var(--track);line-height:1.15;text-wrap:balance}
+  .sec-head p{margin:0;color:var(--ink-3);font-size:13px;margin-left:auto;flex:0 0 auto;text-align:right}
+  @media (max-width:620px){.sec-head p{display:none}}
+
+  .panel{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow)}
+
+  .why{display:grid;grid-template-columns:1fr 1.12fr;gap:20px 28px;align-items:center}
+  @media (max-width:860px){.why{grid-template-columns:1fr;align-items:start}}
+  .why-lead{display:flex;flex-direction:column;gap:13px;padding-bottom:4px}
+  .why-more{display:grid;grid-template-columns:repeat(auto-fit,minmax(255px,1fr));gap:16px 28px;margin-top:6px}
+  .why-lead p,.why-more p{margin:0;color:var(--ink-2)}
+  .why-lead p b,.why-more p b{color:var(--ink);font-weight:600}
+  .cols3{display:grid;grid-template-columns:repeat(3,1fr);gap:16px 28px}
+  @media (max-width:900px){.cols3{grid-template-columns:1fr}}
+  .cols3 p{margin:0;color:var(--ink-2);font-size:14px;line-height:1.6}
+  .cols3 p b{color:var(--ink);font-weight:600}
+  .cols .intro-col{display:flex;flex-direction:column;gap:12px}
+  .cols .intro-col p{margin:0;color:var(--ink-2)}
+  .cols .intro-col p b{color:var(--ink);font-weight:600}
+  p.pull{font-size:16px;color:var(--ink)!important;border-left:3px solid var(--sin);
+    padding-left:13px}
+  .panel-body.nopad{padding:0;gap:0}
+  .quiz{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);
+    box-shadow:var(--shadow);padding:16px 18px 18px;display:flex;flex-direction:column;gap:12px}
+  .q-head{display:flex;align-items:baseline;justify-content:space-between;gap:14px}
+  .q-head .count{font-family:"IBM Plex Mono",monospace;font-size:12px;color:var(--ink-3);
+    font-variant-numeric:tabular-nums;flex:0 0 auto}
+  .q-head .q-text{font-size:16px;font-weight:500;text-wrap:pretty}
+  .quiz > button{align-self:flex-start}
+  .kicker{font-family:"Newsreader",Georgia,serif;font-size:clamp(21px,2.2vw,26px);line-height:1.28;color:var(--ink);font-style:italic;max-width:29ch;letter-spacing:-.01em;text-wrap:balance}
+  .trio-list{display:flex;flex-direction:column;gap:1px;background:var(--line);
+    border:1px solid var(--line);border-radius:var(--radius);overflow:hidden}
+  .tl{background:var(--panel);padding:13px 15px 14px;border-left:3px solid var(--line)}
+  .tl-1{border-left-color:var(--sin)} .tl-2{border-left-color:var(--arc)}
+  .tl-3{border-left-color:var(--cos)}
+  .tl h3{margin:0 0 3px;font-family:var(--font-display);font-weight:500;font-size:15.5px;
+    letter-spacing:var(--track)}
+  .tl p{margin:0;font-size:13.5px;line-height:1.5;color:var(--ink-2)}
+  .tl p b{color:var(--ink);font-weight:600}
+  .tl code{font-size:.92em}
+
+  .defs{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--line);border:1px solid var(--line);border-radius:var(--radius);overflow:hidden}
+  @media (max-width:880px){.defs{grid-template-columns:repeat(2,1fr)}}
+  @media (max-width:560px){.defs{grid-template-columns:1fr}}
+  .def{background:var(--panel);padding:16px 17px 18px;display:flex;flex-direction:column;gap:7px}
+  .def h3{margin:0;font-size:14.5px;font-weight:600;display:flex;align-items:baseline;gap:8px;flex-wrap:wrap}
+  .def h3 em{font-style:normal;font-family:"IBM Plex Mono",monospace;font-size:11.5px;color:var(--ink-3);font-weight:400}
+  .def p{margin:0;font-size:13.8px;color:var(--ink-2);line-height:1.55}
+  .def p b{color:var(--ink);font-weight:600}
+  code{font-family:"IBM Plex Mono",monospace;font-size:.9em;background:var(--panel-2);border:1px solid var(--line-2);padding:1px 5px;border-radius:var(--radius-s)}
+
+  .lang{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--line);border:1px solid var(--line);border-radius:var(--radius);overflow:hidden}
+  @media (max-width:1000px){.lang{grid-template-columns:repeat(2,1fr)}}
+  @media (max-width:560px){.lang{grid-template-columns:1fr}}
+  .lg{background:var(--panel);padding:16px 17px 18px;display:flex;flex-direction:column;gap:8px}
+  .lg-top{display:flex;align-items:baseline;justify-content:space-between;gap:8px}
+  .lg h3{margin:0;font-size:14.5px;font-weight:600}
+  .lg .unit{font-family:"IBM Plex Mono",monospace;font-size:11px;color:var(--ink-3)}
+  .lg p{margin:0;font-size:13.8px;color:var(--ink-2);line-height:1.55}
+  .lg .music{margin-top:2px;font-size:12.5px;color:var(--ink);border-left:2px solid var(--brass);padding-left:9px}
+  .lg .music b{font-weight:600}
+
+  .stage{padding:0;overflow:hidden}
+  .stage-top,.stage-head{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px;padding:13px 16px;border-bottom:1px solid var(--line-2)}
+  .modes{display:flex;flex-wrap:wrap;border:1px solid var(--line);border-radius:var(--radius);overflow:hidden}
+  .modes button{border:0;border-left:1px solid var(--line);border-radius:0;background:var(--panel-2);font-size:13px;padding:8px 15px;color:var(--ink-2);font-weight:500}
+  .modes button:first-child{border-left:0}
+  .modes button:hover{color:var(--ink)}
+  .modes button[aria-pressed="true"]{background:var(--sin);color:var(--on-sin)}
+  .readout{display:flex;flex-wrap:wrap;font-family:"IBM Plex Mono",ui-monospace,monospace;font-variant-numeric:tabular-nums;font-size:13px}
+  .readout div{padding:0 13px;border-left:1px solid var(--line-2)}
+  .readout div:first-child{border-left:0;padding-left:0}
+  .readout b{font-weight:500}
+  .readout span{color:var(--ink-3);font-size:11px;letter-spacing:.06em;text-transform:uppercase;display:block;line-height:1.3}
+  .v-sin{color:var(--sin)} .v-cos{color:var(--cos)} .v-arc{color:var(--arc)}
+
+  .canvas-wrap{background:var(--panel-2);border-bottom:1px solid var(--line-2)}
+  #board{display:block;width:100%;height:var(--board-h);touch-action:none;cursor:default}
+  .stage[data-scene="yar"] #board{height:var(--board-yar)}
+  .stage[data-scene="katki"] #board{height:var(--board-katki)}
+  .stage[data-scene="pn"] #board{height:var(--board-pn)}
+  .stage[data-scene="is"] #board{height:var(--board-is)}
+
+  #board.tut{cursor:grab}
+  #board.tut:active{cursor:grabbing}
+
+  .controls{padding:15px 16px 17px;display:flex;flex-direction:column;gap:14px}
+  .ctl-row{display:flex;flex-wrap:wrap;gap:14px 20px;align-items:center}
+  .ctl-row[hidden]{display:none}
+  .field[hidden]{display:none}
+  .btn-group[hidden]{display:none}
+  .ctl-label{font-size:11px;font-weight:600;letter-spacing:.09em;text-transform:uppercase;color:var(--ink-3);flex:0 0 auto}
+  .field{display:flex;flex-direction:column;gap:5px;min-width:172px;flex:1 1 172px;max-width:300px}
+  .field label{font-size:11px;font-weight:600;letter-spacing:.09em;text-transform:uppercase;color:var(--ink-3);display:flex;justify-content:space-between;gap:10px}
+  .field label em{font-style:normal;font-family:"IBM Plex Mono",monospace;font-variant-numeric:tabular-nums;letter-spacing:0;text-transform:none;font-size:12px;color:var(--ink-2)}
+
+  input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:20px;background:transparent;margin:0}
+  input[type=range]::-webkit-slider-runnable-track{height:4px;background:var(--line);border-radius:2px}
+  input[type=range]::-moz-range-track{height:4px;background:var(--line);border-radius:2px}
+  input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;width:16px;height:16px;border-radius:50%;background:var(--arc);border:2px solid var(--panel);margin-top:-6px;box-shadow:0 0 0 1px var(--arc)}
+  input[type=range]::-moz-range-thumb{width:14px;height:14px;border-radius:50%;background:var(--arc);border:2px solid var(--panel);box-shadow:0 0 0 1px var(--arc)}
+  input[type=range]:focus-visible{outline:2px solid var(--arc);outline-offset:4px}
+
+  button{font:inherit;font-size:13.5px;color:var(--ink);background:var(--panel-2);border:1px solid var(--line);padding:7px 13px;border-radius:var(--radius-s);cursor:pointer;transition:background .13s,border-color .13s,color .13s}
+  button:hover{border-color:var(--ink-3)}
+  button:focus-visible{outline:2px solid var(--arc);outline-offset:2px}
+  button:disabled{opacity:.42;cursor:default}
+  button.on{background:var(--ink);border-color:var(--ink);color:var(--panel)}
+  .ctl-note{font-size:12px;color:var(--ink-3);font-family:"IBM Plex Mono",monospace;
+    letter-spacing:.01em;min-width:0;flex:1 1 138px;line-height:1.35}
+  .btn-group{display:flex;flex-wrap:wrap;gap:6px}
+  .btn-group.sm button{font-size:12.5px;padding:5px 9px}
+
+  .cols{display:grid;grid-template-columns:1.3fr 1fr;gap:16px;align-items:start}
+  @media (max-width:880px){.cols{grid-template-columns:1fr}}
+  .panel-head{display:flex;align-items:baseline;justify-content:space-between;gap:12px;padding:13px 18px 11px;border-bottom:1px solid var(--line-2)}
+  .panel-head h3{margin:0;font-family:var(--font-display);font-weight:500;font-size:19px;letter-spacing:var(--track)}
+  .panel-head .count{font-family:"IBM Plex Mono",monospace;font-size:12px;color:var(--ink-3);font-variant-numeric:tabular-nums}
+  .panel-body{padding:16px 18px 18px;display:flex;flex-direction:column;gap:13px}
+  .step-title{font-family:var(--font-display);font-size:21px;font-weight:500;line-height:1.22;margin:0;letter-spacing:var(--track);text-wrap:balance}
+  .step-body{margin:0;color:var(--ink-2)}
+  .step-body strong{color:var(--ink);font-weight:600}
+  .step-nav{display:flex;gap:8px;align-items:center;margin-top:auto;padding-top:4px;flex-wrap:wrap}
+  /* 34 nokta dar ekranda paneli tasiriyordu: sarmali ve sutunlar daralabilir. */
+  .dots{display:flex;flex-wrap:wrap;gap:5px;margin-left:auto;justify-content:flex-end}
+  .cols>*{min-width:0}
+  .dot{width:7px;height:7px;border-radius:50%;background:var(--line);border:0;padding:0;cursor:pointer}
+  .dot:hover{background:var(--ink-3)}
+  .dot[aria-current="true"]{background:var(--arc)}
+
+  table{width:100%;border-collapse:collapse;font-family:"IBM Plex Mono",monospace;font-size:12.5px;font-variant-numeric:tabular-nums}
+  th,td{text-align:right;padding:6px 8px;border-bottom:1px solid var(--line-2)}
+  th:first-child,td:first-child{text-align:left}
+  th:last-child,td:last-child{text-align:left}
+  thead th{font-family:"IBM Plex Sans",sans-serif;font-size:10.5px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-3);border-bottom:1px solid var(--line)}
+  tbody tr{cursor:pointer}
+  tbody tr:hover{background:var(--panel-2)}
+  tbody tr[aria-selected="true"]{background:color-mix(in srgb,var(--arc) 13%,var(--panel))}
+  tbody tr:last-child td{border-bottom:0}
+  td.c-cmp{font-family:"IBM Plex Sans",sans-serif;font-size:12px;color:var(--ink-2)}
+  tr.unitrow td:first-child{color:var(--brass);font-weight:500}
+  /* Dar ekranda tablo tasiyordu: en az gerekli sutun gizleniyor, kalani kayabiliyor. */
+  .tbl-scroll{overflow-x:auto;-webkit-overflow-scrolling:touch}
+  @media (max-width:620px){
+    th.c-cmp,td.c-cmp{display:none}
+    table{font-size:11.5px}
+    th,td{padding:6px 5px}
+  }
+  .tbl-note{margin:10px 18px 16px;font-size:12.5px;color:var(--ink-3);line-height:1.5}
+  .tbl-note b{color:var(--ink-2);font-weight:600}
+  .tbl-note + .tbl-note{margin-top:-4px}
+
+  .quiz-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;align-items:start}
+  @media (max-width:820px){.quiz-grid{grid-template-columns:1fr}}
+  .q-text{margin:0;font-size:16px;font-weight:500;text-wrap:pretty}
+  .q-opts{display:flex;flex-direction:column;gap:7px}
+  .q-opts button{text-align:left;padding:9px 12px}
+  .q-opts button.correct{border-color:var(--ok);background:color-mix(in srgb,var(--ok) 12%,var(--panel))}
+  .q-opts button.wrong{border-color:var(--no);background:color-mix(in srgb,var(--no) 12%,var(--panel))}
+  .q-feedback{margin:0;font-size:14px;color:var(--ink-2);min-height:1.6em}
+  .q-feedback b.y{color:var(--ok);font-weight:600}
+  .q-feedback b.n{color:var(--no);font-weight:600}
+  .recap ul{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:8px}
+  .recap li{color:var(--ink-2);font-size:14px}
+  .recap b{color:var(--ink);font-weight:600}
+
+  /* ---- video bloğu (yeni video eklemek için bu kalıbı kopyala) ---- */
+  .vid{display:grid;grid-template-columns:1.25fr 1fr;gap:16px;align-items:start}
+  @media (max-width:900px){.vid{grid-template-columns:1fr}}
+  .vid-main{display:flex;flex-direction:column;gap:9px;min-width:0}
+  .vid-frame{position:relative;aspect-ratio:16/9;width:100%;background:var(--panel-2);
+    border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);
+    overflow:hidden}
+  .vid-frame iframe{position:absolute;inset:0;z-index:1;width:100%;height:100%;border:0;display:block}
+  .vid-play{position:absolute;inset:0;z-index:0;width:100%;height:100%;
+    display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;
+    text-align:center;padding:20px;border:0;border-radius:0;background:transparent;
+    cursor:pointer;color:inherit}
+  .vid-play:hover{background:color-mix(in srgb,var(--sin) 7%,transparent);border-color:transparent}
+  .vid-play:focus-visible{outline:2px solid var(--arc);outline-offset:-4px}
+  .vid-tri{width:62px;height:62px;border-radius:50%;background:var(--sin);
+    display:block;margin-bottom:6px;position:relative;box-shadow:var(--shadow);
+    transition:transform .14s}
+  .vid-tri::after{content:"";position:absolute;top:50%;left:54%;transform:translate(-50%,-50%);
+    border-style:solid;border-width:11px 0 11px 18px;
+    border-color:transparent transparent transparent var(--on-sin)}
+  .vid-play:hover .vid-tri{transform:scale(1.07)}
+  .vid-play b{font-family:var(--font-display);font-weight:500;font-size:18px;
+    letter-spacing:var(--track);color:var(--ink);line-height:1.2;text-wrap:balance}
+  .vid-play .vid-ch{font-size:13px;color:var(--ink-3)}
+  .vid-play .vid-hint{font-style:normal;font-family:"IBM Plex Mono",monospace;
+    font-size:11.5px;color:var(--ink-3);margin-top:5px}
+  .vid-meta{margin:0;font-size:13px;color:var(--ink-2);line-height:1.5}
+  .vid-meta b{color:var(--ink);font-weight:600}
+  .vid-meta a{color:var(--cos);font-weight:600;text-underline-offset:3px}
+  .vid-meta span{display:block;margin-top:3px;font-size:12px;color:var(--ink-3)}
+  .vid-guide{background:var(--panel);border:1px solid var(--line);
+    border-left:3px solid var(--brass);border-radius:var(--radius);
+    box-shadow:var(--shadow);padding:15px 18px 17px}
+  .vid-guide h3{margin:0 0 9px;font-family:var(--font-display);font-weight:500;
+    font-size:17px;letter-spacing:var(--track)}
+  .vid-guide ol{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:9px}
+  .vid-guide li{font-size:13.5px;line-height:1.5;color:var(--ink-2)}
+  .vid-guide li b{color:var(--ink);font-weight:600}
+  .vid-guide li::marker{color:var(--brass);font-weight:600}
+  .vid-note{margin:13px 0 0;padding-top:11px;border-top:1px solid var(--line-2);
+    font-size:13px;color:var(--ink-3);line-height:1.5}
+  .vid-note b{color:var(--ink-2);font-weight:600}
+
+  .spec{display:grid;grid-template-columns:1.05fr 1fr;gap:16px;align-items:start}
+  @media (max-width:880px){.spec{grid-template-columns:1fr}}
+  .spec-card{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);
+    box-shadow:var(--shadow);padding:16px 18px 18px;font-family:"IBM Plex Mono",monospace;font-size:13px}
+  .spec-card h3{margin:0 0 10px;font-family:var(--font-display);font-size:17px;font-weight:500;letter-spacing:var(--track)}
+  .spec-row{display:flex;justify-content:space-between;gap:14px;padding:6px 0;border-bottom:1px solid var(--line-2)}
+  .spec-row:last-child{border-bottom:0}
+  .spec-row span{color:var(--ink-3)}
+  .spec-row b{font-weight:500;color:var(--ink)}
+  .spec-row.q{background:color-mix(in srgb,var(--arc) 9%,transparent);margin:0 -8px;padding:6px 8px;border-radius:2px}
+  .ask{display:flex;flex-direction:column;gap:12px}
+  .ask .a{background:var(--panel);border:1px solid var(--line);border-left:3px solid var(--arc);
+    border-radius:var(--radius);box-shadow:var(--shadow);padding:12px 15px 13px}
+  .ask .a h4{margin:0 0 3px;font-size:14px;font-weight:600}
+  .ask .a p{margin:0;font-size:13.5px;color:var(--ink-2);line-height:1.5}
+  .ask .a b{color:var(--ink);font-weight:600}
+  footer{color:var(--ink-3);font-size:12.5px;border-top:1px solid var(--line);padding-top:14px;margin-top:26px;display:flex;flex-wrap:wrap;gap:6px 18px}
+  footer b{color:var(--ink-2);font-weight:600}
+  @media (max-width:760px){
+    button{font-size:14.5px;padding:9px 14px}
+    .btn-group.sm button{font-size:13px;padding:7px 11px}
+    .theme button{padding:8px 9px;font-size:12px}
+    .modes button{padding:9px 12px;font-size:13px}
+    .q-opts button{padding:12px 14px}
+    input[type=range]{height:30px}
+    input[type=range]::-webkit-slider-thumb{width:22px;height:22px;margin-top:-9px}
+    input[type=range]::-moz-range-thumb{width:20px;height:20px}
+    .readout{width:100%}
+    .readout div{padding:0 11px 0 0;border-left:0}
+    .wrap{padding:22px 16px 44px}
+  }
+
+  /* ---- 29. atolyeye ozel ---- */
+  .cks{display:flex;flex-direction:column;gap:1px;background:var(--line);
+    border:1px solid var(--line);border-radius:var(--radius);overflow:hidden}
+  .ck{background:var(--panel);display:grid;grid-template-columns:auto 1fr;gap:3px 10px;
+    padding:10px 13px 11px;align-items:start}
+  .ck .mk{grid-row:1/3;width:20px;height:20px;border-radius:50%;display:flex;
+    align-items:center;justify-content:center;font-size:12px;font-weight:700;
+    font-family:"IBM Plex Mono",monospace;margin-top:1px}
+  .ck.ok .mk{background:color-mix(in srgb,var(--ok) 18%,var(--panel));color:var(--ok)}
+  .ck.no .mk{background:color-mix(in srgb,var(--sin) 20%,var(--panel));color:var(--sin)}
+  .ck b{font-size:13.2px;font-weight:600;line-height:1.35;color:var(--ink)}
+  .ck span{font-size:12.4px;color:var(--ink-2);line-height:1.45}
+  /* Tur seridi: sahne dugmelerinin altinda, tuvalin hemen ustunde. Tur degisince
+     yukaridaki sahne aninda degistigi icin secici gorus alaninda duruyor. */
+  .turbar{display:flex;align-items:center;gap:10px;padding:10px 16px;
+    border-bottom:1px solid var(--line-2);background:var(--panel-2)}
+  .turbar>.tb-lab{font-family:"IBM Plex Mono",monospace;font-size:10.5px;font-weight:500;
+    letter-spacing:.09em;text-transform:uppercase;color:var(--ink-3);flex:0 0 auto}
+  .turbar .tb-scroll{display:flex;gap:6px;overflow-x:auto;flex:1 1 auto;
+    scrollbar-width:thin;padding-bottom:1px}
+  .tb{flex:0 0 auto;border:1px solid var(--line);border-radius:var(--radius);
+    background:var(--panel);padding:6px 12px 7px;display:flex;flex-direction:column;
+    gap:1px;text-align:left;cursor:pointer;line-height:1.25}
+  .tb:hover{background:var(--panel-2);color:var(--ink)}
+  .tb b{font-size:12.8px;font-weight:600;color:var(--ink)}
+  .tb em{font-style:normal;font-family:"IBM Plex Mono",monospace;font-size:10.8px;
+    color:var(--ink-3);white-space:nowrap}
+  .tb[aria-pressed="true"]{border-color:var(--sin);
+    background:color-mix(in srgb,var(--sin) 12%,var(--panel))}
+  .tb[aria-pressed="true"] em{color:var(--ink-2)}
+  @media (max-width:760px){
+    .turbar{flex-direction:column;align-items:stretch;gap:6px;padding:9px 12px}
+    .tb{padding:6px 10px}
+    .tb b{font-size:12.4px}
+  }
+  .pick{display:flex;flex-direction:column;gap:1px;background:var(--line);
+    border:1px solid var(--line);border-radius:var(--radius);overflow:hidden}
+  .pk{background:var(--panel);border:0;border-left:3px solid transparent;border-radius:0;
+    text-align:left;padding:11px 14px 12px;display:flex;flex-direction:column;gap:3px;
+    cursor:pointer;width:100%}
+  .pk:hover{background:var(--panel-2)}
+  .pk[aria-pressed="true"]{border-left-color:var(--sin);
+    background:color-mix(in srgb,var(--sin) 8%,var(--panel))}
+  .pk b{font-size:13.4px;font-weight:600;color:var(--ink)}
+  .pk span{font-size:12.4px;color:var(--ink-2);line-height:1.45;font-weight:400}
+  .pk em{font-style:normal;font-family:"IBM Plex Mono",monospace;font-size:11.5px;
+    color:var(--ink-3)}
+  .tag{display:inline-block;padding:1px 6px;border-radius:2px;font-size:10.5px;font-weight:600;
+    letter-spacing:.04em;border:1px solid}
+  .tag-a{color:var(--brass);border-color:color-mix(in srgb,var(--brass) 45%,transparent);
+    background:color-mix(in srgb,var(--brass) 11%,transparent)}
+  .tag-b{color:var(--sin);border-color:color-mix(in srgb,var(--sin) 45%,transparent);
+    background:color-mix(in srgb,var(--sin) 11%,transparent)}
+  .hint{margin:0;font-size:12.5px;color:var(--ink-3);line-height:1.5}
+  .hint b{color:var(--ink-2);font-weight:600}
+  @media (prefers-reduced-motion: reduce){*{transition:none!important}}
+  .field.bilinmez label{color:var(--arc)}
+  .field.bilinmez input{opacity:.5}
+  td .hata{color:var(--ink-3);font-size:11px;margin-left:4px}
+  .sw{display:inline-block;width:12px;height:12px;border:1px solid var(--line);margin-right:6px;vertical-align:-1px;border-radius:2px}
+  td.bantlar .sw{width:14px;height:14px;margin-right:3px}
+  #palet button:disabled{opacity:.28}
+  #oSec button{min-width:92px;font-family:"IBM Plex Mono",monospace}
+  #oSec button.correct{border-color:var(--cos);background:color-mix(in srgb,var(--cos) 16%,var(--panel));opacity:1}
+  #oSec button.wrong{border-color:var(--arc);background:color-mix(in srgb,var(--arc) 16%,var(--panel));opacity:1}
+</style>
+<div class="wrap">
+  <div class="topbar">
+    <header>
+      <p class="eyebrow">Elektronik Bilgisi · Sınıf atölyesi</p>
+      <h1>Yarı İletkenler ve Diyot</h1>
+      <p class="lede">Bakır akımı her yönde taşır, cam hiç taşımaz. Silisyum ikisinin arasında durur ve asıl sihir, ona çok az miktarda
+        başka bir atom katınca başlar. İki farklı katkılı silisyumu yan yana koyunca akımı <b>yalnızca tek yönde</b> geçiren bir parça
+        elde ederiz: <b>diyot</b>. Adaptörün içindeki doğrultucu, pedalın ters kutup koruması ve distortion pedalının kırpma diyotları
+        hep bu tek yönlü kapıdır.</p>
+    </header>
+    <div class="theme" role="group" aria-label="Görünüm">
+      <button type="button" data-t="light">Açık</button>
+      <button type="button" data-t="dark">Koyu</button>
+      <button type="button" data-t="proj">Projeksiyon</button>
+    </div>
+  </div>
+
+  <section class="sec">
+    <div class="sec-head"><span class="num">01</span><h2>Neden yarı iletken?</h2>
+      <span class="kicker">Distortion pedalının içindeki iki küçük cam boncuk</span></div>
+    <div class="panel">
+      <div class="panel-body">
+        <p>Bir distortion pedalını açarsanız sinyal yolunda iki küçük, cam gövdeli parça görürsünüz: iki <b>diyot</b>. Pedalın
+          karakteristik “hırlaması” büyük ölçüde onlardan gelir. Gitar sinyali belli bir gerilimi aşınca diyotlar iletime geçer ve
+          dalganın tepesini keser. Hangi diyotun seçildiği — silisyum, germanyum ya da LED — sesin tınısını değiştirir.</p>
+        <p>Buraya kadarki parçaların hepsi (direnç, kapasitör, bobin, trafo) akımı iki yönde de aynı şekilde geçiriyordu. Diyot
+          geçirmez: bir yönde neredeyse tel, öbür yönde neredeyse kopuk. Bu davranışın sırrı malzemede: <b>yarı iletken</b> silisyum ve
+          ona katılan birkaç yabancı atom.</p>
+        <p>Atölye bu yolu izliyor: önce <b>yarı iletkenin</b> ne olduğu, sonra <b>katkılama</b> ile N ve P tipi, sonra ikisinin
+          birleştiği <b>PN birleşimi</b> — diyotun kendisi — ve son olarak diyotun stüdyodaki üç işi: <b>doğrultma</b>,
+          <b>ters kutup koruması</b> ve <b>kırpma</b>, dinleyerek.</p>
+        <p class="tbl-note" style="margin:0">Silisyum (Si) kumdaki elementtir; İngilizcede <i>silicon</i>. Esnek mutfak malzemesi olan <i>silicone</i> (silikon) başka bir şeydir.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="sec">
+    <div class="sec-head"><span class="num">02</span><h2>Bilmemiz gereken dokuz kavram</h2>
+      <span class="kicker">Kristalden kırpmaya</span></div>
+    <div class="defs">
+      <div class="def"><h3>Yarı iletken <em>semiconductor</em></h3>
+        <p>İletkenliği iletkenle yalıtkan arasında olan malzeme: silisyum, germanyum. Isı ve katkıyla iletkenliği çok değişir.</p></div>
+      <div class="def"><h3>Kovalent bağ</h3>
+        <p>İki atomun birer elektronunu ortaklaşa paylaşması. Silisyumun dört dış elektronu dört komşusuyla dört bağ kurar.</p></div>
+      <div class="def"><h3>Delik <em>hole</em></h3>
+        <p>Kopuk bir bağda eksik kalan elektron. Komşu elektronlar atladıkça yer değiştirir; artı yüklü bir parçacık gibi davranır.</p></div>
+      <div class="def"><h3>Katkılama <em>doping</em></h3>
+        <p>Saf kristale çok az yabancı atom katmak. Beş milyonda bir fosfor iletkenliği yaklaşık bir milyon kat artırır.</p></div>
+      <div class="def"><h3>N tipi · P tipi</h3>
+        <p><b>N</b>: fosfor gibi beş elektronlu katkı, fazla elektron (negatif taşıyıcı). <b>P</b>: bor gibi üç elektronlu katkı, delik (pozitif).</p></div>
+      <div class="def"><h3>PN birleşimi · tükenme bölgesi</h3>
+        <p>P ile N yan yana: sınırda taşıyıcılar birbirini yok eder, ortada taşıyıcısız bir bölge kalır. Diyotun kalbi.</p></div>
+      <div class="def"><h3>Doğru · ters kutuplama</h3>
+        <p>Anot (P) artıya: bölge daralır, akım akar. Katot (N) artıya: bölge genişler, akım neredeyse sıfır.</p></div>
+      <div class="def"><h3>Eşik gerilimi</h3>
+        <p>Akımın belirgin biçimde başladığı gerilim: silisyum ≈ 0,6–0,7 V, germanyum ≈ 0,3 V, kırmızı LED ≈ 1,8 V.</p></div>
+      <div class="def"><h3>Doğrultma · kırpma</h3>
+        <p>Diyotun iki klasik işi: değişen gerilimi tek yöne çevirmek (adaptör) ve eşiği aşan tepeleri kesmek (distortion).</p></div>
+    </div>
+  </section>
+
+  <section class="sec">
+    <div class="sec-head"><span class="num">03</span><h2>Atölye: dört sahne</h2>
+      <span class="kicker">Kristal · katkı · birleşim · kullanım</span></div>
+
+    <div class="stage" id="stage">
+      <div class="stage-head">
+        <div class="modes" role="group" aria-label="Sahne">
+          <button type="button" data-m="yar">Yarı iletken nedir</button>
+          <button type="button" data-m="katki">Katkılama: N ve P</button>
+          <button type="button" data-m="pn">PN birleşimi ve diyot</button>
+          <button type="button" data-m="is">Diyot ne işe yarar</button>
+        </div>
+        <div class="readout" id="readout"></div>
+      </div>
+
+      <div class="canvas-wrap"><canvas id="board"></canvas></div>
+
+      <div class="controls">
+        <div class="ctl-row" id="row-yar">
+          <span class="ctl-label">Malzeme</span><div class="btn-group sm" id="gYM"></div>
+          <div class="field"><label for="f-yt">Sıcaklık <em id="v-yt"></em></label>
+            <input id="f-yt" type="range" min="-40" max="150" step="1" value="25"></div>
+          <div class="btn-group sm"><button type="button" id="b-yger">Gerilim uygula</button></div>
+          <span class="ctl-note" id="y-note"></span>
+        </div>
+
+        <div class="ctl-row" id="row-katki" hidden>
+          <span class="ctl-label">Tür</span><div class="btn-group sm" id="gKT"></div>
+          <span class="ctl-label">Katkı</span><div class="btn-group sm" id="gKN"></div>
+          <div class="btn-group sm"><button type="button" id="b-kger">Gerilim uygula</button></div>
+          <span class="ctl-note" id="k-note"></span>
+        </div>
+
+        <div class="ctl-row" id="row-pn" hidden>
+          <span class="ctl-label">Diyot</span><div class="btn-group sm" id="gPT"></div>
+          <div class="field"><label for="f-pv">Kaynak <em id="v-pv"></em></label>
+            <input id="f-pv" type="range" min="-500" max="900" step="5" value="0"></div>
+          <div class="btn-group sm"><button type="button" id="b-pcalis">Canlandır</button></div>
+          <span class="ctl-note" id="p-note"></span>
+        </div>
+
+        <div class="ctl-row" id="row-is" hidden>
+          <span class="ctl-label">Kullanım</span><div class="btn-group sm" id="gIK"></div>
+        </div>
+        <div class="ctl-row" id="row-is-dog" hidden>
+          <span class="ctl-note">Tek diyot, yarım dalga. Köprü doğrultucu ve kapasitörle düzeltme bir sonraki atölyede: trafoyla birlikte adaptör.</span>
+        </div>
+        <div class="ctl-row" id="row-is-kor" hidden>
+          <span class="ctl-label">Adaptör</span><div class="btn-group sm" id="gIT"></div>
+          <span class="ctl-note">Pedal adaptörlerinin çoğunda iç uç eksi (merkez negatif); yanlış adaptör ters kutup demektir.</span>
+        </div>
+        <div class="ctl-row" id="row-is-kirp" hidden>
+          <span class="ctl-label">Kırpıcı</span><div class="btn-group sm" id="gIKT"></div>
+          <div class="field"><label for="f-isur">Sürüş <em id="v-isur"></em></label>
+            <input id="f-isur" type="range" min="0" max="40" step="1" value="20"></div>
+          <div class="btn-group sm"><button type="button" id="b-idinle">Dinle</button></div>
+          <span class="ctl-note" id="i-note"></span>
+        </div>
+      </div>
+    </div>
+
+    <div class="cols">
+      <section class="panel">
+        <div class="panel-head"><h3>Ders akışı</h3><span class="count" id="step-count">1 / 1</span></div>
+        <div class="panel-body">
+          <h4 id="step-title"></h4>
+          <p id="step-body"></p>
+          <div class="steps"><button type="button" id="prev">Önceki</button><button type="button" id="next">Sonraki</button></div>
+          <div class="dots" id="dots"></div>
+        </div>
+      </section>
+      <section class="panel">
+        <div class="panel-head"><h3>Kendin dene</h3><span class="count" id="ner-count"></span></div>
+        <div class="panel-body">
+          <p class="tbl-note" id="ner-not"></p>
+          <p class="tbl-note">Ses yalnızca <b>Dinle</b> düğmesine basınca çalar ve sahne değişince durur. Kırpılmış ses keskindir;
+            sınıfta seviyeyi önce düşük tutun. LED’i doğrudan pile bağlamayın: her zaman seri bir direnç gerekir (Kirchhoff atölyesindeki
+            LED direnci hesabı).</p>
+        </div>
+      </section>
+    </div>
+  </section>
+
+  <section class="sec">
+    <div class="sec-head"><span class="num">04</span><h2>Sık karşılaşılan diyotlar</h2>
+      <span class="kicker">Satıra tıklayın, ilgili sahne açılır</span></div>
+    <div class="panel">
+      <div class="tbl-scroll">
+      <table id="dtab">
+        <thead><tr><th>Diyot</th><th>Malzeme</th><th>Eşik (≈ 1 mA)</th><th class="c-cmp">Nerede</th></tr></thead>
+        <tbody></tbody>
+      </table>
+      </div>
+      <p class="tbl-note">Eşik değerleri bu sayfanın diyot modelinden (1 mA’de); gerçek parçalar arasında ve sıcaklıkla birkaç
+        yüzde değişir. Büyük akımda gerilim biraz daha yükselir: 1N4001 1 A’de 1 V’a yaklaşır. Mavi ve beyaz LED’lerin eşiği
+        ≈ 3 V’tur.</p>
+    </div>
+  </section>
+
+  <section class="sec">
+    <div class="sec-head"><span class="num">05</span><h2>Pratikte ne işe yarar?</h2><span class="kicker">Altı çıkarım</span></div>
+    <div class="cks">
+      <div class="ck ok"><span class="mk">✓</span><b>Multimetreyle diyot sınamak</b>
+        <span>Multimetrenin diyot konumu parçayı küçük bir akımla sürer ve iletim gerilimini gösterir: silisyumda 0,5–0,7 V, ters yönde
+          “OL”. İki yönde de ileten ya da hiç iletmeyen diyot arızalıdır.</span></div>
+      <div class="ck ok"><span class="mk">✓</span><b>Ters kutup koruması</b>
+        <span>Pedalın girişindeki seri diyot yanlış adaptörle devreyi korur; bedeli ≈ 0,7 V kayıp. Bazı pedallar bunun yerine
+          paralel bir diyot ve sigorta kullanır.</span></div>
+      <div class="ck ok"><span class="mk">✓</span><b>Kırpma diyotları tınıyı belirler</b>
+        <span>Silisyum çifti sert ve parlak, germanyum daha erken ve yumuşak, LED daha yüksek seviyede ve açık bir distortion.
+          Pedal modifikasyonlarının en yaygını bu diyotları değiştirmektir.</span></div>
+      <div class="ck ok"><span class="mk">✓</span><b>Rölenin koruma diyodu</b>
+        <span>İndüktörler atölyesindeki gerilim sıçraması: bobinin ucuna ters bağlanan bir diyot, akım kesilince ona dolaşacak bir
+          yol verir. Röleli pedal ve amfi kanal değiştiricilerinde bulunur.</span></div>
+      <div class="ck no"><span class="mk">!</span><b>LED’e mutlaka seri direnç</b>
+        <span>Diyotun eşiği aştıktan sonra akım çok hızlı büyür; seri direnç olmadan LED ve diyot kısa sürede yanar. 9 V’ta kırmızı
+          LED için yaklaşık 470 Ω – 1 kΩ.</span></div>
+      <div class="ck no"><span class="mk">!</span><b>Diyotun yönü önemli</b>
+        <span>Şeritli uç katottur. Ters takılan bir koruma diyodu pedalı hiç çalıştırmaz; ters takılan bir LED yanmaz; ters takılan
+          bir kırpma diyotu çiftinin ise yönü önemsizdir (ters paraleldir).</span></div>
+    </div>
+  </section>
+
+  <section class="sec">
+    <div class="sec-head"><span class="num">06</span><h2>Bu kavramların dili</h2><span class="kicker">Kitapta ve katalogda</span></div>
+    <div class="panel">
+      <div class="tbl-scroll">
+      <table id="ltable">
+        <thead><tr><th>Terim</th><th>Türkçe</th><th class="c-cmp">Ne demek</th></tr></thead>
+        <tbody>
+          <tr><td>Semiconductor</td><td>Yarı iletken</td><td class="c-cmp">Silisyum, germanyum</td></tr>
+          <tr><td>Silicon (Si) · germanium (Ge)</td><td>Silisyum · germanyum</td><td class="c-cmp">En yaygın iki yarı iletken element</td></tr>
+          <tr><td>Covalent bond · valence electron</td><td>Kovalent bağ · değerlik elektronu</td><td class="c-cmp">Paylaşılan elektronlar · en dış elektronlar</td></tr>
+          <tr><td>Hole</td><td>Delik, boşluk</td><td class="c-cmp">Eksik elektron; artı taşıyıcı</td></tr>
+          <tr><td>Doping · dopant</td><td>Katkılama · katkı atomu</td><td class="c-cmp">Fosfor (N), bor (P)</td></tr>
+          <tr><td>Majority / minority carrier</td><td>Çoğunluk / azınlık taşıyıcı</td><td class="c-cmp">N’de elektron / delik; P’de tersi</td></tr>
+          <tr><td>PN junction · depletion region</td><td>PN birleşimi · tükenme bölgesi</td><td class="c-cmp">Diyotun sınır bölgesi</td></tr>
+          <tr><td>Anode · cathode</td><td>Anot · katot</td><td class="c-cmp">P ucu · N ucu (şeritli)</td></tr>
+          <tr><td>Forward / reverse bias</td><td>Doğru / ters kutuplama</td><td class="c-cmp">İletim / kesim</td></tr>
+          <tr><td>Forward voltage (V<sub>F</sub>)</td><td>İletim gerilimi, eşik</td><td class="c-cmp">Si ≈ 0,7 V, Ge ≈ 0,3 V</td></tr>
+          <tr><td>Rectifier · half-wave</td><td>Doğrultucu · yarım dalga</td><td class="c-cmp">AC’yi tek yöne çevirmek</td></tr>
+          <tr><td>Clipping diode · hard / soft clipping</td><td>Kırpma diyotu · sert / yumuşak kırpma</td><td class="c-cmp">Distortion’ın kaynağı</td></tr>
+          <tr><td>LED (light-emitting diode)</td><td>Işık yayan diyot</td><td class="c-cmp">İletimde ışık veren diyot</td></tr>
+        </tbody>
+      </table>
+      </div>
+    </div>
+  </section>
+
+  <section class="sec">
+    <div class="sec-head"><span class="num">07</span><h2>Alıştırma</h2><span class="kicker">On dört soru</span></div>
+    <div class="panel quiz">
+      <div class="q-head"><span class="count" id="q-count">0 / 0 doğru</span></div>
+      <div class="panel-body">
+        <p id="q-text"></p>
+        <div class="q-opts" id="q-opts"></div>
+        <p id="q-exp" class="tbl-note"></p>
+        <div class="steps"><button type="button" id="q-next">Sonraki soru</button></div>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <span><b>Yarı iletken:</b> silisyumun dört dış elektronu dört komşuyla bağ kurar. 25 °C’de 1 cm³’te ≈ 8×10⁹ serbest elektron (her 6 trilyon atomda bir), özdirenç ≈ 400 kΩ·cm; 150 °C’de ≈ 380 Ω·cm. Bakır 1,7×10⁻⁶ Ω·cm.</span>
+    <span><b>Katkı:</b> 10¹⁶ fosfor/cm³ (beş milyonda bir) → N tipi, 0,45 Ω·cm: bir milyon kat iletken. Bor → P tipi, delikler. Elektron × delik = sabit.</span>
+    <span><b>Diyot:</b> P anot, N katot (şeritli). Doğru kutuplamada eşikten sonra akım birden artar: Si ≈ 0,6–0,7 V, Ge ≈ 0,3 V, kırmızı LED ≈ 1,8 V. Ters kutuplamada nanoamper.</span>
+    <span><b>Kullanım:</b> yarım dalga doğrultma (12 V tepe → 11,3 V), ters kutup koruması (9 V → 8,3 V), kırpma (Si çifti ≈ ±0,6 V, DS-1 düzeni).</span>
+  </footer>
+</div>
+
+<script>
+(function(){
+  "use strict";
+  var TAU = Math.PI*2, L10 = Math.LN10;
+  var root = document.documentElement;
+  function lg(x){ return Math.log(x)/L10; }
+  var CS = 343;
+
+  /* BU ATOLYENIN KENDI DURUM NESNESI.
+     Onbellek uyarisi: bu blok her atolyeye KOPYALANIR, paylasilmaz. 18. atolyede
+     onceki atolyenin S nesnesi kullanilinca butun sahneler cokmustu.            */
+  var S = {
+    mode:'yar',
+    /* --- sahne 1: yarı iletken nedir --- */
+    yMal:'si', yT:25, yGer:false,
+    /* --- sahne 2: katkılama --- */
+    kTip:'n', kN:1e16, kGer:false,
+    /* --- sahne 3: PN birleşimi --- */
+    pTip:'si', pV:0, pCalis:false,
+    /* --- sahne 4: diyot ne işe yarar --- */
+    iKul:'dog', iTers:false, iKTip:'si', iSur:20,
+    t:0, anim:0
+  };
+  /* ---------- tema ---------- */
+  var C = {}, K = { lw:1, fs:1, glow:0, faint:.32 };
+  function readColors(){
+    var s = getComputedStyle(root);
+    ['ink','ink-2','ink-3','line','line-2','sin','cos','arc','brass','panel','panel-2','ok','no'].forEach(function(k){
+      C[k.replace('-','')] = s.getPropertyValue('--'+k).trim();
+    });
+    var proj = root.getAttribute('data-mode') === 'proj';
+    var attr = root.getAttribute('data-theme');
+    var isDark = attr === 'dark' ||
+                 (!attr && window.matchMedia('(prefers-color-scheme: dark)').matches);
+    K.glow  = (isDark && !proj) ? 0.7 : 0;
+    K.lw    = proj ? 1.5 : 1;
+    K.fs    = proj ? 1.24 : 1;
+    K.faint = proj ? 0.42 : (K.glow ? 0.34 : 0.32);
+  }
+  readColors();
+
+  var MODES = { proj:'light' };
+  var themeBtns = document.querySelectorAll('.theme button');
+  function markTheme(t){
+    Array.prototype.forEach.call(themeBtns, function(b){
+      b.setAttribute('aria-pressed', b.dataset.t === t ? 'true':'false');
+    });
+  }
+  function applyTheme(t, save){
+    if (MODES[t]){ root.setAttribute('data-theme', MODES[t]); root.setAttribute('data-mode', t); }
+    else { root.setAttribute('data-theme', t); root.removeAttribute('data-mode'); }
+    if (save) { try { localStorage.setItem('dalga-tema', t); } catch(e){} }
+    markTheme(t);
+  }
+  Array.prototype.forEach.call(themeBtns, function(b){
+    b.addEventListener('click', function(){ applyTheme(b.dataset.t, true); });
+  });
+  var sysDark = window.matchMedia('(prefers-color-scheme: dark)');
+  var stored = null;
+  try { stored = localStorage.getItem('dalga-tema'); } catch(e){}
+  if (stored === 'light' || stored === 'dark' || MODES[stored]) applyTheme(stored, false);
+  else markTheme(sysDark.matches ? 'dark' : 'light');
+  sysDark.addEventListener('change', function(){
+    readColors(); render();
+    if (!root.hasAttribute('data-theme')) markTheme(sysDark.matches ? 'dark' : 'light');
+  });
+  new MutationObserver(function(){ readColors(); render(); })
+    .observe(root, {attributes:true, attributeFilter:['data-theme','data-mode']});
+
+  /* ---------- sayilar ---------- */
+  function n(v,d){
+    var x = v.toFixed(d===undefined?2:d);
+    if (/^-0[.,]?0*$/.test(x)) x = x.slice(1);
+    return x.replace('.',',').replace('-','−');
+  }
+  function fTxt(f){
+    return f >= 1000 ? n(f/1000, f >= 10000 ? 0 : 1).replace(',0','')+' kHz' : n(f,0)+' Hz';
+  }
+  function sgn(v,d){ return (v>0?'+':'')+n(v,d); }
+
+  /* ---------- canvas ---------- */
+  var board = document.getElementById('board');
+  var ctx = null, MONO = '"IBM Plex Mono", monospace', SANS = '"IBM Plex Sans", sans-serif';
+  function dash(a){ ctx.setLineDash(a ? a.map(function(v){ return v*K.lw; }) : []); }
+  function LW(v){ ctx.lineWidth = v*K.lw; }
+  function glowOn(col,amt){ if (K.glow){ ctx.shadowColor = col; ctx.shadowBlur = (amt||9)*K.lw; } }
+  function glowOff(){ ctx.shadowBlur = 0; }
+  function line(x1,y1,x2,y2){ ctx.beginPath(); ctx.moveTo(x1,y1); ctx.lineTo(x2,y2); ctx.stroke(); }
+  function dot(x,y,r,col){
+    ctx.beginPath(); ctx.arc(x,y,r*K.fs,0,TAU);
+    ctx.fillStyle = col; glowOn(col,10); ctx.fill(); glowOff();
+    LW(1.6); ctx.strokeStyle = C.panel2; ctx.stroke();
+  }
+  function txt(s,x,y,col,size,align,fam,weight){
+    ctx.fillStyle = col;
+    ctx.font = (weight||400)+' '+((size||12)*K.fs).toFixed(2)+'px '+(fam||MONO);
+    ctx.textAlign = align||'left'; ctx.textBaseline='middle';
+    ctx.fillText(s,x,y);
+  }
+  function tw(s,size,fam,weight){
+    ctx.font = (weight||400)+' '+((size||12)*K.fs).toFixed(2)+'px '+(fam||MONO);
+    return ctx.measureText(s).width;
+  }
+  function chip(s2,x,y,col,size,weight,fam){
+    var w = tw(s2,size,fam||MONO,weight||400), ph = (size+7)*K.fs;
+    ctx.fillStyle = C.panel2; ctx.globalAlpha = .92;
+    ctx.fillRect(x - w/2 - 4*K.fs, y - ph/2, w + 8*K.fs, ph);
+    ctx.globalAlpha = 1;
+    txt(s2, x, y, col, size, 'center', fam||MONO, weight||400);
+  }
+  function wrap(s, x, y, maxw, col, size, lh, weight){
+    var words = s.split(' '), ln = '', out = [];
+    words.forEach(function(w){
+      var t = ln ? ln+' '+w : w;
+      if (tw(t, size, SANS, weight) > maxw){ out.push(ln); ln = w; } else ln = t;
+    });
+    if (ln) out.push(ln);
+    out.forEach(function(l,k){ txt(l, x, y + k*lh, col, size, 'left', SANS, weight); });
+    return out.length;
+  }
+  var cw = 0, ch = 0;
+  function sized(cv){
+    var dpr = Math.min(window.devicePixelRatio||1, 2);
+    var r = cv.getBoundingClientRect();
+    if (r.width < 10) return null;
+    var W = Math.round(r.width*dpr), H = Math.round(r.height*dpr);
+    if (W !== cw || H !== ch){ cv.width = W; cv.height = H; cw = W; ch = H; }
+    var c = cv.getContext('2d');
+    c.setTransform(dpr,0,0,dpr,0,0);
+    c.clearRect(0,0,r.width,r.height);
+    c.lineJoin='round'; c.lineCap='round';
+    return { c:c, w:r.width, h:r.height };
+  }
+  function logAxis(x0, x1, f0, f1){
+    return { X: function(f){ return x0 + (lg(f) - lg(f0))/(lg(f1) - lg(f0))*(x1 - x0); },
+             F: function(x){ return f0*Math.pow(f1/f0, (x - x0)/(x1 - x0)); },
+             f0:f0, f1:f1, x0:x0, x1:x1 };
+  }
+  function drawTicks(A, y, list, fmt){
+    ctx.strokeStyle = C.line; LW(1.3);
+    line(A.x0, y, A.x1, y);
+    var dec, d;
+    for (dec = Math.floor(lg(A.f0)); dec <= Math.ceil(lg(A.f1)); dec++){
+      for (d = 1; d <= 9; d++){
+        var f = Math.pow(10, dec)*d;
+        if (f < A.f0 || f > A.f1) continue;
+        line(A.X(f), y, A.X(f), y + 2.6*K.fs);
+      }
+    }
+    list.forEach(function(v){
+      if (v < A.f0 || v > A.f1) return;
+      line(A.X(v), y, A.X(v), y + 6*K.fs);
+      txt((fmt||fTxt)(v), A.X(v), y + 16*K.fs, C.ink3, 9.5, 'center', MONO);
+    });
+  }
+  /* Hizli salinan yanitlar: her PIKSEL SUTUNU icin birkac ara deger alinip en kucuk
+     ile en buyuk arasina dikey cizgi cekiliyor. Seyrek ornekleme sahte desen uretmez. */
+  function bandCurve(A, yOf, fn, col, lw, lo, hi){
+    var px = Math.max(2, Math.round(A.x1 - A.x0)), x, k, ALT = 7;
+    ctx.strokeStyle = col; LW(lw||2.4); glowOn(col, 6);
+    ctx.beginPath();
+    for (x = 0; x <= px; x++){
+      var fa = A.f0*Math.pow(A.f1/A.f0, x/px);
+      var fb = A.f0*Math.pow(A.f1/A.f0, (x+1)/px);
+      var mn = 1e9, mx = -1e9;
+      for (k = 0; k < ALT; k++){
+        var v = fn(fa*Math.pow(fb/fa, k/(ALT-1)));
+        if (!isFinite(v)) v = lo;
+        if (v < lo) v = lo; else if (v > hi) v = hi;
+        if (v < mn) mn = v;
+        if (v > mx) mx = v;
+      }
+      ctx.moveTo(A.x0 + x, yOf(mx)); ctx.lineTo(A.x0 + x, yOf(mn));
+    }
+    ctx.stroke(); glowOff();
+  }
+
+  /* ================= cizim ================= */
+  function frame(x0,y0,w,h){
+    ctx.fillStyle = C.panel; ctx.fillRect(x0,y0,w,h);
+    ctx.strokeStyle = C.line; LW(1.2); ctx.strokeRect(x0+0.5,y0+0.5,w-1,h-1);
+  }
+  /* Yari saydam hucreler bitisik cizilince kenarlarda dikis izi birakiyor.
+     Bu yuzden renkler ONCEDEN panel rengiyle karistirilip TAM OPAK doldurulur. */
+  var RGBC = {};
+  function rgbOf(hx){
+    if (RGBC[hx]) return RGBC[hx];
+    var s2 = String(hx).trim(), r, g, b, m;
+    if (s2.charAt(0) === '#'){
+      if (s2.length === 4){
+        r = parseInt(s2.charAt(1)+s2.charAt(1),16);
+        g = parseInt(s2.charAt(2)+s2.charAt(2),16);
+        b = parseInt(s2.charAt(3)+s2.charAt(3),16);
+      } else {
+        r = parseInt(s2.substr(1,2),16); g = parseInt(s2.substr(3,2),16); b = parseInt(s2.substr(5,2),16);
+      }
+    } else {
+      m = s2.match(/(\d+)[,\s]+(\d+)[,\s]+(\d+)/);
+      r = m ? +m[1] : 128; g = m ? +m[2] : 128; b = m ? +m[3] : 128;
+    }
+    return (RGBC[hx] = [r||0, g||0, b||0]);
+  }
+  function mixc(a, b, t){
+    var A = rgbOf(a), B = rgbOf(b);
+    return 'rgb(' + Math.round(A[0]+(B[0]-A[0])*t) + ',' +
+                    Math.round(A[1]+(B[1]-A[1])*t) + ',' +
+                    Math.round(A[2]+(B[2]-A[2])*t) + ')';
+  }
+  function basincRenk(v){
+    var a = Math.min(1, Math.abs(v));
+    return mixc(C.panel, v >= 0 ? C.sin : C.cos, 0.05 + 0.84*a);
+  }
+  /* bir kesitin basinc haritasi: fu(u,v) -> [-1,1], u ve v 0..1 */
+  function harita(x0,y0,w,h,fu,NU,NV){
+    var i, j;
+    for (i=0;i<NU;i++){
+      var xa = Math.round(x0 + i*w/NU), xb = Math.round(x0 + (i+1)*w/NU);
+      for (j=0;j<NV;j++){
+        var ya = Math.round(y0 + j*h/NV), yb = Math.round(y0 + (j+1)*h/NV);
+        ctx.fillStyle = basincRenk(fu((i+0.5)/NU, (j+0.5)/NV));
+        ctx.fillRect(xa, ya, Math.max(1, xb-xa), Math.max(1, yb-ya));
+      }
+    }
+  }
+
+  /* Dar ekranda sol alt baslik ile sag ozet carpisiyordu: dar ekranda sol metin dusuyor. */
+  function sahneBaslik(w, sol, sag, sagCol, sagDar){
+    var pad = 16*K.fs, y = 16*K.fs, dar = w < 700;
+    if (!dar) txt(sol, pad, y, C.ink3, 10.5, 'left', MONO, 500);
+    var t = (dar && sagDar) ? sagDar : sag;
+    txt(t, dar ? pad : w - pad, y, sagCol, dar ? 11 : 11.5, dar ? 'left' : 'right', MONO, 600);
+  }
+
+
+  /* ================= YARI İLETKENLER VE DİYOT: SAYILAR =================
+     Kaynaklar: Lessons in Electric Circuits Vol. III (Kuphaldt) — katkılama, N/P tipi, PN birleşimi,
+     doğru/ters kutuplama, Si ≈ 0,7 V, Ge ≈ 0,3 V; ElectroSmash Boss DS-1 analizi (1N4148 çifti
+     toprağa, ±0,7 V sert kırpma). Si: 5×10²² atom/cm³, bant aralığı 1,12 eV, n_i(300 K) ≈ 9,65×10⁹ /cm³,
+     hareketlilik μn ≈ 1400, μp ≈ 450 cm²/Vs (düşük katkıda; sabit alındı). Bakır ρ ≈ 1,7×10⁻⁶ Ω·cm. */
+  var KB = 8.617e-5, QE = 1.602e-19, SI_ATOM = 5e22, MU_N = 1400, MU_P = 450;
+  function niT(Tc){ var T = Tc + 273.15; return 9.65e9*Math.pow(T/300, 1.5)*Math.exp(-1.12/(2*KB)*(1/T - 1/300)); }
+  function rhoSaf(Tc){ return 1/(QE*niT(Tc)*(MU_N + MU_P)); }
+  var RHO = { cu:1.7e-6, cam:1e14 };                                   /* cam: 10¹²–10¹⁶ Ω·cm arası; örnek */
+
+  /* ---------- 2) katkılama ---------- */
+  var K_N = [0, 1e14, 1e16, 1e18];
+  function katkiHesap(tip, N){
+    var ni = niT(25);
+    if (!N) return { n:ni, p:ni, rho:rhoSaf(25), atom:0 };
+    var maj = N, min = ni*ni/N;
+    return tip === 'n' ? { n:maj, p:min, rho:1/(QE*N*MU_N), atom:SI_ATOM/N } : { n:min, p:maj, rho:1/(QE*N*MU_P), atom:SI_ATOM/N };
+  }
+
+  /* ---------- 3) diyot denklemi I = Is·(e^(V/nVt) − 1) ---------- */
+  var VT = 0.02585;
+  var DY = {
+    si:  { ad:'silisyum (1N4148)', Is:2.52e-9, n:1.752, vbi:0.7 },
+    ge:  { ad:'germanyum (1N34A)', Is:2e-7, n:1.3, vbi:0.3 },
+    led: { ad:'kırmızı LED', Is:1e-18, n:2, vbi:1.8 }
+  };
+  function dI(tip, V){ var d = DY[tip]; return d.Is*(Math.exp(Math.min(60, V/(d.n*VT))) - 1); }
+  function dV(tip, I){ var d = DY[tip]; return d.n*VT*Math.log(I/d.Is + 1); }       /* akımdan gerilim */
+
+  /* ---------- 4) kullanım ---------- */
+  var DG_TEPE = 12, KR_V = 9;                                             /* trafo çıkışı 12 V tepe; pedal 9 V */
+  var KP_R = 2200;                                                        /* kırpıcı seri direnç */
+  function kirp(tip, vin){                                                /* seri R + ters paralel iki diyot: ikiye bölme */
+    if (tip === 'yok') return vin;
+    var d = DY[tip], lo = -Math.abs(vin) - 0.01, hi = Math.abs(vin) + 0.01, m;
+    for (var k = 0; k < 56; k++){ m = (lo + hi)/2; var f = (vin - m)/KP_R - 2*d.Is*Math.sinh(Math.min(60, Math.max(-60, m/(d.n*VT)))); if (f > 0) lo = m; else hi = m; }
+    return (lo + hi)/2;
+  }
+  var GIT_V = 0.1, GIT_F = [110, 164.8];                                  /* gitar ≈ 100 mV; A ve E (beşli akor) */
+  function surusKat(db){ return Math.pow(10, db/20); }
+
+  /* ---------- ortak: dB ekseni olan bir cerceve ---------- */
+  function dbPanel(x0, y0, w, h, lo, hi, adimlar, birim){
+    frame(x0, y0, w, h);
+    var Y = function(v){ return y0 + h - (v - lo)/(hi - lo)*h; };
+    ctx.strokeStyle = C.line2; LW(1);
+    adimlar.forEach(function(v){
+      if (v < lo || v > hi) return;
+      dash(v === 0 ? null : [2,4]);
+      ctx.strokeStyle = v === 0 ? C.line : C.line2; LW(v === 0 ? 1.3 : 1);
+      line(x0, Y(v), x0 + w, Y(v));
+      dash(null);
+      txt(sgn(v,0), x0 + 4*K.fs, Math.max(y0 + 8*K.fs, Y(v) - 6*K.fs),
+          C.ink3, 8.5, 'left', MONO);
+    });
+    if (birim) txt(birim, x0 + w - 5*K.fs, y0 + 9*K.fs, C.ink3, 8.5, 'right', MONO);
+    return Y;
+  }
+  /* ---------- ortak: zaman penceresi ---------- */
+  function zamanPanel(x0, y0, w, h, t0, t1, baslik, sag, yMax){
+    frame(x0, y0, w, h);
+    var ic = 20*K.fs, M = yMax || 1.15;
+    var X = function(t){ return x0 + 12*K.fs + (t - t0)/(t1 - t0)*(w - 24*K.fs); };
+    var Y = function(v){ return y0 + ic + (1 - (v + M)/(2*M))*(h - ic - 12*K.fs); };
+    ctx.strokeStyle = C.line; LW(1.2);
+    line(x0 + 6*K.fs, Y(0), x0 + w - 6*K.fs, Y(0));
+    if (baslik) txt(baslik, x0 + 10*K.fs, y0 + 12*K.fs, C.ink3, 9.5, 'left', MONO);
+    if (sag) txt(sag, x0 + w - 10*K.fs, y0 + 12*K.fs, C.ink3, 9.5, 'right', MONO);
+    return { X:X, Y:Y, M:M };
+  }
+  function surekli(P, t0, t1, fn, col, lw, kesik){
+    var N = 800, i;
+    ctx.beginPath();
+    for (i = 0; i <= N; i++){
+      var t = t0 + (t1 - t0)*i/N;
+      var p = [P.X(t), P.Y(Math.max(-P.M, Math.min(P.M, fn(t))))];
+      if (i === 0) ctx.moveTo(p[0], p[1]); else ctx.lineTo(p[0], p[1]);
+    }
+    ctx.strokeStyle = col; LW(lw || 2);
+    if (kesik) dash(kesik);
+    glowOn(col, 5); ctx.stroke(); glowOff();
+    dash(null);
+  }
+
+  /* ---------- ortak: etiketli olcu oku ---------- */
+  function okla(x, y1, y2, col, ad, kucuk){
+    ctx.strokeStyle = col; LW(1.6);
+    line(x, y1, x, y2);
+    [[y1, 1], [y2, -1]].forEach(function(q){
+      ctx.beginPath();
+      ctx.moveTo(x, q[0]); ctx.lineTo(x - 4*K.fs, q[0] + q[1]*7*K.fs);
+      ctx.lineTo(x + 4*K.fs, q[0] + q[1]*7*K.fs); ctx.closePath();
+      ctx.fillStyle = col; ctx.fill();
+    });
+    if (ad) chip(ad, x, (y1 + y2)/2, col, kucuk ? 8.5 : 9.5, 600);
+  }
+  /* ---------- ortak: satirli sayi paneli ---------- */
+  /* Aciklama metni panele sigmiyorsa SARILIYOR; etiket ile deger ayni satira
+     sigmiyorsa deger ALT SATIRA aliniyor. Dar ekranda ikisi de tasiyordu.   */
+  function satirlar(x0, y0, w, h, baslik, sat, lh){
+    frame(x0, y0, w, h);
+    txt(baslik, x0 + 9*K.fs, y0 + 12*K.fs, C.ink2, 9.5, 'left', MONO, 600);
+    var yy = y0 + 30*K.fs, adim = lh || 30*K.fs, i, ic = w - 18*K.fs;
+    for (i = 0; i < sat.length; i++){
+      if (yy + 14*K.fs > y0 + h) break;
+      var lw = tw(sat[i][0], 8.5, MONO, 400);
+      var vw = tw(sat[i][1], 11, MONO, 600);
+      var altSatir = (lw + vw + 14*K.fs > ic);
+      txt(sat[i][0], x0 + 9*K.fs, yy, C.ink3, 8.5, 'left', MONO);
+      if (altSatir){
+        if (yy + 14*K.fs > y0 + h) break;
+        txt(sat[i][1], x0 + w - 9*K.fs, yy + 13*K.fs, sat[i][2] || C.ink2,
+            11, 'right', MONO, 600);
+      } else {
+        txt(sat[i][1], x0 + w - 9*K.fs, yy, sat[i][2] || C.ink2, 11, 'right', MONO, 600);
+      }
+      var ay2 = yy + (altSatir ? 27 : 13)*K.fs, sn = 0;
+      if (sat[i][3] && ay2 < y0 + h - 4*K.fs)
+        sn = wrap(sat[i][3], x0 + 9*K.fs, ay2, ic, C.ink3, 8, 11*K.fs);
+      yy += Math.max(adim, (altSatir ? 30 : 17)*K.fs + sn*11*K.fs);
+    }
+  }
+
+
+  /* ---------- sayı yazımı: üstel ve birimli ---------- */
+  var UST = {'0':'⁰','1':'¹','2':'²','3':'³','4':'⁴','5':'⁵','6':'⁶','7':'⁷','8':'⁸','9':'⁹','-':'⁻'};
+  function usUst(k){ return String(k).split('').map(function(c){ return UST[c] || c; }).join(''); }
+  function usTxt(x){
+    if (x === 0) return '0';
+    var us = Math.floor(lg(Math.abs(x)) + 1e-9), m = x/Math.pow(10, us);
+    if (Math.abs(m - 1) < 0.005) return '10' + usUst(us);
+    return n(m, 2) + '×10' + usUst(us);
+  }
+  /* sondaki sıfırları at: 1,50 → 1,5 ; 2,00 → 2 */
+  function kis(v, d){ return n(v, d).replace(/(,\d*?)0+$/, '$1').replace(/,$/, ''); }
+  function ohmTxt(R){
+    if (R < 1)     return kis(R*1000, R < 0.1 ? 1 : 0) + ' mΩ';
+    if (R < 1e3)   return kis(R, R < 10 ? 3 : (R < 100 ? 2 : 1)) + ' Ω';
+    if (R < 1e6)   return kis(R/1e3, R < 1e4 ? 3 : (R < 1e5 ? 2 : 1)) + ' kΩ';
+    if (R < 1e9)   return kis(R/1e6, R < 1e7 ? 2 : 1) + ' MΩ';
+    return usTxt(R) + ' Ω';
+  }
+  function vTxt(V){
+    var a = Math.abs(V), s = V < 0 ? '−' : '';
+    if (a < 5e-4) return '0 V';
+    if (a < 1) return s + kis(a*1000, a < 0.01 ? 1 : 0) + ' mV';
+    return s + kis(a, a < 10 ? 2 : (a < 100 ? 1 : 0)) + ' V';
+  }
+  function aTxt(I){
+    if (I === 0) return '0 mA';
+    if (I < 1e-4) return kis(I*1e6, I < 1e-5 ? 2 : 1) + ' µA';
+    if (I < 1)    return kis(I*1000, I < 0.01 ? 2 : (I < 0.1 ? 1 : 0)) + ' mA';
+    return kis(I, 2) + ' A';
+  }
+  function wTxt(P){
+    if (P === 0) return '0 mW';
+    if (P < 1) return kis(P*1000, P < 0.01 ? 2 : (P < 0.1 ? 1 : 0)) + ' mW';
+    return kis(P, P < 10 ? 2 : (P < 100 ? 1 : 0)) + ' W';
+  }
+  function saatTxt(h){
+    if (h < 1) return n(h*60, 0) + ' dk';
+    return kis(h, h < 10 ? 1 : 0) + ' saat';
+  }
+  /* büyük çarpanlar: 115 000 gibi, binlik ayraçlı */
+  function katTxt(x){
+    if (x >= 1000) return String(Math.round(x)).replace(/\B(?=(\d{3})+(?!\d))/g, '\u2009');
+    if (x >= 10) return n(x, 0);
+    return n(x, 1).replace(/,0$/, '');
+  }
+
+  /* ---------- ortak devre parçaları ---------- */
+  /* dikdörtgen çevre yolu: s=0 sol-orta (pilin + ucu, üstte), saat yönünde */
+  function cevreYol(x0, y0, x1, y1){
+    var a = x1 - x0, b = y1 - y0, L = 2*(a + b);
+    return { L:L, p:function(s){
+      s = ((s % L) + L) % L;
+      var s0 = b/2;                             /* sol kenarın ortası */
+      s = (s + (L - s0)) % L;                   /* sol-alt köşeden ölç */
+      if (s < b) return [x0, y1 - s];
+      if (s < b + a) return [x0 + (s - b), y0];
+      if (s < 2*b + a) return [x1, y0 + (s - b - a)];
+      return [x1 - (s - 2*b - a), y1];
+    }};
+  }
+  function pilDik(x, y, col, etiket, sagda){           /* dikey telde pil: + üstte */
+    ctx.fillStyle = C.panel; ctx.fillRect(x - 17*K.fs, y - 12*K.fs, 34*K.fs, 24*K.fs);
+    ctx.strokeStyle = col; LW(2.6); line(x - 15*K.fs, y - 5*K.fs, x + 15*K.fs, y - 5*K.fs);
+    LW(4.2); line(x - 7*K.fs, y + 5*K.fs, x + 7*K.fs, y + 5*K.fs);
+    txt('+', x - 22*K.fs, y - 9*K.fs, col, 10.5, 'center', MONO, 600);
+    txt('−', x - 22*K.fs, y + 9*K.fs, col, 10.5, 'center', MONO, 600);
+    if (etiket) txt(etiket, sagda ? x + 22*K.fs : x - 30*K.fs, y, col, 9.5, sagda ? 'left' : 'right', MONO, 600);
+  }
+  function metre(x, y, harf, col, deger, konum){        /* ampermetre / voltmetre dairesi */
+    var r = 14*K.fs;
+    ctx.beginPath(); ctx.arc(x, y, r, 0, TAU); ctx.fillStyle = C.panel; ctx.fill();
+    ctx.strokeStyle = col; LW(2); glowOn(col, 6); ctx.stroke(); glowOff();
+    txt(harf, x, y + 0.5, col, 11.5, 'center', MONO, 600);
+    if (deger){
+      if (konum === 'ust') chip(deger, x, y - r - 11*K.fs, col, 9.5, 600);
+      else if (konum === 'alt') chip(deger, x, y + r + 11*K.fs, col, 9.5, 600);
+      else txt(deger, x + r + 6*K.fs, y, col, 9.5, 'left', MONO, 600);
+    }
+  }
+  function yonOk(x, y, dx, col){                       /* yatay küçük ok */
+    ctx.fillStyle = col; ctx.beginPath();
+    ctx.moveTo(x + dx*7*K.fs, y); ctx.lineTo(x - dx*5*K.fs, y - 5*K.fs); ctx.lineTo(x - dx*5*K.fs, y + 5*K.fs);
+    ctx.closePath(); ctx.fill();
+  }
+  function kutu(x, y, w2, h2, col, ust, alt){           /* yük / cihaz kutusu, merkezli */
+    ctx.fillStyle = mixc(C.panel, col, 0.10); ctx.fillRect(x - w2/2, y - h2/2, w2, h2);
+    ctx.strokeStyle = col; LW(2); ctx.strokeRect(x - w2/2, y - h2/2, w2, h2);
+    if (ust) txt(ust, x, y - (alt ? 7 : 0)*K.fs, col, 9.5, 'center', MONO, 600);
+    if (alt) txt(alt, x, y + 8*K.fs, C.ink2, 8.5, 'center', MONO);
+  }
+  function usCiz(x, y, v, col, size, align, weight){   /* 3,12×10 + küçük üst simge: yazı tipi ⁴–⁹ glifini başka fonttan alıyordu */
+    var us = Math.floor(lg(Math.abs(v)) + 1e-9), m = v/Math.pow(10, us);
+    var a = n(m, 2) + '×10', b = String(us).replace('-', '−');
+    var wa = tw(a, size, MONO, weight), wb = tw(b, size*0.6, MONO, weight), x0;
+    x0 = align === 'center' ? x - (wa + wb)/2 : (align === 'right' ? x - wa - wb : x);
+    txt(a, x0, y, col, size, 'left', MONO, weight);
+    txt(b, x0 + wa + 1, y - size*0.36*K.fs, col, size*0.6, 'left', MONO, weight);
+  }
+  function baslikP(s2, x, y, dar){ txt(s2, x + 9*K.fs, y + 12*K.fs, C.ink2, dar ? 8.5 : 9.5, 'left', MONO, 600); }
+
+  function wrapC(s, cx, y, maxw, col, size, lh){       /* ortalı sarma */
+    var words = s.split(' '), ln = '', out = [];
+    words.forEach(function(w2){
+      var t = ln ? ln + ' ' + w2 : w2;
+      if (tw(t, size, MONO) > maxw){ out.push(ln); ln = w2; } else ln = t;
+    });
+    if (ln) out.push(ln);
+    out.forEach(function(l, k){ txt(l, cx, y + k*lh, col, size, 'center', MONO); });
+  }
+
+  /* ---------- direnç sembolleri ---------- */
+  function dirYatay(cx, y, L, col, kopuk){
+    var i;
+    ctx.fillStyle = C.panel; ctx.fillRect(cx - L/2 - 2, y - 10*K.fs, L + 4, 20*K.fs);
+    ctx.strokeStyle = col; LW(2.2); dash(kopuk ? [3,3] : null);
+    ctx.beginPath(); ctx.moveTo(cx - L/2, y);
+    if (kopuk){
+      for (i = 1; i <= 3; i++) ctx.lineTo(cx - L/2 + L*i/8, y + (i % 2 ? -8 : 8)*K.fs);
+      ctx.stroke(); ctx.beginPath(); ctx.moveTo(cx + L/2 - L*3/8, y + 8*K.fs);
+      for (i = 6; i <= 7; i++) ctx.lineTo(cx - L/2 + L*i/8, y + (i % 2 ? -8 : 8)*K.fs);
+      ctx.lineTo(cx + L/2, y);
+    } else {
+      for (i = 1; i <= 7; i++) ctx.lineTo(cx - L/2 + L*i/8, y + (i % 2 ? -8 : 8)*K.fs);
+      ctx.lineTo(cx + L/2, y);
+    }
+    ctx.stroke(); dash(null);
+    if (kopuk){ txt('×', cx, y, C.arc, 13, 'center', MONO, 600); }
+  }
+  function dirDik(x, cy, L, col, kopuk){
+    var i;
+    ctx.fillStyle = C.panel; ctx.fillRect(x - 10*K.fs, cy - L/2 - 2, 20*K.fs, L + 4);
+    ctx.strokeStyle = col; LW(2.2);
+    ctx.beginPath(); ctx.moveTo(x, cy - L/2);
+    if (kopuk){
+      for (i = 1; i <= 3; i++) ctx.lineTo(x + (i % 2 ? -8 : 8)*K.fs, cy - L/2 + L*i/8);
+      ctx.stroke(); ctx.beginPath(); ctx.moveTo(x + 8*K.fs, cy + L/2 - L*3/8);
+      for (i = 6; i <= 7; i++) ctx.lineTo(x + (i % 2 ? -8 : 8)*K.fs, cy - L/2 + L*i/8);
+      ctx.lineTo(x, cy + L/2);
+    } else {
+      for (i = 1; i <= 7; i++) ctx.lineTo(x + (i % 2 ? -8 : 8)*K.fs, cy - L/2 + L*i/8);
+      ctx.lineTo(x, cy + L/2);
+    }
+    ctx.stroke();
+    if (kopuk) txt('×', x, cy, C.arc, 13, 'center', MONO, 600);
+  }
+  function renkK(k){ return [C.sin, C.cos, C.arc, C.ink2][k]; }
+  function yerlesim(dar, top, pad, w, h, oranlar){      /* P1 sol üst, P2 sağ üst, P3 alt */
+    var gw = w - 2*pad, gh = h - top - 6*K.fs, gap = 12*K.fs;
+    if (dar){
+      var h1 = gh*oranlar[0], h2 = gh*oranlar[1], h3 = gh - h1 - h2 - 2*gap;
+      return [[pad, top, gw, h1], [pad, top + h1 + gap, gw, h2], [pad, top + h1 + h2 + 2*gap, gw, h3]];
+    }
+    var wl = (gw - gap)*oranlar[2], wr = gw - gap - wl, hu = (gh - gap)*oranlar[3], hd = gh - gap - hu;
+    return [[pad, top, wl, hu], [pad + wl + gap, top, wr, hu], [pad, top + hu + gap, gw, hd]];
+  }
+  /* yığılmış çubuk: parçalar, ölçek üst değeri, etiket biçimi */
+  function yiginCubuk(x0, x1, y, bh, parca, ust, etiket, dar){
+    var X = function(v){ return x0 + v/ust*(x1 - x0); }, acc = 0;
+    ctx.fillStyle = mixc(C.panel, C.line, 0.45); ctx.fillRect(x0, y - bh/2, x1 - x0, bh);
+    parca.forEach(function(p){
+      var xa = X(acc), xb = X(acc + p.v);
+      ctx.fillStyle = p.col; ctx.fillRect(xa, y - bh/2, Math.max(0, xb - xa), bh);
+      ctx.strokeStyle = C.panel; LW(1.5); line(xb, y - bh/2, xb, y + bh/2);
+      var s2 = etiket(p);
+      if (s2 && xb - xa > tw(s2, dar ? 8 : 9, MONO, 600) + 10*K.fs)
+        txt(s2, (xa + xb)/2, y, C.panel, dar ? 8 : 9, 'center', MONO, 600);
+      acc += p.v;
+    });
+    return X;
+  }
+
+
+  /* ---------- kapasitör sembolleri ---------- */
+  function kapYatay(cx, y, col, elek){
+    var g = 5*K.fs, p = 11*K.fs;
+    ctx.fillStyle = C.panel; ctx.fillRect(cx - g - 3, y - p - 2, 2*g + 6, 2*p + 4);
+    ctx.strokeStyle = col; LW(2.6); line(cx - g, y - p, cx - g, y + p);
+    if (elek){ ctx.beginPath(); ctx.moveTo(cx + g + 3*K.fs, y - p); ctx.quadraticCurveTo(cx + g - 1*K.fs, y, cx + g + 3*K.fs, y + p); ctx.stroke(); }
+    else line(cx + g, y - p, cx + g, y + p);
+  }
+  function kapDik(x, cy, col){
+    var g = 5*K.fs, p = 12*K.fs;
+    ctx.fillStyle = C.panel; ctx.fillRect(x - p - 2, cy - g - 3, 2*p + 4, 2*g + 6);
+    ctx.strokeStyle = col; LW(2.6); line(x - p, cy - g, x + p, cy - g); line(x - p, cy + g, x + p, cy + g);
+  }
+  function capTxt(Cf){
+    if (Cf >= 1e-6) return kis(Cf*1e6, Cf < 1e-5 ? 2 : (Cf < 1e-4 ? 1 : 0)) + ' µF';
+    if (Cf >= 1e-9) return kis(Cf*1e9, Cf < 1e-8 ? 2 : 0) + ' nF';
+    return kis(Cf*1e12, 0) + ' pF';
+  }
+  function hzTxt(f){ return f >= 1000 ? kis(f/1000, f < 1e4 ? 2 : 1) + ' kHz' : kis(f, f < 10 ? 2 : (f < 100 ? 1 : 0)) + ' Hz'; }
+
+  function henTxt(L){
+    if (L >= 1) return kis(L, 2) + ' H';
+    if (L >= 0.95e-4) return kis(L*1e3, L < 1e-3 ? 3 : (L < 1e-2 ? 2 : (L < 0.1 ? 1 : 0))) + ' mH';
+    return kis(L*1e6, 0) + ' µH';
+  }
+  /* bobin sembolü: yatay, dört tümsek */
+  function bobinYatay(cx, y, L2, col){
+    var n = 4, r = L2/(2*n), i;
+    ctx.fillStyle = C.panel; ctx.fillRect(cx - L2/2 - 2, y - r - 4, L2 + 4, r + 6);
+    ctx.strokeStyle = col; LW(2.4); ctx.beginPath();
+    for (i = 0; i < n; i++) ctx.arc(cx - L2/2 + r*(2*i + 1), y, r, Math.PI, 0, false);
+    ctx.stroke();
+  }
+  function bobinDik(x, cy, L2, col){
+    var n = 4, r = L2/(2*n), i;
+    ctx.fillStyle = C.panel; ctx.fillRect(x - 2, cy - L2/2 - 2, r + 6, L2 + 4);
+    ctx.strokeStyle = col; LW(2.4); ctx.beginPath();
+    for (i = 0; i < n; i++) ctx.arc(x, cy - L2/2 + r*(2*i + 1), r, -Math.PI/2, Math.PI/2, false);
+    ctx.stroke();
+  }
+
+  /* ================= ortak yardımcılar ================= */
+  function sig(uzun, kisa, maxw, size, weight){ return tw(uzun, size, MONO, weight) <= maxw ? uzun : kisa; }
+  function sayiPanel(P, baslik, rows, dar){
+    frame(P[0], P[1], P[2], P[3]);
+    baslikP(baslik, P[0], P[1], dar);
+    var ry0 = P[1] + 34*K.fs, rs = Math.min(23*K.fs, (P[3] - 44*K.fs)/rows.length);
+    rows.forEach(function(q, k){
+      var v = q[1], lab = q[0], bos = P[2] - 36*K.fs;
+      if (q[3] && tw(v, 9.5, MONO, 600) + tw(lab, 8.5, MONO) > bos) v = q[3];
+      while (lab.length > 4 && tw(v, 9.5, MONO, 600) + tw(lab, 8.5, MONO) > bos) lab = lab.slice(0, -2) + '…';
+      txt(lab, P[0] + 12*K.fs, ry0 + k*rs, C.ink3, 8.5, 'left', MONO);
+      txt(v, P[0] + P[2] - 12*K.fs, ry0 + k*rs, q[2], 9.5, 'right', MONO, 600);
+    });
+    return ry0 + rows.length*rs;
+  }
+  function toprak(x, y){
+    ctx.strokeStyle = C.ink3; LW(1.6);
+    line(x - 9*K.fs, y, x + 9*K.fs, y); line(x - 6*K.fs, y + 4*K.fs, x + 6*K.fs, y + 4*K.fs); line(x - 3*K.fs, y + 8*K.fs, x + 3*K.fs, y + 8*K.fs);
+  }
+  function rng(seed){ return function(){ seed |= 0; seed = seed + 0x6D2B79F5 | 0; var t = Math.imul(seed ^ seed >>> 15, 1 | seed); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0)/4294967296; }; }
+  function sayiSoz(x){                                    /* 5×10⁶ → “5 milyon” */
+    var B = [[1e15, 'katrilyon'], [1e12, 'trilyon'], [1e9, 'milyar'], [1e6, 'milyon'], [1e3, 'bin']];
+    for (var k = 0; k < B.length; k++) if (x >= B[k][0]) { var v = x/B[k][0]; return kis(v, v < 10 ? 1 : 0) + ' ' + B[k][1]; }
+    return kis(x, 0);
+  }
+  function ohmCm(r){ if (r >= 0.01 && r < 1e4) return kis(r, r < 1 ? 3 : r < 10 ? 2 : r < 100 ? 1 : 0) + ' Ω·cm'; if (r >= 1e4 && r < 1e6) return kis(r/1000, 0) + ' kΩ·cm'; return usTxt(r) + ' Ω·cm'; }
+  /* tek parçacık çizimleri */
+  function elektron(x, y, r){ ctx.fillStyle = C.cos; glowOn(C.cos, 6); ctx.beginPath(); ctx.arc(x, y, r*K.fs, 0, TAU); ctx.fill(); glowOff(); }
+  function delik(x, y, r){ ctx.strokeStyle = C.arc; LW(1.8); ctx.beginPath(); ctx.arc(x, y, r*K.fs, 0, TAU); ctx.stroke(); }
+
+  /* ================= KRİSTAL KAFESİ =================
+     Düz bir ızgara: her atom dört komşusuyla birer bağ (iki ortak elektron) kurar.
+     Gerçek silisyum üç boyutlu bir elmas kafesidir; burada düzleme açılmış hâli.     */
+  function kafes(P, ust, alt){
+    var x0 = P[0] + 26*K.fs, x1 = P[0] + P[2] - 26*K.fs, y0 = P[1] + ust, y1 = P[1] + P[3] - alt;
+    var cols = Math.max(4, Math.min(9, Math.floor((x1 - x0)/(62*K.fs)) + 1)), rows = Math.max(3, Math.min(5, Math.floor((y1 - y0)/(58*K.fs)) + 1));
+    var dx = (x1 - x0)/(cols - 1), dy = (y1 - y0)/(rows - 1), at = [], bag = [], hmap = {}, i, j;
+    for (j = 0; j < rows; j++) for (i = 0; i < cols; i++) at.push({ x:x0 + i*dx, y:y0 + j*dy, i:i, j:j });
+    for (j = 0; j < rows; j++) for (i = 0; i < cols; i++){
+      if (i < cols - 1){ hmap[j + ',' + i] = bag.length; bag.push({ a:j*cols + i, b:j*cols + i + 1, h:true }); }
+      if (j < rows - 1) bag.push({ a:j*cols + i, b:(j + 1)*cols + i, h:false });
+    }
+    return { at:at, bag:bag, hmap:hmap, cols:cols, rows:rows, dx:dx, dy:dy, x0:x0, x1:x1, y0:y0, y1:y1 };
+  }
+  /* bağ çiz: 2 elektron; kopuk ise biri delik */
+  function bagCiz(G, b, kopuk, soluk){
+    var A = G.at[b.a], B = G.at[b.b], r = 11*K.fs, ux = (B.x - A.x), uy = (B.y - A.y), L = Math.hypot(ux, uy); ux /= L; uy /= L;
+    var ax = A.x + ux*r, ay = A.y + uy*r, bx = B.x - ux*r, by = B.y - uy*r, nx = -uy*2.5*K.fs, ny = ux*2.5*K.fs;
+    ctx.strokeStyle = soluk ? C.line : mixc(C.panel, C.ink3, 0.7); LW(1.1);
+    line(ax + nx, ay + ny, bx + nx, by + ny); line(ax - nx, ay - ny, bx - nx, by - ny);
+    var e1x = ax + (bx - ax)*0.36, e1y = ay + (by - ay)*0.36, e2x = ax + (bx - ax)*0.64, e2y = ay + (by - ay)*0.64;
+    if (kopuk !== 1) elektron(e1x, e1y, 2.6); else delik(e1x, e1y, 3.4);
+    if (kopuk !== 2) elektron(e2x, e2y, 2.6); else delik(e2x, e2y, 3.4);
+  }
+  function atomCiz(A, et, col){
+    ctx.fillStyle = mixc(C.panel, col || C.ink3, 0.18); ctx.beginPath(); ctx.arc(A.x, A.y, 11*K.fs, 0, TAU); ctx.fill();
+    ctx.strokeStyle = col || C.ink3; LW(1.4); ctx.stroke();
+    txt(et, A.x, A.y + 0.5, col || C.ink2, 8, 'center', MONO, 600);
+  }
+  /* zamanla hareket eden serbest parçacık: sürüklenme + küçük titreşim, kafes içinde sarar */
+  function serbestKonum(G, k, t, suruk, yon){
+    var R = rng(9000 + k), bx = R(), by = R(), w = G.x1 - G.x0, h = G.y1 - G.y0;
+    var x = G.x0 + ((bx*w + yon*suruk*t*40*K.fs) % w + w) % w, y = G.y0 + (by*0.9 + 0.05)*h;
+    x += Math.sin(t*3.1 + k)*5*K.fs; y += Math.cos(t*2.7 + 2*k)*5*K.fs;
+    return [x, y];
+  }
+  /* delik: bağlar arasında sıçrayarak ilerler */
+  function delikBag(G, bag0, t, suruk, yon){
+    if (!suruk) return bag0;
+    var b = G.bag[bag0], A = G.at[b.a], adim = Math.floor(t*1.6), n = G.cols - 1;
+    var c = ((A.i + yon*adim) % n + n) % n;
+    return G.hmap[A.j + ',' + c];
+  }
+  function gerilimOk(G, P, acik, yon){
+    var y = P[1] + 32*K.fs, xa = G.x0, xb = G.x1;
+    if (!acik){ txt('gerilim yok: parçacıklar rastgele titreşiyor', (xa + xb)/2, y, C.ink3, 8.5, 'center', MONO); return; }
+    ctx.strokeStyle = C.ink2; LW(1.4); line(xa, y, xb, y);
+    txt('−', xa - 10*K.fs, y, C.ink, 12, 'center', MONO, 600); txt('+', xb + 10*K.fs, y, C.ink, 12, 'center', MONO, 600);
+    chip('elektronlar + uca, delikler − uca', (xa + xb)/2, y, C.ink2, 8.5, 600);
+  }
+
+  /* ================= SAHNE 1: YARI İLETKEN NEDİR =================
+     Bakırda her atom bir serbest elektron verir; camda hiç yok. Silisyumda bağlar
+     sağlam ama ısı bazılarını koparır: serbest elektron + geride bir delik.        */
+  function kopukSayi(Tc){ var a = lg(niT(-40)), b = lg(niT(150)); return Math.max(0, Math.min(12, Math.round(0.5 + (lg(niT(Tc)) - a)/(b - a)*11.5))); }
+  function drawYar(w, h){
+    var pad = 16*K.fs, dar = w < 760, top = 34*K.fs, m = S.yMal, t = S.anim, i;
+    var ad = { cu:'bakır (iletken)', si:'silisyum (yarı iletken)', cam:'cam (yalıtkan)' }[m];
+    var rho = m === 'cu' ? RHO.cu : m === 'cam' ? RHO.cam : rhoSaf(S.yT);
+    sahneBaslik(w, 'YARI İLETKEN NEDİR  ·  ' + ad + '  ·  ' + kis(S.yT, 0).replace('-', '−') + ' °C',
+      'özdirenç ' + ohmCm(rho), C.sin, ohmCm(rho));
+    var P = yerlesim(dar, top, pad, w, h, dar ? [0.40, 0.24] : [0.56, 0.22, 0.62, 0.64]), P1 = P[0], P2 = P[1], P3 = P[2];
+
+    frame(P1[0], P1[1], P1[2], P1[3]);
+    baslikP(dar ? 'KRİSTAL' : 'KRİSTAL  ·  ' + (m === 'cu' ? 'iyonlar ve serbest elektron denizi' : 'her atom dört komşusuyla elektron paylaşıyor'), P1[0], P1[1], dar);
+    var G = kafes(P1, 58*K.fs, 36*K.fs), yon = -1;
+    gerilimOk(G, P1, S.yGer, yon);
+    if (m === 'cu'){
+      G.at.forEach(function(A){ atomCiz(A, 'Cu', C.ink3); });
+      for (i = 0; i < G.at.length; i++){ var q = serbestKonum(G, i, t, S.yGer ? 1 : 0, yon); elektron(q[0], q[1], 3); }
+    } else {
+      var R = rng(77), kop = {}, n = m === 'cam' ? 0 : kopukSayi(S.yT), secilen = [];
+      while (secilen.length < Math.min(n, G.bag.length)){ var b = Math.floor(R()*G.bag.length); if (!kop[b]){ kop[b] = 1; secilen.push(b); } }
+      var hb = {};
+      secilen.forEach(function(b0){ hb[delikBag(G, b0, t, S.yGer, -yon)] = 1; });
+      G.bag.forEach(function(b, k){ bagCiz(G, b, hb[k] ? 1 : 0); });
+      G.at.forEach(function(A, k){ atomCiz(A, m === 'cam' ? (k % 2 ? 'O' : 'Si') : 'Si', C.ink3); });
+      secilen.forEach(function(b0, k){ var q = serbestKonum(G, k, t, S.yGer ? 1 : 0, yon); elektron(q[0], q[1], 3.2); });
+    }
+    var alt = m === 'cu' ? 'her atom bir elektronu serbest bırakıyor: akım kolayca akar'
+            : m === 'cam' ? 'bütün elektronlar bağlarda: akım taşıyacak parçacık yok'
+            : (kopukSayi(S.yT) + ' kopuk bağ (temsilî): her kopukta bir serbest elektron ve bir delik');
+    txt(sig(alt, m === 'si' ? 'serbest elektron ve delik' : (m === 'cu' ? 'serbest elektron denizi' : 'serbest parçacık yok'), P1[2] - 24*K.fs, 8.5),
+        P1[0] + P1[2]/2, P1[1] + P1[3] - 11*K.fs, C.ink3, 8.5, 'center', MONO);
+
+    var nf = m === 'cu' ? 8.5e22 : m === 'cam' ? 0 : niT(S.yT);
+    sayiPanel(P2, dar ? 'SAYILAR' : 'SAYILAR  ·  1 cm³ içinde', [
+      ['malzeme', ad, C.ink, m === 'cu' ? 'bakır' : m === 'si' ? 'silisyum' : 'cam'],
+      ['sıcaklık', kis(S.yT, 0).replace('-', '−') + ' °C', C.ink2],
+      ['serbest elektron', nf ? usTxt(nf) : 'neredeyse yok', C.cos],
+      ['kaç atomda bir', m === 'cu' ? 'her atomda bir' : m === 'cam' ? '—' : sayiSoz(SI_ATOM/nf) + ' atomda bir', C.ink2, m === 'si' ? sayiSoz(SI_ATOM/nf) : null],
+      ['özdirenç', ohmCm(rho), C.sin]
+    ], dar);
+
+    frame(P3[0], P3[1], P3[2], P3[3]);
+    baslikP(dar ? 'ÖZDİRENÇ' : 'ÖZDİRENÇ  ·  logaritmik: her çizgi on kat', P3[0], P3[1], dar);
+    var A = logAxis(P3[0] + 24*K.fs, P3[0] + P3[2] - 24*K.fs, 1e-7, 1e17), ya = P3[1] + P3[3]*0.60;
+    [[1e-7, 1e-3, 'iletken', C.cos], [1e-3, 1e8, 'yarı iletken', C.sin], [1e8, 1e17, 'yalıtkan', C.ink3]].forEach(function(z){
+      ctx.fillStyle = mixc(C.panel, z[3], 0.10); ctx.fillRect(A.X(z[0]), P3[1] + 28*K.fs, A.X(z[1]) - A.X(z[0]), ya - P3[1] - 28*K.fs);
+      txt(z[2], (A.X(z[0]) + A.X(z[1]))/2, P3[1] + 38*K.fs, z[3], 8.5, 'center', MONO, 600);
+    });
+    ctx.strokeStyle = C.line; LW(1.4); line(A.x0, ya, A.x1, ya);
+    for (var e = -6; e <= 16; e += (dar ? 4 : 2)){ var v = Math.pow(10, e); line(A.X(v), ya - 4*K.fs, A.X(v), ya + 4*K.fs); txt(usTxt(v), A.X(v), ya + 16*K.fs, C.ink3, 8, 'center', MONO); }
+    ctx.fillStyle = mixc(C.panel, C.sin, 0.35); ctx.fillRect(A.X(rhoSaf(150)), ya - 10*K.fs, A.X(rhoSaf(-40)) - A.X(rhoSaf(150)), 6*K.fs);
+    [[RHO.cu, 'bakır', C.cos, m === 'cu'], [rhoSaf(S.yT), 'silisyum ' + kis(S.yT, 0).replace('-', '−') + ' °C', C.sin, m === 'si'], [RHO.cam, 'cam', C.ink2, m === 'cam']].forEach(function(q, k){
+      dot(A.X(q[0]), ya, q[3] ? 7 : 5, q[2]);
+      txt(q[1], A.X(q[0]), ya - (k === 1 ? 26 : 18)*K.fs, q[2], 8.5, k === 0 ? 'left' : k === 2 ? 'right' : 'center', MONO, q[3] ? 600 : 400);
+    });
+    if (!dar) txt('kehribar şerit: silisyumun −40 °C ile 150 °C arası', A.x1, P3[1] + P3[3] - 12*K.fs, C.ink3, 8, 'right', MONO);
+  }
+
+  /* ================= SAHNE 2: KATKILAMA =================
+     Fosfor (5 dış elektron) bir silisyumun yerine geçer: beşinci elektron serbest → N tipi.
+     Bor (3 dış elektron): bir bağ eksik kalır → delik → P tipi. Çok az katkı, çok büyük etki. */
+  function katkiSayi(N){ return !N ? 0 : N < 1e15 ? 1 : N < 1e17 ? 3 : 6; }
+  function drawKatki(w, h){
+    var pad = 16*K.fs, dar = w < 760, top = 34*K.fs, t = S.anim, N = S.kN, tip = S.kTip, H = katkiHesap(tip, N), i;
+    var ad = !N ? 'saf silisyum' : (tip === 'n' ? 'N tipi (fosfor katkılı)' : 'P tipi (bor katkılı)');
+    sahneBaslik(w, 'KATKILAMA  ·  ' + ad + (N ? '  ·  ' + usTxt(N) + ' katkı atomu/cm³' : ''),
+      'özdirenç ' + ohmCm(H.rho) + (N ? '  ·  safın ' + usTxt(rhoSaf(25)/H.rho) + ' katı iletken' : ''), tip === 'n' ? C.cos : C.arc, ohmCm(H.rho));
+    var P = yerlesim(dar, top, pad, w, h, dar ? [0.40, 0.26] : [0.56, 0.22, 0.62, 0.64]), P1 = P[0], P2 = P[1], P3 = P[2];
+
+    frame(P1[0], P1[1], P1[2], P1[3]);
+    baslikP(dar ? 'KRİSTAL' : 'KRİSTAL  ·  ' + (!N ? 'katkısız' : tip === 'n' ? 'fosfor: beş dış elektron, biri artıyor' : 'bor: üç dış elektron, bir bağ eksik'), P1[0], P1[1], dar);
+    var G = kafes(P1, 58*K.fs, 36*K.fs), yon = -1, nd = katkiSayi(N), R = rng(31), yer = [];
+    gerilimOk(G, P1, S.kGer, yon);
+    while (yer.length < nd){ var k0 = Math.floor(R()*G.at.length), A0 = G.at[k0]; if (A0.i > 0 && A0.i < G.cols - 1 && yer.indexOf(k0) < 0) yer.push(k0); }
+    var hb = {}, delikler = [];
+    if (tip === 'p') yer.forEach(function(k0){ var A0 = G.at[k0], bi = -1; G.bag.forEach(function(b, k){ if (b.h && b.a === k0) bi = k; }); if (bi >= 0){ delikler.push(bi); } });
+    if (!N) delikler = [3];
+    delikler.forEach(function(b0){ hb[delikBag(G, b0, t, S.kGer, -yon)] = 1; });
+    G.bag.forEach(function(b, k){ bagCiz(G, b, hb[k] ? 1 : 0); });
+    G.at.forEach(function(A, k){ var d = yer.indexOf(k) >= 0; atomCiz(A, d ? (tip === 'n' ? 'P' : 'B') : 'Si', d ? (tip === 'n' ? C.cos : C.arc) : C.ink3); });
+    var nser = tip === 'n' ? nd : 0; if (!N) nser = 1;
+    for (i = 0; i < nser; i++){ var q = serbestKonum(G, i + 20, t, S.kGer ? 1 : 0, yon); elektron(q[0], q[1], 3.4); }
+    var alt = !N ? 'saf silisyum: oda sıcaklığında çok az serbest parçacık'
+            : tip === 'n' ? 'her fosfor atomu bir serbest elektron veriyor (çizim temsilî)' : 'her bor atomu bir delik bırakıyor (çizim temsilî)';
+    txt(sig(alt, tip === 'n' ? 'fazla elektron' : 'eksik elektron: delik', P1[2] - 24*K.fs, 8.5), P1[0] + P1[2]/2, P1[1] + P1[3] - 11*K.fs, C.ink3, 8.5, 'center', MONO);
+
+    sayiPanel(P2, dar ? 'SAYILAR' : 'SAYILAR  ·  25 °C, 1 cm³ içinde', [
+      ['tür', ad, tip === 'n' ? C.cos : C.arc, !N ? 'saf' : tip === 'n' ? 'N tipi' : 'P tipi'],
+      ['katkı', N ? sayiSoz(SI_ATOM/N) + ' atomda bir' : 'yok', C.ink2],
+      ['elektron', usTxt(H.n), C.cos],
+      ['delik', usTxt(H.p), C.arc],
+      ['çoğunluk taşıyıcı', !N ? 'eşit' : tip === 'n' ? 'elektron' : 'delik', tip === 'n' ? C.cos : C.arc],
+      ['özdirenç', ohmCm(H.rho), C.sin]
+    ], dar);
+
+    frame(P3[0], P3[1], P3[2], P3[3]);
+    baslikP(dar ? 'TAŞIYICILAR' : 'TAŞIYICILAR  ·  elektron × delik her zaman aynı: ' + usTxt(niT(25)) + '²', P3[0], P3[1], dar);
+    var A = logAxis(P3[0] + 90*K.fs, P3[0] + P3[2] - 24*K.fs, 1, 1e20), yy = [P3[1] + P3[3]*0.36, P3[1] + P3[3]*0.60], bh = Math.min(22*K.fs, P3[3]*0.14);
+    [[H.n, 'elektron', C.cos], [H.p, 'delik', C.arc]].forEach(function(q, k){
+      txt(q[1], A.x0 - 10*K.fs, yy[k], q[2], 9, 'right', MONO, 600);
+      ctx.fillStyle = mixc(C.panel, C.line, 0.4); ctx.fillRect(A.x0, yy[k] - bh/2, A.x1 - A.x0, bh);
+      ctx.fillStyle = q[2]; ctx.fillRect(A.x0, yy[k] - bh/2, Math.max(2, A.X(Math.max(1, q[0])) - A.x0), bh);
+      txt(usTxt(q[0]), Math.min(A.x1 - 40*K.fs, A.X(Math.max(1, q[0])) + 6*K.fs), yy[k], q[2], 8.5, 'left', MONO, 600);
+    });
+    var yb = P3[1] + P3[3] - 26*K.fs; ctx.strokeStyle = C.line; LW(1); line(A.x0, yb, A.x1, yb);
+    for (var e = 0; e <= 20; e += (dar ? 5 : 2)){ var v = Math.pow(10, e); line(A.X(v), yb - 3*K.fs, A.X(v), yb + 3*K.fs); txt(usTxt(v), A.X(v), yb + 13*K.fs, C.ink3, 8, 'center', MONO); }
+    ctx.strokeStyle = C.ink3; LW(1); dash([3,3]); line(A.X(niT(25)), P3[1] + 30*K.fs, A.X(niT(25)), yb); dash(null);
+    if (!dar) txt('saf', A.X(niT(25)) + 4*K.fs, P3[1] + 30*K.fs, C.ink3, 8, 'left', MONO);
+  }
+
+  /* diyot sembolü: (x, y) merkez, yön +1 sağa / −1 sola (yatay) ya da +2 aşağı / −2 yukarı (dikey) */
+  function diyotSem(x, y, col, yon, kaz){
+    var s = 9*K.fs*(kaz || 1);
+    ctx.save(); ctx.translate(x, y); ctx.rotate(yon === -1 ? Math.PI : yon === 2 ? Math.PI/2 : yon === -2 ? -Math.PI/2 : 0);
+    ctx.fillStyle = C.panel; ctx.fillRect(-s - 2, -s - 2, 2*s + 4, 2*s + 4);
+    ctx.fillStyle = col; ctx.beginPath(); ctx.moveTo(-s, -s); ctx.lineTo(-s, s); ctx.lineTo(s*0.8, 0); ctx.closePath(); ctx.fill();
+    ctx.strokeStyle = col; LW(2.2); line(s*0.8, -s, s*0.8, s);
+    ctx.restore();
+  }
+  function isletim(tip, Vs, R){                                           /* seri R + diyot çalışma noktası */
+    var lo = Math.min(Vs, 0) - 0.01, hi = Math.max(Vs, 0) + 0.01, m;
+    for (var k = 0; k < 70; k++){ m = (lo + hi)/2; if ((Vs - m)/R - dI(tip, m) > 0) lo = m; else hi = m; }
+    var Vd = (lo + hi)/2; return { Vd:Vd, I:(Vs - Vd)/R };
+  }
+  var PN_R = 470;
+
+  /* ================= SAHNE 3: PN BİRLEŞİMİ VE DİYOT =================
+     P ile N yan yana gelince sınırda elektronlar deliklere düşer: ortada taşıyıcısız bir
+     tükenme bölgesi kalır. Doğru kutuplama bölgeyi daraltıp akımı başlatır; ters kutuplama
+     genişletir, akım neredeyse sıfır. Devrede 470 Ω seri direnç var.                  */
+  function drawPn(w, h){
+    var pad = 16*K.fs, dar = w < 760, top = 34*K.fs, t = S.anim, d = DY[S.pTip], O = isletim(S.pTip, S.pV, PN_R), i;
+    var ilet = O.I > 1e-4;
+    sahneBaslik(w, 'PN BİRLEŞİMİ  ·  ' + d.ad + '  ·  kaynak ' + vTxt(S.pV) + ', 470 Ω seri',
+      'diyotta ' + vTxt(O.Vd) + '  ·  akım ' + (Math.abs(O.I) < 1e-6 ? '≈ 0' : aTxt(O.I)), ilet ? C.sin : C.ink3, vTxt(O.Vd) + ' · ' + (Math.abs(O.I) < 1e-6 ? '≈ 0' : aTxt(O.I)));
+    var P = yerlesim(dar, top, pad, w, h, dar ? [0.40, 0.24] : [0.56, 0.22, 0.62, 0.62]), P1 = P[0], P2 = P[1], P3 = P[2];
+
+    frame(P1[0], P1[1], P1[2], P1[3]);
+    baslikP(dar ? 'BİRLEŞİM' : 'BİRLEŞİM  ·  P tipi (delikler) ve N tipi (elektronlar) yan yana', P1[0], P1[1], dar);
+    var bx0 = P1[0] + 40*K.fs, bx1 = P1[0] + P1[2] - 40*K.fs, by0 = P1[1] + P1[3]*0.26, by1 = P1[1] + P1[3]*0.58, bm = (bx0 + bx1)/2, bw = bx1 - bx0;
+    var wd = bw*0.16*Math.sqrt(Math.max(0.03, d.vbi - O.Vd)/d.vbi); wd = Math.min(bw*0.62, wd);
+    ctx.fillStyle = mixc(C.panel, C.arc, 0.12); ctx.fillRect(bx0, by0, bm - bx0, by1 - by0);
+    ctx.fillStyle = mixc(C.panel, C.cos, 0.12); ctx.fillRect(bm, by0, bx1 - bm, by1 - by0);
+    ctx.fillStyle = mixc(C.panel, C.ink3, 0.10); ctx.fillRect(bm - wd/2, by0, wd, by1 - by0);
+    ctx.strokeStyle = C.ink3; LW(1.2); ctx.strokeRect(bx0, by0, bw, by1 - by0); dash([3,3]); line(bm - wd/2, by0, bm - wd/2, by1); line(bm + wd/2, by0, bm + wd/2, by1); dash(null);
+    txt('P', bx0 + 12*K.fs, by0 + 12*K.fs, C.arc, 11, 'left', MONO, 600); txt('N', bx1 - 12*K.fs, by0 + 12*K.fs, C.cos, 11, 'right', MONO, 600);
+    if (!dar || wd > 60*K.fs) txt(dar ? 'tükenme' : 'tükenme bölgesi', bm, by1 - 9*K.fs, C.ink3, 8, 'center', MONO);
+    /* sabit iyonlar */
+    var R = rng(5), satir = 4, sy = (by1 - by0)/(satir + 1);
+    for (i = 0; i < satir; i++){
+      var yy = by0 + sy*(i + 1);
+      for (var c2 = 0; c2 < Math.max(1, Math.floor(wd/(2*16*K.fs))); c2++){
+        var ox = 8*K.fs + c2*16*K.fs;
+        if (ox < wd/2){ txt('−', bm - ox, yy, C.arc, 10, 'center', MONO, 600); txt('+', bm + ox, yy, C.cos, 10, 'center', MONO, 600); }
+      }
+    }
+    /* taşıyıcılar */
+    var hiz = ilet ? Math.min(1, 0.25 + 0.15*lg(O.I/1e-4)) : 0, np = 14;
+    for (i = 0; i < np; i++){
+      var fx = rng(100 + i)(), fy = rng(200 + i)(), yv = by0 + (0.12 + 0.76*fy)*(by1 - by0);
+      var hx = ((fx + hiz*t*0.25) % 1), ex = ((fx - hiz*t*0.25) % 1 + 1) % 1;
+      var xh = bx0 + hx*bw*(ilet ? 1 : 0.5 - wd/(2*bw)), xe = ilet ? bx0 + ex*bw : bm + wd/2 + ex*(bx1 - bm - wd/2);
+      xh += Math.sin(t*3 + i)*3*K.fs; xe += Math.cos(t*3.3 + i)*3*K.fs;
+      var ah = ilet && xh > bm ? Math.max(0, 1 - (xh - bm)/(bw*0.18)) : 1, ae = ilet && xe < bm ? Math.max(0, 1 - (bm - xe)/(bw*0.18)) : 1;
+      if (!ilet && xh > bm - wd/2 - 4*K.fs) xh = bm - wd/2 - 6*K.fs - (i % 3)*8*K.fs;
+      ctx.globalAlpha = ah; delik(xh, yv, 3.6); ctx.globalAlpha = ae; elektron(xe, by0 + (0.12 + 0.76*rng(300 + i)())*(by1 - by0), 3.2); ctx.globalAlpha = 1;
+    }
+    if (S.pTip === 'led' && O.I > 5e-4){
+      var gl = Math.min(1, O.I/0.015); ctx.fillStyle = C.sin; ctx.globalAlpha = 0.18 + 0.4*gl; ctx.beginPath(); ctx.arc(bm, (by0 + by1)/2, 26*K.fs + 20*K.fs*gl, 0, TAU); ctx.fill(); ctx.globalAlpha = 1;
+      chip('ışık!', bm, by0 - 14*K.fs, C.sin, 9, 600);
+    } else {
+      diyotSem(bm, by0 - 18*K.fs, C.ink2, 1);
+      txt('anot', bm - 16*K.fs, by0 - 18*K.fs, C.ink3, 8, 'right', MONO); txt('katot', bm + 16*K.fs, by0 - 18*K.fs, C.ink3, 8, 'left', MONO);
+    }
+    /* devre */
+    var yb = P1[1] + P1[3]*0.78, pm = bm;
+    ctx.strokeStyle = C.ink2; LW(1.8); line(bx0, (by0 + by1)/2, bx0 - 18*K.fs, (by0 + by1)/2); line(bx0 - 18*K.fs, (by0 + by1)/2, bx0 - 18*K.fs, yb);
+    line(bx1, (by0 + by1)/2, bx1 + 18*K.fs, (by0 + by1)/2); line(bx1 + 18*K.fs, (by0 + by1)/2, bx1 + 18*K.fs, yb);
+    line(bx0 - 18*K.fs, yb, bx1 + 18*K.fs, yb);
+    var xp = bx0 + bw*0.28, xr = bx0 + bw*0.72;
+    ctx.fillStyle = C.panel; ctx.fillRect(xp - 16*K.fs, yb - 14*K.fs, 32*K.fs, 28*K.fs);
+    ctx.strokeStyle = S.pV >= 0 ? C.sin : C.arc; LW(2.4); line(xp - 5*K.fs, yb - 12*K.fs, xp - 5*K.fs, yb + 12*K.fs); LW(4); line(xp + 5*K.fs, yb - 6*K.fs, xp + 5*K.fs, yb + 6*K.fs);
+    txt(S.pV >= 0 ? '+' : '−', xp - 14*K.fs, yb - 14*K.fs, C.ink, 10, 'center', MONO, 600); txt(S.pV >= 0 ? '−' : '+', xp + 14*K.fs, yb - 14*K.fs, C.ink, 10, 'center', MONO, 600);
+    txt(vTxt(Math.abs(S.pV)), xp, yb + 22*K.fs, C.ink2, 8.5, 'center', MONO, 600);
+    dirYatay(xr, yb, Math.min(44*K.fs, bw*0.16), C.ink2, false); txt('470 Ω', xr, yb + 20*K.fs, C.ink2, 8.5, 'center', MONO, 600);
+    var alt = S.pV > 0 ? (ilet ? 'doğru kutuplama: bölge daraldı, akım akıyor' : 'doğru kutuplama ama eşiğin altında: akım çok küçük')
+                       : S.pV < 0 ? 'ters kutuplama: bölge genişledi, akım neredeyse sıfır' : 'gerilim yok: tükenme bölgesi kendiliğinden oluştu';
+    txt(sig(alt, ilet ? 'akım akıyor' : 'akım yok', P1[2] - 24*K.fs, 8.5, 600), P1[0] + P1[2]/2, P1[1] + P1[3] - 11*K.fs, ilet ? C.sin : C.ink3, 8.5, 'center', MONO, 600);
+
+    sayiPanel(P2, dar ? 'SAYILAR' : 'SAYILAR  ·  kaynak → 470 Ω → diyot', [
+      ['diyot', d.ad, C.ink, S.pTip === 'led' ? 'LED' : S.pTip === 'si' ? 'Si' : 'Ge'],
+      ['kaynak', vTxt(S.pV), C.ink2],
+      ['diyotun üstünde', vTxt(O.Vd), C.sin],
+      ['direncin üstünde', vTxt(S.pV - O.Vd), C.ink2],
+      ['akım', Math.abs(O.I) < 1e-6 ? (O.I < 0 ? 'nanoamper (ters)' : '≈ 0') : aTxt(O.I), C.cos, Math.abs(O.I) < 1e-6 ? '≈ 0' : null],
+      ['durum', ilet ? 'iletimde' : 'kesimde', ilet ? C.cos : C.ink3]
+    ], dar);
+
+    frame(P3[0], P3[1], P3[2], P3[3]);
+    baslikP(dar ? 'AKIM – GERİLİM' : 'AKIM – GERİLİM  ·  eşiğe kadar neredeyse hiç, sonra birden', P3[0], P3[1], dar);
+    var X0 = P3[0] + 48*K.fs, X1 = P3[0] + P3[2] - 16*K.fs, Y0 = P3[1] + 28*K.fs, Y1 = P3[1] + P3[3] - 28*K.fs, VA = -2, VB = 2.4, IM = 0.02;
+    var X = function(v){ return X0 + (v - VA)/(VB - VA)*(X1 - X0); }, Y = function(I){ return Y1 - Math.max(-0.05, Math.min(1.05, I/IM))*(Y1 - Y0)*0.92; };
+    ctx.strokeStyle = C.line2; LW(1);
+    [0, 0.005, 0.01, 0.015, 0.02].forEach(function(I){ line(X0, Y(I), X1, Y(I)); txt(kis(I*1000, 0) + ' mA', X0 - 6*K.fs, Y(I), C.ink3, 8, 'right', MONO); });
+    for (var v = -2; v <= 2.4; v += 0.5){ line(X(v), Y0, X(v), Y1); if (!dar || Math.abs(v % 1) < 0.01) txt(n(v, 1).replace('-', '−') + ' V', X(v), Y1 + 14*K.fs, C.ink3, 8, 'center', MONO); }
+    ctx.strokeStyle = C.ink3; LW(1.2); line(X(0), Y0, X(0), Y1);
+    ['si', 'ge', 'led'].forEach(function(tp){
+      var on = tp === S.pTip, col = tp === 'si' ? C.sin : tp === 'ge' ? C.cos : C.arc;
+      ctx.strokeStyle = on ? col : mixc(C.panel, col, 0.35); LW(on ? 2.6 : 1.4); if (on) glowOn(col, 5); ctx.beginPath();
+      for (var k = 0; k <= 300; k++){ var vv = VA + (VB - VA)*k/300, I = dI(tp, vv); if (I > IM*1.1){ break; } if (k) ctx.lineTo(X(vv), Y(I)); else ctx.moveTo(X(vv), Y(I)); }
+      ctx.stroke(); glowOff();
+      var vl = dV(tp, 0.018); if (!dar || on) txt(tp === 'si' ? 'Si' : tp === 'ge' ? 'Ge' : 'LED', X(vl) + 6*K.fs, Y(0.018), col, 8.5, 'left', MONO, 600);
+    });
+    if (S.pV > 0){ ctx.strokeStyle = C.ink2; LW(1.2); dash([5,4]); line(X(Math.min(VB, S.pV)), Y((S.pV - Math.min(VB, S.pV))/PN_R), X(0), Y(S.pV/PN_R)); dash(null);
+      if (!dar) txt('direnç çizgisi', X(0) + 6*K.fs, Y(Math.min(IM, S.pV/PN_R)) - 8*K.fs, C.ink2, 8, 'left', MONO); }
+    dot(X(Math.max(VA, O.Vd)), Y(O.I), 6, C.sin);
+  }
+
+  /* ================= SAHNE 4: DİYOT NE İŞE YARAR ================= */
+  function drawIs(w, h){
+    var pad = 16*K.fs, dar = w < 760, top = 34*K.fs;
+    if (S.iKul === 'dog') return drawDog(w, h, pad, dar, top);
+    if (S.iKul === 'kor') return drawKor(w, h, pad, dar, top);
+    return drawKirp(w, h, pad, dar, top);
+  }
+  /* doğrultma: 12 V tepe, 50 Hz, tek diyot (yarım dalga). Köprü ve kapasitörle düzeltme
+     bir sonraki atölyede (adaptör), trafoyla birlikte. */
+  function dogCikis(){
+    var out = [], dt = 0.0001;
+    for (var t = 0.02; t <= 0.08 + 1e-9; t += dt){ var s2 = DG_TEPE*Math.sin(TAU*50*t); out.push([t, s2, Math.max(0, s2 - 0.7)]); }
+    return out;
+  }
+  function drawDog(w, h, pad, dar, top){
+    var seri = dogCikis(), mx = 0, ort = 0;
+    seri.forEach(function(q){ mx = Math.max(mx, q[2]); ort += q[2]; }); ort /= seri.length;
+    sahneBaslik(w, 'DOĞRULTMA  ·  trafo çıkışı 12 V tepe, 50 Hz  ·  yarım dalga (1 diyot)',
+      'çıkış tepe ' + vTxt(mx) + '  ·  ortalama ' + vTxt(ort), C.sin, vTxt(mx) + ' tepe');
+    var P = yerlesim(dar, top, pad, w, h, dar ? [0.36, 0.26] : [0.50, 0.22, 0.62, 0.56]), P1 = P[0], P2 = P[1], P3 = P[2];
+    frame(P1[0], P1[1], P1[2], P1[3]);
+    baslikP(dar ? 'DEVRE' : 'DEVRE  ·  trafo → tek diyot → yük', P1[0], P1[1], dar);
+    var x0 = P1[0] + P1[2]*0.14, x1 = P1[0] + P1[2]*0.86, y0 = P1[1] + P1[3]*0.30, y1 = P1[1] + P1[3]*0.80, my = (y0 + y1)/2;
+    bobinDik(x0, my, Math.min(56*K.fs, (y1 - y0)*0.6), C.cos); txt(dar ? '12 V~' : 'trafo 12 V~', x0 - 14*K.fs, my, C.cos, 8.5, 'right', MONO, 600);
+    var xk = x0 + (x1 - x0)*0.40, xy = x1 - (x1 - x0)*0.12;
+    ctx.strokeStyle = C.ink2; LW(1.8);
+    line(x0, y0, x0, my - 30*K.fs); line(x0, y0, xy, y0); line(x0, y1, x0, my + 30*K.fs); line(x0, y1, xy, y1); line(xy, y0, xy, y1);
+    diyotSem(xk, y0, C.sin, 1);
+    dirDik(xy, my, Math.min(40*K.fs, (y1 - y0)*0.5), C.ink2, false); txt('yük', xy + 14*K.fs, my, C.ink2, 8.5, 'left', MONO);
+    txt(sig('tek diyot: yalnız artı yarım dalgalar geçiyor', 'yarısı geçiyor', P1[2] - 24*K.fs, 8.5), P1[0] + P1[2]/2, P1[1] + P1[3] - 11*K.fs, C.ink3, 8.5, 'center', MONO);
+
+    sayiPanel(P2, dar ? 'SAYILAR' : 'SAYILAR  ·  diyot ≈ 0,7 V alıyor', [
+      ['giriş tepe', vTxt(DG_TEPE), C.cos],
+      ['diyot kaybı', '0,7 V', C.ink2],
+      ['çıkış tepe', vTxt(mx), C.sin],
+      ['ortalama', vTxt(ort), C.ink2],
+      ['eksi yarım dalgalar', 'duruyor', C.arc]
+    ], dar);
+
+    frame(P3[0], P3[1], P3[2], P3[3]);
+    baslikP(dar ? 'DALGA' : 'DALGA  ·  3 periyot (60 ms): giriş kesikli, çıkış kalın', P3[0], P3[1], dar);
+    var X0 = P3[0] + 40*K.fs, X1 = P3[0] + P3[2] - 16*K.fs, yc = P3[1] + (P3[3] + 20*K.fs)/2, ay = (P3[3] - 64*K.fs)/2/13;
+    var X = function(t){ return X0 + (t - seri[0][0])/(seri[seri.length - 1][0] - seri[0][0])*(X1 - X0); }, Y = function(v){ return yc - v*ay; };
+    ctx.strokeStyle = C.line; LW(1); line(X0, yc, X1, yc);
+    [12, 6, -6, -12].forEach(function(v){ ctx.strokeStyle = C.line2; line(X0, Y(v), X1, Y(v)); txt(kis(v, 0).replace('-', '−') + ' V', X0 - 6*K.fs, Y(v), C.ink3, 8, 'right', MONO); });
+    ctx.strokeStyle = C.cos; LW(1.6); dash([5,4]); ctx.beginPath(); seri.forEach(function(q, k){ if (k) ctx.lineTo(X(q[0]), Y(q[1])); else ctx.moveTo(X(q[0]), Y(q[1])); }); ctx.stroke(); dash(null);
+    ctx.strokeStyle = C.sin; LW(2.8); glowOn(C.sin, 5); ctx.beginPath(); seri.forEach(function(q, k){ if (k) ctx.lineTo(X(q[0]), Y(q[2])); else ctx.moveTo(X(q[0]), Y(q[2])); }); ctx.stroke(); glowOff();
+  }
+  /* ters kutup koruması: pedal 9 V, seri diyot */
+  function drawKor(w, h, pad, dar, top){
+    var ters = S.iTers, vp = ters ? 0 : KR_V - 0.7;
+    sahneBaslik(w, 'TERS KUTUP KORUMASI  ·  9 V adaptör  ·  ' + (ters ? 'kutuplar ters' : 'kutuplar doğru'),
+      ters ? 'diyot akımı durdurdu: pedal korundu' : 'pedal ' + vTxt(vp) + ' alıyor', ters ? C.arc : C.sin, ters ? 'pedal korundu' : vTxt(vp));
+    var P = yerlesim(dar, top, pad, w, h, dar ? [0.36, 0.26] : [0.50, 0.22, 0.62, 0.56]), P1 = P[0], P2 = P[1], P3 = P[2];
+    frame(P1[0], P1[1], P1[2], P1[3]);
+    baslikP(dar ? 'DEVRE' : 'DEVRE  ·  adaptör → seri diyot → pedal', P1[0], P1[1], dar);
+    var x0 = P1[0] + P1[2]*0.16, x1 = P1[0] + P1[2]*0.80, y0 = P1[1] + P1[3]*0.34, y1 = P1[1] + P1[3]*0.74, bw = Math.min(90*K.fs, P1[2]*0.2), bh = y1 - y0;
+    kutu(x0, (y0 + y1)/2, bw, bh, C.ink2, dar ? '9 V' : 'adaptör 9 V', '');
+    kutu(x1, (y0 + y1)/2, bw, bh, ters ? C.ink3 : C.sin, 'pedal', '');
+    ctx.strokeStyle = C.ink2; LW(1.8); line(x0 + bw/2, y0 + bh*0.2, x1 - bw/2, y0 + bh*0.2); line(x0 + bw/2, y1 - bh*0.2, x1 - bw/2, y1 - bh*0.2);
+    txt(ters ? '−' : '+', x0 + bw/2 + 10*K.fs, y0 + bh*0.2 - 10*K.fs, ters ? C.arc : C.ink, 11, 'center', MONO, 600);
+    txt(ters ? '+' : '−', x0 + bw/2 + 10*K.fs, y1 - bh*0.2 - 10*K.fs, ters ? C.arc : C.ink, 11, 'center', MONO, 600);
+    diyotSem((x0 + x1)/2, y0 + bh*0.2, ters ? C.arc : C.sin, 1);
+    chip(ters ? (dar ? 'kapalı' : 'diyot ters yönde: kapalı') : (dar ? 'açık' : 'diyot doğru yönde: açık'), (x0 + x1)/2, y0 + bh*0.2 - 22*K.fs, ters ? C.arc : C.sin, 8.5, 600);
+    chip(ters ? '0 V' : vTxt(vp), x1, y1 + 16*K.fs, ters ? C.arc : C.sin, 9, 600);
+    txt(sig(ters ? 'ters takılan adaptörün akımı diyotta duruyor' : 'diyot 0,7 V alıyor; pedala 8,3 V kalıyor', ters ? 'pedal korundu' : 'pedal 8,3 V', P1[2] - 24*K.fs, 8.5), P1[0] + P1[2]/2, P1[1] + P1[3] - 11*K.fs, C.ink3, 8.5, 'center', MONO);
+    sayiPanel(P2, dar ? 'SAYILAR' : 'SAYILAR  ·  seri diyotla koruma', [
+      ['adaptör', ters ? 'ters bağlı' : 'doğru', ters ? C.arc : C.ink],
+      ['diyot', ters ? 'kesimde' : 'iletimde', ters ? C.arc : C.sin],
+      ['diyot kaybı', ters ? '—' : '0,7 V', C.ink2],
+      ['pedalın gördüğü', ters ? '0 V' : vTxt(vp), ters ? C.arc : C.sin],
+      ['diyot olmasaydı', ters ? '−9 V: devre zarar görebilir' : '9 V', ters ? C.arc : C.ink2, ters ? '−9 V' : '9 V']
+    ], dar);
+    frame(P3[0], P3[1], P3[2], P3[3]);
+    baslikP(dar ? 'PEDALIN GÖRDÜĞÜ' : 'PEDALIN GÖRDÜĞÜ GERİLİM  ·  diyotla ve diyotsuz', P3[0], P3[1], dar);
+    var X0 = P3[0] + P3[2]*0.5, sx = (P3[2]*0.40)/10, rows = [['diyotla', vp, C.sin], ['diyotsuz', ters ? -KR_V : KR_V, C.ink3]];
+    ctx.strokeStyle = C.line; LW(1.2); line(X0, P3[1] + 30*K.fs, X0, P3[1] + P3[3] - 30*K.fs);
+    rows.forEach(function(q, k){
+      var yy = P3[1] + P3[3]*(0.38 + 0.26*k), bh = Math.min(26*K.fs, P3[3]*0.16);
+      ctx.fillStyle = q[2]; ctx.fillRect(Math.min(X0, X0 + q[1]*sx), yy - bh/2, Math.max(2, Math.abs(q[1])*sx), bh);
+      txt(q[0], P3[0] + 14*K.fs, yy, q[2], 9, 'left', MONO, 600);
+      txt(vTxt(q[1]), X0 + q[1]*sx + (q[1] >= 0 ? 8 : -8)*K.fs, yy, q[2], 9, q[1] >= 0 ? 'left' : 'right', MONO, 600);
+    });
+    txt('0 V', X0, P3[1] + P3[3] - 18*K.fs, C.ink3, 8, 'center', MONO);
+  }
+  /* kırpma: gitar (iki sinüs, 100 mV) × sürüş → 2,2 kΩ → ters paralel iki diyot toprağa */
+  function kirpSeri(tip, db){
+    var g = GIT_V*surusKat(db), out = [];
+    for (var k = 0; k <= 360; k++){ var t = 0.030*k/360, v = g*(Math.sin(TAU*GIT_F[0]*t) + Math.sin(TAU*GIT_F[1]*t)); out.push([t, v, kirp(tip, v)]); }
+    return out;
+  }
+  function drawKirp(w, h, pad, dar, top){
+    var tip = S.iKTip, db = S.iSur, seri = kirpSeri(tip, db), gi = 0, co = 0;
+    seri.forEach(function(q){ gi = Math.max(gi, Math.abs(q[1])); co = Math.max(co, Math.abs(q[2])); });
+    var ad = tip === 'yok' ? 'diyot yok' : DY[tip].ad;
+    sahneBaslik(w, 'KIRPMA  ·  distortion pedalı  ·  ' + ad + '  ·  sürüş +' + db + ' dB',
+      'giriş tepe ' + vTxt(gi) + '  →  çıkış tepe ' + vTxt(co), C.sin, vTxt(gi) + ' → ' + vTxt(co));
+    var P = yerlesim(dar, top, pad, w, h, dar ? [0.34, 0.26] : [0.46, 0.22, 0.62, 0.52]), P1 = P[0], P2 = P[1], P3 = P[2];
+    frame(P1[0], P1[1], P1[2], P1[3]);
+    baslikP(dar ? 'DEVRE' : 'DEVRE  ·  sert kırpma: iki diyot ters paralel, toprağa (DS-1 tipi)', P1[0], P1[1], dar);
+    var x0 = P1[0] + P1[2]*0.10, x1 = P1[0] + P1[2]*0.90, y0 = P1[1] + P1[3]*0.36, yg = P1[1] + P1[3]*0.80, xn = P1[0] + P1[2]*0.62, xr = P1[0] + P1[2]*0.36;
+    ctx.strokeStyle = C.ink2; LW(1.8); line(x0, y0, x1, y0);
+    kutu(x0, y0, Math.min(90*K.fs, P1[2]*0.18), 34*K.fs, C.ink2, dar ? 'gitar' : 'gitar × sürüş', '');
+    dirYatay(xr, y0, Math.min(46*K.fs, P1[2]*0.12), C.ink2, false); txt('2,2 kΩ', xr, y0 - 18*K.fs, C.ink2, 8.5, 'center', MONO, 600);
+    if (tip !== 'yok'){
+      var dx = 18*K.fs, col = tip === 'si' ? C.sin : tip === 'ge' ? C.cos : C.arc;
+      ctx.strokeStyle = C.ink2; LW(1.8); line(xn, y0, xn, y0 + 12*K.fs); line(xn - dx, y0 + 12*K.fs, xn + dx, y0 + 12*K.fs);
+      line(xn - dx, y0 + 12*K.fs, xn - dx, yg - 10*K.fs); line(xn + dx, y0 + 12*K.fs, xn + dx, yg - 10*K.fs); line(xn - dx, yg - 10*K.fs, xn + dx, yg - 10*K.fs); line(xn, yg - 10*K.fs, xn, yg);
+      diyotSem(xn - dx, (y0 + yg)/2, col, 2); diyotSem(xn + dx, (y0 + yg)/2, col, -2);
+      txt(tip === 'si' ? '1N4148' : tip === 'ge' ? '1N34A' : 'LED', xn + dx + 14*K.fs, (y0 + yg)/2, col, 8.5, 'left', MONO, 600);
+      toprak(xn, yg);
+    }
+    txt('çıkış', x1, y0 - 12*K.fs, C.ink3, 8.5, 'right', MONO);
+    txt(sig(tip === 'yok' ? 'diyot yok: sinyal olduğu gibi geçiyor' : 'diyotlar eşiği aşan tepeleri toprağa akıtıyor: dalganın tepesi kesiliyor', tip === 'yok' ? 'kırpma yok' : 'tepeler kesiliyor', P1[2] - 24*K.fs, 8.5),
+        P1[0] + P1[2]/2, P1[1] + P1[3] - 11*K.fs, C.ink3, 8.5, 'center', MONO);
+    sayiPanel(P2, dar ? 'SAYILAR' : 'SAYILAR  ·  gitar ≈ 100 mV, beşli akor (A2 + E3)', [
+      ['kırpıcı', ad, C.ink, tip === 'yok' ? 'yok' : tip === 'si' ? 'Si' : tip === 'ge' ? 'Ge' : 'LED'],
+      ['sürüş', '+' + db + ' dB (×' + kis(surusKat(db), 1) + ')', C.ink2, '+' + db + ' dB'],
+      ['giriş tepe', vTxt(gi), C.cos],
+      ['çıkış tepe', vTxt(co), C.sin],
+      ['kırpılan', tip === 'yok' || co >= gi*0.98 ? 'hiç' : '%' + kis((1 - co/gi)*100, 0) + ' tepe', C.arc, null]
+    ], dar);
+    frame(P3[0], P3[1], P3[2], P3[3]);
+    baslikP(dar ? 'DALGA' : 'DALGA  ·  30 ms · solda giriş, sağda çıkış (ayrı ölçekler)', P3[0], P3[1], dar);
+    var gap = 16*K.fs, pw = (P3[2] - 3*gap)/2;
+    [[P3[0] + gap, 1, gi, C.cos, 'giriş'], [P3[0] + 2*gap + pw, 2, Math.max(2, co), C.sin, 'çıkış']].forEach(function(q){
+      var X0 = q[0] + 32*K.fs, X1 = q[0] + pw, yc = P3[1] + (P3[3] + 20*K.fs)/2, ay = (P3[3] - 64*K.fs)/2/(q[2]*1.05 || 1);
+      var X = function(t){ return X0 + t/0.030*(X1 - X0); }, Y = function(v){ return yc - v*ay; };
+      ctx.strokeStyle = C.line; LW(1); line(X0, yc, X1, yc);
+      [q[2], -q[2]].forEach(function(v){ ctx.strokeStyle = C.line2; line(X0, Y(v), X1, Y(v)); txt(vTxt(v), X0 - 4*K.fs, Y(v), C.ink3, 7.5, 'right', MONO); });
+      txt(q[4], X0 + 4*K.fs, P3[1] + 30*K.fs, q[3], 8.5, 'left', MONO, 600);
+      ctx.strokeStyle = q[3]; LW(2.4); glowOn(q[3], 5); ctx.beginPath(); seri.forEach(function(s, k){ if (k) ctx.lineTo(X(s[0]), Y(s[q[1]])); else ctx.moveTo(X(s[0]), Y(s[q[1]])); }); ctx.stroke(); glowOff();
+    });
+  }
+
+  /* ================= SES: diyotla kırpılan beşli akor =================
+     İki sinüs (A2 110 Hz + E3 164,8 Hz), her 1,6 s'de bir “çalınır” ve söner.
+     Sürüş kazancı → WaveShaper (diyot kırpıcısının gerçek eğrisi, 2,2 kΩ + ters
+     paralel çift) → çıkış. Seviyeler türler arasında eşitlenir. Yalnız düğmeyle. */
+  var AC = null, sKaz = null, sOsc = [], zarf = null, onKaz = null, sekil = null, caliyor = false, vurTimer = 0;
+  var SVMAX = 25;
+  function egriYap(tip){
+    var n = 2048, c = new Float32Array(n);
+    for (var k = 0; k < n; k++){ var x = (k/(n - 1))*2 - 1; c[k] = kirp(tip, x*SVMAX)/SVMAX; }
+    return c;
+  }
+  function kirpGuncel(){
+    if (!AC || !sekil) return;
+    try {
+      sekil.curve = egriYap(S.iKTip);
+      var g = GIT_V*surusKat(S.iSur), tepe = Math.abs(kirp(S.iKTip, 2*g)) || 1e-3;
+      onKaz.gain.setTargetAtTime(g/SVMAX, AC.currentTime, 0.02);
+      sKaz.gain.setTargetAtTime(0.22*SVMAX/tepe, AC.currentTime, 0.03);
+    } catch(e){}
+  }
+  function vur(){
+    if (!AC || !zarf) return;
+    try { var t = AC.currentTime + 0.02; zarf.gain.cancelScheduledValues(t); zarf.gain.setValueAtTime(0.0001, t);
+      zarf.gain.exponentialRampToValueAtTime(1, t + 0.008); zarf.gain.exponentialRampToValueAtTime(0.03, t + 1.5); } catch(e){}
+  }
+  function sesAc(){
+    try {
+      if (!AC) AC = new (window.AudioContext || window.webkitAudioContext)();
+      if (AC.state === 'suspended') AC.resume();
+      sKaz = AC.createGain(); sKaz.gain.value = 0; sKaz.connect(AC.destination);
+      zarf = AC.createGain(); zarf.gain.value = 0.0001; onKaz = AC.createGain();
+      sekil = AC.createWaveShaper(); sekil.oversample = '4x';
+      zarf.connect(onKaz); onKaz.connect(sekil); sekil.connect(sKaz);
+      sOsc = GIT_F.map(function(f){ var o = AC.createOscillator(); o.type = 'sine'; o.frequency.value = f; o.connect(zarf); o.start(); return o; });
+      kirpGuncel(); vur(); vurTimer = setInterval(vur, 1600);
+      caliyor = true;
+    } catch(e){ caliyor = false; }
+  }
+  function sesKapat(){
+    try { if (vurTimer) clearInterval(vurTimer); vurTimer = 0;
+      if (sKaz && AC) sKaz.gain.setTargetAtTime(0, AC.currentTime, 0.03);
+      var os = sOsc; setTimeout(function(){ os.forEach(function(o){ try { o.stop(); } catch(e){} }); }, 250); } catch(e){}
+    sOsc = []; zarf = null; sekil = null; caliyor = false;
+  }
+
+  function drawBoard(){
+    var g = sized(board); if (!g) return;
+    ctx = g.c;
+    if (S.mode === 'yar')        drawYar(g.w, g.h);
+    else if (S.mode === 'katki') drawKatki(g.w, g.h);
+    else if (S.mode === 'pn')    drawPn(g.w, g.h);
+    else                         drawIs(g.w, g.h);
+  }
+  function render(){ drawBoard(); }
+  if (window.ResizeObserver){ new ResizeObserver(function(){ render(); }).observe(board); }
+  window.addEventListener('resize', render);
+
+  /* canlandırma: yalnız düğmeyle (gerilim uygula / canlandır) */
+  var aRaf = 0, aSon = 0;
+  function animAcik(){ return (S.mode === 'yar' && S.yGer) || (S.mode === 'katki' && S.kGer) || (S.mode === 'pn' && S.pCalis); }
+  function tik(ts){
+    aRaf = 0; if (!animAcik() || document.hidden) return;
+    var dt = aSon ? Math.min(0.05, (ts - aSon)/1000) : 0; aSon = ts; S.anim += dt; render();
+    aRaf = requestAnimationFrame(tik);
+  }
+  function animBasla(){ if (animAcik() && !aRaf){ aSon = 0; aRaf = requestAnimationFrame(tik); } }
+  document.addEventListener('visibilitychange', animBasla);
+
+  var ro = document.getElementById('readout');
+  function cell(lab, val, cls){ return '<div><span>'+lab+'</span><b'+(cls?' class="'+cls+'"':'')+'>'+val+'</b></div>'; }
+  function mark(sel, key, val){ Array.prototype.forEach.call(document.querySelectorAll(sel+' button'), function(b){ b.classList.toggle('on', b.dataset[key] === String(val)); }); }
+  function yaz(id, s){ document.getElementById(id).textContent = s; }
+  function dugme(id, acik, a, b){ yaz(id, acik ? a : b); document.getElementById(id).classList.toggle('on', acik); }
+
+  function sync(){
+    if (S.mode === 'yar'){
+      var rho = S.yMal === 'cu' ? RHO.cu : S.yMal === 'cam' ? RHO.cam : rhoSaf(S.yT);
+      ro.innerHTML = cell('malzeme', { cu:'bakır', si:'silisyum', cam:'cam' }[S.yMal], '') + cell('sıcaklık', kis(S.yT, 0).replace('-', '−') + ' °C', '') +
+        cell('serbest elektron', S.yMal === 'cu' ? '8,5×10²²' : S.yMal === 'cam' ? '≈ 0' : usTxt(niT(S.yT)), 'v-cos') + cell('özdirenç', ohmCm(rho), 'v-sin');
+      mark('#gYM','m',S.yMal); fYT.value = S.yT; yaz('v-yt', kis(S.yT, 0).replace('-', '−') + ' °C');
+      dugme('b-yger', S.yGer, 'Gerilimi kaldır', 'Gerilim uygula');
+      yaz('y-note', 'Sıcaklık yalnızca silisyumda belirgin bir fark yaratır: ısı bağları koparır. Çizimdeki kopuk bağ sayısı temsilî.');
+    } else if (S.mode === 'katki'){
+      var H = katkiHesap(S.kTip, S.kN);
+      ro.innerHTML = cell('tür', !S.kN ? 'saf' : S.kTip === 'n' ? 'N tipi' : 'P tipi', S.kTip === 'n' ? 'v-cos' : 'v-arc') + cell('elektron', usTxt(H.n), 'v-cos') + cell('delik', usTxt(H.p), 'v-arc') + cell('özdirenç', ohmCm(H.rho), 'v-sin');
+      mark('#gKT','t',S.kTip); mark('#gKN','n',S.kN); dugme('b-kger', S.kGer, 'Gerilimi kaldır', 'Gerilim uygula');
+      yaz('k-note', 'Hareketlilik yüksek katkıda azalır; burada sabit alındı. Yine de on kat katkı ≈ on kat iletkenlik.');
+    } else if (S.mode === 'pn'){
+      var O = isletim(S.pTip, S.pV, PN_R);
+      ro.innerHTML = cell('kaynak', vTxt(S.pV), '') + cell('diyotta', vTxt(O.Vd), 'v-sin') + cell('akım', Math.abs(O.I) < 1e-6 ? '≈ 0' : aTxt(O.I), 'v-cos') + cell('durum', O.I > 1e-4 ? 'iletim' : 'kesim', O.I > 1e-4 ? 'v-cos' : '');
+      mark('#gPT','t',S.pTip); fPV.value = Math.round(S.pV*100); yaz('v-pv', vTxt(S.pV)); dugme('b-pcalis', S.pCalis, 'Durdur', 'Canlandır');
+      yaz('p-note', 'Kaynağı eksiye çekin: ters kutuplama. Artıya çekin: eşiği geçince akım birden başlar. Seri 470 Ω akımı sınırlar.');
+    } else {
+      mark('#gIK','k',S.iKul);
+      ['dog','kor','kirp'].forEach(function(k){ document.getElementById('row-is-' + k).hidden = S.iKul !== k; });
+      if (S.iKul === 'dog'){
+        ro.innerHTML = cell('düzen', 'yarım dalga', '') + cell('giriş', '12 V~', 'v-cos') + cell('diyot kaybı', '0,7 V', '') + cell('çıkış tepe', vTxt(DG_TEPE - 0.7), 'v-sin');
+      } else if (S.iKul === 'kor'){
+        mark('#gIT','t',S.iTers ? 'ters' : 'dogru');
+        ro.innerHTML = cell('adaptör', S.iTers ? 'ters' : 'doğru', S.iTers ? 'v-arc' : '') + cell('diyot', S.iTers ? 'kesim' : 'iletim', '') + cell('pedal', S.iTers ? '0 V' : vTxt(KR_V - 0.7), 'v-sin');
+      } else {
+        var sr = kirpSeri(S.iKTip, S.iSur), gi = 0, co = 0; sr.forEach(function(q){ gi = Math.max(gi, Math.abs(q[1])); co = Math.max(co, Math.abs(q[2])); });
+        mark('#gIKT','t',S.iKTip); fIS.value = S.iSur; yaz('v-isur', '+' + S.iSur + ' dB'); dugme('b-idinle', caliyor, 'Durdur', 'Dinle');
+        ro.innerHTML = cell('kırpıcı', S.iKTip === 'yok' ? 'yok' : S.iKTip === 'si' ? 'Si' : S.iKTip === 'ge' ? 'Ge' : 'LED', '') + cell('sürüş', '+' + S.iSur + ' dB', '') + cell('giriş', vTxt(gi), 'v-cos') + cell('çıkış', vTxt(co), 'v-sin');
+        yaz('i-note', 'Dinle’ye basın; kırpıcıyı ve sürüşü değiştirin. Türler arasında ses seviyesi eşitlendi: fark tınıda.');
+      }
+    }
+    nerSync(); tabloSec();
+  }
+
+  var NEREDE = {
+    yar: { c:'yarı iletken', t:'<b>Bir bilgisayar çipi, bir güneş paneli ve pedalınızdaki her transistör</b> aynı malzemeden yapılır: silisyum. Kum (silisyum dioksit) arıtılıp tek bir kristal hâlinde büyütülür. Saf hâliyle neredeyse yalıtkandır; ısınınca iletkenliği hızla artar: 25 °C’den 50 °C’ye direnci yaklaşık altıda birine iner.' },
+    katki: { c:'katkılama', t:'<b>Yarı iletkenin gücü katkıda:</b> beş milyon silisyum atomuna tek bir fosfor atomu eklemek iletkenliği yaklaşık bir milyon kat artırır. Pedallardaki bütün diyotlar ve transistörler, aynı kristalin farklı bölgelerinin N ya da P tipi katkılanmasıyla yapılır.' },
+    pn: { c:'diyot', t:'<b>Bir diyotun gövdesine bakın:</b> bir ucunda bir şerit var. Şeritli uç <b>katot</b>tur (N tarafı); sembolün çizgili ucu. Multimetrenin diyot ölçme konumunda kırmızı ucu anoda, siyahı katoda değdirince silisyum diyotta yaklaşık 0,5–0,7 V okunur; ters değdirince hiçbir şey.' },
+    is: { c:'kullanım', t:'<b>Pedalınızın adaptör girişinin yanında</b> çoğu zaman küçük, siyah bir diyot vardır (1N4001 benzeri): adaptör ters kutuplu takılırsa devreyi korur. <b>Distortion pedallarında</b> ise sinyal yolunda iki küçük diyot bulunur: DS-1’de 1N4148 çifti, bazı klasiklerde germanyum ya da LED. Pedal modifikasyonlarının en sevileni bu diyotları değiştirmek.' }
+  };
+  function nerSync(){ var N2 = NEREDE[S.mode]; yaz('ner-count', N2.c); document.getElementById('ner-not').innerHTML = N2.t; }
+
+  /* ================= tablo: diyot türleri ================= */
+  var DROW = [
+    { ad:'1N4148', mal:'silisyum', esik:'≈ ' + kis(dV('si', 1e-3), 2) + ' V', nerede:'Küçük sinyal; kırpma diyotu (DS-1), koruma', ap:{ mode:'pn', pTip:'si' } },
+    { ad:'1N4001', mal:'silisyum', esik:'≈ 0,7 – 1 V', nerede:'Doğrultucu (1 A); pedal ters kutup koruması', ap:{ mode:'is', iKul:'kor' } },
+    { ad:'1N34A', mal:'germanyum', esik:'≈ ' + kis(dV('ge', 1e-3), 2) + ' V', nerede:'Yumuşak, erken kırpma; eski ve “vintage” pedallar', ap:{ mode:'pn', pTip:'ge' } },
+    { ad:'Kırmızı LED', mal:'galyum bileşikleri', esik:'≈ ' + kis(dV('led', 1e-3), 1) + ' V', nerede:'Gösterge ışığı; yüksek seviyede kırpma', ap:{ mode:'pn', pTip:'led' } }
+  ];
+  var htb = document.querySelector('#dtab tbody');
+  function tabloDoldur(){
+    htb.innerHTML = '';
+    DROW.forEach(function(q, k){
+      var tr = document.createElement('tr'); tr.dataset.k = String(k);
+      tr.innerHTML = '<td>' + q.ad + '</td><td>' + q.mal + '</td><td>' + q.esik + '</td><td class="c-cmp">' + q.nerede + '</td>';
+      tr.addEventListener('click', function(){ uygula(q.ap); });
+      htb.appendChild(tr);
+    });
+  }
+  function tabloSec(){
+    Array.prototype.forEach.call(htb.children, function(tr){
+      var q = DROW[+tr.dataset.k].ap, on = q.mode === S.mode && Object.keys(q).every(function(k){ return k === 'mode' || S[k] === q[k]; });
+      tr.setAttribute('aria-selected', on ? 'true' : 'false');
+    });
+  }
+  function uygula(q){
+    Object.keys(q).forEach(function(k){ if (k !== 'mode') S[k] = q[k]; });
+    if (q.mode && q.mode !== S.mode) setMode(q.mode); else { if (S.iKul !== 'kirp' && caliyor) sesKapat(); kirpGuncel(); sync(); render(); }
+  }
+
+  var SATIR = { yar:['row-yar'], katki:['row-katki'], pn:['row-pn'], is:['row-is'] };
+  var modeBtns = document.querySelectorAll('.modes button[data-m]');
+  function setMode(m){
+    if (caliyor) sesKapat();
+    S.mode = m;
+    Array.prototype.forEach.call(modeBtns, function(b){ b.setAttribute('aria-pressed', b.dataset.m === m ? 'true' : 'false'); });
+    Object.keys(SATIR).forEach(function(k){ SATIR[k].forEach(function(id){ document.getElementById(id).hidden = (k !== m); }); });
+    ['dog','kor','kirp'].forEach(function(k){ document.getElementById('row-is-' + k).hidden = m !== 'is' || S.iKul !== k; });
+    document.getElementById('stage').dataset.scene = m;
+    sync(); render(); animBasla();
+  }
+  Array.prototype.forEach.call(modeBtns, function(b){ b.addEventListener('click', function(){ setMode(b.dataset.m); }); });
+
+  function group(host, items, set){
+    var g = document.getElementById(host);
+    items.forEach(function(o){
+      var b = document.createElement('button'); b.type = 'button'; b.textContent = o[0];
+      if (o[2]) b.dataset[o[2]] = o[1];
+      b.addEventListener('click', function(){ set(o[1]); sync(); render(); });
+      g.appendChild(b);
+    });
+  }
+  /* sahne 1 */
+  var fYT = document.getElementById('f-yt');
+  group('gYM', [['bakır', 'cu', 'm'], ['silisyum', 'si', 'm'], ['cam', 'cam', 'm']], function(v){ S.yMal = v; });
+  fYT.addEventListener('input', function(){ S.yT = +fYT.value; sync(); render(); });
+  document.getElementById('b-yger').addEventListener('click', function(){ S.yGer = !S.yGer; sync(); render(); animBasla(); });
+  /* sahne 2 */
+  group('gKT', [['N tipi (fosfor)', 'n', 't'], ['P tipi (bor)', 'p', 't']], function(v){ S.kTip = v; if (!S.kN) S.kN = 1e16; });
+  group('gKN', K_N.map(function(N){ return [N ? usTxt(N) + ' /cm³' : 'katkı yok', N, 'n']; }), function(v){ S.kN = v; });
+  document.getElementById('b-kger').addEventListener('click', function(){ S.kGer = !S.kGer; sync(); render(); animBasla(); });
+  /* sahne 3 */
+  var fPV = document.getElementById('f-pv');
+  group('gPT', [['silisyum', 'si', 't'], ['germanyum', 'ge', 't'], ['kırmızı LED', 'led', 't']], function(v){ S.pTip = v; });
+  fPV.addEventListener('input', function(){ S.pV = +fPV.value/100; sync(); render(); });
+  document.getElementById('b-pcalis').addEventListener('click', function(){ S.pCalis = !S.pCalis; sync(); render(); animBasla(); });
+  /* sahne 4 */
+  var fIS = document.getElementById('f-isur');
+  group('gIK', [['doğrultma', 'dog', 'k'], ['ters kutup koruması', 'kor', 'k'], ['kırpma (distortion)', 'kirp', 'k']], function(v){ if (caliyor && v !== 'kirp') sesKapat(); S.iKul = v; });
+  group('gIT', [['doğru takılı', 'dogru', 't'], ['ters takılı', 'ters', 't']], function(v){ S.iTers = v === 'ters'; });
+  group('gIKT', [['diyot yok', 'yok', 't'], ['silisyum', 'si', 't'], ['germanyum', 'ge', 't'], ['LED', 'led', 't']], function(v){ S.iKTip = v; kirpGuncel(); });
+  fIS.addEventListener('input', function(){ S.iSur = +fIS.value; kirpGuncel(); sync(); render(); });
+  document.getElementById('b-idinle').addEventListener('click', function(){ if (caliyor) sesKapat(); else sesAc(); sync(); });
+
+  var STEPS = [
+    { t:'Silisyum: dört el, dört komşu',
+      b:'<b>Yarı iletken nedir</b> sahnesi, <b>silisyum</b> seçili. Her silisyum atomunun en dışta dört elektronu var; her birini bir komşusuyla ' +
+        'paylaşıyor. Tuvaldeki her bağ çizgisinin üstündeki iki nokta, paylaşılan iki elektron. Elektronlar bağlarda tutulduğu için ' +
+        'saf silisyum akımı zor taşır: 25 °C’de özdirenci yaklaşık <b>400 kΩ·cm</b>.',
+      ap:{ mode:'yar', yMal:'si', yT:25, yGer:false } },
+    { t:'İletken ve yalıtkanla kıyaslayın',
+      b:'<b>Bakır</b>’ı seçin: her atom bir elektronu serbest bırakıyor, elektronlar bir “deniz” gibi dolaşıyor; özdirenç 1,7 milyonda bir Ω·cm. ' +
+        '<b>Cam</b>’da ise bütün elektronlar bağlarda. Silisyum ikisinin arasında: bu yüzden <b>yarı</b> iletken. Alttaki çizgide her bölme on kat.',
+      ap:{ mode:'yar', yMal:'cu', yT:25, yGer:false } },
+    { t:'Isı bağ koparır',
+      b:'Silisyuma dönün ve sıcaklığı <b>150 °C</b> yapın. Isı bazı bağları koparıyor: bir elektron serbest kalıyor, geride bir boşluk — ' +
+        '<b>delik</b> — kalıyor. Özdirenç 400 kΩ·cm’den yaklaşık <b>380 Ω·cm</b>’ye indi: bin kat. Yarı iletkenler ısıya duyarlıdır; ' +
+        'eski germanyum pedalların sıcakta sesinin değişmesi bundan.',
+      ap:{ mode:'yar', yMal:'si', yT:150, yGer:false } },
+    { t:'Delik de hareket eder',
+      b:'<b>Gerilim uygula</b>’ya basın. Serbest elektronlar artı uca doğru kayıyor. Delikler ise ters yöne gidiyor: komşu bağdaki bir elektron ' +
+        'deliğe atlayınca delik bir adım geri gelmiş olur. Delik, <b>artı yüklü bir parçacık</b> gibi davranır. Yarı iletkende iki tür taşıyıcı var.',
+      ap:{ mode:'yar', yMal:'si', yT:150, yGer:true } },
+
+    { t:'N tipi: fazladan elektron',
+      b:'<b>Katkılama</b> sahnesi, <b>N tipi</b>. Beş milyon silisyum atomundan birinin yerine <b>fosfor</b> konuyor. Fosforun beş dış elektronu var: ' +
+        'dördü bağ kuruyor, beşincisi serbest. Özdirenç 400 kΩ·cm’den <b>0,45 Ω·cm</b>’ye indi: yaklaşık <b>bir milyon kat</b> daha iletken.',
+      ap:{ mode:'katki', kTip:'n', kN:1e16, kGer:false } },
+    { t:'P tipi: eksik elektron, delik',
+      b:'<b>P tipi</b>’ne geçin: katkı <b>bor</b>. Borun üç dış elektronu var; dördüncü bağ eksik kalıyor: bir <b>delik</b>. Artık akımı çoğunlukla ' +
+        'delikler taşıyor. P tipinin özdirenci biraz daha yüksek (1,4 Ω·cm): delikler elektronlardan daha yavaş hareket eder.',
+      ap:{ mode:'katki', kTip:'p', kN:1e16, kGer:false } },
+    { t:'Çoğunluk ve azınlık',
+      b:'Alttaki çubuklara bakın. P tipinde delik 10¹⁶, elektron yalnızca ~7000: <b>çoğunluk</b> ve <b>azınlık</b> taşıyıcı. İkisinin çarpımı ' +
+        'hep saf silisyumdaki değerin karesi. <b>Gerilim uygula</b> ile delik akışını izleyin.',
+      ap:{ mode:'katki', kTip:'p', kN:1e16, kGer:true } },
+
+    { t:'P ile N yan yana: tükenme bölgesi',
+      b:'<b>PN birleşimi</b> sahnesi. Solda P tipi (delikler), sağda N tipi (elektronlar). Sınırda elektronlar deliklere düşüp birbirini ' +
+        'yok ediyor; ortada taşıyıcısız bir <b>tükenme bölgesi</b> kalıyor. Orada yalnız sabit iyonlar var (− ve +). Bu yapı bir <b>diyot</b>: ' +
+        'P ucu <b>anot</b>, N ucu <b>katot</b>.',
+      ap:{ mode:'pn', pTip:'si', pV:0, pCalis:false } },
+    { t:'Ters kutuplama: kapı kapalı',
+      b:'Kaynağı <b>−5 V</b> yapın: artı uç N tarafına. Taşıyıcılar sınırdan uzaklaşıyor, tükenme bölgesi <b>genişliyor</b>. Akım yalnızca ' +
+        'birkaç nanoamper: pratikte sıfır.',
+      ap:{ mode:'pn', pTip:'si', pV:-5, pCalis:false } },
+    { t:'Doğru kutuplama: kapı açık',
+      b:'Kaynağı <b>+9 V</b> yapın ve <b>Canlandır</b>’a basın. Bölge daraldı, delikler ve elektronlar sınırı geçiyor: akım <b>18 mA</b>. ' +
+        'Diyotun üstünde yalnız <b>0,71 V</b> kaldı; gerisini 470 Ω’luk direnç taşıyor. Diyot akımı tek yöne geçiren bir <b>kapı</b>.',
+      ap:{ mode:'pn', pTip:'si', pV:9, pCalis:true } },
+    { t:'Eşik: 0,6 V’a kadar neredeyse hiç',
+      b:'Kaynağı <b>+0,4 V</b> yapın: akım yalnızca <b>15 µA</b>. 1 V’ta bile 1 mA’in altında. Grafiğe bakın: silisyum diyotta akım yaklaşık ' +
+        '<b>0,6 V</b>’a kadar neredeyse sıfır, sonra birden yükseliyor. Bu yüzden “silisyum diyot 0,6–0,7 V ister” deriz.',
+      ap:{ mode:'pn', pTip:'si', pV:0.4, pCalis:false } },
+    { t:'Germanyum ve LED',
+      b:'Kaynak yine 9 V. Önce <b>germanyum</b>’u seçin: diyotta yalnız ~0,4 V kalıyor, eşiği 0,3 V civarı. Sonra <b>kırmızı LED</b>: eşik ' +
+        '~1,8 V ve LED yanıyor. Eşik gerilimi malzemeye göre değişir; bu fark kırpma sahnesinde sese dönüşecek.',
+      ap:{ mode:'pn', pTip:'led', pV:9, pCalis:false } },
+
+    { t:'Doğrultma: yarım dalga',
+      b:'<b>Diyot ne işe yarar</b> sahnesi, <b>doğrultma</b>. Trafodan gelen 12 V’luk değişen gerilim tek bir diyottan geçiyor: yalnızca artı ' +
+        'yarım dalgalar geçiyor, tepesi 0,7 V eksik (<b>11,3 V</b>). Eksi yarım dalgalar duruyor: akım artık yük üzerinden hep aynı yönde akıyor.',
+      ap:{ mode:'is', iKul:'dog' } },
+    { t:'Yarım dalganın iki eksiği',
+      b:'Dalgaya yeniden bakın: zamanın yarısında çıkış <b>sıfır</b> (eksi yarımlar boşa gidiyor) ve çıkış hâlâ dalgalı; ortalaması yalnız ' +
+        '<b>3,5 V</b>. Bir pedalı bununla besleyemeyiz. İki çaresi var — dört diyotlu <b>köprü</b> ve dalgalanmayı düzelten bir ' +
+        '<b>kapasitör</b> — ve ikisi, trafoyla birlikte, bir sonraki atölyenin konusu: <b>adaptör</b>.',
+      ap:{ mode:'is', iKul:'dog' } },
+    { t:'Ters kutup koruması',
+      b:'<b>Ters kutup koruması</b>. Pedalın girişindeki seri diyot doğru takılı adaptörde açık: pedala 8,3 V gidiyor. <b>Ters takılı</b>’ya ' +
+        'geçin: diyot kapandı, pedala hiç akım gitmiyor. Diyot olmasaydı devre −9 V görürdü. İndüktörler atölyesindeki rölelerin ' +
+        'koruma diyodu da aynı “tek yönlü kapı” fikri.',
+      ap:{ mode:'is', iKul:'kor', iTers:true } },
+    { t:'Kırpma: distortion pedalı',
+      b:'<b>Kırpma</b>. Gitar sinyali (≈100 mV) 20 dB yükseltilip iki ters paralel diyota geliyor (DS-1 düzeni). Giriş ≈ 1,9 V tepe ama çıkış ' +
+        '≈ 0,56 V’u geçemiyor: diyotlar eşiği aşan tepeleri toprağa akıtıyor. Dalganın tepesi kare gibi kesiliyor: <b>distortion</b>.',
+      ap:{ mode:'is', iKul:'kirp', iKTip:'si', iSur:20 } },
+    { t:'Dinleyin: silisyum, germanyum, LED',
+      b:'<b>Dinle</b>’ye basın ve kırpıcıyı değiştirin. <b>Diyot yok</b>: temiz akor. <b>Silisyum</b>: sert, parlak distortion. <b>Germanyum</b>: ' +
+        'daha erken ve yumuşak başlayan kırpma. <b>LED</b>: eşik yüksek; bu sürüşte daha az kırpılıyor, sürüşü artırınca açılıyor. ' +
+        'Seviyeler eşitlendi; fark tınıda.',
+      ap:{ mode:'is', iKul:'kirp', iKTip:'ge', iSur:20 } }
+  ];
+  var si = 0;
+  var stT = document.getElementById('step-title'), stB = document.getElementById('step-body'),
+      stC = document.getElementById('step-count'), dots = document.getElementById('dots');
+  STEPS.forEach(function(_, i){
+    var d = document.createElement('button'); d.type = 'button'; d.className = 'dot'; d.setAttribute('aria-label', (i+1)+'. adım');
+    d.addEventListener('click', function(){ setStep(i, true); }); dots.appendChild(d);
+  });
+  function setStep(i, uyg){
+    si = Math.max(0, Math.min(STEPS.length-1, i));
+    var s2 = STEPS[si];
+    stT.textContent = (si+1)+'. '+s2.t; stB.innerHTML = s2.b; stC.textContent = (si+1)+' / '+STEPS.length;
+    Array.prototype.forEach.call(dots.children, function(d,k){ d.setAttribute('aria-current', k === si ? 'true':'false'); });
+    document.getElementById('prev').disabled = si === 0;
+    document.getElementById('next').disabled = si === STEPS.length-1;
+    if (uyg && s2.ap){ uygula(s2.ap); animBasla(); }
+  }
+  document.getElementById('prev').addEventListener('click', function(){ setStep(si-1, true); });
+  document.getElementById('next').addEventListener('click', function(){ setStep(si+1, true); });
+
+  var QS = [
+    { q:'Silisyum atomunun en dışta kaç elektronu vardır?', o:['Bir','İki','Dört','Sekiz'], c:2,
+      e:'Dört dış elektron; her birini bir komşusuyla paylaşır. Kristalde her atom dört bağ kurar.' },
+    { q:'Saf silisyum neden “yarı” iletkendir?', o:['Yarısı metal olduğu için','Elektronları bağlarda tutulur ama ısı bazılarını serbest bırakır: iletkenle yalıtkan arasında kalır','Yalnız yarım volt ile çalıştığı için','Yarı saydam olduğu için'], c:1,
+      e:'Bakırda her atom bir serbest elektron verir, camda hiç yoktur. Silisyumda az sayıda bağ ısıyla kopar; özdirenç ikisinin arasındadır.' },
+    { q:'Sıcaklık artınca saf silisyumun direnci ne olur?', o:['Azalır','Artar','Değişmez','Sıfır olur'], c:0,
+      e:'Isı daha çok bağ koparır, taşıyıcı sayısı artar, direnç düşer. 25 °C’den 150 °C’ye yaklaşık bin kat.' },
+    { q:'“Delik” nedir?', o:['Kristaldeki bir çatlak','Bir atomun yok olması','Kopuk bir bağdaki eksik elektron; artı yüklü bir parçacık gibi hareket eder','Bir elektron türü'], c:2,
+      e:'Komşu bir elektron boşluğa atlayınca boşluk yer değiştirir. Delikler gerilim altında elektronlara ters yönde akar.' },
+    { q:'N tipi yarı iletken nasıl yapılır?', o:['Silisyuma beş dış elektronlu bir atom (ör. fosfor) katarak','Silisyumu ısıtarak','Silisyuma bor katarak','Silisyumu soğutarak'], c:0,
+      e:'Fosforun beşinci elektronu bağa girmez, serbest kalır. Çoğunluk taşıyıcı elektrondur.' },
+    { q:'P tipinde çoğunluk taşıyıcı nedir?', o:['Elektron','Delik','Proton','Nötron'], c:1,
+      e:'Bor gibi üç dış elektronlu bir katkı bir bağı eksik bırakır: delik. P tipinde akımı çoğunlukla delikler taşır.' },
+    { q:'Beş milyon silisyum atomuna bir fosfor eklemek iletkenliği yaklaşık ne kadar değiştirir?', o:['Hiç','İki kat','Yüz kat','Bir milyon kat'], c:3,
+      e:'10¹⁶ /cm³ katkıda özdirenç 400 kΩ·cm’den 0,45 Ω·cm’ye iner: yaklaşık bir milyon kat.' },
+    { q:'PN birleşiminin ortasındaki tükenme bölgesinde ne vardır?', o:['Çok sayıda serbest elektron','Yalnızca sabit iyonlar; serbest taşıyıcı yok','Hava','Metal bir tabaka'], c:1,
+      e:'Sınırda elektronlar deliklere düşer; geride hareket edemeyen − ve + iyonlar kalır.' },
+    { q:'Diyot ters kutuplandığında ne olur?', o:['Tükenme bölgesi genişler, akım neredeyse sıfırdır','Akım en büyük olur','Diyot ışık verir','Diyot kısa devre olur'], c:0,
+      e:'Artı uç N tarafına bağlanınca taşıyıcılar sınırdan uzaklaşır; yalnız nanoamper düzeyinde bir sızıntı kalır.' },
+    { q:'Silisyum bir diyotta akım yaklaşık hangi gerilimden sonra belirgin biçimde akmaya başlar?', o:['0,1 V','0,6 – 0,7 V','3 V','12 V'], c:1,
+      e:'Akım 0,6 V civarına kadar çok küçüktür, sonra birden artar. Germanyumda eşik ≈ 0,3 V, kırmızı LED’de ≈ 1,8 V.' },
+    { q:'Diyotun şeritli ucu hangisidir?', o:['Anot (P)','Topraklama ucu','Katot (N)','Her iki uç da şeritlidir'], c:2,
+      e:'Gövdedeki şerit katodu gösterir: sembolün çizgili ucu. Akım anottan katoda doğru geçer.' },
+    { q:'Tek diyotlu (yarım dalga) bir doğrultucunun çıkışında ne olur?', o:['Gerilim iki katına çıkar','Yalnız artı yarım dalgalar geçer; tepe ≈ 0,7 V azalır','Çıkış tamamen düz bir doğru gerilim olur','Eksi yarım dalgalar artıya çevrilir'], c:1,
+      e:'Diyot yalnızca bir yönde iletir: eksi yarım dalgalar durur, artı yarımlar diyotun ≈ 0,7 V’unu kaybederek geçer. Çıkış hâlâ dalgalıdır.' },
+    { q:'Pedal girişindeki seri diyot ne işe yarar?', o:['Sesi süzer','Pili şarj eder','Adaptör ters takılırsa akımı durdurup devreyi korur','Gürültü üretir'], c:2,
+      e:'Doğru takılı adaptörde diyot iletir (≈0,7 V kayıpla); ters takılınca kapanır ve devreye ters gerilim ulaşmaz.' },
+    { q:'Distortion pedalındaki iki ters paralel kırpma diyotu ne yapar?', o:['Sinyali bastırıp tamamen susturur','Sinyalin frekansını değiştirir','Pili korur','Eşik gerilimini aşan tepeleri toprağa akıtıp dalganın tepesini keser'], c:3,
+      e:'Diyotlar eşiğe kadar neredeyse kapalıdır; eşiği aşan kısım toprağa akar. Silisyumda ±0,6–0,7 V civarında sert, germanyumda daha düşük ve yumuşak kırpma.' }
+  ];
+  var qi = 0, qok = 0, qDone = [];
+  var qT = document.getElementById('q-text'), qO = document.getElementById('q-opts'),
+      qE = document.getElementById('q-exp'), qC = document.getElementById('q-count'), qN = document.getElementById('q-next');
+  function renderQ(){
+    var q = QS[qi];
+    qT.textContent = (qi+1)+'. '+q.q; qE.textContent = ''; qO.innerHTML = '';
+    q.o.forEach(function(o, k){
+      var b = document.createElement('button'); b.type='button'; b.textContent = o;
+      b.addEventListener('click', function(){
+        Array.prototype.forEach.call(qO.children, function(x){ x.disabled = true; });
+        b.classList.add(k === q.c ? 'correct' : 'wrong');
+        if (k !== q.c) qO.children[q.c].classList.add('correct');
+        qE.innerHTML = q.e;
+        if (!qDone[qi]){ qDone[qi] = true; if (k === q.c) qok++; }
+        qC.textContent = qok+' / '+qDone.filter(Boolean).length+' doğru';
+      });
+      qO.appendChild(b);
+    });
+    qN.textContent = (qi === QS.length-1) ? 'Baştan başla' : 'Sonraki soru';
+  }
+  qN.addEventListener('click', function(){ qi = (qi+1)%QS.length; renderQ(); });
+
+  tabloDoldur(); setMode('yar'); setStep(0, false); renderQ(); sync(); render();
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(render);
+})();
+</script>
