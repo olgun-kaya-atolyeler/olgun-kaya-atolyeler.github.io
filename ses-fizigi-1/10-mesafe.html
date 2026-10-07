@@ -275,11 +275,46 @@ footer a{color:var(--ink-2)}
 #tbl2 td:last-child,#tbl2 th:last-child{text-align:right; min-width:0}
 #tbl2 td,#tbl2 th{padding:6px 9px}
 #tbl2 td:nth-child(n+2){font-family:var(--font-mono); font-variant-numeric:tabular-nums}
+
+/* ---------- 3B yayilma sahneleri ---------- */
+:root{--h-why:340px; --h-inv:650px}
+:root[data-mode="proj"]{--h-why:400px; --h-inv:780px}
+.y3{position:relative; overflow:hidden; background:linear-gradient(180deg,var(--panel) 0%,var(--panel-2) 100%);
+  -webkit-user-select:none; user-select:none}
+.y3 canvas{position:absolute; left:0; top:0; width:100%; height:100%}
+.y3 canvas:first-child{touch-action:pan-y; cursor:grab}
+.y3 canvas:first-child.grab{cursor:grabbing}
+.y3 canvas+canvas{pointer-events:none}
+.y3-why{height:var(--h-why)}
+.y3-inv{height:var(--h-inv)}
+.y3-msg{position:absolute; inset:0; display:grid; place-items:center; padding:24px; text-align:center;
+  color:var(--ink-2); font-size:.95em; background:var(--panel-2)}
+.intro3{display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:10px 22px; margin:0 0 18px; color:var(--ink-2)}
+.intro3 p{margin:0; font-size:.95em}
+.lab{grid-template-columns:minmax(0,1.35fr) minmax(0,1fr)}
+.seg{display:inline-flex; flex-wrap:wrap; border:1px solid var(--line); border-radius:var(--radius); overflow:hidden; background:var(--panel)}
+.seg button{font-family:var(--font-mono); font-size:.74em; letter-spacing:.05em; text-transform:uppercase;
+  background:transparent; color:var(--ink-2); border:0; border-left:1px solid var(--line); padding:8px 11px; cursor:pointer; white-space:nowrap}
+.seg button:first-child{border-left:0}
+.seg button:hover{background:var(--panel-2)}
+.seg button[aria-pressed="true"]{background:var(--ink); color:var(--panel); font-weight:600}
+.seglbl{font-family:var(--font-mono); font-size:.72em; letter-spacing:.08em; text-transform:uppercase; color:var(--ink-3)}
+.seg button:focus-visible,.btn:focus-visible,.pill:focus-visible,.themebar button:focus-visible{outline:2px solid var(--arc); outline-offset:1px}
+#tbl th:last-child,#tbl td:last-child{min-width:0}
+@media (max-width:980px){
+  .lab{grid-template-columns:1fr}
+  .intro3{grid-template-columns:1fr}
+}
+@media (max-width:760px){
+  :root{--h-why:clamp(260px,78vw,330px); --h-inv:calc(clamp(290px,84vw,400px) + 172px)}
+  :root[data-mode="proj"]{--h-why:clamp(300px,90vw,380px); --h-inv:calc(clamp(320px,94vw,440px) + 213px)}
+  .seg button{padding:10px 11px}
+}
 </style>
 </head>
 <body>
 
-<div class="wrap">
+<div class="wrap" lang="tr">
 
 <header class="top">
   <div class="brand">
@@ -301,13 +336,18 @@ footer a{color:var(--ink-2)}
 
   <div class="hook">
     <figure class="canvas-wrap">
-      <div class="canvas-inner"><canvas id="cWhy" aria-label="Bir kaynaktan iki ve dört metre uzaktaki dinleyicilere ulaşan enerji yoğunluğunun karşılaştırması"></canvas></div>
+      <div class="y3 y3-why" id="whyStage">
+        <canvas id="cWhyGL" aria-label="Kaynaktan açılan bir enerji tüpü: 2 metredeki kesitte 4, 4 metredeki kesitte 16 temsili hava molekülü; dalga cepheleri saydam küre çeperleri. Sürükleyerek döndürülebilir."></canvas>
+        <canvas id="cWhyOv" aria-hidden="true"></canvas>
+        <div class="y3-msg" id="whyMsg" hidden>Bu tarayıcı 3B çizimi (WebGL) açamadı. Güncel bir tarayıcıda moleküllerin salınımını görebilirsin.</div>
+      </div>
       <div class="ctrls">
         <div class="btnrow" style="flex:1 1 100%">
           <button type="button" class="btn pri" id="wyShow" aria-pressed="false">Cevabı göster</button>
+          <button type="button" class="btn" id="wyPlay">Titreştir</button>
         </div>
       </div>
-      <figcaption>Cevap <b>yarıya değil, dörtte bire</b>. Mesafe iki katına çıkınca enerjinin yayıldığı yüzey <b>dört</b> katına çıkıyor. Desibelde bu <b>−6 dB</b> demek.</figcaption>
+      <figcaption>Cevap <b>yarıya değil, dörtte bire</b>. Tüpün içinden geçen enerji iki mesafede de aynı; ama 2 m'de <b>4</b>, 4 m'de <b>16</b> temsili molekülü titretiyor. Her molekülün payı dörtte bire, salınımı yarıya iniyor. Desibelde ikisi de <b>−6 dB</b>.</figcaption>
     </figure>
 
     <div class="cols">
@@ -368,16 +408,24 @@ footer a{color:var(--ink-2)}
 <!-- ============ 03 ============ -->
 <section id="s3">
   <h2><span class="num">03</span> Atölye: ters kare yasası</h2>
-  <p style="max-width:70ch; color:var(--ink-2)">Üstte kuş bakışı görünüm: kaynaktan çıkan dalga cepheleri ve dinleyicinin yeri. Altta aynı metre ölçeğinde bir eğri — o mesafedeki şiddetin, 1 metredeki şiddete oranı. Dinleyiciyi kaydır ve eğrinin ne kadar hızlı çöktüğüne bak.</p>
+  <div class="intro3">
+    <p>Kaynağın yaydığı enerjinin küçük bir payını izleyelim: kaynaktan açılan kare kesitli bir <b>enerji tüpü</b>. Ses yana sapmadan dışa doğru ilerlediği için bu tüpün içinden geçen enerji (<b>E</b>) her mesafede aynı.</p>
+    <p>Tüpe 1, 2, 4 ve 8 metrede birer kesit koyduk. Kesitteki toplar havanın <b>temsili molekülleri</b>. Hava her yerde aynı sıklıkta; kesit büyüdükçe içine daha çok molekül sığıyor: 1, 4, 16, 64.</p>
+    <p>Aynı E bu moleküllere bölünüyor. Payı küçülen molekül daha az salınıyor; bunu salınım çizgisinin boyunda görürsün. Saydam küre çeperleri <b>dalga cepheleri</b>. Bir kesite tıkla ya da mesafeyi değiştir.</p>
+  </div>
 
   <div class="lab">
     <div>
       <figure class="canvas-wrap">
-        <div class="canvas-inner"><canvas id="cInv" aria-label="Kaynaktan yayılan dalga cepheleri ve şiddetin mesafeye göre ters kare azalışını gösteren eğri"></canvas></div>
+        <div class="y3 y3-inv" id="invStage">
+          <canvas id="cInvGL" aria-label="Kaynaktan açılan enerji tüpü; her metrede bir kesit ve kesitte metre sayısının karesi kadar temsili molekül; altında salınım genliği ile molekül başına enerjinin mesafeye göre grafiği. Sürükleyerek döndürülebilir, kesite tıklanarak seçilebilir."></canvas>
+          <canvas id="cInvOv" aria-hidden="true"></canvas>
+          <div class="y3-msg" id="invMsg" hidden>Bu tarayıcı 3B çizimi (WebGL) açamadı. Kaydırıcılar ve hesap tablosu yine çalışıyor.</div>
+        </div>
         <div class="legend">
-          <span><i style="background:var(--sin)"></i>şiddet eğrisi</span>
-          <span><i style="background:var(--cos)"></i>dalga cepheleri ve 1 m referansı</span>
-          <span><i style="background:var(--arc)"></i>dinleyicinin yeri</span>
+          <span><i style="background:var(--sin)"></i>kaynak, enerji tüpü, dalga cepheleri, enerji payı</span>
+          <span><i style="background:var(--cos)"></i>moleküller ve salınım genliği</span>
+          <span><i style="background:var(--arc)"></i>seçili kesit</span>
         </div>
         <div class="ctrls">
           <div class="pillrow">
@@ -387,12 +435,18 @@ footer a{color:var(--ink-2)}
             <button type="button" class="pill" data-r="8">8 m</button>
           </div>
           <div class="btnrow" style="flex:1 1 100%">
+            <button type="button" class="btn pri" id="ivPlay">Titreştir</button>
             <button type="button" class="btn" id="ivFront" aria-pressed="true">Dalga cepheleri</button>
             <button type="button" class="btn" id="ivGuide" aria-pressed="true">¼ ve 1/16 çizgileri</button>
+            <span class="seglbl">Bakış</span>
+            <span class="seg" role="group" aria-label="Bakış açısı" id="segV">
+              <button type="button" data-v="3b">3B</button>
+              <button type="button" data-v="yan">Yandan</button>
+            </span>
           </div>
           <div class="ctrl" style="flex:1 1 250px">
-            <label for="ivR"><span>Dinleyici mesafesi <i class="lit">r</i></span><b id="ivRV">1,0 m</b></label>
-            <input type="range" id="ivR" min="1" max="8" step="0.1" value="1">
+            <label for="ivR"><span>Dinleyici mesafesi <i class="lit">r</i></span><b id="ivRV">1 m</b></label>
+            <input type="range" id="ivR" min="0" max="3" step="1" value="0" aria-valuetext="1 metre">
           </div>
           <div class="ctrl" style="flex:1 1 220px">
             <label for="ivP"><span>Akustik güç <i class="lit">P</i></span><b id="ivPV">1,00 W</b></label>
@@ -400,15 +454,15 @@ footer a{color:var(--ink-2)}
           </div>
         </div>
         <div class="readout r3">
-          <div><span>Mesafe <i class="lit">r</i></span><b id="rR">1,0 m</b></div>
-          <div><span>Küre yüzeyi 4π<i class="lit">r²</i></span><b id="rS">12,6 m²</b></div>
-          <div><span>Şiddet <i class="lit">I</i></span><b id="rI">0,0796</b></div>
-          <div><span>1 m'ye oran</span><b id="rO">1,00 ×</b></div>
+          <div><span>Mesafe <i class="lit">r</i></span><b id="rR">1 m</b></div>
+          <div><span>Tüpteki molekül</span><b id="rN">1 molekül</b></div>
+          <div><span>Molekül başına enerji</span><b id="rE">×1</b></div>
+          <div><span>Salınım genliği</span><b id="rA">×1</b></div>
           <div><span>Seviye farkı</span><b id="rD">0,0 dB</b></div>
           <div><span>SPL</span><b id="rL">109 dB</b></div>
         </div>
       </figure>
-      <p class="note" style="margin:10px 0 0">Eğri ilk birkaç metrede dik düşüyor, sonra yatıklaşıyor. Bu yüzden hoparlöre <b>çok yakın</b> yerlerde birkaç adım büyük fark yaratır, salonun arkasında ise iki sıra geri gitmek neredeyse hiç fark ettirmez.</p>
+      <p class="note" style="margin:10px 0 0">Salınımlar <b>abartılı</b> çizildi: konuşma sesinde bir hava molekülü yalnızca nanometreler mertebesinde gidip gelir. Moleküllerin sıklığı her kesitte aynı; değişen, tüpün kesitine sığan molekül sayısı. Grafikteki eğriler ilk metrelerde dik düşüyor, sonra yatıklaşıyor: hoparlöre <b>çok yakın</b> yerlerde birkaç adım büyük fark yaratır, salonun arkasında iki sıra geri gitmek neredeyse hiç fark ettirmez.</p>
     </div>
 
     <div>
@@ -417,7 +471,7 @@ footer a{color:var(--ink-2)}
         <div class="stepnav">
           <button type="button" class="btn" id="stPrev" aria-label="Önceki adım">‹</button>
           <button type="button" class="btn" id="stNext" aria-label="Sonraki adım">›</button>
-          <span class="count" id="stCount">1 / 5</span>
+          <span class="count" id="stCount">1 / 6</span>
         </div>
         <ol class="steplist" id="stList"></ol>
         <p class="note" id="stText"></p>
@@ -431,9 +485,11 @@ footer a{color:var(--ink-2)}
               <tr><td class="lbl">Akustik güç P</td><td class="v" id="vP"></td></tr>
               <tr><td class="lbl">Mesafe r</td><td class="v" id="vR"></td></tr>
               <tr><td class="lbl">Küre yüzeyi 4·π·r²</td><td class="v" id="vS"></td></tr>
-              <tr class="key"><td class="lbl">Şiddet I = P / yüzey</td><td class="v" id="vI"></td></tr>
-              <tr><td class="lbl">1 metredeki şiddete oranı</td><td class="v" id="vO"></td></tr>
-              <tr class="key"><td class="lbl">Seviye farkı = 20·log(1/r)</td><td class="v" id="vD"></td></tr>
+              <tr><td class="lbl">Şiddet I = P / yüzey</td><td class="v" id="vI"></td></tr>
+              <tr class="key"><td class="lbl">Tüpteki molekül = r × r</td><td class="v" id="vN"></td></tr>
+              <tr><td class="lbl">Molekül başına enerji</td><td class="v" id="vE"></td></tr>
+              <tr><td class="lbl">Salınım genliği = √(enerji payı)</td><td class="v" id="vA"></td></tr>
+              <tr class="key"><td class="lbl">Seviye farkı</td><td class="v" id="vD"></td></tr>
             </tbody>
           </table>
         </div>
@@ -442,12 +498,12 @@ footer a{color:var(--ink-2)}
 
       <div class="tablebox" style="margin-top:0">
         <table id="tbl">
-          <caption class="sr-only">Mesafe, şiddet oranı ve seviye farkı</caption>
-          <thead><tr><th>Mesafe</th><th>Şiddet</th><th>Seviye</th></tr></thead>
+          <caption class="sr-only">Mesafe, kesitteki molekül sayısı, molekül başına enerji, salınım ve seviye farkı</caption>
+          <thead><tr><th>Mesafe</th><th>Molekül</th><th>Enerji payı</th><th>Salınım</th><th>Seviye</th></tr></thead>
           <tbody></tbody>
         </table>
       </div>
-      <p class="note">Bir satıra tıkla: dinleyici o mesafeye gider. Her katlamada tam −6 dB.</p>
+      <p class="note">Bir satıra tıkla: dinleyici o mesafeye gider. Her katlamada molekül ×4, salınım ×½, seviye −6 dB.</p>
     </div>
   </div>
 </section>
@@ -574,7 +630,7 @@ footer a{color:var(--ink-2)}
       <ol>
         <li>Ses zayıflar çünkü aynı güç <b>büyüyen bir yüzeye</b> yayılır — kaybolmaz.</li>
         <li>Küre yüzeyi <b>4πr²</b>; bu yüzden <b>I = P/(4πr²)</b>.</li>
-        <li>Mesafe <b>×2</b> → şiddet <b>¼</b> → seviye <b>−6 dB</b>.</li>
+        <li>Mesafe <b>×2</b> → kesitteki molekül <b>×4</b> → her birinin payı <b>¼</b>, salınımı <b>½</b> → seviye <b>−6 dB</b>.</li>
         <li>Kaybı kapatmak için güç, mesafe oranının <b>karesi</b> kadar artmalı.</li>
         <li>Hoparlör verileri <b>1 metrede</b> verilir; oradan katlama sayarak her mesafeyi bulabilirsin.</li>
       </ol>
@@ -790,109 +846,468 @@ function patch(ctx,cx,cy,sz,n,col,hot){
     dot(ctx,cx-sz/2+DOTS[i][0]*sz,cy-sz/2+DOTS[i][1]*sz,1.9,alpha(C.sin,0.9),false);
 }
 
-/* ================= 01 : 2 m ve 4 m ================= */
-var WY={show:false, dirty:true};
-var whyScene=makeScene(document.getElementById('cWhy'),function(ctx,W,H){
-  var pad=12, px0=pad+34, px1=W-pad-16;
-  var RM=5.2, mpp=(px1-px0)/RM;
-  var cy=pad+(H-2*pad)*0.46;
-  var X=function(r){ return px0+r*mpp; };
-  var faint=alpha(C['ink-3'],K.faint);
+/* ================= 3B YAYILMA MOTORU (01 ve 03 sahneleri) ================= */
+/* Kaynak orijinde. +x ekseni boyunca kare kesitli bir "enerji tupu" aciliyor (yari aci 10°).
+   Tupun r metredeki kesitinde (r tam sayi) r×r temsili molekul var: molekul sikligi her yerde ayni,
+   kesitin alani r² ile buyudugu icin sayi da r² ile buyuyor. Ayni enerji E bu molekullere bolunur:
+   molekul basina enerji E/r², salinim genligi ise bunun karekoku, 1/r.
+   Dalga cepheleri kaynak merkezli saydam kure ceperleri (kapak). Genlikler abartilidir. */
+var D2R=Math.PI/180, TB=Math.tan(10*D2R), CAPA=15.5*D2R, LAMV=1.6, A1=0.30, MOLR=0.078, FV=0.5;
 
-  /* dalga cepheleri */
-  ctx.save(); ctx.beginPath(); ctx.rect(pad,pad,W-2*pad,H-2*pad); ctx.clip();
-  for(var k=1;k<=5;k++){
-    ctx.save(); ctx.strokeStyle=alpha(C.cos,0.35); ctx.lineWidth=1.2*K.lw;
-    ctx.beginPath(); ctx.arc(px0,cy,k*mpp,-1.15,1.15,false); ctx.stroke(); ctx.restore();
+function sub3(a,b){ return [a[0]-b[0],a[1]-b[1],a[2]-b[2]]; }
+function dot3(a,b){ return a[0]*b[0]+a[1]*b[1]+a[2]*b[2]; }
+function cross3(a,b){ return [a[1]*b[2]-a[2]*b[1],a[2]*b[0]-a[0]*b[2],a[0]*b[1]-a[1]*b[0]]; }
+function adds(a,b,s){ return [a[0]+b[0]*s,a[1]+b[1]*s,a[2]+b[2]*s]; }
+function nrm3(a){ var m=Math.sqrt(dot3(a,a))||1; return [a[0]/m,a[1]/m,a[2]/m]; }
+function clamp(v,a,b){ return v<a?a:(v>b?b:v); }
+function fr(v){ return v-Math.floor(v); }
+function mmul(a,b){
+  var o=new Float32Array(16);
+  for(var c=0;c<4;c++) for(var r=0;r<4;r++)
+    o[c*4+r]=a[r]*b[c*4]+a[4+r]*b[c*4+1]+a[8+r]*b[c*4+2]+a[12+r]*b[c*4+3];
+  return o;
+}
+function hex3(h){
+  h=(h||'#888').replace('#','').trim(); if(h.length===3) h=h[0]+h[0]+h[1]+h[1]+h[2]+h[2];
+  var n=parseInt(h,16); if(isNaN(n)) return [.5,.5,.5];
+  return [((n>>16)&255)/255,((n>>8)&255)/255,(n&255)/255];
+}
+function mix3(a,b,k){ return [a[0]+(b[0]-a[0])*k,a[1]+(b[1]-a[1])*k,a[2]+(b[2]-a[2])*k]; }
+function c4(c,a){ return [c[0],c[1],c[2],a]; }
+function easeIO(x){ return x<.5?4*x*x*x:1-Math.pow(-2*x+2,3)/2; }
+
+/* r metredeki kesitin molekul yonleri (birim vektor) */
+function katmanYon(n){
+  var o=[];
+  for(var i=0;i<n;i++) for(var j=0;j<n;j++){
+    var a=TB*(2*(i+0.5)/n-1), b=TB*(2*(j+0.5)/n-1);
+    o.push(nrm3([1,a,b]));
   }
-  ctx.restore();
+  return o;
+}
+function genlik(r,P){ return A1*Math.sqrt(P)/r; }
 
-  speaker(ctx,px0,cy,9,C.sin);
-  line(ctx,px0,cy,px1,cy,faint,1,[4,6]);
+/* ---------- golgelendiriciler ---------- */
+var FCOMMON=[
+'float fw(float v){',
+'#ifdef HAS_DER',
+' return max(fwidth(v),1e-6);',
+'#else',
+' return 0.006;',
+'#endif',
+'}',
+'float gl1(float v,float st,float px){ float w=fw(v); float d=abs(fract(v/st+.5)-.5)*st;',
+' return clamp(px*.5+.5-d/w,0.,1.)*smoothstep(3.,9.,st/w); }',
+''].join('\n');
+var VS_PL='attribute vec2 aUV;uniform mat4 uVP;uniform vec3 uO,uU,uV;varying vec3 vP;'+
+ 'void main(){vec3 p=uO+uU*aUV.x+uV*aUV.y;vP=p;gl_Position=uVP*vec4(p,1.);}';
+var FS_FLOOR='uniform vec3 uBase,uG1,uG2;uniform float uLw,uX0,uX1,uYH;varying vec3 vP;void main(){'+
+ 'vec3 c=uBase;float a1=max(gl1(vP.x,.5,uLw),gl1(vP.y,.5,uLw));'+
+ 'float a2=max(gl1(vP.x,1.,1.5*uLw),gl1(vP.y,1.,1.5*uLw));'+
+ 'c=mix(c,uG1,a1*.7);c=mix(c,uG2,a2*.85);'+
+ /* kenarlara dogru yumusak sonme: zemin sonsuz bir duzlemin parcasi gibi gorunsun */
+ 'float ex=min(vP.x-uX0,uX1-vP.x),ey=uYH-abs(vP.y);float al=smoothstep(0.,.9,ex)*smoothstep(0.,.9,ey);'+
+ 'gl_FragColor=vec4(c*al,al);}';
+var VS_MOL='attribute vec3 aP;uniform mat4 uVP;uniform vec3 uC;uniform float uR;varying vec3 vN;varying vec3 vW;'+
+ 'void main(){vN=aP;vec3 w=uC+aP*uR;vW=w;gl_Position=uVP*vec4(w,1.);}';
+var FS_MOL='uniform vec3 uEye,uL,uCol,uSpecC;uniform float uAmb,uDif,uSpec,uRimA,uGlow;varying vec3 vN;varying vec3 vW;void main(){'+
+ 'vec3 n=normalize(vN);vec3 V=normalize(uEye-vW);float d=max(dot(n,uL),0.);vec3 H=normalize(uL+V);'+
+ 'float s=pow(max(dot(n,H),0.),42.)*uSpec;float r=pow(1.-max(dot(n,V),0.),2.4);'+
+ 'vec3 c=uCol*(uAmb+uDif*d)+uSpecC*s+uCol*r*uRimA+uCol*uGlow;gl_FragColor=vec4(c,1.);}';
+var VS_CAP='attribute vec2 aPT;uniform mat4 uVP;uniform float uR,uCap;varying vec3 vP;varying vec2 vPT;'+
+ 'void main(){float ph=aPT.x*uCap,th=aPT.y*6.2831853;vec3 d=vec3(cos(ph),sin(ph)*cos(th),sin(ph)*sin(th));'+
+ 'vec3 p=d*uR;vP=p;vPT=aPT;gl_Position=uVP*vec4(p,1.);}';
+var FS_CAP='uniform vec3 uEye,uCol;uniform float uA,uLw;varying vec3 vP;varying vec2 vPT;void main(){'+
+ 'vec3 n=normalize(vP);vec3 V=normalize(uEye-vP);float f=pow(1.-abs(dot(n,V)),2.);'+
+ 'float edge=1.-smoothstep(.94,1.,vPT.x);'+
+ 'float g=max(gl1(vPT.x,.25,uLw),gl1(vPT.y,1./12.,uLw));'+
+ 'float a=uA*(.38+.62*f+.9*g)*edge;gl_FragColor=vec4(uCol*a,a);}';
+var VS_LN='attribute vec3 aA,aB;attribute float aS,aE,aW,aD;attribute vec4 aC;'+
+ 'uniform mat4 uVP;uniform vec2 uRes;uniform float uZo;'+
+ 'varying vec4 vC;varying float vX,vHW,vL,vWc,vD;void main(){'+
+ 'vec4 ca=uVP*vec4(aA,1.),cb=uVP*vec4(aB,1.);'+
+ 'vec2 sa=ca.xy/ca.w*uRes*.5,sb=cb.xy/cb.w*uRes*.5;vec2 d=sb-sa;float L=length(d);'+
+ 'vec2 t=L>1e-4?d/L:vec2(1.,0.);vec2 n=vec2(-t.y,t.x);float hw=aW*.5+1.;'+
+ 'vec4 c=aE<.5?ca:cb;vec2 off=n*aS*hw+t*(aE*2.-1.)*(aW*.5);'+
+ 'c.xy+=off/(uRes*.5)*c.w;c.z-=uZo*c.w;gl_Position=c;'+
+ 'vC=aC;vX=aS*hw;vHW=aW*.5;float al=aE<.5?-aW*.5:L+aW*.5;vL=al*c.w;vWc=c.w;vD=aD;}';
+var FS_LN='varying vec4 vC;varying float vX,vHW,vL,vWc,vD;void main(){'+
+ 'float a=clamp(vHW+.5-abs(vX),0.,1.);'+
+ 'if(vD>0.){float s=vL/vWc;if(mod(s,vD*2.)>vD)discard;}'+
+ 'gl_FragColor=vec4(vC.rgb*vC.a*a,vC.a*a);}';
 
-  var sz=Math.min(40,mpp*0.9);
-  patch(ctx,X(2),cy,sz,40,C.arc,true);
-  patch(ctx,X(4),cy,sz,10,C.arc,true);
-  person(ctx,X(2),cy+sz/2+34,20,alpha(C.cos,0.9),false);
-  person(ctx,X(4),cy+sz/2+34,20,alpha(C.cos,0.9),false);
-  label(ctx,'2 m',X(2),cy+sz/2+50,C.cos,11,'center');
-  label(ctx,'4 m',X(4),cy+sz/2+50,C.cos,11,'center');
-  label(ctx,'1 m²',X(2),cy-sz/2-8,C.arc,10,'center');
-  label(ctx,'1 m²',X(4),cy-sz/2-8,C.arc,10,'center');
+var MAXSEG=2400, LSTRIDE=14;
+function glKur(cv){
+  var gl=null, opt={antialias:true,alpha:true,premultipliedAlpha:true};
+  try{ gl=cv.getContext('webgl',opt)||cv.getContext('experimental-webgl',opt); }catch(e){ gl=null; }
+  if(!gl) return null;
+  try{
+    var der=!!gl.getExtension('OES_standard_derivatives');
+    var hp=gl.getShaderPrecisionFormat?gl.getShaderPrecisionFormat(gl.FRAGMENT_SHADER,gl.HIGH_FLOAT):null;
+    var FH=(der?'#extension GL_OES_standard_derivatives : enable\n#define HAS_DER 1\n':'')+
+           'precision '+((hp&&hp.precision>0)?'highp':'mediump')+' float;\n'+FCOMMON;
+    var sh=function(type,src){
+      var s=gl.createShader(type); gl.shaderSource(s,src); gl.compileShader(s);
+      if(!gl.getShaderParameter(s,gl.COMPILE_STATUS)) throw new Error(gl.getShaderInfoLog(s));
+      return s;
+    };
+    var mk=function(vs,fs){
+      var p=gl.createProgram();
+      gl.attachShader(p,sh(gl.VERTEX_SHADER,vs)); gl.attachShader(p,sh(gl.FRAGMENT_SHADER,FH+fs));
+      gl.linkProgram(p);
+      if(!gl.getProgramParameter(p,gl.LINK_STATUS)) throw new Error(gl.getProgramInfoLog(p));
+      var o={p:p,u:{},a:{}};
+      o.U=function(n){ if(!(n in o.u)) o.u[n]=gl.getUniformLocation(p,n); return o.u[n]; };
+      o.A=function(n){ if(!(n in o.a)) o.a[n]=gl.getAttribLocation(p,n); return o.a[n]; };
+      return o;
+    };
+    var G={gl:gl,cv:cv,en:[]};
+    G.P={floor:mk(VS_PL,FS_FLOOR),mol:mk(VS_MOL,FS_MOL),cap:mk(VS_CAP,FS_CAP),line:mk(VS_LN,FS_LN)};
+    var buf=function(type,data){ var b=gl.createBuffer(); gl.bindBuffer(type,b); gl.bufferData(type,data,gl.STATIC_DRAW); return b; };
+    G.quad=buf(gl.ARRAY_BUFFER,new Float32Array([0,0,1,0,1,1,0,1]));
+    G.quadI=buf(gl.ELEMENT_ARRAY_BUFFER,new Uint16Array([0,1,2,0,2,3]));
+    /* kure (molekul ve kaynak) */
+    var NS=22, NT=14, v=[], id=[], i, j;
+    for(j=0;j<=NT;j++){ var th=Math.PI*j/NT; for(i=0;i<=NS;i++){ var ph=2*Math.PI*i/NS;
+      v.push(Math.sin(th)*Math.cos(ph),Math.sin(th)*Math.sin(ph),Math.cos(th)); } }
+    for(j=0;j<NT;j++) for(i=0;i<NS;i++){ var a=j*(NS+1)+i, b=a+NS+1; id.push(a,b,a+1,a+1,b,b+1); }
+    G.sph={vb:buf(gl.ARRAY_BUFFER,new Float32Array(v)),ib:buf(gl.ELEMENT_ARRAY_BUFFER,new Uint16Array(id)),n:id.length};
+    /* kure kapagi (dalga cephesi) */
+    var NR=26, NA=72; v=[]; id=[];
+    for(j=0;j<=NR;j++) for(i=0;i<=NA;i++) v.push(j/NR,i/NA);
+    for(j=0;j<NR;j++) for(i=0;i<NA;i++){ var a2=j*(NA+1)+i, b2=a2+NA+1; id.push(a2,b2,a2+1,a2+1,b2,b2+1); }
+    G.cap={vb:buf(gl.ARRAY_BUFFER,new Float32Array(v)),ib:buf(gl.ELEMENT_ARRAY_BUFFER,new Uint16Array(id)),n:id.length};
+    /* cizgi tamponu */
+    G.lData=new Float32Array(MAXSEG*4*LSTRIDE);
+    var li=new Uint16Array(MAXSEG*6);
+    for(var s2=0;s2<MAXSEG;s2++){ var b3=s2*4; li.set([b3,b3+1,b3+2,b3+2,b3+1,b3+3],s2*6); }
+    G.lb=gl.createBuffer(); gl.bindBuffer(gl.ARRAY_BUFFER,G.lb); gl.bufferData(gl.ARRAY_BUFFER,G.lData.byteLength,gl.DYNAMIC_DRAW);
+    G.lib=buf(gl.ELEMENT_ARRAY_BUFFER,li);
+    return G;
+  }catch(err){ if(window.console) console.warn('3B sahne kurulamadı:',err); return null; }
+}
 
-  if(WY.show){
-    label(ctx,'×1',X(2),cy-sz/2-24,C.sin,13,'center');
-    label(ctx,'×¼  (−6 dB)',X(4),cy-sz/2-24,C.sin,13,'center');
-  } else {
-    label(ctx,'×1',X(2),cy-sz/2-24,C.sin,13,'center');
-    label(ctx,'×?',X(4),cy-sz/2-24,C.arc,14,'center');
-  }
-});
+/* ---------- sahne ornegi ---------- */
+/* cfg: {gl,ov,wrap,msg, layers:[...], rEnd, st, view:{az,el,fov}, views, chartH(W), overlay(S,ctx,W,H), pick} */
+function Yayilma(cfg){
+  var S={cfg:cfg, st:cfg.st, GL:null, CAM:{az:cfg.view.az,el:cfg.view.el,lf:Math.log(cfg.view.fov),an:null,view:'3b',VP:null,eye:[0,0,0],dir:[0,0,1],W:1,H:1},
+         LNV:[], LNH:[], CHIPS:[], dpr:1};
+  var cv=document.getElementById(cfg.gl), ov=document.getElementById(cfg.ov);
+  S.cv=cv; S.ov=ov; S.octx=ov.getContext('2d');
+  S.capW=cfg.rEnd*Math.sin(CAPA); S.fz=-(S.capW+0.18);
+  S.dirs={}; cfg.layers.forEach(function(n){ S.dirs[n]=katmanYon(n); });
+  /* kadraja sigdirilacak noktalar: kaynak, en dis dalga cephesinin kenari, zemin cetveli ve yazilari */
+  var BOX=[[-0.45,0,0],[0,0,0.35],[0,0,-0.4]];
+  for(var q=0;q<12;q++){ var th=2*Math.PI*q/12;
+    BOX.push([cfg.rEnd*Math.cos(CAPA),cfg.rEnd*Math.sin(CAPA)*Math.cos(th),cfg.rEnd*Math.sin(CAPA)*Math.sin(th)]); }
+  [0,cfg.rEnd].forEach(function(x){ BOX.push([x,0,S.fz]); BOX.push([x,-0.7,S.fz-0.3]); BOX.push([x,0.7,S.fz-0.3]); });
 
-/* ================= 03 : ters kare yasasi ================= */
-var IV={r:1, P:1, front:true, guide:true, dirty:true};
-function ivI(r){ return IV.P/(4*Math.PI*r*r); }
-function ivRel(r){ return 1/(r*r); }
-function spl(I){ return 10*Math.log(I/I0)/Math.LN10; }
-var invScene=makeScene(document.getElementById('cInv'),function(ctx,W,H){
-  var pad=12, px0=pad+34, px1=W-pad-14;
-  var mpp=(px1-px0)/RMAX;
-  var X=function(r){ return px0+r*mpp; };
-  var faint=alpha(C['ink-3'],K.faint);
-  var yP0=pad+16, hP=Math.max(70,Math.min(128,(H-2*pad)*0.31)), yP1=yP0+hP;
-  var cyP=(yP0+yP1)/2;
-  var gTop=yP1+26, gAx=H-pad-26;
-  var GY=function(v){ return gAx-v*(gAx-gTop); };
+  S.GL=glKur(cv);
+  if(!S.GL){ var m=document.getElementById(cfg.msg); if(m) m.hidden=false; }
 
-  /* --- plan gorunumu --- */
-  ctx.save(); ctx.beginPath(); ctx.rect(px0-24,yP0,px1-px0+30,hP); ctx.clip();
-  if(IV.front){
-    for(var k=1;k<=Math.ceil(RMAX);k++){
-      ctx.save(); ctx.strokeStyle=alpha(C.cos,k===1?0.75:0.32); ctx.lineWidth=(k===1?1.8:1.1)*K.lw;
-      ctx.beginPath(); ctx.arc(px0,cyP,k*mpp,-1.5,1.5,false); ctx.stroke(); ctx.restore();
+  /* --- kamera --- */
+  S.goView=function(v,instant){
+    var t=cfg.views&&cfg.views[v]; if(!t) return;
+    var C2=S.CAM; C2.view=v; if(cfg.onView) cfg.onView(v); S.st.dirty=true;
+    if(instant||mqSlow.matches){ C2.az=t.az; C2.el=t.el; C2.lf=Math.log(t.fov); C2.an=null; return; }
+    if(Math.abs(C2.az-t.az)<0.01&&Math.abs(C2.el-t.el)<0.01&&Math.abs(C2.lf-Math.log(t.fov))<0.001){ C2.an=null; return; }
+    C2.an={t0:performance.now(),dur:1000,az:[C2.az,t.az],el:[C2.el,t.el],lf:[C2.lf,Math.log(t.fov)]};
+  };
+  S.camStep=function(now){
+    var a=S.CAM.an; if(!a) return false;
+    var k=clamp((now-a.t0)/a.dur,0,1), e=easeIO(k);
+    if(a.az) S.CAM.az=a.az[0]+(a.az[1]-a.az[0])*e;
+    if(a.el) S.CAM.el=a.el[0]+(a.el[1]-a.el[0])*e;
+    if(a.lf) S.CAM.lf=a.lf[0]+(a.lf[1]-a.lf[0])*e;
+    if(k>=1) S.CAM.an=null;
+    return true;
+  };
+  function camUpdate(W,H){
+    var C2=S.CAM, a=C2.az*D2R, e=C2.el*D2R, fov=Math.exp(C2.lf)*D2R;
+    var ce=Math.cos(e), dir=[ce*Math.sin(a),-ce*Math.cos(a),Math.sin(e)];
+    var fw=[-dir[0],-dir[1],-dir[2]], r=[Math.cos(a),Math.sin(a),0], u=cross3(r,fw);
+    var th=Math.tan(fov/2), tw=th*W/H, nar=W<520, ch=cfg.chartH?cfg.chartH(W):0;
+    var ml=nar?10:22, mr=nar?10:22, mt=nar?40:46, mb=(nar?34:40)+ch;
+    var ax0=-1+2*ml/W, ax1=1-2*mr/W, ay0=-1+2*mb/H, ay1=1-2*mt/H;
+    var acx=(ax0+ax1)/2, acy=(ay0+ay1)/2, ahx=(ax1-ax0)/2, ahy=(ay1-ay0)/2;
+    var c=[cfg.rEnd/2,0,(S.fz+S.capW)/2], d=cfg.rEnd/Math.sin(fov/2);
+    for(var it=0;it<10;it++){
+      var eye=adds(c,fw,-d), mnx=1e9,mxx=-1e9,mny=1e9,mxy=-1e9;
+      for(var i=0;i<BOX.length;i++){
+        var rel=sub3(BOX[i],eye), zc=dot3(rel,fw);
+        var xn=dot3(rel,r)/(zc*tw), yn=dot3(rel,u)/(zc*th);
+        if(xn<mnx) mnx=xn; if(xn>mxx) mxx=xn; if(yn<mny) mny=yn; if(yn>mxy) mxy=yn;
+      }
+      var cx=(mnx+mxx)/2, cy=(mny+mxy)/2, s=Math.max((mxx-mnx)/2/ahx,(mxy-mny)/2/ahy);
+      c=adds(c,r,(cx-acx)*d*tw); c=adds(c,u,(cy-acy)*d*th); d*=s;
     }
+    var eye2=adds(c,fw,-d), RR=cfg.rEnd+4, near=Math.max(0.05,d-RR), far=d+RR;
+    var V=new Float32Array([r[0],u[0],dir[0],0, r[1],u[1],dir[1],0, r[2],u[2],dir[2],0,
+      -dot3(r,eye2),-dot3(u,eye2),-dot3(dir,eye2),1]);
+    var f1=1/th, nf=1/(near-far);
+    var P=new Float32Array([f1*H/W,0,0,0, 0,f1,0,0, 0,0,(far+near)*nf,-1, 0,0,2*far*near*nf,0]);
+    C2.VP=mmul(P,V); C2.eye=eye2; C2.dir=dir; C2.W=W; C2.H=H;
   }
-  ctx.restore();
-  speaker(ctx,px0,cyP,9,C.sin);
-  line(ctx,px0,cyP,px1,cyP,faint,1,[4,6]);
-  label(ctx,'kuş bakışı',px0-26,yP0-4,alpha(C['ink-3'],0.95),10,'left');
-  var szp=Math.min(30,mpp*0.8);
-  patch(ctx,X(IV.r),cyP,szp,Math.max(2,Math.round(44*ivRel(IV.r))),C.arc,true);
-  label(ctx,'dinleyici · 1 m²',X(IV.r),cyP+szp/2+16,C.arc,10,'center',true);
+  S.proj=function(p){
+    var m=S.CAM.VP;
+    var x=m[0]*p[0]+m[4]*p[1]+m[8]*p[2]+m[12], y=m[1]*p[0]+m[5]*p[1]+m[9]*p[2]+m[13],
+        w=m[3]*p[0]+m[7]*p[1]+m[11]*p[2]+m[15];
+    return {x:(x/w*.5+.5)*S.CAM.W, y:(.5-y/w*.5)*S.CAM.H, w:w};
+  };
 
-  /* --- grafik --- */
-  line(ctx,px0,gAx,px1,gAx,alpha(C['ink-3'],0.55),1.2);
-  line(ctx,px0,gAx,px0,gTop-4,alpha(C['ink-3'],0.55),1.2);
-  var t;
-  for(t=0;t<=RMAX+1e-9;t+=1){
-    line(ctx,X(t),gAx,X(t),gAx+5,alpha(C['ink-3'],0.5),1);
-    if(t>0) axLab(ctx,nf(t,0)+(Math.abs(t-8)<1e-9?' m':''),X(t),gAx+17,px0,px1,alpha(C['ink-3'],0.95),9);
+  /* --- renkler --- */
+  var GC={};
+  function glColors(){
+    var dark=isDarkNow();
+    var panel=hex3(C.panel), p2=hex3(C['panel-2']), gr=hex3(C.ground), ink=hex3(C.ink), i3=hex3(C['ink-3']),
+        ln=hex3(C.line), sn=hex3(C.sin), cs=hex3(C.cos), ar=hex3(C.arc);
+    GC={dark:dark,sin:sn,cos:cs,arc:ar,i3:i3,ink:ink};
+    GC.floor=mix3(p2,gr,dark?0.35:0.45);
+    GC.g1=mix3(GC.floor,ln,dark?0.55:0.5); GC.g2=mix3(GC.floor,i3,dark?0.42:0.38);
+    GC.edge=dark?mix3(i3,ink,0.15):mix3(i3,ink,0.25);
+    GC.mol=dark?mix3(cs,[1,1,1],0.05):mix3(cs,[1,1,1],0.12);
+    GC.molDim=dark?mix3(cs,gr,0.35):mix3(cs,[1,1,1],0.42);
+    GC.shell=dark?sn:mix3(sn,[1,1,1],0.05);
+    GC.amb=dark?0.38:0.5; GC.dif=dark?0.72:0.6; GC.spc=dark?0.6:0.42; GC.rimA=dark?0.35:0.22;
+    GC.spec=[1,1,1];
+    GC.L=nrm3([-0.45,-0.6,0.66]);
   }
-  if(IV.guide){
-    [[1,'×1'],[0.25,'¼'],[0.0625,'1/16']].forEach(function(g){
-      line(ctx,px0,GY(g[0]),px1,GY(g[0]),alpha(C.cos,0.4),1,[5,5]);
-      label(ctx,g[1],px0-4,GY(g[0])+4,alpha(C.cos,0.95),10,'right');
+
+  /* --- cizgi toplayici --- */
+  function seg3(a,b,col,w,dash,hid){
+    S.LNV.push([a,b,col,w,dash||0]);
+    if(hid) S.LNH.push([a,b,[col[0],col[1],col[2],col[3]*hid[0]],w,hid[1]||0]);
+  }
+  function flush(list,off){
+    var d=S.GL.lData, k=off*4*LSTRIDE, dpr=S.dpr, n=Math.min(list.length,MAXSEG-off);
+    for(var i=0;i<n;i++){
+      var s=list[i], a=s[0], b=s[1], c=s[2], w=s[3]*dpr*K.lw, ds=s[4]*dpr*K.lw;
+      for(var e=0;e<2;e++) for(var sd=-1;sd<=1;sd+=2){
+        d[k++]=a[0]; d[k++]=a[1]; d[k++]=a[2]; d[k++]=b[0]; d[k++]=b[1]; d[k++]=b[2];
+        d[k++]=sd; d[k++]=e; d[k++]=c[0]; d[k++]=c[1]; d[k++]=c[2]; d[k++]=c[3]; d[k++]=w; d[k++]=ds;
+      }
+    }
+    return n;
+  }
+  function useAttribs(locs){
+    var gl=S.GL.gl;
+    S.GL.en.forEach(function(l){ if(locs.indexOf(l)<0) gl.disableVertexAttribArray(l); });
+    locs.forEach(function(l){ if(S.GL.en.indexOf(l)<0) gl.enableVertexAttribArray(l); });
+    S.GL.en=locs.slice();
+  }
+  function useP(o){ var gl=S.GL.gl; gl.useProgram(o.p); gl.uniformMatrix4fv(o.U('uVP'),false,S.CAM.VP); }
+  function U1(o,n,v){ S.GL.gl.uniform1f(o.U(n),v); }
+  function U3(o,n,v){ S.GL.gl.uniform3f(o.U(n),v[0],v[1],v[2]); }
+
+  /* dalga cephesinin saydamligi: enerji yogunlugu 1/r² ile seyrelir, tabanla gorunur kalir */
+  function shellA(rc,dark){
+    var aa=Math.min(0.5,(dark?0.12:0.16)+0.32/Math.pow(Math.max(rc,0.7),2));
+    return aa*clamp(rc/0.45,0,1)*(1-clamp((rc-(cfg.rEnd-0.6))/0.6,0,1));
+  }
+  S.shellRadii=function(){
+    var rs=[], p0=fr(FV*S.st.t);
+    for(var j=0;;j++){ var rc=LAMV*(p0+j); if(rc>cfg.rEnd+0.05) break; rs.push(rc); }
+    return rs;
+  };
+  /* kesit cercevesi: kure uzerinde egri kare */
+  function katmanCerceve(r,col,w,hid){
+    var NSEG=10, ed=[[-1,-1,1,-1],[1,-1,1,1],[1,1,-1,1],[-1,1,-1,-1]];
+    ed.forEach(function(e){
+      var prev=null;
+      for(var k=0;k<=NSEG;k++){
+        var t=k/NSEG, a=TB*(e[0]+(e[2]-e[0])*t), b=TB*(e[1]+(e[3]-e[1])*t), p=adds([0,0,0],nrm3([1,a,b]),r);
+        if(prev) seg3(prev,p,col,w,0,hid);
+        prev=p;
+      }
     });
-    [1,2,4].forEach(function(r){ line(ctx,X(r),GY(ivRel(r)),X(r),gAx,alpha(C.cos,0.28),1,[3,4]); });
   }
-  label(ctx,'şiddet (1 m’ye göre)',px0-26,gTop-8,alpha(C['ink-3'],0.95),10,'left');
+  S.katmanUst=function(r){ return adds([0,0,0],nrm3([1,0,TB]),r); };
 
-  ctx.save(); ctx.strokeStyle=C.sin; ctx.lineWidth=2.9*K.lw; ctx.lineJoin='round'; gOn(ctx,C.sin,11);
-  ctx.beginPath();
-  var first=true;
-  for(var p=X(1);p<=px1;p+=1){
-    var r=(p-px0)/mpp, y=GY(Math.min(1,ivRel(r)));
-    if(first){ ctx.moveTo(p,y); first=false; } else ctx.lineTo(p,y);
+  function buildLines(){
+    S.LNV=[]; S.LNH=[];
+    var st=S.st, sel=st.r, P=st.P||1, tw=2*Math.PI*FV*st.t;
+    /* zemin cetveli: kaynaktan gecen eksenin tam altinda */
+    var fz=S.fz+0.003;
+    seg3([0,0,fz],[cfg.rEnd,0,fz],c4(GC.edge,0.85),1.2);
+    for(var x=0;x<=cfg.rEnd+1e-9;x+=0.5){
+      var big=Math.abs(x-Math.round(x))<1e-6, L=big?0.16:0.08;
+      seg3([x,-L,fz],[x,L,fz],c4(GC.edge,big?0.9:0.6),big?1.3:1.0);
+    }
+    /* dalga cephelerinin kenar halkasi: kure kapaginin siniri */
+    if(st.front!==false){
+      S.shellRadii().forEach(function(rc){
+        var a=shellA(rc,GC.dark)*1.5, prev=null, NSG=56;
+        for(var q=0;q<=NSG;q++){
+          var th=2*Math.PI*q/NSG, p=[rc*Math.cos(CAPA),rc*Math.sin(CAPA)*Math.cos(th),rc*Math.sin(CAPA)*Math.sin(th)];
+          if(prev) seg3(prev,p,c4(GC.shell,Math.min(0.85,a)),1.3,0,[0.4,0]);
+          prev=p;
+        }
+      });
+    }
+    /* enerji tupu kenarlari */
+    [[1,1],[1,-1],[-1,1],[-1,-1]].forEach(function(q){
+      var d=nrm3([1,q[0]*TB,q[1]*TB]);
+      seg3(adds([0,0,0],d,0.2),adds([0,0,0],d,cfg.rEnd),c4(GC.sin,0.85),1.5,0,[0.35,4]);
+    });
+    /* katmanlar: cerceve, zemine inen cizgi, molekul salinim cizgileri */
+    cfg.layers.forEach(function(n){
+      var on=(n===sel), A=genlik(n,P);
+      katmanCerceve(n,on?c4(GC.arc,0.95):c4(GC.cos,0.5),on?2.2:1.2,[on?0.5:0.3,3]);
+      var bot=adds([0,0,0],nrm3([1,0,-TB]),n);
+      seg3(bot,[bot[0],0,S.fz],c4(on?GC.arc:GC.edge,on?0.7:0.35),1,4);
+      S.dirs[n].forEach(function(d){
+        seg3(adds([0,0,0],d,n-A),adds([0,0,0],d,n+A),on?c4(GC.arc,0.95):c4(GC.cos,0.75),on?2.3:1.9);
+      });
+    });
   }
-  ctx.stroke(); gOff(ctx); ctx.restore();
 
-  /* secili mesafe */
-  var xr=X(IV.r);
-  line(ctx,xr,yP0,xr,gAx,alpha(C.arc,0.55),1.5,[6,4]);
-  dot(ctx,xr,GY(Math.min(1,ivRel(IV.r))),4.8,C.arc,true);
-  label(ctx,nf(IV.r,1)+' m',xr,gAx+17,C.arc,11,'center',true);
-  label(ctx,'×'+nf(ivRel(IV.r),3),xr+9,GY(Math.min(1,ivRel(IV.r)))+4,C.arc,11,'left',true);
-});
+  /* --- ciz --- */
+  S.render=function(){
+    if(!S.GL) return;
+    var gl=S.GL.gl, r=cv.getBoundingClientRect();
+    var W=Math.max(2,r.width), H=Math.max(2,r.height), dpr=Math.min(2,window.devicePixelRatio||1);
+    var pw=Math.round(W*dpr), ph=Math.round(H*dpr);
+    if(cv.width!==pw||cv.height!==ph){ cv.width=pw; cv.height=ph; ov.width=pw; ov.height=ph; }
+    S.dpr=dpr; glColors(); camUpdate(W,H);
+    var st=S.st, P=st.P||1, w=2*Math.PI*FV*st.t, k=2*Math.PI/LAMV;
+
+    gl.viewport(0,0,pw,ph); gl.clearColor(0,0,0,0); gl.depthMask(true);
+    gl.clear(gl.COLOR_BUFFER_BIT|gl.DEPTH_BUFFER_BIT);
+    gl.enable(gl.DEPTH_TEST); gl.depthFunc(gl.LEQUAL); gl.disable(gl.CULL_FACE);
+    gl.enable(gl.BLEND); gl.blendFunc(gl.ONE,gl.ONE_MINUS_SRC_ALPHA);
+    /* zemin */
+    var o=S.GL.P.floor; useP(o); U3(o,'uBase',GC.floor); U3(o,'uG1',GC.g1); U3(o,'uG2',GC.g2); U1(o,'uLw',K.lw);
+    U1(o,'uX0',-1.2); U1(o,'uX1',cfg.rEnd+0.8); U1(o,'uYH',S.capW+0.6);
+    U3(o,'uO',[-1.2,-(S.capW+0.6),S.fz]); U3(o,'uU',[cfg.rEnd+2.0,0,0]); U3(o,'uV',[0,2*(S.capW+0.6),0]);
+    gl.bindBuffer(gl.ARRAY_BUFFER,S.GL.quad); var l=o.A('aUV'); useAttribs([l]);
+    gl.vertexAttribPointer(l,2,gl.FLOAT,false,0,0);
+    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER,S.GL.quadI); gl.drawElements(gl.TRIANGLES,6,gl.UNSIGNED_SHORT,0);
+    gl.disable(gl.BLEND);
+    /* molekuller ve kaynak (opak) */
+    o=S.GL.P.mol; useP(o);
+    U3(o,'uEye',S.CAM.eye); U3(o,'uL',GC.L); U3(o,'uSpecC',GC.spec);
+    U1(o,'uAmb',GC.amb); U1(o,'uDif',GC.dif); U1(o,'uSpec',GC.spc); U1(o,'uRimA',GC.rimA);
+    gl.bindBuffer(gl.ARRAY_BUFFER,S.GL.sph.vb); l=o.A('aP'); useAttribs([l]);
+    gl.vertexAttribPointer(l,3,gl.FLOAT,false,0,0);
+    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER,S.GL.sph.ib);
+    var dark=GC.dark;
+    /* kaynak: nabiz gibi atan kure */
+    U3(o,'uCol',GC.sin); U1(o,'uGlow',dark?0.25:0.05);
+    U3(o,'uC',[0,0,0]); U1(o,'uR',0.17*(1+0.22*Math.sqrt(P)*Math.sin(w)));
+    gl.drawElements(gl.TRIANGLES,S.GL.sph.n,gl.UNSIGNED_SHORT,0);
+    cfg.layers.forEach(function(n){
+      var on=(n===st.r), A=genlik(n,P), xi=A*Math.sin(w-k*n);
+      U3(o,'uCol',on?GC.arc:GC.mol); U1(o,'uGlow',on?(dark?0.22:0.06):(dark?0.08:0));
+      U1(o,'uR',MOLR);
+      S.dirs[n].forEach(function(d){
+        U3(o,'uC',adds([0,0,0],d,n+xi));
+        gl.drawElements(gl.TRIANGLES,S.GL.sph.n,gl.UNSIGNED_SHORT,0);
+      });
+    });
+    /* dalga cepheleri: saydam kure kapaklari */
+    gl.enable(gl.BLEND); gl.blendFunc(gl.ONE,gl.ONE_MINUS_SRC_ALPHA); gl.depthMask(false);
+    if(st.front!==false){
+      o=S.GL.P.cap; useP(o); U3(o,'uEye',S.CAM.eye); U3(o,'uCol',GC.shell); U1(o,'uCap',CAPA); U1(o,'uLw',K.lw);
+      gl.bindBuffer(gl.ARRAY_BUFFER,S.GL.cap.vb); l=o.A('aPT'); useAttribs([l]);
+      gl.vertexAttribPointer(l,2,gl.FLOAT,false,0,0);
+      gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER,S.GL.cap.ib);
+      S.shellRadii().reverse().forEach(function(rc){
+        var aa=shellA(rc,dark);
+        U1(o,'uR',rc); U1(o,'uA',aa);
+        gl.drawElements(gl.TRIANGLES,S.GL.cap.n,gl.UNSIGNED_SHORT,0);
+      });
+    }
+    /* cizgiler */
+    buildLines();
+    o=S.GL.P.line;
+    var nv=flush(S.LNV,0), nh=flush(S.LNH,nv);
+    gl.bindBuffer(gl.ARRAY_BUFFER,S.GL.lb);
+    gl.bufferSubData(gl.ARRAY_BUFFER,0,S.GL.lData.subarray(0,(nv+nh)*4*LSTRIDE));
+    useP(o); gl.uniform2f(o.U('uRes'),pw,ph); U1(o,'uZo',0.0008);
+    var stt=LSTRIDE*4, LL=['aA','aB','aS','aE','aC','aW','aD'].map(function(nm){ return o.A(nm); });
+    useAttribs(LL);
+    gl.vertexAttribPointer(LL[0],3,gl.FLOAT,false,stt,0); gl.vertexAttribPointer(LL[1],3,gl.FLOAT,false,stt,12);
+    gl.vertexAttribPointer(LL[2],1,gl.FLOAT,false,stt,24); gl.vertexAttribPointer(LL[3],1,gl.FLOAT,false,stt,28);
+    gl.vertexAttribPointer(LL[4],4,gl.FLOAT,false,stt,32); gl.vertexAttribPointer(LL[5],1,gl.FLOAT,false,stt,48);
+    gl.vertexAttribPointer(LL[6],1,gl.FLOAT,false,stt,52);
+    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER,S.GL.lib);
+    gl.depthFunc(gl.LEQUAL); gl.drawElements(gl.TRIANGLES,nv*6,gl.UNSIGNED_SHORT,0);
+    if(nh){ gl.depthFunc(gl.GREATER); gl.drawElements(gl.TRIANGLES,nh*6,gl.UNSIGNED_SHORT,nv*6*2); }
+    gl.depthFunc(gl.LEQUAL); gl.depthMask(true);
+    /* ust katman */
+    var ctx=S.octx; ctx.setTransform(dpr,0,0,dpr,0,0); ctx.clearRect(0,0,W,H); S.CHIPS=[];
+    cfg.overlay(S,ctx,W,H);
+  };
+
+  /* --- yazi yardimcilari (cakisma korumali) --- */
+  S.chip=function(ctx,txt,x,y,col,px,align,bg,kip){
+    ctx.save(); setFont(ctx,px||10.5,500,false);
+    var w=ctx.measureText(txt).width, h=(px||10.5)*K.fs;
+    var lx=(align==='right')?x-w:((align==='center')?x-w/2:x);
+    lx=clamp(lx,5,S.CAM.W-w-5);
+    var r={x:lx-4,y:y-h-2,w:w+8,h:h+6};
+    var hit=function(rr){ for(var i=0;i<S.CHIPS.length;i++){ var c=S.CHIPS[i];
+      if(rr.x<c.x+c.w&&rr.x+rr.w>c.x&&rr.y<c.y+c.h&&rr.y+rr.h>c.y) return true; } return false; };
+    if(kip==='avoid'){ for(var k=0;k<6&&hit(r);k++){ r.y-=h+5; y-=h+5; } }
+    else if(kip==='skip'&&hit(r)){ ctx.restore(); return false; }
+    S.CHIPS.push(r);
+    if(bg){ ctx.fillStyle=alpha(C.panel,0.9); ctx.fillRect(r.x,r.y,r.w,r.h); }
+    ctx.fillStyle=col; ctx.textAlign='left'; ctx.textBaseline='alphabetic'; ctx.fillText(txt,lx,y);
+    ctx.restore(); return true;
+  };
+  S.cetvel=function(ctx,step){
+    var a=S.proj([0,0,S.fz]), b=S.proj([cfg.rEnd,0,S.fz]);
+    if(Math.hypot(b.x-a.x,b.y-a.y)<110) return;
+    for(var m=0;m<=Math.floor(cfg.rEnd+1e-9);m+=(step||1)){
+      var q=S.proj([m,-0.42,S.fz]);
+      S.chip(ctx,m===Math.floor(cfg.rEnd)?m+' m':String(m),q.x,q.y+12,alpha(C['ink-3'],0.95),10,'center',false,'skip');
+    }
+  };
+
+  /* --- surukle: dondur; tikla: kesit sec --- */
+  var OR=null;
+  cv.addEventListener('pointerdown',function(e){
+    if(!S.GL||(e.pointerType==='mouse'&&e.button!==0)) return;
+    OR={id:e.pointerId,x:e.clientX,y:e.clientY,x0:e.clientX,y0:e.clientY,moved:false};
+    try{ cv.setPointerCapture(e.pointerId); }catch(er){}
+  });
+  cv.addEventListener('pointermove',function(e){
+    if(!OR||e.pointerId!==OR.id) return;
+    var dx=e.clientX-OR.x, dy=e.clientY-OR.y;
+    if(!OR.moved){
+      if(Math.abs(e.clientX-OR.x0)+Math.abs(e.clientY-OR.y0)<5) return;
+      OR.moved=true; cv.classList.add('grab'); S.CAM.view=null; if(cfg.onView) cfg.onView(null);
+      if(S.CAM.an){ delete S.CAM.an.az; delete S.CAM.an.el; }
+      var lfv=Math.log(cfg.view.fov);
+      if(S.CAM.lf<lfv-0.01) S.CAM.an={t0:performance.now(),dur:mqSlow.matches?1:520,lf:[S.CAM.lf,lfv]};
+    }
+    S.CAM.az=clamp(S.CAM.az-dx*0.36,-80,80); S.CAM.el=clamp(S.CAM.el+dy*0.3,-5,80);
+    OR.x=e.clientX; OR.y=e.clientY; S.st.dirty=true;
+  });
+  cv.addEventListener('pointerup',function(e){
+    if(OR&&!OR.moved&&cfg.pick){
+      var rc=cv.getBoundingClientRect(), mx=e.clientX-rc.left, my=e.clientY-rc.top, best=null, bd=48;
+      cfg.layers.forEach(function(n){
+        [S.proj([n,0,0]),S.proj(S.katmanUst(n))].forEach(function(p){
+          var d=Math.hypot(p.x-mx,p.y-my); if(d<bd){ bd=d; best=n; } });
+      });
+      if(best!==null) cfg.pick(best);
+    }
+    OR=null; cv.classList.remove('grab');
+  });
+  ['pointercancel','lostpointercapture'].forEach(function(ev){ cv.addEventListener(ev,function(){ OR=null; cv.classList.remove('grab'); }); });
+  if(window.ResizeObserver) new ResizeObserver(function(){ S.st.dirty=true; }).observe(document.getElementById(cfg.wrap));
+  /* ekranda degilken cizme (iki WebGL sahnesi ayni anda calismasin) */
+  S.vis=true;
+  if(window.IntersectionObserver) new IntersectionObserver(function(es){
+    es.forEach(function(en){ S.vis=en.isIntersecting; if(S.vis) S.st.dirty=true; });
+  },{rootMargin:'120px'}).observe(document.getElementById(cfg.wrap));
+  if(S.GL){
+    cv.addEventListener('webglcontextlost',function(e){ e.preventDefault(); },false);
+    cv.addEventListener('webglcontextrestored',function(){ S.GL=glKur(cv); S.st.dirty=true; },false);
+  }
+  return S;
+}
 
 /* ================= 05 : sahnede mesafe ================= */
 var ST={d:8, ref:100, dirty:true};
@@ -940,78 +1355,223 @@ var stageScene=makeScene(document.getElementById('cStage'),function(ctx,W,H){
   label(ctx,nf(stL(ST.d),0)+' dB',xd+9,Y(Math.max(LMIN,Math.min(LMAX,stL(ST.d))))+4,C.arc,11,'left',true);
 });
 
+/* ================= 01 : 2 m ve 4 m (3B) ================= */
+var WY={show:false, dirty:true, r:-1, P:1, t:0.35, playing:false, front:true};
+function whyOverlay(S,ctx,W,H){
+  var nar=W<440, i3=alpha(C['ink-3'],0.95);
+  S.chip(ctx,WY.playing?'▶ TİTREŞİYOR':'❚❚ DURUYOR',10,18,C['ink-2'],10,'left',true,'free');
+  var src=S.proj([0,0,-0.34]);
+  S.chip(ctx,'kaynak',src.x,src.y+10,C.sin,10,'center',true,'avoid');
+  var tp=S.proj(adds(adds([0,0,0],nrm3([1,0,TB]),1.15),[0,0,1],0.12));
+  if(!nar) S.chip(ctx,'aynı enerji E bu tüpten geçer',tp.x,tp.y,C.sin,10,'center',true,'avoid');
+  var L=[{n:2,m:4,p:'E/4',k:'×1'},{n:4,m:16,p:'E/16',k:'×¼ (−6 dB)'}];
+  L.forEach(function(q){
+    var a=S.proj(adds(S.katmanUst(q.n),[0,0,1],0.22));
+    var t2=WY.show?(nar?(q.p+' · '+q.k):('her birine '+q.p+' · şiddet '+q.k)):(q.n===2?'şiddet ×1':'şiddet ×?');
+    var col2=WY.show?C.sin:(q.n===2?C.sin:C.arc);
+    S.chip(ctx,q.n+' m · '+q.m+' molekül',a.x,a.y,C.cos,10.5,'center',true,'avoid');
+    S.chip(ctx,t2,a.x,a.y-18*K.fs,col2,11,'center',true,'avoid');
+    if(WY.show && q.n===4) S.chip(ctx,'salınım 2 m\'dekinin yarısı',a.x,a.y-36*K.fs,C.cos,10,'center',true,'avoid');
+  });
+  S.cetvel(ctx,1);
+}
+
+/* ================= 03 : ters kare yasasi (3B) ================= */
+var IV={r:1, P:1, front:true, guide:true, dirty:true, t:0.35, playing:false};
+var LAYERS=[1,2,4,8];   /* her katlamada bir kesit: 1, 4, 16, 64 molekul */
+function ivI(r){ return IV.P/(4*Math.PI*r*r); }
+function ivRel(r){ return 1/(r*r); }
+function spl(I){ return 10*Math.log(I/I0)/Math.LN10; }
+function kesir(n){ return n===1?'1':'1/'+n; }
+function chartGeom(W,H){
+  var nar=W<520, k=K.fs, gh=Math.round((nar?172:204)*k);
+  var g={nar:nar,h:gh,y0:H-gh};
+  g.px0=nar?38:50; g.px1=W-(nar?18:30);
+  g.yTitle=g.y0+Math.round(18*k);
+  g.top=g.y0+Math.round(40*k);
+  g.axY=H-Math.round(28*k);
+  g.X=function(r){ return g.px0+((r-0.5)/8.2)*(g.px1-g.px0); };
+  g.Y=function(v){ return g.axY-v*(g.axY-g.top); };
+  return g;
+}
+function drawChart(S,ctx,W,H){
+  var g=chartGeom(W,H), r=IV.r, i3=alpha(C['ink-3'],0.95), faint=alpha(C['ink-3'],K.faint);
+  ctx.save(); ctx.fillStyle=C.panel; ctx.fillRect(0,g.y0,W,g.h); ctx.fillStyle=C.line; ctx.fillRect(0,g.y0,W,1); ctx.restore();
+  /* baslik ve secili mesafenin dB etiketi ayni satirda: sigmazsa basligi kisalt */
+  var db0=-20*Math.log(r)/Math.LN10;
+  var dbt=(r===1?'0,0 dB':'−'+nf(Math.abs(db0),1)+' dB')+(r===1||g.nar?'':' = 20·log(1/'+r+') = 10·log(1/'+(r*r)+')');
+  var tUzun='1 METREYE GÖRE · salınım ve enerji payı', tKisa='1 METREYE GÖRE';
+  var bas=(!g.nar && textW(ctx,tUzun,10.5)+textW(ctx,r+' m · '+dbt,10.5)+50 < g.px1-g.px0+30)?tUzun:tKisa;
+  S.chip(ctx,bas,g.px0-30,g.yTitle,C['ink-2'],10.5,'left',false,'free');
+  /* eksenler */
+  line(ctx,g.px0,g.axY,g.px1,g.axY,alpha(C['ink-3'],0.8),1);
+  line(ctx,g.px0,g.top-4,g.px0,g.axY,alpha(C['ink-3'],0.8),1);
+  [[1,'×1'],[0.5,'½'],[0.25,'¼']].forEach(function(q){
+    var y=g.Y(q[0]); line(ctx,g.px0,y,g.px1,y,alpha(C['ink-3'],K.faint*0.6),1,[2,6]);
+    S.chip(ctx,q[1],g.px0-8,y+4,i3,10,'right',false,'free');
+  });
+  if(IV.guide){
+    var y16=g.Y(1/16);
+    line(ctx,g.px0,y16,g.px1,y16,alpha(C.sin,0.45),1,[4,5]);
+    S.chip(ctx,'1/16',g.px0-8,y16+4,C.sin,10,'right',false,'free');
+    line(ctx,g.px0,g.Y(0.25),g.px1,g.Y(0.25),alpha(C.sin,0.45),1,[4,5]);
+  }
+  for(var m=1;m<=8;m++){
+    var x=g.X(m); line(ctx,x,g.axY,x,g.axY+5,alpha(C['ink-3'],0.8),1);
+    S.chip(ctx,m===8?'8 m':String(m),x,g.axY+17,i3,10,'center',false,'free');
+  }
+  /* egriler: ayni eksen (1 m'de ikisi de ×1) */
+  function egri(f,col,lw){
+    ctx.save(); ctx.strokeStyle=col; ctx.lineWidth=lw*K.lw; ctx.lineJoin='round'; gOn(ctx,col,9);
+    ctx.beginPath();
+    for(var px=g.X(1);px<=g.px1+0.5;px+=1){
+      var rr=0.5+(px-g.px0)/(g.px1-g.px0)*8.2, y=g.Y(f(rr));
+      if(px===g.X(1)) ctx.moveTo(px,y); else ctx.lineTo(px,y);
+    }
+    ctx.stroke(); gOff(ctx); ctx.restore();
+  }
+  egri(function(q){ return 1/q; },C.cos,2.4);
+  egri(function(q){ return 1/(q*q); },C.sin,2.8);
+  LAYERS.forEach(function(n){
+    dot(ctx,g.X(n),g.Y(1/n),n===r?4.8:3.2,C.cos,n===r);
+    dot(ctx,g.X(n),g.Y(1/(n*n)),n===r?5:3.4,C.sin,n===r);
+  });
+  /* egri adlari: sag uc */
+  var xe=g.px1;
+  if(!g.nar){
+    S.chip(ctx,'salınım genliği · 1/r',xe,g.Y(1/8.7)-10,C.cos,10,'right',true,'avoid');
+    S.chip(ctx,'molekül başına enerji · 1/r²',xe,g.Y(0)-6,C.sin,10,'right',true,'avoid');
+  }
+  /* secili mesafe */
+  var xs=g.X(r);
+  line(ctx,xs,g.top-6,xs,g.axY,alpha(C.arc,0.8),1.4);
+  var db=-20*Math.log(r)/Math.LN10;
+  if(r===1) S.chip(ctx,'ikisi de ×1 (referans)',xs+9,g.Y(1)+16,C.arc,10.5,'left',true,'avoid');
+  else {
+    S.chip(ctx,'salınım ×'+kesir(r),xs+8,g.Y(1/r)-7,C.cos,10.5,'left',true,'avoid');
+    S.chip(ctx,'enerji ×'+kesir(r*r),xs+8,g.Y(1/(r*r))-7,C.sin,10.5,'left',true,'avoid');
+  }
+  S.chip(ctx,r+' m · '+dbt,g.px1,g.yTitle,C.arc,10.5,'right',true,'free');
+}
+function invOverlay(S,ctx,W,H){
+  var nar=W<520, i3=alpha(C['ink-3'],0.95), r=IV.r, side=Math.abs(S.CAM.dir[0])<0.03&&Math.abs(S.CAM.el)<2;
+  S.chip(ctx,IV.playing?(nar?'▶ TİTREŞİYOR':'▶ TİTREŞİYOR · temsili, yavaşlatılmış'):'❚❚ DURUYOR',12,20,C['ink-2'],10.5,'left',true,'free');
+  var vn={'3b':'3B','yan':'YANDAN · kâğıda çizilen resim'}[S.CAM.view];
+  if(vn) S.chip(ctx,'BAKIŞ: '+vn,W-12,20,i3,10,'right',true,'free');
+  drawChart(S,ctx,W,H);
+  /* secili kesit */
+  var top=S.proj(adds(S.katmanUst(r),[0,0,1],0.24)), n2=r*r;
+  var t1=side?(r+' m · görünen '+r+', gerçekte '+n2+' molekül'):(r+' m · '+n2+' molekül');
+  S.chip(ctx,t1,top.x,top.y,C.arc,11,'center',true,'avoid');
+  S.chip(ctx,r===1?'bütün E ona · salınım ×1':'her birine E/'+n2+' · salınım ×'+kesir(r),top.x,top.y-18*K.fs,C.arc,10.5,'center',true,'avoid');
+  /* kaynak, tup, dalga cephesi */
+  var src=S.proj([0,0,-0.36]);
+  S.chip(ctx,'kaynak · '+nf(IV.P,2)+' W',src.x,src.y+10,C.sin,10,'center',true,'avoid');
+  var tp=S.proj(adds(adds([0,0,0],nrm3([1,0,TB]),1.4),[0,0,1],0.1));
+  S.chip(ctx,nar?'enerji tüpü':'enerji tüpü · içinden hep aynı E geçer',tp.x,tp.y,C.sin,10,'center',true,'avoid');
+  if(IV.front){
+    var cp=S.proj([7.6*Math.cos(CAPA*0.9),0,7.6*Math.sin(CAPA*0.9)+0.2]);
+    S.chip(ctx,nar?'dalga cepheleri':'dalga cepheleri: kaynağı saran küre çeperleri',cp.x,cp.y,alpha(C.sin,0.95),10,'center',true,'skip');
+  }
+  /* diger kesitlerin molekul sayilari: kesitin altinda */
+  LAYERS.forEach(function(n){
+    if(n===r) return;
+    var p=S.proj(adds(adds([0,0,0],nrm3([1,0,-TB]),n),[0,0,1],-0.32));
+    S.chip(ctx,(n*n)+(nar?'':' molekül'),p.x,p.y,C.cos,10,'center',true,'avoid');
+  });
+  S.cetvel(ctx,1);
+}
+var segV=[].slice.call(document.querySelectorAll('#segV button'));
+function syncSegV(v){ segV.forEach(function(b){ b.setAttribute('aria-pressed',b.dataset.v===v?'true':'false'); }); }
+var why3=Yayilma({gl:'cWhyGL',ov:'cWhyOv',wrap:'whyStage',msg:'whyMsg',layers:[2,4],rEnd:4.6,st:WY,
+  view:{az:-40,el:19,fov:24},overlay:whyOverlay});
+var inv3=Yayilma({gl:'cInvGL',ov:'cInvOv',wrap:'invStage',msg:'invMsg',layers:LAYERS,rEnd:8.5,st:IV,
+  view:{az:-40,el:19,fov:24},views:{'3b':{az:-40,el:19,fov:24},'yan':{az:0,el:0,fov:0.3}},
+  chartH:function(W){ return chartGeom(W,10).h; },overlay:invOverlay,
+  pick:function(n){ IV.r=n; ivRead(); },onView:syncSegV});
+segV.forEach(function(b){ b.addEventListener('click',function(){ inv3.goView(b.dataset.v); }); });
+syncSegV('3b');
+
 /* ================= 01 kontrolleri ================= */
-var wyShow=document.getElementById('wyShow');
-wyShow.addEventListener('click',function(){ WY.show=!WY.show; wyShow.setAttribute('aria-pressed',WY.show?'true':'false'); WY.dirty=true; });
+var wyShow=document.getElementById('wyShow'), wyPlay=document.getElementById('wyPlay');
+wyShow.addEventListener('click',function(){ WY.show=!WY.show; wyShow.setAttribute('aria-pressed',WY.show?'true':'false'); wyShow.textContent=WY.show?'Cevabı gizle':'Cevabı göster'; WY.dirty=true; });
+wyPlay.addEventListener('click',function(){ WY.playing=!WY.playing; wyPlay.textContent=WY.playing?'Durdur':'Titreştir'; WY.dirty=true; });
 
 /* ================= 03 kontrolleri ================= */
 var iv={r:document.getElementById('ivR'), P:document.getElementById('ivP'),
         rV:document.getElementById('ivRV'), PV:document.getElementById('ivPV'),
-        front:document.getElementById('ivFront'), guide:document.getElementById('ivGuide')};
-var R3={r:document.getElementById('rR'),s:document.getElementById('rS'),i:document.getElementById('rI'),
-        o:document.getElementById('rO'),d:document.getElementById('rD'),l:document.getElementById('rL')};
+        front:document.getElementById('ivFront'), guide:document.getElementById('ivGuide'), play:document.getElementById('ivPlay')};
+var R3={r:document.getElementById('rR'),n:document.getElementById('rN'),e:document.getElementById('rE'),
+        a:document.getElementById('rA'),d:document.getElementById('rD'),l:document.getElementById('rL')};
 var V3={p:document.getElementById('vP'),r:document.getElementById('vR'),s:document.getElementById('vS'),
-        i:document.getElementById('vI'),o:document.getElementById('vO'),d:document.getElementById('vD')};
+        i:document.getElementById('vI'),n:document.getElementById('vN'),e:document.getElementById('vE'),
+        a:document.getElementById('vA'),d:document.getElementById('vD')};
 var sNote=document.getElementById('sNote');
 var ivPills=[].slice.call(document.querySelectorAll('.pill[data-r]'));
-
 function ivRead(){
-  var r=IV.r, S=4*Math.PI*r*r, I=ivI(r), rel=ivRel(r), db=-20*Math.log(r)/Math.LN10;
-  iv.rV.textContent=nf(r,1)+' m'; iv.PV.textContent=nf(IV.P,2)+' W'; iv.r.value=r;
-  R3.r.textContent=nf(r,1)+' m';
-  R3.s.textContent=nf(S,1)+' m²';
-  R3.i.textContent=nf(I,4);
-  R3.o.textContent=nf(rel,3)+' ×';
-  R3.d.textContent=(db>=0?'':'−')+nf(Math.abs(db),1)+' dB';
+  var r=IV.r, S2=4*Math.PI*r*r, I=ivI(r), rel=ivRel(r), db=-20*Math.log(r)/Math.LN10, n2=r*r;
+  var dbs=(r===1?'':'−')+nf(Math.abs(db),1)+' dB';
+  iv.rV.textContent=nf(r,0)+' m'; iv.PV.textContent=nf(IV.P,2)+' W'; iv.r.value=LAYERS.indexOf(r);
+  R3.r.textContent=nf(r,0)+' m';
+  R3.n.textContent=n2+' molekül';
+  R3.e.textContent='×'+kesir(n2)+(r===1?'':' = '+nf(rel,3));
+  R3.a.textContent='×'+kesir(r)+(r===1?'':' = '+nf(1/r,3));
+  R3.d.textContent=dbs;
   R3.l.textContent=nf(spl(I),0)+' dB';
   V3.p.textContent=nf(IV.P,2)+' W';
-  V3.r.textContent=nf(r,1)+' m';
-  V3.s.textContent='4·π·'+nf(r,1)+'² = '+nf(S,1)+' m²';
-  V3.i.textContent=nf(IV.P,2)+' / '+nf(S,1)+' = '+nf(I,4)+' W/m²';
-  V3.o.textContent='1 / '+nf(r,1)+'² = '+nf(rel,3);
-  V3.d.textContent='−20·log('+nf(r,1)+') = '+(db>=0?'':'−')+nf(Math.abs(db),1)+' dB';
-  if(Math.abs(r-2)<0.06) sNote.textContent='Mesafe iki katı: yüzey dört katı, şiddet dörtte bir, seviye tam −6 dB. Sahnedeki en çok kullanılan kural bu.';
-  else if(Math.abs(r-4)<0.06) sNote.textContent='İki katlama: −6 −6 = −12 dB. Şiddet on altıda bire indi.';
-  else if(Math.abs(r-8)<0.06) sNote.textContent='Üç katlama: −18 dB. Aynı seviyeyi elde etmek için güç 64 katına çıkmalı.';
-  else if(Math.abs(r-1)<0.06) sNote.textContent='Referans nokta: 1 metre. Hoparlör verilerinde seviye hep "1 metrede" ölçülür.';
-  else sNote.textContent=nf(r,1)+' metrede şiddet 1 metredekinin '+nf(rel,3)+' katı; seviye '+nf(db,1)+' dB düşmüş durumda.';
-  ivPills.forEach(function(b){ b.setAttribute('aria-pressed', Math.abs(parseFloat(b.dataset.r)-r)<0.06?'true':'false'); });
+  V3.r.textContent=nf(r,0)+' m';
+  V3.s.textContent='4·π·'+nf(r,0)+'² = '+nf(S2,1)+' m²';
+  V3.i.textContent=nf(IV.P,2)+' / '+nf(S2,1)+' = '+nf(I,4)+' W/m²';
+  V3.n.textContent=nf(r,0)+' × '+nf(r,0)+' = '+n2;
+  V3.e.textContent='E / '+n2+' → ×'+kesir(n2);
+  V3.a.textContent='√(1/'+n2+') = ×'+kesir(r);
+  V3.d.textContent=(r===1?'0,0 dB':'10·log(1/'+n2+') = 20·log(1/'+r+') = '+dbs);
+  if(r===1) sNote.textContent='Referans: 1 metrede tüpün kesitinde tek molekül var; tüpe giren enerjinin hepsi ona düşüyor.';
+  else if(r===2) sNote.textContent='Mesafe iki katı: aynı enerji dört moleküle bölündü. Her birinin payı ¼, salınımı ½. İkisi de −6 dB eder.';
+  else if(r===4) sNote.textContent='İki katlama: 16 molekül, pay 1/16, salınım ¼. −6 −6 = −12 dB.';
+  else if(r===8) sNote.textContent='Üç katlama: 64 molekül, −18 dB. Aynı seviye için güç 64 katına çıkmalı.';
+  else sNote.textContent=r+' metrede tüp '+r+' × '+r+' = '+n2+' molekülü kapsıyor: pay 1/'+n2+', salınım 1/'+r+', seviye '+dbs+'.';
+  ivPills.forEach(function(b){ b.setAttribute('aria-pressed', parseFloat(b.dataset.r)===r?'true':'false'); });
   [].slice.call(document.querySelectorAll('#tbl tbody tr')).forEach(function(tr){
-    tr.setAttribute('aria-selected', Math.abs(parseFloat(tr.dataset.r)-r)<0.06?'true':'false');
+    tr.setAttribute('aria-selected', parseFloat(tr.dataset.r)===r?'true':'false');
   });
   IV.dirty=true;
 }
-iv.r.addEventListener('input',function(){ IV.r=parseFloat(iv.r.value); ivRead(); });
+iv.r.addEventListener('input',function(){ IV.r=LAYERS[clamp(Math.round(parseFloat(iv.r.value)),0,3)]; ivRead(); });
 iv.P.addEventListener('input',function(){ IV.P=parseFloat(iv.P.value); ivRead(); });
 iv.front.addEventListener('click',function(){ IV.front=!IV.front; iv.front.setAttribute('aria-pressed',IV.front?'true':'false'); IV.dirty=true; });
 iv.guide.addEventListener('click',function(){ IV.guide=!IV.guide; iv.guide.setAttribute('aria-pressed',IV.guide?'true':'false'); IV.dirty=true; });
+function setIvPlay(v){ IV.playing=v; iv.play.textContent=v?'Durdur':'Titreştir'; iv.play.classList.toggle('pri',!v); IV.dirty=true; }
+iv.play.addEventListener('click',function(){ setIvPlay(!IV.playing); });
 ivPills.forEach(function(b){ b.addEventListener('click',function(){ IV.r=parseFloat(b.dataset.r); ivRead(); }); });
 
 var TROWS=[
-  {r:1, m:'1 m', i:'×1',    d:'0 dB'},
-  {r:2, m:'2 m', i:'×¼',    d:'−6 dB'},
-  {r:4, m:'4 m', i:'×1/16', d:'−12 dB'},
-  {r:8, m:'8 m', i:'×1/64', d:'−18 dB'}
+  {r:1, m:'1 m', n:'1',  i:'×1',    a:'×1',   d:'0 dB'},
+  {r:2, m:'2 m', n:'4',  i:'×1/4',  a:'×1/2', d:'−6 dB'},
+  {r:4, m:'4 m', n:'16', i:'×1/16', a:'×1/4', d:'−12 dB'},
+  {r:8, m:'8 m', n:'64', i:'×1/64', a:'×1/8', d:'−18 dB'}
 ];
 var tb=document.querySelector('#tbl tbody');
-TROWS.forEach(function(r){
-  var tr=document.createElement('tr'); tr.dataset.r=r.r;
-  tr.innerHTML='<td class="num">'+r.m+'</td><td class="num">'+r.i+'</td><td>'+r.d+'</td>';
-  tr.addEventListener('click',function(){ IV.r=r.r; ivRead(); });
+TROWS.forEach(function(q){
+  var tr=document.createElement('tr'); tr.dataset.r=q.r;
+  tr.innerHTML='<td class="num">'+q.m+'</td><td class="num">'+q.n+'</td><td class="num">'+q.i+'</td><td class="num">'+q.a+'</td><td>'+q.d+'</td>';
+  tr.addEventListener('click',function(){ IV.r=q.r; ivRead(); });
   tb.appendChild(tr);
 });
 
 var STEPS=[
-  {t:'1 metre: referans',n:'Hoparlör verileri hep "1 metrede" verilir. Oradaki şiddete <b>×1</b> diyoruz ve her şeyi ona göre ölçeceğiz.',
-   go:function(){ IV.r=1; ivRead(); }},
-  {t:'2 metre: yüzey dört katı',n:'Yarıçap iki katına çıktı ama küre yüzeyi <b>dört</b> katına çıktı (4πr²). Aynı güç dört kat geniş yüzeye dağıldı: şiddet <b>dörtte bir</b>, seviye <b>−6 dB</b>.',
-   go:function(){ IV.r=2; ivRead(); }},
-  {t:'4 metre: bir katlama daha',n:'Her katlama aynı miktarda düşürüyor: −6 −6 = <b>−12 dB</b>. Şiddet on altıda bir. Eğrinin ne kadar çöktüğüne bak.',
-   go:function(){ IV.r=4; ivRead(); }},
-  {t:'8 metre: yatıklaşma',n:'−18 dB. Ama dikkat: 1→2 metre arasındaki düşüş ile 7→8 metre arasındaki düşüş <b>aynı değil</b>. Yakında birkaç adım çok şey değiştirir, uzakta neredeyse hiç.',
-   go:function(){ IV.r=8; ivRead(); }},
-  {t:'Gücü değiştir',n:'Güç kaydırıcısını oynat: bütün eğri yukarı kayar ama <b>şekli değişmez</b>. Güç seviyeyi belirler, mesafe ise düşüşün kuralını. İkisi birbirinden bağımsızdır.',
-   go:function(){ ivRead(); }}
+  {t:'1 metre: tek molekül',n:'Dinleyiciyi <b>1 metreye</b> al. Tüpün bu kesitinde tek bir temsili molekül var ve kaynağın bu tüpe verdiği enerjinin (E) hepsi ona düşüyor. Onun salınımı referansımız: <b>×1</b>.',
+   go:function(){ IV.P=1; iv.P.value=1; IV.r=1; ivRead(); inv3.goView('3b'); }},
+  {t:'2 metre: dört molekül',n:'Aynı tüp 2 metrede 2 × 2 = <b>4</b> molekülü kapsıyor. Enerji yine E ama dörde bölünüyor: her molekülün payı <b>¼</b>. Salınımı ise <b>½</b>, çünkü salınımın enerjisi genliğin karesiyle büyür: ½ × ½ = ¼. İkisi de <b>−6 dB</b>.',
+   go:function(){ IV.r=2; ivRead(); inv3.goView('3b'); }},
+  {t:'Yandan bak: kâğıttaki tuzak',n:'Yandan bakınca 2 metrede yalnızca <b>2</b> molekül görünüyor; öteki ikisi arkalarında saklı. Kâğıda çizilen resim bu yüzden "yarıya iner" dedirtir. Gerçekte kesit iki yönde birden büyüyor: 2 × 2 = <b>4</b>.',
+   go:function(){ IV.r=2; ivRead(); inv3.goView('yan'); }},
+  {t:'4 metre: on altı molekül',n:'4 × 4 = <b>16</b> molekül. Pay 1/16, salınım ¼. İki katlama: −6 −6 = <b>−12 dB</b>. Salınım çizgilerinin ne kadar kısaldığına bak.',
+   go:function(){ IV.r=4; ivRead(); inv3.goView('3b'); }},
+  {t:'8 metre: altmış dört molekül',n:'64 molekül, pay 1/64, salınım ⅛, <b>−18 dB</b>. Grafiğe bak: 1→2 metre arasındaki düşüş ile 7→8 metre arasındaki düşüş <b>aynı değil</b>. Yakında birkaç adım çok şey değiştirir, uzakta neredeyse hiç.',
+   go:function(){ IV.r=8; ivRead(); inv3.goView('3b'); }},
+  {t:'Gücü değiştir',n:'Gücü <b>4 W</b> yaptık ve dinleyiciyi 2 metreye aldık. Bütün moleküllerin payı 4 katına, salınımı 2 katına çıktı: 2 metredeki molekül artık 1 W\'taki 1 metrelik molekül kadar salınıyor. Grafiğin şekli değişmedi; güç seviyeyi, mesafe düşüşün kuralını belirler.',
+   go:function(){ IV.P=4; iv.P.value=4; IV.r=2; ivRead(); inv3.goView('3b'); }}
 ];
 var stIdx=0, stList=document.getElementById('stList'), stText=document.getElementById('stText'), stCount=document.getElementById('stCount');
 STEPS.forEach(function(s,i){
@@ -1069,9 +1629,9 @@ var QS=[
 {q:'Kaynaktan uzaklaştıkça ses neden zayıflar?',
  o:['Aynı güç gittikçe büyüyen bir yüzeye yayıldığı için','Enerji yolda kaybolduğu için','Hoparlörün gücü düştüğü için','Frekans düştüğü için'],a:0,
  f:'Enerji korunur; yalnızca daha geniş bir küreye dağılır. Birim alana düşen pay, yani şiddet azalır.'},
-{q:'Yarıçapı r olan kürenin yüzeyi nedir?',
- o:['4π<i>r</i>²','2π<i>r</i>','π<i>r</i>²','4π<i>r</i>'],a:0,
- f:'Küre yüzeyi 4πr². Yarıçap iki katına çıkınca yüzey dört katına çıkar — ters kare yasasının tamamı bu formülden gelir.'},
+{q:'Mesafe iki katına çıkınca bir hava molekülünün salınım genliği ne olur?',
+ o:['Yarıya iner; enerjisi ise dörtte bire iner','Dörtte bire iner','Değişmez; yalnızca molekül sayısı artar','İki katına çıkar'],a:0,
+ f:'Aynı enerji dört kat çok moleküle bölünür, her birinin payı ¼ olur. Salınımın enerjisi genliğin karesiyle büyüdüğü için genlik √¼ = ½ olur. Desibelde ikisi de −6 dB eder.'},
 {q:'Mesafe iki katına çıkarsa şiddet ne olur?',
  o:['Dörtte birine iner','Yarıya iner','Değişmez','Dörtte bir artar'],a:0,
  f:'I = P/(4πr²). r ×2 → r² ×4 → I ¼. Desibelde −6 dB.'},
@@ -1127,9 +1687,12 @@ scenes.forEach(function(s){ s.resize(); s.draw(); });
 var last=0;
 function frame(ts){
   if(!last) last=ts;
-  last=ts;
-  if(WY.dirty){ whyScene.draw(); WY.dirty=false; }
-  if(IV.dirty){ invScene.draw(); IV.dirty=false; }
+  var dt=Math.min(0.1,(ts-last)/1000); last=ts;
+  if(WY.playing) WY.t+=dt;
+  if(IV.playing) IV.t+=dt;
+  var c1=why3.camStep(ts), c3=inv3.camStep(ts);
+  if(why3.vis&&(WY.dirty||WY.playing||c1)){ why3.render(); WY.dirty=false; }
+  if(inv3.vis&&(IV.dirty||IV.playing||c3)){ inv3.render(); IV.dirty=false; }
   if(ST.dirty){ stageScene.draw(); ST.dirty=false; }
   requestAnimationFrame(frame);
 }
