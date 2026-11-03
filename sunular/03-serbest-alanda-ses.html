@@ -1,0 +1,2344 @@
+<!DOCTYPE html>
+<html lang="tr" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Serbest Alanda Ses — Bölüm 3 Semineri</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Source+Sans+3:ital,wght@0,400;0,500;0,600;1,400&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400;1,8..60,600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --u:10px;
+  --bg:#ebe9e3; --stage:#fbfaf6; --panel:#ffffff;
+  --ink:#1b1c20; --ink2:#44464d; --ink3:#83858c; --rule:#d5d2c8; --grid:#edebe4;
+  --c1:#1f4e8c; --c2:#b3412b; --c3:#9c6a0c; --c4:#1f6e66; --c5:#664a90;
+  --hl:rgba(31,78,140,.075); --lw:1;
+  --serif:"Source Serif 4","Source Serif Pro",Georgia,"Times New Roman",serif;
+  --sans:"Source Sans 3","Source Sans Pro","Helvetica Neue",Arial,sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
+  color-scheme:light;
+}
+html[data-theme="dark"]{
+  --bg:#0f1114; --stage:#171a1e; --panel:#1d2025;
+  --ink:#e9e7e0; --ink2:#b9b8b1; --ink3:#7f8186; --rule:#363a41; --grid:#262a30;
+  --c1:#82a9e2; --c2:#ea8d74; --c3:#e0b254; --c4:#5fc3b5; --c5:#b59ce2;
+  --hl:rgba(130,169,226,.10); --lw:1; color-scheme:dark;
+}
+html[data-theme="proj"]{
+  --bg:#d9d9d9; --stage:#ffffff; --panel:#ffffff;
+  --ink:#000000; --ink2:#1c1c1c; --ink3:#4f4f4f; --rule:#9a9a9a; --grid:#dedede;
+  --c1:#0034a8; --c2:#c41a00; --c3:#8a5a00; --c4:#00675a; --c5:#55249e;
+  --hl:rgba(0,52,168,.08); --lw:1.55; color-scheme:light;
+}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%;background:var(--bg);color:var(--ink)}
+body{font-family:var(--sans);overflow:hidden;-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
+#deck{position:fixed;inset:0;display:grid;place-items:center}
+#stage{position:relative;width:calc(var(--u)*160);height:calc(var(--u)*90);background:var(--stage);
+  box-shadow:0 0 0 1px var(--rule),0 calc(var(--u)*1.2) calc(var(--u)*5) rgba(0,0,0,.08);overflow:hidden;overflow:clip}
+#progress{position:absolute;left:0;bottom:0;height:calc(var(--u)*.35);background:var(--c1);width:0;transition:width .5s ease;z-index:5}
+
+.slide{position:absolute;inset:0;padding:calc(var(--u)*4.6) calc(var(--u)*7) calc(var(--u)*6.2);display:flex;flex-direction:column;
+  opacity:0;visibility:hidden;transform:translateY(calc(var(--u)*1.2));
+  transition:opacity .5s ease,transform .5s ease,visibility 0s linear .5s}
+.slide.active{opacity:1;visibility:visible;transform:none;transition:opacity .55s ease,transform .55s ease,visibility 0s}
+.kicker{font:600 calc(var(--u)*1.3)/1 var(--sans);letter-spacing:.16em;text-transform:uppercase;color:var(--c2);display:flex;align-items:center;gap:calc(var(--u)*1.2)}
+.kicker::after{content:"";flex:1;height:1px;background:var(--rule)}
+.kicker .num{font-family:var(--serif);letter-spacing:.04em;color:var(--ink3);font-weight:400}
+h2.title{font:600 calc(var(--u)*3.9)/1.12 var(--serif);margin:calc(var(--u)*1.2) 0 calc(var(--u)*2.2);letter-spacing:-.006em;color:var(--ink)}
+h2.title em{font-style:italic;font-weight:400;color:var(--ink2)}
+.body{flex:1;min-height:0;display:grid;gap:calc(var(--u)*3.4);align-content:start}
+.c2{grid-template-columns:1fr 1fr}.ca{grid-template-columns:1.45fr 1fr}.cb{grid-template-columns:1fr 1.45fr}
+.cw{grid-template-columns:1.9fr 1fr}.c3{grid-template-columns:1fr 1fr 1fr}
+.col{display:flex;flex-direction:column;gap:calc(var(--u)*1.5);min-width:0;min-height:0}
+p,li{font-size:calc(var(--u)*1.95);line-height:1.46;margin:0;color:var(--ink)}
+.sm{font-size:calc(var(--u)*1.6);line-height:1.45;color:var(--ink2)}
+.xs{font-size:max(11px,calc(var(--u)*1.35));line-height:1.4;color:var(--ink2)}
+ul.pts{margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:calc(var(--u)*1.1)}
+ul.pts>li{padding-left:calc(var(--u)*2.2);position:relative}
+ul.pts>li::before{content:"";position:absolute;left:calc(var(--u)*.3);top:.62em;width:calc(var(--u)*.75);height:calc(var(--u)*.75);border:1.5px solid var(--c1);transform:rotate(45deg)}
+.serif{font-family:var(--serif)}
+b,strong{font-weight:600}
+.mono,.ro{font-family:var(--mono);font-variant-numeric:tabular-nums}
+.ro{font-size:calc(var(--u)*1.45);color:var(--ink)}
+.ro .k{color:var(--ink3)}
+.fig{background:var(--panel);border:1px solid var(--rule);position:relative;height:calc(var(--u)*var(--h,40));min-height:0}
+.fig canvas{display:block;width:100%;height:100%}
+.fig svg{display:block;width:100%;height:100%}
+.cap{font-size:max(11px,calc(var(--u)*1.32));color:var(--ink2);line-height:1.38;margin-top:calc(var(--u)*-.6)}
+.cap b{color:var(--ink);font-weight:600}
+.ext{color:var(--c3);font-size:.82em;margin-right:.25em}
+.box{border-left:calc(var(--u)*.3) solid var(--c1);background:var(--hl);padding:calc(var(--u)*1.2) calc(var(--u)*1.6)}
+.box.warm{border-color:var(--c3);background:color-mix(in srgb,var(--c3) 8%,transparent)}
+.box.red{border-color:var(--c2);background:color-mix(in srgb,var(--c2) 7%,transparent)}
+.quote{font:italic 400 calc(var(--u)*2.15)/1.42 var(--serif);border-left:2px solid var(--c2);padding:calc(var(--u)*.4) 0 calc(var(--u)*.4) calc(var(--u)*2);color:var(--ink)}
+.quote cite{display:block;font:normal 400 calc(var(--u)*1.35)/1.3 var(--sans);color:var(--ink3);margin-top:calc(var(--u)*.8)}
+
+/* matematik */
+.eq{font-family:var(--serif);font-size:calc(var(--u)*2.15);line-height:1.6;color:var(--ink);white-space:nowrap}
+.eq.l{font-size:calc(var(--u)*2.6)}
+.eq.s{font-size:calc(var(--u)*1.75)}
+.eq i{font-style:italic}
+.eq .op{margin:0 .22em}
+.frac{display:inline-flex;flex-direction:column;vertical-align:middle;text-align:center;margin:0 .12em;line-height:1.12}
+.frac>span{font-size:.86em;padding:0 .18em}
+.frac>span:first-child{border-bottom:1px solid currentColor}
+.rt{border-top:1px solid currentColor;padding:0 .08em 0 .05em;margin-left:-.05em}
+.eqbox{display:flex;flex-direction:column;gap:calc(var(--u)*.5);padding:calc(var(--u)*1.2) calc(var(--u)*1.6);border:1px solid var(--rule);background:var(--panel)}
+.eqbox .lab{font:600 max(10.5px,calc(var(--u)*1.15))/1 var(--sans);letter-spacing:.12em;text-transform:uppercase;color:var(--ink3)}
+
+/* denetimler */
+.ctl{display:flex;flex-wrap:wrap;gap:calc(var(--u)*1) calc(var(--u)*2.2);align-items:center;font-size:max(12px,calc(var(--u)*1.42));color:var(--ink2)}
+.rng{display:inline-flex;align-items:center;gap:calc(var(--u)*.9);white-space:nowrap}
+.rng .ro{min-width:5.2em;display:inline-block}
+input[type=range]{-webkit-appearance:none;appearance:none;width:calc(var(--u)*15);height:calc(var(--u)*2.2);background:transparent;margin:0;cursor:pointer}
+input[type=range]::-webkit-slider-runnable-track{height:2px;background:var(--rule)}
+input[type=range]::-moz-range-track{height:2px;background:var(--rule)}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:calc(var(--u)*1.5);height:calc(var(--u)*1.5);min-width:14px;min-height:14px;border-radius:50%;background:var(--panel);border:2px solid var(--c1);margin-top:calc(var(--u)*-.65)}
+input[type=range]::-moz-range-thumb{width:calc(var(--u)*1.3);height:calc(var(--u)*1.3);border-radius:50%;background:var(--panel);border:2px solid var(--c1)}
+.btn{font:500 max(12px,calc(var(--u)*1.38))/1 var(--sans);padding:calc(var(--u)*.72) calc(var(--u)*1.25);border:1px solid var(--rule);background:var(--panel);color:var(--ink);
+  border-radius:calc(var(--u)*.35);cursor:pointer;white-space:nowrap;transition:border-color .2s,color .2s,background .2s}
+.btn:hover{border-color:var(--ink3)}
+.btn.on{border-color:var(--c1);color:var(--c1);background:var(--hl)}
+.btn.play::before{content:"";display:inline-block;width:0;height:0;border-left:.62em solid currentColor;border-top:.38em solid transparent;border-bottom:.38em solid transparent;margin-right:.55em;vertical-align:-.05em}
+.btn.play.playing{color:var(--c2);border-color:var(--c2)}
+.btn.play.playing::before{border:0;width:.6em;height:.6em;background:currentColor}
+.seg{display:inline-flex}
+.seg .btn{border-radius:0;margin-left:-1px}
+.seg .btn:first-child{border-radius:calc(var(--u)*.35) 0 0 calc(var(--u)*.35);margin-left:0}
+.seg .btn:last-child{border-radius:0 calc(var(--u)*.35) calc(var(--u)*.35) 0}
+.seg .btn.on{position:relative;z-index:1}
+
+/* tablo */
+table.t{border-collapse:collapse;width:100%;font-size:calc(var(--u)*1.5)}
+table.t th{font:600 max(10.5px,calc(var(--u)*1.15))/1.2 var(--sans);letter-spacing:.1em;text-transform:uppercase;color:var(--ink3);text-align:left;padding:calc(var(--u)*.6) calc(var(--u)*.8);border-bottom:1px solid var(--ink3)}
+table.t td{padding:calc(var(--u)*.55) calc(var(--u)*.8);border-bottom:1px solid var(--rule);color:var(--ink);font-variant-numeric:tabular-nums}
+table.t td.n{font-family:var(--mono);font-size:.94em;text-align:right}
+table.t tr.hi td{background:var(--hl)}
+table.t.nocap th{text-transform:none;letter-spacing:.02em;font-size:max(11px,calc(var(--u)*1.3))}
+
+.foot{position:absolute;left:calc(var(--u)*7);right:calc(var(--u)*7);bottom:calc(var(--u)*2.3);display:flex;justify-content:space-between;gap:2em;
+  font:400 max(10.5px,calc(var(--u)*1.18))/1.2 var(--sans);color:var(--ink3);border-top:1px solid var(--rule);padding-top:calc(var(--u)*.9)}
+.foot .pg{font-family:var(--serif);font-variant-numeric:tabular-nums}
+
+.frag{opacity:0;transform:translateY(calc(var(--u)*.7));transition:opacity .5s ease,transform .5s ease}
+.frag.on{opacity:1;transform:none}
+
+/* kapak */
+.cover{padding:calc(var(--u)*11) calc(var(--u)*9)}
+.cover .kicker{max-width:calc(var(--u)*100)}
+.cover .kicker{color:var(--c1)}
+.cover h1{font:600 calc(var(--u)*8.4)/1.02 var(--serif);margin:calc(var(--u)*3) 0 calc(var(--u)*1.6);letter-spacing:-.015em}
+.cover .sub{font:italic 400 calc(var(--u)*2.7)/1.3 var(--serif);color:var(--ink2);max-width:calc(var(--u)*95)}
+.cover .meta{margin-top:calc(var(--u)*3.4);font-size:calc(var(--u)*1.6);line-height:1.6;color:var(--ink2)}
+.cover .meta b{color:var(--ink)}
+.cover .hint{position:absolute;right:calc(var(--u)*9);top:calc(var(--u)*10.2);font-size:max(11px,calc(var(--u)*1.25));color:var(--ink3);text-align:right;line-height:1.6}
+.cover .hint kbd,.kbd{font-family:var(--mono);font-size:.92em;border:1px solid var(--rule);border-radius:3px;padding:0 .35em;background:var(--panel)}
+.cover .band{position:absolute;left:0;right:0;bottom:calc(var(--u)*5.5);height:calc(var(--u)*38)}
+.cover .band canvas{width:100%;height:100%;display:block}
+.cover .inst{position:absolute;left:calc(var(--u)*9);bottom:calc(var(--u)*2.6);font-size:max(11px,calc(var(--u)*1.3));color:var(--ink3);letter-spacing:.06em}
+
+/* akış */
+.plan{display:grid;grid-template-columns:1fr 1fr;grid-template-rows:repeat(4,auto);grid-auto-flow:column;gap:calc(var(--u)*1.2) calc(var(--u)*5);margin:0;padding:0;list-style:none;counter-reset:p}
+.plan li{display:grid;grid-template-columns:calc(var(--u)*6) 1fr auto;align-items:baseline;border-bottom:1px solid var(--rule);padding:calc(var(--u)*2.9) 0;font-size:calc(var(--u)*2.5)}
+.plan li .r{font:italic 400 calc(var(--u)*3)/1 var(--serif);color:var(--c2)}
+.plan li .p{font-size:calc(var(--u)*1.35);color:var(--ink3);font-family:var(--mono)}
+.plan li .d{display:block;font-size:calc(var(--u)*1.65);color:var(--ink2);margin-top:calc(var(--u)*.5)}
+.slide.active .plan li{animation:rise .7s cubic-bezier(.2,.7,.2,1) both;animation-delay:calc(var(--i)*90ms + 150ms)}
+@keyframes rise{from{opacity:0;transform:translateY(calc(var(--u)*1.4))}to{opacity:1;transform:none}}
+
+/* özet */
+ol.sum{margin:0;padding:0;list-style:none;counter-reset:s;display:grid;grid-template-columns:1fr 1fr;grid-template-rows:repeat(4,auto);grid-auto-flow:column;gap:calc(var(--u)*1.8) calc(var(--u)*4.4)}
+ol.sum li{counter-increment:s;display:grid;grid-template-columns:calc(var(--u)*5) 1fr;font-size:calc(var(--u)*2.2);line-height:1.45;padding:calc(var(--u)*2) 0;border-bottom:1px solid var(--rule)}
+ol.sum li::before{content:counter(s);font:italic 400 calc(var(--u)*3.6)/1 var(--serif);color:var(--c1)}
+.slide.active ol.sum li{animation:rise .7s cubic-bezier(.2,.7,.2,1) both;animation-delay:calc(var(--i)*110ms + 150ms)}
+.refs{margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:calc(var(--u)*1.3)}
+.qs>li{font-size:calc(var(--u)*2.1)}
+.qs{gap:calc(var(--u)*2.2) !important}
+.refs li{font-size:calc(var(--u)*1.75);line-height:1.42;padding-left:calc(var(--u)*3);text-indent:calc(var(--u)*-3);color:var(--ink2)}
+.refs li i{color:var(--ink)}
+
+/* analog tablosu */
+table.an{border-collapse:collapse;width:100%}
+table.an th{font:600 max(10.5px,calc(var(--u)*1.15))/1 var(--sans);letter-spacing:.12em;text-transform:uppercase;color:var(--ink3);padding:0 0 calc(var(--u)*.8);text-align:center}
+table.an td{text-align:center;padding:calc(var(--u)*.5) calc(var(--u)*.6);border-top:1px solid var(--rule);vertical-align:middle}
+table.an td svg{width:calc(var(--u)*15);height:calc(var(--u)*6.2);display:block;margin:0 auto}
+table.an td{padding:calc(var(--u)*1) calc(var(--u)*.6) !important}
+table.an td .nm{font-size:calc(var(--u)*1.4);color:var(--ink);display:block;margin-top:calc(var(--u)*.2)}
+table.an td .sy{font:italic 400 calc(var(--u)*1.5)/1 var(--serif);color:var(--c1)}
+.sym path,.sym line,.sym rect,.sym circle,.sym polyline{fill:none;stroke:var(--ink);stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
+.sym .f{fill:var(--ink);stroke:none}
+.sym .h{stroke:var(--ink3);stroke-width:1}
+
+/* eşleme diyagramı */
+.map text{font-family:var(--sans);fill:var(--ink)}
+.map .hd{font-size:13px;font-weight:600;letter-spacing:.14em;fill:var(--ink3)}
+.map .nd{font-size:21px;font-family:var(--serif)}
+.map .lb{font-size:13px;fill:var(--ink2)}
+.map .lbx{font-size:13px;fill:var(--c2);font-style:italic}
+.map rect.n{fill:var(--panel);stroke:var(--ink3);stroke-width:1.2}
+.map rect.n.p{stroke:var(--c1)}
+.map rect.n.q{stroke:var(--c2)}
+.map .ar{fill:none;stroke:var(--ink2);stroke-width:1.6}
+.map .ax{fill:none;stroke:var(--c2);stroke-width:1.5;stroke-dasharray:5 5}
+.map .draw{stroke-dasharray:var(--len,600);stroke-dashoffset:var(--len,600);transition:stroke-dashoffset 1.3s ease}
+.map .ax.draw{stroke-dasharray:5 5}
+.on .map .draw,.map .on .draw,.map g.on .draw{stroke-dashoffset:0}
+.map .fadein{opacity:0;transition:opacity .8s ease .5s}
+.map g.on .fadein{opacity:1}
+.map .hd2{font-size:13px;fill:var(--ink3)}
+
+/* gezinti çubuğu */
+#bar{position:fixed;right:14px;bottom:12px;display:flex;align-items:center;gap:10px;z-index:20;background:color-mix(in srgb,var(--stage) 88%,transparent);
+  border:1px solid var(--rule);border-radius:6px;padding:6px 8px;font:500 12px/1 var(--sans);color:var(--ink2);transition:opacity .4s;backdrop-filter:blur(6px)}
+#bar.idle{opacity:0}
+#bar:hover{opacity:1}
+#bar .btn{font-size:12px;padding:6px 9px}
+#bar .seg .btn{padding:6px 8px}
+#bar .count{font-family:var(--serif);font-size:13px;min-width:4.2em;text-align:center;color:var(--ink)}
+#bar input[type=range]{width:80px;height:18px}
+#bar .vl{display:flex;align-items:center;gap:6px}
+#bar svg{width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:1.6}
+
+/* telefon / dar ekran: dikey akış */
+body.flow{overflow:auto}
+body.flow #deck{position:static;display:block}
+body.flow #stage{width:auto;height:auto;box-shadow:none;background:var(--stage);overflow:visible}
+body.flow #progress{display:none}
+body.flow .slide{position:relative;opacity:1;visibility:visible;transform:none;padding:30px 16px 22px;border-bottom:1px solid var(--rule);transition:none}
+body.flow .body{grid-template-columns:1fr !important;gap:18px}
+body.flow .fig{height:calc(var(--u)*var(--hm,var(--h,40)))}
+body.flow .foot{position:static;margin-top:18px}
+body.flow .frag{opacity:1;transform:none}
+body.flow .cover{padding:34px 16px 26px;min-height:0}
+body.flow .cover .hint{display:none}
+body.flow .cover .band{position:relative;bottom:auto;height:150px;margin:20px -16px 0}
+body.flow .cover .inst{position:static;margin-top:14px}
+body.flow .plan,body.flow ol.sum{grid-template-columns:1fr;grid-template-rows:none;grid-auto-flow:row}
+body.flow .eq{white-space:normal}
+body.flow h2.title{font-size:calc(var(--u)*3.6)}
+body.flow #bar{position:sticky;top:0;right:auto;bottom:auto;width:100%;justify-content:center;border-radius:0;border-width:0 0 1px 0;opacity:1 !important}
+body.flow #bar .nav{display:none}
+body.flow .slide.active .plan li,body.flow .slide.active ol.sum li{animation:none}
+body.flow input[type=range]{width:min(46vw,190px)}
+body.flow .rng{white-space:normal;flex-wrap:wrap}
+body.flow table.an td svg{width:72px;height:30px}
+@media print{#bar{display:none}}
+.plan.p3{grid-template-rows:repeat(3,auto)}
+.plan.p3 li{padding:calc(var(--u)*4.2) 0}
+ol.sum li{padding:calc(var(--u)*2.8) 0}
+body.flow .plan.p3 li,body.flow ol.sum li{padding:14px 0}
+body.flow .plan.p3{grid-template-rows:none}
+</style>
+</head>
+<body>
+<div id="bar">
+  <a class="btn" href="../#sunular" aria-label="Ana sayfa" title="Ana sayfa: tüm sunular" style="text-decoration:none;display:inline-block;line-height:1">⌂</a>
+  <span class="nav"><button class="btn" data-nav="prev" aria-label="Önceki">‹</button></span>
+  <span class="count nav" id="count">1 / 20</span>
+  <span class="nav"><button class="btn" data-nav="next" aria-label="Sonraki">›</button></span>
+  <span class="seg"><button class="btn" data-theme="light">Açık</button><button class="btn" data-theme="dark">Koyu</button><button class="btn" data-theme="proj">Projeksiyon</button></span>
+  <span class="vl" title="Ses düzeyi"><svg viewBox="0 0 16 16"><path d="M2 6h3l4-3v10l-4-3H2z"/><path d="M11.5 5.5c1 1.4 1 3.6 0 5"/></svg><input type="range" id="vol" min="0" max="1" step="0.01" value="0.6" aria-label="Ses düzeyi"></span>
+  <span class="nav"><button class="btn" data-nav="fs" aria-label="Tam ekran">⤢</button></span>
+</div>
+<div id="deck"><div id="stage">
+
+<!-- 1 KAPAK -->
+<section class="slide cover" data-scene="cover">
+  <div class="kicker">Seminer · Akustiğin temelleri</div>
+  <h1>Serbest Alanda Ses</h1>
+  <div class="sub">Yayılma, ters kare yasası ve sınırları — <span style="font-style:normal">Master Handbook of Acoustics</span>’ın üçüncü bölümü üzerine</div>
+  <div class="meta"><b>F. Alton Everest &amp; Ken C. Pohlmann</b> · <i>Master Handbook of Acoustics</i>, 5. baskı · McGraw-Hill, 2009<br>Bölüm 3, “Sound in the Free Field”, s. 33–38</div>
+  <div class="hint">ilerle <kbd>→</kbd> <kbd>boşluk</kbd> · geri <kbd>←</kbd><br>tam ekran <kbd>F</kbd> · tema <kbd>T</kbd><br>sesli demolar için hoparlör ya da kulaklık</div>
+  <div class="band"><canvas></canvas></div>
+  <div class="inst">İnönü Üniversitesi · Müzik Teknolojisi</div>
+</section>
+
+<!-- 2 AKIŞ -->
+<section class="slide" data-scene="plan">
+  <div class="kicker">Akış</div>
+  <h2 class="title">Altı durak: kuramsal alandan gerçek ortama</h2>
+  <ol class="plan p3">
+    <li style="--i:0"><span class="r">I</span><span>Serbest alan<span class="d">Tanım, yankısız oda, boşlukla farkı</span></span><span class="p">s. 33</span></li>
+    <li style="--i:1"><span class="r">II</span><span>Yayılma ve şiddet<span class="d">Nokta kaynak, katı açı, ters kare yasası</span></span><span class="p">s. 33–35</span></li>
+    <li style="--i:2"><span class="r">III</span><span>Basınç ve ters uzaklık yasası<span class="d"><i>p</i> ∝ 1/<i>r</i>; ikiye katlamada −6 dB</span></span><span class="p">s. 35–36</span></li>
+    <li style="--i:3"><span class="r">IV</span><span>Örnekler ve çizgi kaynak<span class="d">20 log(<i>r</i>₂/<i>r</i>₁), mikrofon, trafik gürültüsü</span></span><span class="p">s. 36</span></li>
+    <li style="--i:4"><span class="r">V</span><span>Kapalı mekânda ses alanı<span class="d">Yakın alan, uzak alan, kritik mesafe</span></span><span class="p">s. 37–38</span></li>
+    <li style="--i:5"><span class="r">VI</span><span>Yarım küre ve açık hava<span class="d">2π<i>r</i>², zemin, rüzgâr, sıcaklık, hava soğurması</span></span><span class="p">s. 38</span></li>
+  </ol>
+  <p class="xs" style="margin-top:calc(var(--u)*3.2)"><span class="ext">◆</span> işaretli kutu ve notlar kitabın ötesine geçen eklerdir (türetim, kesin çözüm, güncel standart, kitaptaki tutarsızlıkların düzeltilmesi). Kitabın fit değerlerinin yanına SI karşılıkları yazılmıştır.</p>
+  <div class="foot"><span>Everest &amp; Pohlmann (2009) · İçindekiler, s. vii–viii</span><span class="pg"></span></div>
+</section>
+
+<!-- 3 SERBEST ALAN -->
+<section class="slide" data-scene="freefield">
+  <div class="kicker"><span class="num">I</span>Serbest alan</div>
+  <h2 class="title">Serbest alan: sesin hiçbir şeye çarpmadığı alan</h2>
+  <div class="body cw">
+    <div class="col">
+      <div class="fig" style="--h:57.5;--hm:96"><canvas></canvas></div>
+      <div class="ctl">
+        <span class="seg"><button class="btn on" data-m="real">Gerçek ortam</button><button class="btn" data-m="free">Etkileri kaldır</button></span>
+      </div>
+      <div class="cap"><b>Şekil ◆</b> Kitabın saydığı yedi etki, birer kısa ses darbesiyle. “Etkileri kaldır” seçilince engeller kesik çizgiye döner; geriye son karedeki gibi yalnız düz çizgilerde ilerleyen yayılma kalır.</div>
+    </div>
+    <div class="col">
+      <p class="sm">Pratik akustik sorunları binalarda, odalarda, uçak ve otomobillerde çıkar. Bir ses alanı binlerce yansımadan oluşabilir; sıcaklık değişimleri sesi öngörülemez biçimde bükebilir.</p>
+      <p class="sm">Sesi incelemenin en basit yolu <b>serbest alandır</b>. Orada davranış öngörülebilir, analiz kolaydır. Buradan öğrenilen temel özellikler daha karmaşık sorunlara uyarlanır.</p>
+      <div class="box"><p class="sm">Serbest alanda ses düz çizgilerde, engelsiz ilerler: <b>yansımaz, soğurulmaz, sapmaz, kırınıma ve kırılmaya uğramaz, dağınık yansımaz, rezonansa girmez.</b></p></div>
+      <p class="sm">Pratikte bu etkilerin hepsi kaynaktan çıkan sesi değiştirebilir ve değiştirir. Serbest alan çoğunlukla <b>kuramsal bir kurgudur</b>.</p>
+      <p class="xs"><span class="ext">◆</span>Kitap “sapma”yı örneklemez; şekilde rüzgârın dalga cephesini taşıması örnek olarak çizilmiştir.</p>
+    </div>
+  </div>
+  <div class="foot"><span>Everest &amp; Pohlmann (2009) · s. 33</span><span class="pg"></span></div>
+</section>
+
+<!-- 4 YANKISIZ ODA -->
+<section class="slide" data-scene="anechoic">
+  <div class="kicker"><span class="num">I</span>Serbest alan</div>
+  <h2 class="title">Yaklaşık bir serbest alan: yankısız oda</h2>
+  <div class="body ca">
+    <div class="col">
+      <div class="fig" style="--h:50;--hm:64"><canvas></canvas></div>
+      <div class="ctl">
+        <label class="rng"><span>Kama boyu <i class="serif">L</i></span> <input type="range" data-k="L" min="0.2" max="1.5" step="0.01" value="1"><span class="ro" data-o="L"></span></label>
+        <label class="rng"><span>Frekans</span> <input type="range" data-k="f" min="0" max="1" step="0.001" value="0.5"><span class="ro" data-o="f"></span></label>
+      </div>
+      <div class="ctl">
+        <button class="btn play" data-a="dry">Yankısız odada dinle</button>
+        <button class="btn play" data-a="wet">Yankılı bir odada dinle</button>
+        <span class="ro" data-o="ro"></span>
+      </div>
+      <div class="cap"><b>Şekil ◆</b> Şematik kesit: duvarlar kamalarla kaplı, zemin tel ağdır. Ses darbesinin cephesi duvara ulaşınca ayna kaynaklardan yansıyan cepheler çıkar; parlaklıkları yansıma katsayısının şematik kestirimidir. Küçük grafik bu kestirimi frekansa göre verir.</div>
+    </div>
+    <div class="col">
+      <p class="sm">Yaklaşık bir serbest alan, bütün iç yüzeyleri ses yutucularla kaplı özel odalarda kurulabilir: <b>yankısız (anekoik) odalar</b>.</p>
+      <p class="sm">Serbest alan uzay boşluğuyla karıştırılmamalıdır. Ses boşlukta yayılamaz, havaya ya da başka bir ortama gerek duyar. Buradaki “serbest uzay”, sesin kuramsal serbest alandaki gibi davrandığı herhangi bir hava hacmidir.</p>
+      <p class="sm">Bu ortamda iki soru kalır: ses kaynaktan nasıl yayılır ve şiddeti uzaklıkla nasıl değişir?</p>
+      <div class="eqbox"><span class="lab">◆ Kesim frekansı</span>
+        <div class="eq s"><i>f</i><sub>c</sub> ≈ <span class="frac"><span><i>c</i></span><span>4<i>L</i></span></span> &nbsp;·&nbsp; 1 m kama → ≈ 86 Hz</div>
+      </div>
+      <p class="xs"><span class="ext">◆</span>Kesim frekansı çoğunlukla yansımanın −20 dB’nin altında kaldığı (soğurma katsayısı ≥ 0,99) en düşük frekanstır. Kama boyu dalga boyunun dörtte birine yaklaştığında bu sağlanır. ISO 3745 odayı, ölçülen düzeyin ters kare yasasından sapmasıyla niteler.</p>
+    </div>
+  </div>
+  <div class="foot"><span>Everest &amp; Pohlmann (2009) · s. 33 · ◆ Beranek &amp; Sleeper (1946), ISO 3745</span><span class="pg"></span></div>
+</section>
+
+<!-- 5 KATI AÇI -->
+<section class="slide" data-scene="solid">
+  <div class="kicker"><span class="num">II</span>Yayılma ve şiddet</div>
+  <h2 class="title">Aynı güç, büyüyen alan</h2>
+  <div class="body ca">
+    <div class="col">
+      <div class="fig" style="--h:53;--hm:64"><canvas></canvas></div>
+      <div class="ctl">
+        <label class="rng"><span>Yarıçap</span> <input type="range" data-k="n" min="1" max="4" step="0.01" value="2"><span class="ro" data-o="n"></span></label>
+      </div>
+      <table class="t nocap">
+        <tr><th>Yarıçap</th><th>Yüzey parçası</th><th>Şiddet</th><th>Şiddet düzeyi</th></tr>
+        <tr class="hi"><td class="n" data-o="r" style="text-align:left"></td><td class="n" data-o="A" style="text-align:left"></td><td class="n" data-o="I" style="text-align:left"></td><td class="n" data-o="L" style="text-align:left"></td></tr>
+      </table>
+      <div class="cap"><b>Şekil 3-1’in canlandırması.</b> Kaynaktan çıkan enerji parçacıkları katı açının içinde ilerler. <i>A</i>₁’den geçen her parçacık <i>A</i>₂, <i>A</i>₃ ve <i>A</i>₄’ten de geçer, ama giderek daha geniş bir alana dağılır.</div>
+    </div>
+    <div class="col">
+      <p class="sm">Kaynağın en büyük boyutu, ölçüldüğü uzaklığa göre küçükse (beşte bir ya da daha az) kaynak <b>nokta</b> sayılabilir. En büyük boyutu 1 ft (30 cm) olan bir kaynak 5 ft (1,5 m) ve ötesinde nokta kaynaktır. Kaynaktan uzaklaştıkça her kaynak nokta kaynağa benzer.</p>
+      <p class="sm">Yansıtıcılardan uzak bir serbest alanda nokta kaynağın sesi her yöne eşit, <b>küresel</b> yayılır. Şiddet (birim alandaki güç) her yönde aynıdır.</p>
+      <p class="sm"><i>A</i>₁’den geçen gücün tamamı 2<i>r</i>, 3<i>r</i> ve 4<i>r</i>’deki <i>A</i>₂, <i>A</i>₃, <i>A</i>₄’ten de geçer. Bu dar yöndeki güç giderek büyüyen alanlara yayılır, bu yüzden şiddet uzaklıkla azalır.</p>
+      <div class="box"><p class="sm">Bu azalma enerjinin <b>geometrik yayılmasından</b> gelir. Sözcüğün tam anlamıyla bir kayıp değildir.</p></div>
+      <p class="xs"><span class="ext">◆</span>Toplam güç her küre yüzeyinde aynıdır: <i>W</i> = <i>I</i> · 4π<i>r</i>². Havadaki gerçek kayıp (soğurma) VI. bölümde ele alınacak.</p>
+    </div>
+  </div>
+  <div class="foot"><span>Everest &amp; Pohlmann (2009) · s. 33–34 · Şekil 3-1</span><span class="pg"></span></div>
+</section>
+
+<!-- 6 TERS KARE -->
+<section class="slide" data-scene="isq">
+  <div class="kicker"><span class="num">II</span>Yayılma ve şiddet</div>
+  <h2 class="title">Ters kare yasası</h2>
+  <div class="body ca">
+    <div class="col">
+      <div class="fig" style="--h:51;--hm:62"><canvas></canvas></div>
+      <div class="ctl">
+        <label class="rng"><span>Kaynak gücü <i class="serif">W</i></span> <input type="range" data-k="W" min="-3" max="1" step="0.01" value="0"><span class="ro" data-o="W"></span></label>
+        <label class="rng"><span>Uzaklık <i class="serif">r</i></span> <input type="range" data-k="r" min="0.5" max="4" step="0.01" value="1"><span class="ro" data-o="r"></span></label>
+      </div>
+      <table class="t nocap">
+        <tr><th>Küre yüzeyi 4π<i>r</i>²</th><th>Şiddet <i>I</i></th><th>Şiddet düzeyi <i>L</i><sub>I</sub></th><th>Güç düzeyi <i>L</i><sub>W</sub></th></tr>
+        <tr class="hi"><td class="n" data-o="S" style="text-align:left"></td><td class="n" data-o="I" style="text-align:left"></td><td class="n" data-o="LI" style="text-align:left"></td><td class="n" data-o="LW" style="text-align:left"></td></tr>
+      </table>
+      <div class="cap"><b>Şekil ◆</b> Kaynak gücü sabitken küre yüzeyi <i>r</i>² ile büyür, şiddet 1/<i>r</i>² ile küçülür. Şiddet grafiği 1 m’deki değere göre ölçeklidir; <i>W</i> yalnız tablodaki mutlak değerleri değiştirir.</div>
+    </div>
+    <div class="col">
+      <p class="sm">Kürenin alanı 4π<i>r</i>²’dir, bu yüzden küre üzerindeki her küçük parçanın alanı da yarıçapın karesiyle değişir. Şiddet uzaklığın karesiyle ters orantılı azalır:</p>
+      <div class="eqbox"><span class="lab">Denklem 3-1</span>
+        <div class="eq l"><i>I</i> = <span class="frac"><span><i>W</i></span><span>4π<i>r</i>²</span></span></div>
+        <div class="xs"><i>I</i>: birim alandaki ses gücü (şiddet) · <i>W</i>: kaynağın gücü · <i>r</i>: kaynaktan uzaklık</div>
+      </div>
+      <p class="sm"><i>W</i> ve 4π sabit olduğundan uzaklık <i>r</i>’den 2<i>r</i>’ye çıkınca şiddet <b><i>I</i>/4</b>’e iner: ses dört kat büyük bir alandan geçer. Üç katında <i>I</i>/9, dört katında <i>I</i>/16 olur. Uzaklığı 2<i>r</i>’den <i>r</i>’ye yarılamak şiddeti 4<i>I</i>’ya çıkarır.</p>
+      <div class="box warm"><p class="xs"><span class="ext">◆</span>Desibelle: <i>L</i><sub>I</sub> = <i>L</i><sub>W</sub> − 20 log <i>r</i> − 11 dB (<i>r</i> metre, 10 log 4π ≈ 11). 1 W’lık bir nokta kaynak 1 m’de 109 dB şiddet düzeyi verir.</p></div>
+    </div>
+  </div>
+  <div class="foot"><span>Everest &amp; Pohlmann (2009) · s. 34–35 · Denklem 3-1</span><span class="pg"></span></div>
+</section>
+
+<!-- 7 BASINÇ -->
+<section class="slide" data-scene="pressure">
+  <div class="kicker"><span class="num">III</span>Basınç ve ters uzaklık yasası</div>
+  <h2 class="title">Ters kare yasasından ters uzaklık yasasına</h2>
+  <div class="body ca">
+    <div class="col">
+      <div class="fig" style="--h:58.4;--hm:66"><canvas></canvas></div>
+      <div class="ctl">
+        <label class="rng"><span>Uzaklık oranı <i class="serif">r</i>/<i class="serif">r</i>₁</span> <input type="range" data-k="x" min="0" max="1" step="0.001" value="0.3333"><span class="ro" data-o="x"></span></label>
+        <span class="ro" data-o="v"></span>
+      </div>
+      <div class="cap"><b>Şekil ◆</b> Oranlar grafiğinde basınç oranı 1/<i>r</i> ile, şiddet oranı 1/<i>r</i>² ile düşer: ikisi farklı eğrilerdir. Desibel grafiğinde aynı oranlar 20 log ve 10 log ile yazılınca tek bir doğruya oturur.</div>
+    </div>
+    <div class="col">
+      <p class="sm">Şiddet ölçmesi zor bir niceliktir. Ses basıncı ise sıradan mikrofonlarla kolayca ölçülür.</p>
+      <p class="sm">Şiddet basıncın karesiyle orantılı olduğundan, şiddet için ters kare yasası basınç için <b>ters uzaklık yasasına</b> dönüşür:</p>
+      <div class="eqbox"><span class="lab">Denklem 3-2</span>
+        <div class="eq l"><i>P</i> = <span class="frac"><span><i>k</i></span><span><i>r</i></span></span></div>
+        <div class="xs"><i>P</i>: ses basıncı · <i>k</i>: bir sabit · <i>r</i>: kaynaktan uzaklık</div>
+      </div>
+      <p class="sm">Uzaklık her ikiye katlandığında basınç <b>yarıya</b> iner (dörtte bire değil). Desibel karşılığı iki yasada da aynıdır: 10 log ¼ = 20 log ½ ≈ −6 dB.</p>
+      <div class="box warm"><p class="xs"><span class="ext">◆</span>İlerleyen dalgada <i>I</i> = <i>p</i><sub>rms</sub>²/(ρ<i>c</i>); 20 °C’de ρ<i>c</i> ≈ 413 Pa·s/m. Duran dalgalarda ve karmaşık yakın alanlarda bu bağıntı bozulur. Şiddet bugün iki mikrofonlu (p–p) sondalarla doğrudan ölçülebiliyor (IEC 61043).</p></div>
+    </div>
+  </div>
+  <div class="foot"><span>Everest &amp; Pohlmann (2009) · s. 35 · Denklem 3-2</span><span class="pg"></span></div>
+</section>
+
+<!-- 8 ŞEKİL 3-2 -->
+<section class="slide" data-scene="fig32">
+  <div class="kicker"><span class="num">III</span>Basınç ve ters uzaklık yasası</div>
+  <h2 class="title">Uzaklık iki katına çıkınca düzey 6 dB düşer</h2>
+  <div class="body ca">
+    <div class="col">
+      <div class="fig" style="--h:57.5;--hm:52"><canvas></canvas></div>
+      <div class="ctl">
+        <span class="seg"><button class="btn on" data-m="log">Logaritmik uzaklık</button><button class="btn" data-m="lin">Doğrusal uzaklık</button></span>
+        <button class="btn play" data-a="steps">−6 dB adımlarını çal (1 → 32 birim)</button>
+      </div>
+      <div class="cap"><b>Şekil 3-2 yeniden çizildi.</b> Göreli ses basıncı düzeyi logaritmik uzaklık ekseninde düz bir çizgidir. Doğrusal eksende aynı ilişki bir eğriye dönüşür: ilk ikiye katlama 1 birim, sonuncusu 16 birim sürer. Ses demosu her basamağı pembe gürültüyle çalar; çalan basamak işaretlenir.</div>
+    </div>
+    <div class="col">
+      <p class="sm">Şekil, ses basıncı düzeyini uzaklığa karşı çizer. Ters uzaklık yasasının temeli budur: kaynaktan uzaklık iki katına çıkınca ses basıncı düzeyi <b>6 dB azalır</b>.</p>
+      <p class="sm">Bu yalnız <b>serbest alanda</b> geçerlidir. Yine de pek çok pratik durumda ses basıncı düzeyini kestirmenin temelini oluşturur.</p>
+      <div class="eqbox"><span class="lab">◆ Genel biçim</span>
+        <div class="eq s">Δ<i>L</i> = 20 log <span class="frac"><span><i>r</i>₁</span><span><i>r</i>₂</span></span> &nbsp;·&nbsp; 2× → −6,02 dB &nbsp;·&nbsp; 10× → −20 dB</div>
+      </div>
+      <table class="t nocap">
+        <tr><th>Uzaklık katı</th><th style="text-align:right">2</th><th style="text-align:right">4</th><th style="text-align:right">8</th><th style="text-align:right">10</th><th style="text-align:right">32</th></tr>
+        <tr><td>Δ<i>L</i> (dB)</td><td class="n">−6,0</td><td class="n">−12,0</td><td class="n">−18,1</td><td class="n">−20,0</td><td class="n">−30,1</td></tr>
+      </table>
+      <p class="xs"><span class="ext">◆</span>“6 dB” yuvarlatılmış değerdir: 20 log 2 = 6,02 dB. Beş ikiye katlamada (32 kat) fark 0,1 dB’ye ulaşır.</p>
+    </div>
+  </div>
+  <div class="foot"><span>Everest &amp; Pohlmann (2009) · s. 35–36 · Şekil 3-2</span><span class="pg"></span></div>
+</section>
+
+<!-- 9 ÖRNEK -->
+<section class="slide" data-scene="example">
+  <div class="kicker"><span class="num">IV</span>Örnekler ve çizgi kaynak</div>
+  <h2 class="title">Bir uzaklıktaki düzeyden ötekine</h2>
+  <div class="body ca">
+    <div class="col">
+      <div class="fig" style="--h:54;--hm:50"><canvas></canvas></div>
+      <div class="ctl">
+        <label class="rng"><span><i class="serif">r</i>₂</span> <input type="range" data-k="r" min="0" max="2" step="0.001" value="1.1761"><span class="ro" data-o="r"></span></label>
+        <span class="seg"><button class="btn" data-pr="7">7 ft</button><button class="btn on" data-pr="15">15 ft</button></span>
+        <span class="seg"><button class="btn on" data-u="ft">ft</button><button class="btn" data-u="m">m</button></span>
+      </div>
+      <div class="ctl">
+        <button class="btn play" data-a="cmp"><i class="serif">r</i>₁ ile <i class="serif">r</i>₂’yi karşılaştır</button>
+        <span class="ro" data-o="eq"></span>
+      </div>
+      <div class="cap"><b>Şekil ◆</b> 10 ft’te (3,05 m) ölçülen 80 dB’den başka uzaklıklara. ◇ kitabın iki sonucudur. Ses demosu <i>r</i>₁ ve <i>r</i>₂’deki düzeyleri sırayla çalar.</div>
+    </div>
+    <div class="col">
+      <p class="sm">Nokta kaynaktan <i>r</i>₁ uzaklığındaki <i>L</i>₁ düzeyi biliniyorsa, başka bir <i>r</i>₂ uzaklığındaki <i>L</i>₂ hesaplanabilir:</p>
+      <div class="eqbox"><span class="lab">Denklem 3-3 ve 3-4 (◆ işareti düzeltilmiş)</span>
+        <div class="eq s"><i>L</i>₂ = <i>L</i>₁ − 20 log <span class="frac"><span><i>r</i>₂</span><span><i>r</i>₁</span></span> &nbsp; dB &nbsp;&nbsp;·&nbsp;&nbsp; <i>L</i>₂ − <i>L</i>₁ = 20 log <span class="frac"><span><i>r</i>₁</span><span><i>r</i>₂</span></span> &nbsp; dB</div>
+      </div>
+      <table class="t nocap">
+        <tr><th>10 ft’te 80 dB ise</th><th>Hesap</th><th style="text-align:right">Sonuç</th></tr>
+        <tr><td>15 ft’te</td><td class="serif">20 log 10/15 = −3,5 dB</td><td class="n">76,5 dB</td></tr>
+        <tr><td>7 ft’te</td><td class="serif">20 log 10/7 = +3,1 dB</td><td class="n">83,1 dB</td></tr>
+      </table>
+      <p class="sm">Bu yalnız sesin küresel yayıldığı serbest alanda doğrudur. Başka koşullarda da kaba bir kestirim için işe yarar.</p>
+      <p class="xs"><span class="ext">◆</span>Bağıntı yalnız uzaklıkların oranını kullanır; birim düşer. Fit de metre de olsa sonuç aynıdır (10 ft = 3,05 m, 15 ft = 4,57 m).</p>
+      <div class="box red"><p class="xs"><span class="ext">◆</span>Kitapta Denklem 3-4, <i>L</i>₂ − <i>L</i>₁ = 20 log(<i>r</i>₂/<i>r</i>₁) diye basılmış; işaret hatalıdır. 3-3’ten 20 log(<i>r</i>₁/<i>r</i>₂) çıkar; kitabın kendi örnekleri de bu biçimi (20 log 10/15) kullanır.</p></div>
+    </div>
+  </div>
+  <div class="foot"><span>Everest &amp; Pohlmann (2009) · s. 36 · Denklem 3-3, 3-4</span><span class="pg"></span></div>
+</section>
+
+<!-- 10 MİKROFON VE TAŞINMA -->
+<section class="slide" data-scene="mic">
+  <div class="kicker"><span class="num">IV</span>Örnekler ve çizgi kaynak</div>
+  <h2 class="title">Mikrofonu uzaklaştırmak, sesin açık havada taşınması</h2>
+  <div class="body ca">
+    <div class="col">
+      <div class="fig" style="--h:58.4;--hm:78"><canvas></canvas></div>
+      <div class="ctl">
+        <label class="rng"><span>Mikrofon uzaklığı</span> <input type="range" data-k="d" min="2.5" max="20" step="0.05" value="10"><span class="ro" data-o="d"></span></label>
+        <span class="ro" data-o="m"></span>
+      </div>
+      <div class="cap"><b>Şekil ◆</b> Stüdyo görünümünde kontrol odası göstergesi iki okuma verir: serbest alan ve bir oda. Açık hava şeridinde uzaklık ekseni doğrusaldır; her ikiye katlama aynı 6 dB’yi getirir ama giderek daha uzun bir yol ister.</div>
+    </div>
+    <div class="col">
+      <p class="sm">Bir şarkıcıdan 5 ft (1,5 m) uzaktaki mikrofonla kontrol odasındaki VU göstergesi +6 dB’de tepe yapıyorsa, mikrofonu 10 ft’e (3 m) almak okumayı <b>yaklaşık 6 dB</b> düşürür.</p>
+      <p class="sm">“Yaklaşık”, çünkü bu ilişkiler yalnız serbest alanda geçerlidir. Pratikte duvarlardan yansıyan enerji, ikiye katlamadaki düşüşü 6 dB’nin altına çeker.</p>
+      <p class="sm">Bu ilişkileri bilmek akustik durumları kestirmeyi kolaylaştırır. Serbest uzayda 10’dan 20 ft’e çıkmak da, 100’den 200 ft’e çıkmak da aynı <b>6 dB</b> düşüşü getirir. Sesin açık havadaki büyük taşıma gücü buradan gelir.</p>
+      <p class="xs"><span class="ext">◆</span>“Oda” okuması kritik mesafe <i>r</i><sub>c</sub> = 8 ft (2,4 m) kabul edilerek V. bölümdeki Hopkins–Stryker bağıntısıyla hesaplanmıştır. Bu odada ikiye katlama 6 dB yerine yalnız 3,4 dB düşürür.</p>
+    </div>
+  </div>
+  <div class="foot"><span>Everest &amp; Pohlmann (2009) · s. 36</span><span class="pg"></span></div>
+</section>
+
+<!-- 11 ÇİZGİ KAYNAK -->
+<section class="slide" data-scene="line">
+  <div class="kicker"><span class="num">IV</span>Örnekler ve çizgi kaynak</div>
+  <h2 class="title">Çizgi kaynak: silindirik yayılma, ikiye katlamada −3 dB</h2>
+  <div class="body ca">
+    <div class="col">
+      <div class="fig" style="--h:57.6;--hm:80"><canvas></canvas></div>
+      <div class="ctl">
+        <label class="rng"><span>Yol uzunluğu <i class="serif">ℓ</i></span> <input type="range" data-k="l" min="1" max="3.3" step="0.001" value="2.3"><span class="ro" data-o="l"></span></label>
+        <button class="btn play" data-a="p">Nokta kaynak: −6 dB adımları</button>
+        <button class="btn play" data-a="c">Çizgi kaynak: −3 dB adımları</button>
+      </div>
+      <div class="cap"><b>Şekil ◆</b> Yayılma görünümü yolu yukarıdan gösterir: eşit zaman cepheleri yolun yakınında düz (silindirik), uzakta yuvarlaktır (küresel). Düzey grafiğinde sonlu yol, sonsuz çizgi (−3 dB) ile nokta kaynak (−6 dB) arasında geçiş yapar. Ses demoları iki kuralı aynı uzaklık adımlarıyla (1, 2, 4, 8, 16) çalar.</div>
+    </div>
+    <div class="col">
+      <p class="sm">Uzakta bile her kaynak nokta kaynak gibi davranmaz. Yoğun bir yoldaki trafik gürültüsü, bir çizgi boyunca dizilmiş çok sayıda nokta kaynakla daha iyi modellenir. Ses çizginin çevresinde bir <b>silindir</b> içinde yayılır.</p>
+      <p class="sm">Bu durumda şiddet uzaklıkla ters orantılıdır: <i>r</i>’den 2<i>r</i>’ye çıkmak şiddeti <i>I</i>/2’ye indirir. Çizgi kaynaktan uzaklık her ikiye katlandığında düzey <b>3 dB</b> düşer, her yarılandığında 3 dB artar.</p>
+      <div class="eqbox"><span class="lab">◆ Sonlu çizgi, ilişkisiz kaynaklar</span>
+        <div class="eq s"><span class="frac"><span><i>p</i>²</span><span>ρ<i>c</i></span></span> = <span class="frac"><span><i>W</i>′</span><span>4π<i>r</i></span></span> · 2 arctan <span class="frac"><span><i>ℓ</i></span><span>2<i>r</i></span></span> &nbsp;·&nbsp; geçiş: <i>r</i> ≈ <i>ℓ</i>/π</div>
+      </div>
+      <p class="xs"><span class="ext">◆</span><i>W</i>′ birim uzunluk başına güçtür. <i>r</i> ≪ <i>ℓ</i> iken bağıntı sonsuz çizgiye (∝ 1/<i>r</i>), <i>r</i> ≫ <i>ℓ</i> iken gücü <i>W</i>′<i>ℓ</i> olan nokta kaynağa (∝ 1/<i>r</i>²) gider. İki eğilimin kesiştiği uzaklık <i>ℓ</i>/π’dir.</p>
+    </div>
+  </div>
+  <div class="foot"><span>Everest &amp; Pohlmann (2009) · s. 36 · ◆ Kinsler vd. (2000)</span><span class="pg"></span></div>
+</section>
+
+<!-- 12 ŞEKİL 3-3 -->
+<section class="slide" data-scene="room" data-steps="3">
+  <div class="kicker"><span class="num">V</span>Kapalı mekânda ses alanı</div>
+  <h2 class="title">Kapalı mekânda: doğrudan ses ve yankılanma</h2>
+  <div class="body ca">
+    <div class="col">
+      <div class="fig" style="--h:62;--hm:54"><canvas></canvas></div>
+      <div class="cap"><b>Şekil 3-3 yeniden çizildi.</b> 4 ft’te (1,2 m) 100 dB veren bir hoparlör. Kesik çizgi doğrudan ses, kalın eğri toplam düzeydir; eğri kitabın şekliyle uyumlu biçimde, 85 dB yankılanma düzeyiyle hesaplanmıştır. Adımlar bölgeleri sırayla açar.</div>
+    </div>
+    <div class="col">
+      <p class="sm">Kapalı mekânda serbest alan yalnız yankısız koşullarda vardır. Çoğu odada doğrudan sese yüzeylerden gelen yansımalar eklenir; ters kare ya da ters uzaklık yasası alanın tamamını anlatmaz. Tam yankılanmalı bir alanda düzey <b>her yerde aynıdır</b>; odalar iki ucun karışımıdır.</p>
+      <p class="sm frag" data-f="1"><b>Yakın alan.</b> Hoparlöre çok yakında alan karmakarışıktır, kaynak nokta sayılamaz; kitaba göre düzey ikiye katlamada yaklaşık 12 dB düşer. Pratik önemi sınırlıdır ve “yakın alan monitörleme” ile karıştırılmamalıdır.</p>
+      <p class="sm frag" data-f="1"><b>Uzak alan</b> birkaç hoparlör boyutu ötede başlar: serbest alan, geçiş bölgesi ve yankılanma alanı. Serbest alan bölümünde doğrudan ses baskındır, düşüş 6 dB/ikiye katlamadır.</p>
+      <p class="sm frag" data-f="2"><b>Kritik mesafe</b>, doğrudan ve yansıyan sesin eşit olduğu yerdir; ortamın akustiğini anlatan kaba, tek sayılık bir ölçüdür.</p>
+      <p class="sm frag" data-f="3"><b>Yankılanma alanında</b> düzey uzaklaştıkça da sabit kalır ve odadaki soğurmaya bağlıdır: çok soğurucu bir odada yankılanma düzeyi daha düşüktür.</p>
+      <div class="box red frag" data-f="2"><p class="xs"><span class="ext">◆</span>Şekildeki “kritik mesafe” etiketi ≈ 13 ft’i, yani eğrinin doğrudan ses çizgisinden ayrılmaya başladığı yeri gösteriyor. Tanıma göre doğrudan ses 85 dB’lik yankılanma düzeyine ≈ 22,5 ft’te (6,9 m) iner; toplam düzey orada 88 dB’dir (+3 dB).</p></div>
+    </div>
+  </div>
+  <div class="foot"><span>Everest &amp; Pohlmann (2009) · s. 37–38 · Şekil 3-3</span><span class="pg"></span></div>
+</section>
+
+<!-- 13 KRİTİK MESAFE -->
+<section class="slide" data-scene="crit">
+  <div class="kicker"><span class="num">V</span>Kapalı mekânda ses alanı</div>
+  <h2 class="title">Kritik mesafe: doğrudan ses yankılanmaya eşitlenince</h2>
+  <div class="body ca">
+    <div class="col">
+      <div class="fig" style="--h:50.4;--hm:52"><canvas></canvas></div>
+      <div class="ctl">
+        <label class="rng"><span>Oda sabiti <i class="serif">R</i></span> <input type="range" data-k="R" min="1" max="3.7" step="0.001" value="3.3734"><span class="ro" data-o="R"></span></label>
+        <label class="rng"><span>Yönlülük <i class="serif">Q</i></span> <input type="range" data-k="Q" min="1" max="10" step="0.1" value="1"><span class="ro" data-o="Q"></span></label>
+        <label class="rng"><span>Dinleyici <i class="serif">r</i></span> <input type="range" data-k="r" min="-0.5" max="1.6" step="0.001" value="0.4771"><span class="ro" data-o="r"></span></label>
+      </div>
+      <div class="ctl">
+        <span class="seg"><button class="btn on" data-pr="book">Kitaptaki şekil</button><button class="btn" data-pr="studio">Küçük oda</button></span>
+        <button class="btn play" data-a="hear">Bu konumda dinle</button>
+        <span class="ro" data-o="dr"></span>
+      </div>
+      <div class="cap"><b>Şekil ◆</b> <i>L</i><sub>W</sub> = 112,7 dB, <i>Q</i> = 1 ve <i>R</i> ≈ 2360 m² kitaptaki şekli verir. Ses demosunda toplam düzey sabit tutulur; yalnız doğrudan sesin yankılanmaya oranı <i>r</i>/<i>r</i><sub>c</sub> ile değişir.</div>
+    </div>
+    <div class="col">
+      <div class="eqbox"><span class="lab">◆ Hopkins–Stryker bağıntısı</span>
+        <div class="eq s"><i>L</i> = <i>L</i><sub>W</sub> + 10 log ( <span class="frac"><span><i>Q</i></span><span>4π<i>r</i>²</span></span> + <span class="frac"><span>4</span><span><i>R</i></span></span> ) &nbsp;·&nbsp; <i>r</i><sub>c</sub> = √(<i>QR</i>/16π) ≈ 0,141 √(<i>QR</i>)</div>
+      </div>
+      <p class="sm">İlk terim uzaklıkla azalan <b>doğrudan ses</b>, ikincisi uzaklıktan bağımsız <b>yankılanma</b> payıdır. İkisi kritik mesafede eşitlenir; kitabın tanımı budur.</p>
+      <p class="sm"><i>R</i> = <i>A</i>/(1 − ᾱ) oda sabitidir (<i>A</i> = <i>S</i>ᾱ, toplam soğurma). Soğurma artınca <i>R</i> büyür: yankılanma düzeyi düşer, <i>r</i><sub>c</sub> uzar. Yönlü bir kaynak (büyük <i>Q</i>) eksen üzerinde <i>r</i><sub>c</sub>’yi uzatır.</p>
+      <p class="sm">Bir kayıtta mikrofon <i>r</i><sub>c</sub>’nin içindeyse kaynak, dışındaysa oda baskın duyulur.</p>
+      <p class="xs"><span class="ext">◆</span>Bağıntı yansıyan alanın difüz olduğunu varsayar. Ses örneğindeki yankı kuyruğu örnektir (<i>T</i>₆₀ ≈ 1,4 s).</p>
+    </div>
+  </div>
+  <div class="foot"><span>Everest &amp; Pohlmann (2009) · s. 38 · ◆ Hopkins &amp; Stryker (1948)</span><span class="pg"></span></div>
+</section>
+
+<!-- 14 YAKIN ALAN -->
+<section class="slide" data-scene="near">
+  <div class="kicker"><span class="num">V</span>Kapalı mekânda ses alanı</div>
+  <h2 class="title">Yakın alan: “12 dB” kuralı nereden geliyor?</h2>
+  <div class="body ca">
+    <div class="col">
+      <div class="fig" style="--h:55;--hm:80"><canvas></canvas></div>
+      <div class="ctl">
+        <label class="rng"><span>Piston yarıçapı <i class="serif">a</i></span> <input type="range" data-k="a" min="0.02" max="0.2" step="0.001" value="0.1"><span class="ro" data-o="a"></span></label>
+        <label class="rng"><span>Frekans</span> <input type="range" data-k="f" min="0" max="1" step="0.001" value="0.7658"><span class="ro" data-o="f"></span></label>
+        <span class="ro" data-o="v"></span>
+      </div>
+      <div class="cap"><b>Şekil ◆</b> Piston grafiği, düz bir duvara gömülü dairesel pistonun eksen üzerindeki kesin basıncıdır; kesik çizgi uzak alan yaklaşımı, noktalı çizgi kitabın 12 dB/ikiye katlama eğimidir. Tek kutup grafiği nokta kaynağın basıncını ve parçacık hızını <i>kr</i>’ye karşı verir.</div>
+    </div>
+    <div class="col">
+      <p class="sm">Kitap, hoparlöre çok yakın bölgede kaynağın nokta sayılamayacağını ve düzeyin ikiye katlamada yaklaşık 12 dB düştüğünü söyler.</p>
+      <div class="box warm"><p class="sm"><span class="ext">◆</span>Kesin çözüm başka bir tablo çiziyor. Düz bir pistonun ekseninde basınç yakın alanda tek bir eğimle azalmaz: kenardan ve merkezden gelen sesler girişim yapar, basınç sıfırlarla ve tepelerle salınır. Son tepe ≈ <i>a</i>²/λ’dadır; salınım Rayleigh uzaklığı <i>R</i>₀ = π<i>a</i>²/λ’nın ötesinde biter.</p></div>
+      <p class="sm"><span class="ext">◆</span>1/<i>r</i>² ile azalma (12 dB/ikiye katlama), tek kutuplu bir kaynağın yakın alanında (<i>kr</i> ≪ 1) <b>parçacık hızına</b> aittir; basınç orada da 1/<i>r</i> ile azalır. Basınç gradyanına duyarlı mikrofonlardaki <b>yakınlık etkisi</b> bu farkın sonucudur.</p>
+      <div class="eqbox"><span class="lab">◆ Eksen üstü piston · tek kutup</span>
+        <div class="eq s">|<i>p</i>| = 2ρ<i>cU</i>₀ |sin[ <span class="frac"><span><i>k</i></span><span>2</span></span>(√(<i>r</i>² + <i>a</i>²) − <i>r</i>) ]| &nbsp;·&nbsp; <span class="frac"><span>ρ<i>c</i>|<i>u</i>|</span><span>|<i>p</i>|</span></span> = √(1 + 1/(<i>kr</i>)²)</div>
+      </div>
+      <p class="xs"><span class="ext">◆</span>Güvenilir bir uzak alan ölçümü için <i>r</i> ≫ <i>a</i>, <i>r</i> ≫ <i>R</i>₀ ve <i>r</i> ≫ λ/2π birlikte sağlanmalıdır.</p>
+    </div>
+  </div>
+  <div class="foot"><span>Everest &amp; Pohlmann (2009) · s. 37 · ◆ Kinsler vd. (2000)</span><span class="pg"></span></div>
+</section>
+
+<!-- 15 YARIM KÜRE -->
+<section class="slide" data-scene="hemi">
+  <div class="kicker"><span class="num">VI</span>Yarım küre ve açık hava</div>
+  <h2 class="title">Yarım küresel alan: aynı güç, yarı alan, +3 dB</h2>
+  <div class="body ca">
+    <div class="col">
+      <div class="fig" style="--h:57.5;--hm:82"><canvas></canvas></div>
+      <div class="ctl">
+        <span class="seg"><button class="btn" data-q="1"><i class="serif">Q</i> = 1</button><button class="btn on" data-q="2"><i class="serif">Q</i> = 2</button><button class="btn" data-q="4"><i class="serif">Q</i> = 4</button><button class="btn" data-q="8"><i class="serif">Q</i> = 8</button></span>
+        <button class="btn play" data-a="steps">+3 dB adımlarını çal</button>
+      </div>
+      <div class="cap"><b>Şekil ◆</b> Kaynak (dolu nokta) ve sınırların oluşturduğu ayna kaynaklar (boş nokta) kesitte. Sabit güçte yayılma alanı 4π<i>r</i>²/<i>Q</i>’ya iner. Düzey grafiğinde dört durum paralel doğrulardır: eğim aynı (−6 dB/ikiye katlama), başlangıç 10 log <i>Q</i> kadar yüksek.</div>
+    </div>
+    <div class="col">
+      <p class="sm">Gerçek küresel yayılma hiç yansıtıcı yüzey istemez; bunu sağlamak zordur. Yaklaşık bir çözüm, hoparlörü sert ve yansıtıcı bir zemine <b>yüzü yukarı bakacak</b> biçimde koymaktır: yukarı doğru yayılan yarım küresel bir alan oluşur. Hoparlörün yanıtını ölçmek için kullanılabilir.</p>
+      <div class="eqbox"><span class="lab">Yarım küre</span>
+        <div class="eq"><i>I</i> = <span class="frac"><span><i>W</i></span><span>2π<i>r</i>²</span></span></div>
+      </div>
+      <p class="sm">Yarım küresel alanda da düzey ikiye katlamada 6 dB düşer, ama küresel alandan <b>3 dB yüksek</b> başlar.</p>
+      <div class="box warm"><p class="xs"><span class="ext">◆</span>Yönlülük çarpanı <i>Q</i> ile genelleme: zemin ve duvar (<i>Q</i> = 4) +6 dB, köşe (<i>Q</i> = 8) +9 dB; kaynak gücü sabitse. Yüzeye çok yakın küçük bir kaynak alçak frekansta ayna kaynağıyla aynı fazda çalışır; hacim hızı sabitse her yüzey basıncı ikiye katlar (+6 dB) ve ışınan gücü de artırır.</p></div>
+    </div>
+  </div>
+  <div class="foot"><span>Everest &amp; Pohlmann (2009) · s. 38 · ◆ Kinsler vd. (2000)</span><span class="pg"></span></div>
+</section>
+
+<!-- 16 ZEMİN -->
+<section class="slide" data-scene="ground">
+  <div class="kicker"><span class="num">VI</span>Yarım küre ve açık hava</div>
+  <h2 class="title">Açık havada: ikiye katlamada 6 değil, 4–5 dB</h2>
+  <div class="body ca">
+    <div class="col">
+      <div class="fig" style="--h:50.5;--hm:72"><canvas></canvas></div>
+      <div class="ctl">
+        <label class="rng"><span>Kaynak <i class="serif">h</i><sub>s</sub></span> <input type="range" data-k="hs" min="0.2" max="5" step="0.01" value="1.52"><span class="ro" data-o="hs"></span></label>
+        <label class="rng"><span>Alıcı <i class="serif">h</i><sub>r</sub></span> <input type="range" data-k="hr" min="0.2" max="5" step="0.01" value="1.52"><span class="ro" data-o="hr"></span></label>
+        <label class="rng"><span>Uzaklık <i class="serif">r</i></span> <input type="range" data-k="r" min="0" max="2" step="0.001" value="0.4840"><span class="ro" data-o="r"></span></label>
+      </div>
+      <div class="ctl">
+        <span class="seg"><button class="btn on" data-m="e">Geniş bant (enerji)</button><button class="btn" data-m="c">Tek frekans</button></span>
+        <label class="rng"><span>Frekans</span> <input type="range" data-k="f" min="0" max="1" step="0.001" value="0.5"><span class="ro" data-o="f"></span></label>
+        <button class="btn play" data-a="hear">Bu konumda dinle</button>
+      </div>
+      <div class="cap"><b>Şekil ◆</b> Geometri görünümünde doğrudan yol ve zeminin altındaki ayna kaynaktan gelen yansıma; düşey ölçek abartılıdır. Düzey grafiğinde kesik çizgi serbest alan, kalın eğri iki yolun toplamıdır. Ses demosu pembe gürültüyü bu iki yoldan geçirir: uzaklık değişince tarak süzgecinin çukurları kayar.</div>
+    </div>
+    <div class="col">
+      <p class="sm">Kitap: dünya yüzeyi üzerindeki yayılmayı “6 dB/ikiye katlama” kuralıyla kestirmek kabadır. Yerden yansımalar, düzeyin uzaklıkla azalmasını genellikle 6 dB’nin altına çeker; yerin yansıtma verimi yerden yere değişir.</p>
+      <p class="sm">10 ft ile 20 ft (3 ile 6 m) arasındaki fark, pratikte 6 dB’den çok <b>4 dB</b>’ye yakındır. Açık hava ölçümlerinde yasa “ikiye katlamada <b>4 ya da 5 dB</b>” alınmalıdır. Çevresel gürültü de ölçümü etkiler.</p>
+      <div class="box warm"><p class="xs"><span class="ext">◆</span>En basit model iki yoldur. Enerjiler toplanırsa (geniş bant, sert zemin) 1,5 m yükseklikteki kaynak ve alıcı için 3’ten 6 m’ye düşüş 5,2 dB çıkar: yansıyan yol uzaklaştıkça doğrudan yola yaklaşır ve payı artar. Tek frekansta iki yol girişim yapar; uzaklıkla kayan çukurlar oluşur.</p></div>
+      <p class="xs"><span class="ext">◆</span>Model düz ve sert bir zemin (yansıma katsayısı 1) varsayar. Gerçek zeminin yansıması açıya ve frekansa bağlıdır (ISO 9613-2’deki zemin etkisi terimi).</p>
+    </div>
+  </div>
+  <div class="foot"><span>Everest &amp; Pohlmann (2009) · s. 38 · ◆ Embleton (1996)</span><span class="pg"></span></div>
+</section>
+
+<!-- 17 KIRILMA -->
+<section class="slide" data-scene="refract">
+  <div class="kicker"><span class="num">VI</span>Yarım küre ve açık hava</div>
+  <h2 class="title">Rüzgâr ve sıcaklık sesi büker</h2>
+  <div class="body ca">
+    <div class="col">
+      <div class="fig" style="--h:52;--hm:60"><canvas></canvas></div>
+      <div class="ctl">
+        <span class="seg"><button class="btn on" data-pr="day">Güneşli gün</button><button class="btn" data-pr="night">Gece terselmesi</button><button class="btn" data-pr="down">Rüzgâr yönünde</button><button class="btn" data-pr="up">Rüzgâra karşı</button></span>
+      </div>
+      <div class="ctl">
+        <label class="rng"><span>Ses hızı gradyanı d<i class="serif">c</i>/d<i class="serif">z</i></span> <input type="range" data-k="g" min="-0.3" max="0.3" step="0.005" value="-0.1"><span class="ro" data-o="g"></span></label>
+        <span class="ro" data-o="v"></span>
+      </div>
+      <div class="cap"><b>Şekil ◆</b> Kaynak 2 m yükseklikte; ışınlar −8° ile +14° arasında atılır ve zeminden yansır. Profil görünümü etkin ses hızının yükseklikle değişimini verir. Düşey ölçek abartılıdır (çarpan şeklin başlığında); gradyanlar örnek değerlerdir.</div>
+    </div>
+    <div class="col">
+      <p class="sm">Bölümün girişindeki uyarı: gerçek sorunlarda sıcaklık gradyanları sesi öngörülemez biçimde bükebilir. Serbest alanda yoktur, açık havada her zaman vardır.</p>
+      <p class="sm"><span class="ext">◆</span>Ses hızı sıcaklıkla artar (<i>c</i> ≈ 331,3 + 0,606 <i>T</i> m/s, <i>T</i> °C) ve rüzgâr hızı yayılma yönündeki bileşeni kadar eklenir. Işınlar her zaman <b>ses hızının düşük olduğu yana</b> bükülür.</p>
+      <ul class="pts">
+        <li class="sm">Ses hızı yükseklikle azalırsa (güneşli gün, rüzgâra karşı) ışınlar yukarı kıvrılır ve yerde bir <b>gölge bölgesi</b> oluşur.</li>
+        <li class="sm">Artarsa (gece sıcaklık terselmesi, rüzgâr yönünde) ışınlar yere geri döner: ses beklenenden çok uzağa taşınır.</li>
+      </ul>
+      <div class="eqbox"><span class="lab">◆ Doğrusal profil</span>
+        <div class="eq s">ışın yarıçapı ≈ <i>c</i>/|d<i>c</i>/d<i>z</i>| &nbsp;·&nbsp; gölge sınırı <i>x</i> ≈ √(2<i>c</i>/|d<i>c</i>/d<i>z</i>|) (√<i>h</i><sub>s</sub> + √<i>h</i><sub>r</sub>)</div>
+      </div>
+    </div>
+  </div>
+  <div class="foot"><span>Everest &amp; Pohlmann (2009) · s. 33 · ◆ Embleton (1996)</span><span class="pg"></span></div>
+</section>
+
+<!-- 18 HAVA SOĞURMASI -->
+<section class="slide" data-scene="air">
+  <div class="kicker"><span class="num">VI</span>Yarım küre ve açık hava</div>
+  <h2 class="title">Hava soğurması: gerçek kayıp tizlerde</h2>
+  <div class="body ca">
+    <div class="col">
+      <div class="fig" style="--h:50.7;--hm:72"><canvas></canvas></div>
+      <div class="ctl">
+        <label class="rng"><span>Sıcaklık</span> <input type="range" data-k="T" min="-10" max="35" step="0.5" value="20"><span class="ro" data-o="T"></span></label>
+        <label class="rng"><span>Bağıl nem</span> <input type="range" data-k="H" min="10" max="100" step="1" value="70"><span class="ro" data-o="H"></span></label>
+        <label class="rng"><span>Uzaklık <i class="serif">d</i></span> <input type="range" data-k="d" min="1" max="3.3" step="0.001" value="2.699"><span class="ro" data-o="d"></span></label>
+      </div>
+      <div class="ctl">
+        <button class="btn play" data-a="hear">Bu uzaklıktan dinle</button>
+        <span class="ro" data-o="v"></span>
+      </div>
+      <div class="cap"><b>Şekil ◆</b> Soğurma katsayısı grafiği ISO 9613-1 bağıntısından hesaplanır; kesik eğri 20 °C, %70 nem başvurusudur. Uzaklıktaki spektrum grafiği yalnız havanın getirdiği kaybı gösterir. Ses demosunda geometrik yayılma çıkarılmıştır: yalnız tını değişir.</div>
+    </div>
+    <div class="col">
+      <p class="sm"><span class="ext">◆</span>Geometrik yayılma bir kayıp değildi (II. bölüm). Havada gerçek bir kayıp da vardır: moleküler gevşeme (oksijen, azot) ve klasik soğurma sesin enerjisini ısıya çevirir.</p>
+      <p class="sm">Bu kayıp uzaklıkla <b>doğrusal</b> büyür (dB/m) ve frekansla hızla artar; sıcaklığa ve neme bağlıdır.</p>
+      <div class="eqbox"><span class="lab">◆ Toplam açık hava zayıflaması (ISO 9613-2)</span>
+        <div class="eq s"><i>A</i> = <i>A</i><sub>div</sub> + <i>A</i><sub>atm</sub> + <i>A</i><sub>gr</sub> + <i>A</i><sub>bar</sub> + <i>A</i><sub>misc</sub></div>
+        <div class="eq s"><i>A</i><sub>div</sub> = 20 log(<i>d</i>/1 m) + 11 dB &nbsp;·&nbsp; <i>A</i><sub>atm</sub> = α <i>d</i></div>
+      </div>
+      <p class="sm"><i>A</i><sub>div</sub> kitabın ters kare yasasıdır; <i>A</i><sub>gr</sub> zemin, <i>A</i><sub>bar</sub> engel etkisidir. 20 °C ve %70 nemde α ≈ 5 dB/km (1 kHz), 23 dB/km (4 kHz), 78 dB/km (8 kHz): 500 m ötede 8 kHz yalnız havada ≈ 39 dB kaybeder.</p>
+    </div>
+  </div>
+  <div class="foot"><span>◆ ISO 9613-1:1993, ISO 9613-2:1996</span><span class="pg"></span></div>
+</section>
+
+<!-- 19 ÇIKARIMLAR -->
+<section class="slide" data-scene="summary">
+  <div class="kicker">Çıkarımlar</div>
+  <h2 class="title">Bölüm 3’ten yanımıza aldıklarımız</h2>
+  <ol class="sum">
+    <li style="--i:0"><span>Serbest alanda ses düz çizgilerde, yansımadan ve soğurulmadan ilerler. Yaklaşığı yankısız odadır; uzay boşluğu değildir.</span></li>
+    <li style="--i:1"><span>Ölçüm uzaklığı kaynağın en büyük boyutunun beş katı ya da daha fazlaysa kaynak nokta sayılır; gücü küre yüzeylerine yayılır: <i>I</i> = <i>W</i>/4π<i>r</i>².</span></li>
+    <li style="--i:2"><span>Şiddetteki azalma geometrik yayılmadır, kayıp değildir: uzaklık ikiye katlanınca <i>I</i>/4.</span></li>
+    <li style="--i:3"><span>Basınç 1/<i>r</i> ile azalır; desibelde iki yasa aynı sonucu verir: ikiye katlamada −6 dB, on katta −20 dB.</span></li>
+    <li style="--i:4"><span><i>L</i>₂ = <i>L</i>₁ − 20 log(<i>r</i>₂/<i>r</i>₁) yalnız oranı kullanır; 10→20 ft ile 100→200 ft aynı 6 dB’dir.</span></li>
+    <li style="--i:5"><span>Çizgi kaynakta (trafik) ikiye katlamada −3 dB; sonlu bir çizgi <i>ℓ</i>/π’nin ötesinde yeniden nokta kaynaktır.</span></li>
+    <li style="--i:6"><span>Odada doğrudan ses kritik mesafeye kadar baskındır; ötesinde düzey sabit kalır ve soğurmaya bağlıdır.</span></li>
+    <li style="--i:7"><span>Sert zeminde yarım küresel alan +3 dB verir; açık havada zemin, rüzgâr, sıcaklık ve hava soğurması 6 dB kuralını değiştirir.</span></li>
+  </ol>
+  <p class="sm" style="margin-top:calc(var(--u)*3.4);color:var(--ink3)">Sonraki: <b style="color:var(--ink)">Bölüm 4 — Sesin algılanması.</b> Kulak bu fiziksel nicelikleri nasıl duyar?</p>
+  <div class="foot"><span>Everest &amp; Pohlmann (2009) · Bölüm 3</span><span class="pg"></span></div>
+</section>
+
+<!-- 20 TARTIŞMA VE KAYNAKÇA -->
+<section class="slide" data-scene="refs">
+  <div class="kicker">Tartışma ve kaynakça</div>
+  <h2 class="title">Açık sorular</h2>
+  <div class="body c2">
+    <div class="col">
+      <ul class="pts qs">
+        <li>Bir hoparlörü yarım küresel bir zeminde ve yankısız odada ölçmek hangi frekanslarda farklı sonuç verir? Neden?</li>
+        <li>Kayıtta mikrofonu kritik mesafenin içine ya da dışına koymak neyi değiştirir? Yönlü bir mikrofon <i>r</i><sub>c</sub>’yi nasıl etkiler?</li>
+        <li>Trafik gürültüsündeki −3 dB kuralı, yol uzunluğu ve araç yoğunluğu değişince nerede bozulur?</li>
+        <li>Gece uzaktan duyulan bir konser sesini hangi etkiler açıklar: ters kare yasası, kırılma, hava soğurması?</li>
+      </ul>
+    </div>
+    <div class="col">
+      <ol class="refs">
+        <li>Everest, F. A. &amp; Pohlmann, K. C. (2009). <i>Master Handbook of Acoustics</i> (5. bs.). McGraw-Hill. Bölüm 3, s. 33–38.</li>
+        <li>Hopkins, H. F. &amp; Stryker, N. R. (1948). A proposed loudness-efficiency rating for loudspeakers and the determination of system power requirements for enclosures. <i>Proceedings of the IRE</i>, 36(3), 315–335.</li>
+        <li>Beranek, L. L. &amp; Sleeper, H. P. (1946). The design and construction of anechoic sound chambers. <i>Journal of the Acoustical Society of America</i>, 18(1), 140–150.</li>
+        <li>Kinsler, L. E., Frey, A. R., Coppens, A. B. &amp; Sanders, J. V. (2000). <i>Fundamentals of Acoustics</i> (4. bs.). Wiley.</li>
+        <li>Embleton, T. F. W. (1996). Tutorial on sound propagation outdoors. <i>Journal of the Acoustical Society of America</i>, 100(1), 31–48.</li>
+        <li>ISO 9613-1:1993 ve ISO 9613-2:1996. <i>Acoustics — Attenuation of sound during propagation outdoors</i>, Bölüm 1 ve 2.</li>
+        <li>ISO 3745:2012. <i>Acoustics — Determination of sound power levels … — Precision methods for anechoic rooms and hemi-anechoic rooms</i>.</li>
+        <li>IEC 61043:1993. <i>Electroacoustics — Instruments for the measurement of sound intensity</i>.</li>
+      </ol>
+    </div>
+  </div>
+  <div class="foot"><span>Kitabın dışındaki kaynaklar yalnız ◆ işaretli ekler içindir.</span><span class="pg"></span></div>
+</section>
+
+<div id="progress"></div>
+</div></div>
+<script>
+'use strict';
+/* ====================== temel yardımcılar ====================== */
+const $ = (s, r = document) => r.querySelector(s);
+const $$ = (s, r = document) => [...r.querySelectorAll(s)];
+const ROOT = document.documentElement;
+const TAU = Math.PI * 2;
+const C0 = 343.2;                       // ses hızı, 20 °C
+const RHO = 1.204;                      // hava yoğunluğu, 20 °C
+let U = 10;                             // 1 birim (px)
+let COL = {};
+const FONT = {
+  sans: '"Source Sans 3","Source Sans Pro","Helvetica Neue",Arial,sans-serif',
+  serif: '"Source Serif 4","Source Serif Pro",Georgia,"Times New Roman",serif',
+  mono: '"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace'
+};
+function readColors() {
+  const cs = getComputedStyle(ROOT);
+  for (const k of ['bg', 'stage', 'panel', 'ink', 'ink2', 'ink3', 'rule', 'grid', 'c1', 'c2', 'c3', 'c4', 'c5'])
+    COL[k] = cs.getPropertyValue('--' + k).trim();
+  COL.lw = parseFloat(cs.getPropertyValue('--lw')) || 1;
+  COL.dark = ROOT.dataset.theme === 'dark';
+}
+const fs = k => Math.max(10.5, k * U);
+const LW = k => Math.max(0.8, k * Math.max(U, 7) / 10 * COL.lw);
+const clamp = (x, a, b) => Math.min(b, Math.max(a, x));
+const lerp = (a, b, t) => a + (b - a) * t;
+const ease = t => t < 0 ? 0 : t > 1 ? 1 : t * t * (3 - 2 * t);
+const ease3 = t => 1 - Math.pow(1 - clamp(t, 0, 1), 3);
+function fmt(x, d = 1) {
+  if (!isFinite(x)) return '—';
+  let s = x.toLocaleString('tr-TR', { minimumFractionDigits: d, maximumFractionDigits: d, useGrouping: false });
+  const neg = s[0] === '-'; if (neg) s = s.slice(1);
+  if (Math.abs(x) >= 10000) { const p = s.split(','); p[0] = p[0].replace(/\B(?=(\d{3})+(?!\d))/g, '\u202F'); s = p.join(','); }
+  return (neg && !/^0(,0*)?$/.test(s) ? '−' : '') + s;
+}
+function fmtHz(f) {
+  if (f >= 10000) return fmt(f / 1000, 1) + ' kHz';
+  if (f >= 1000) return fmt(f / 1000, 2) + ' kHz';
+  if (f >= 100) return fmt(f, 0) + ' Hz';
+  return fmt(f, 1) + ' Hz';
+}
+function fmtLen(m) {
+  const a = Math.abs(m);
+  if (a >= 1) return fmt(m, a >= 10 ? 1 : 2) + ' m';
+  if (a >= 0.01) return fmt(m * 100, a >= 0.1 ? 1 : 2) + ' cm';
+  if (a >= 1e-3) return fmt(m * 1000, 2) + ' mm';
+  if (a >= 1e-6) return fmt(m * 1e6, a >= 1e-5 ? 1 : 2) + ' µm';
+  if (a >= 1e-9) return fmt(m * 1e9, a >= 1e-8 ? 1 : 2) + ' nm';
+  return fmt(m * 1e12, 2) + ' pm';
+}
+function fmtSI(x, unit, d = 3) {        // anlamlı basamakla
+  if (x === 0) return '0 ' + unit;
+  const pre = [[1e-12, 'p'], [1e-9, 'n'], [1e-6, 'µ'], [1e-3, 'm'], [1, ''], [1e3, 'k']];
+  let p = pre[0];
+  for (const q of pre) if (Math.abs(x) >= q[0]) p = q;
+  const v = x / p[0];
+  const dd = Math.max(0, d - 1 - Math.floor(Math.log10(Math.abs(v) + 1e-30)));
+  return fmt(v, Math.min(dd, 3)) + ' ' + p[1] + unit;
+}
+// logaritmik kaydırıcı eşlemesi
+const logMap = (v, a, b) => a * Math.pow(b / a, v);
+const logInv = (x, a, b) => Math.log(x / a) / Math.log(b / a);
+
+/* ====================== tuval ====================== */
+class Fig {
+  constructor(cv) {
+    this.cv = cv; this.ctx = cv.getContext('2d'); this.w = 0; this.h = 0; this.d = 1;
+    new ResizeObserver(() => this.resize()).observe(cv);
+    this.resize();
+  }
+  resize() {
+    const w = this.cv.clientWidth, h = this.cv.clientHeight;
+    if (!w || !h) return;
+    const d = Math.min(2.5, window.devicePixelRatio || 1);
+    if (w !== this.w || h !== this.h || d !== this.d) {
+      this.w = w; this.h = h; this.d = d;
+      this.cv.width = Math.round(w * d); this.cv.height = Math.round(h * d);
+    }
+  }
+  begin() {
+    const c = this.ctx;
+    c.setTransform(this.d, 0, 0, this.d, 0, 0);
+    c.clearRect(0, 0, this.w, this.h);
+    c.lineCap = 'round'; c.lineJoin = 'round';
+    return c;
+  }
+}
+function ln(c, x1, y1, x2, y2, col, w = 1, dash) {
+  c.beginPath(); c.moveTo(x1, y1); c.lineTo(x2, y2);
+  c.strokeStyle = col; c.lineWidth = w; c.setLineDash(dash || []); c.stroke(); c.setLineDash([]);
+}
+function tx(c, s, x, y, o = {}) {
+  const size = o.size || fs(1.3), f = sz => `${o.it ? 'italic ' : ''}${o.wt || 400} ${sz}px ${o.font || FONT.sans}`;
+  c.font = f(size); c.fillStyle = o.col || COL.ink2; c.textBaseline = o.bl || 'alphabetic';
+  if (s.indexOf('_') < 0 && s.indexOf('^{') < 0) { c.textAlign = o.al || 'left'; c.fillText(s, x, y); return; }
+  // "M_A" → M, alt simge A · "10^{4,1}" → üst simge
+  const segs = []; let last = 0; const re = /_([A-Za-z0-9]+)|\^\{([^}]*)\}/g; let m;
+  while ((m = re.exec(s))) { if (m.index > last) segs.push([s.slice(last, m.index), 0]); segs.push(m[1] != null ? [m[1], 1] : [m[2], 2]); last = re.lastIndex; }
+  if (last < s.length) segs.push([s.slice(last), 0]);
+  const ss = size * 0.7;
+  let W = 0; segs.forEach(g => { c.font = f(g[1] ? ss : size); g.w = c.measureText(g[0]).width; W += g.w; });
+  let X = o.al === 'center' ? x - W / 2 : o.al === 'right' ? x - W : x;
+  c.textAlign = 'left';
+  segs.forEach(g => { c.font = f(g[1] ? ss : size); c.fillText(g[0], X, y + (g[1] === 1 ? size * 0.26 : g[1] === 2 ? -size * 0.4 : 0)); X += g.w; });
+}
+function tw(c, s, o = {}) {
+  c.font = `${o.it ? 'italic ' : ''}${o.wt || 400} ${o.size || fs(1.3)}px ${o.font || FONT.sans}`;
+  return c.measureText(s).width;
+}
+function chip(c, s, x, y, o = {}) {   // zemini olan etiket
+  const size = o.size || fs(1.25), w = tw(c, s, o) + size * 0.7, h = size * 1.45;
+  let bx = o.al === 'center' ? x - w / 2 : o.al === 'right' ? x - w : x;
+  if (o.clampW) bx = clamp(bx, 2, o.clampW - w - 2);
+  c.fillStyle = o.bg || COL.panel; c.globalAlpha = o.alpha ?? 0.92; c.fillRect(bx, y - h / 2, w, h); c.globalAlpha = 1;
+  if (o.border) { c.strokeStyle = o.border; c.lineWidth = 1; c.strokeRect(bx + .5, y - h / 2 + .5, w - 1, h - 1); }
+  tx(c, s, bx + size * 0.35, y, { ...o, al: 'left', bl: 'middle', size });
+  return w;
+}
+function arrow(c, x1, y1, x2, y2, col, w = 1.4, hs) {
+  hs = hs || Math.max(6, U * 0.8);
+  const a = Math.atan2(y2 - y1, x2 - x1), L = Math.hypot(x2 - x1, y2 - y1);
+  if (L < 0.5) return;
+  const hh = Math.min(hs, L * 0.6);
+  c.beginPath(); c.moveTo(x1, y1); c.lineTo(x2 - Math.cos(a) * hh * 0.6, y2 - Math.sin(a) * hh * 0.6);
+  c.strokeStyle = col; c.lineWidth = w; c.setLineDash([]); c.stroke();
+  c.beginPath(); c.moveTo(x2, y2);
+  c.lineTo(x2 - Math.cos(a - 0.42) * hh, y2 - Math.sin(a - 0.42) * hh);
+  c.lineTo(x2 - Math.cos(a + 0.42) * hh, y2 - Math.sin(a + 0.42) * hh);
+  c.closePath(); c.fillStyle = col; c.fill();
+}
+function dbl(c, x1, y1, x2, y2, col, w = 1.2) { arrow(c, (x1 + x2) / 2, (y1 + y2) / 2, x1, y1, col, w); arrow(c, (x1 + x2) / 2, (y1 + y2) / 2, x2, y2, col, w); }
+function dot(c, x, y, r, col, stroke) {
+  c.beginPath(); c.arc(x, y, r, 0, TAU);
+  if (stroke) { c.strokeStyle = col; c.lineWidth = stroke; c.stroke(); } else { c.fillStyle = col; c.fill(); }
+}
+function plot(c, x0, x1, n, fx, fy, col, w = 1.5, dash) {   // parametrik çizgi
+  c.beginPath();
+  for (let i = 0; i <= n; i++) {
+    const t = x0 + (x1 - x0) * i / n, X = fx(t), Y = fy(t);
+    if (i) c.lineTo(X, Y); else c.moveTo(X, Y);
+  }
+  c.strokeStyle = col; c.lineWidth = w; c.setLineDash(dash || []); c.stroke(); c.setLineDash([]);
+}
+function hatch(c, x, y, w, h, col, step = 6) {
+  c.save(); c.beginPath(); c.rect(x, y, w, h); c.clip();
+  c.strokeStyle = col; c.lineWidth = 1;
+  for (let k = -h; k < w + h; k += step) { c.beginPath(); c.moveTo(x + k, y + h); c.lineTo(x + k + h, y); c.stroke(); }
+  c.restore();
+}
+function alpha(col, a) {          // hex/rgb renge saydamlık
+  if (col.startsWith('#')) {
+    let h = col.slice(1); if (h.length === 3) h = h.split('').map(x => x + x).join('');
+    const n = parseInt(h, 16);
+    return `rgba(${n >> 16 & 255},${n >> 8 & 255},${n & 255},${a})`;
+  }
+  return col;
+}
+// log eksen yardımcısı
+function logAxis(a, b, p0, p1) { const la = Math.log10(a), lb = Math.log10(b); return f => p0 + (Math.log10(f) - la) / (lb - la) * (p1 - p0); }
+const NICE = [1, 2, 5];
+function fmtTick(f) { if (f >= 1000) return (f / 1000) + 'k'; return '' + f; }
+
+/* ====================== ses motoru ====================== */
+const AU = {
+  ctx: null, master: null, an: null, vol: 0.6, cur: null, curBtn: null, noiseBuf: null,
+  ensure() {
+    if (!this.ctx) {
+      const AC = window.AudioContext || window.webkitAudioContext;
+      if (!AC) return null;
+      this.ctx = new AC();
+      this.master = this.ctx.createGain(); this.master.gain.value = this.vol;
+      this.an = this.ctx.createAnalyser(); this.an.fftSize = 8192; this.an.smoothingTimeConstant = 0.5;
+      this.an.minDecibels = -110; this.an.maxDecibels = 0;
+      this.master.connect(this.ctx.destination); this.master.connect(this.an);
+    }
+    if (this.ctx.state === 'suspended') this.ctx.resume();
+    return this.ctx;
+  },
+  setVol(v) { this.vol = v; if (this.master) this.master.gain.setTargetAtTime(v, this.ctx.currentTime, 0.03); },
+  get now() { return this.ctx ? this.ctx.currentTime : 0; },
+  stop(fade = 0.05) {
+    const v = this.cur;
+    if (v) {
+      const t = this.ctx.currentTime;
+      try { v.g.gain.cancelScheduledValues(t); v.g.gain.setValueAtTime(v.g.gain.value, t); v.g.gain.setTargetAtTime(0, t, fade / 3); } catch (e) { }
+      if (v.timer) clearTimeout(v.timer);
+      if (v.iv) clearInterval(v.iv);
+      if (v.onstop) v.onstop();
+      setTimeout(() => v.nodes.forEach(n => { try { n.stop && n.stop(); } catch (e) { } try { n.disconnect(); } catch (e) { } }), fade * 1000 + 250);
+      this.cur = null;
+    }
+    if (this.curBtn) { this.curBtn.classList.remove('playing'); this.curBtn = null; }
+  },
+  // build(ctx, out, v) sesi kurar; v.nodes'a eklenen düğümler durdurulur
+  start(build, o = {}) {
+    if (!this.ensure()) return null;
+    this.stop(0.03);
+    const ctx = this.ctx, g = ctx.createGain();
+    g.gain.value = 0; g.connect(this.master);
+    const v = { g, nodes: [g], t0: ctx.currentTime + 0.02, key: o.key };
+    build(ctx, g, v);
+    const lvl = o.level ?? 1;
+    if (!o.noEnv) g.gain.setTargetAtTime(lvl, ctx.currentTime, 0.008); else g.gain.value = lvl;
+    if (o.dur) {
+      g.gain.setTargetAtTime(0, ctx.currentTime + o.dur, 0.03);
+      v.timer = setTimeout(() => { if (this.cur === v) this.stop(); }, (o.dur + 0.25) * 1000);
+    }
+    this.cur = v;
+    if (o.btn) { o.btn.classList.add('playing'); this.curBtn = o.btn; }
+    return v;
+  },
+  isPlaying(btn) { return this.curBtn === btn && !!this.cur; },
+  toggle(btn, build, o = {}) {
+    if (this.isPlaying(btn)) { this.stop(); return null; }
+    return this.start(build, { ...o, btn });
+  },
+  // harmonik listesinden PeriodicWave (normalizasyonsuz)
+  wave(comps) {   // comps: [{n, a, ph}]  →  a·sin(nωt + ph)
+    const N = Math.max(2, ...comps.map(c => c.n)) + 1;
+    const re = new Float32Array(N), im = new Float32Array(N);
+    for (const c of comps) { re[c.n] += c.a * Math.sin(c.ph || 0); im[c.n] += c.a * Math.cos(c.ph || 0); }
+    return this.ctx.createPeriodicWave(re, im, { disableNormalization: true });
+  },
+  harm(f0, comps, scale) {        // tek osilatörlü harmonik ses
+    return (ctx, out, v) => {
+      const o = ctx.createOscillator(); o.frequency.value = f0;
+      o.setPeriodicWave(this.wave(comps));
+      const g = ctx.createGain(); g.gain.value = scale; o.connect(g); g.connect(out);
+      o.start(v.t0); v.nodes.push(o, g); v.osc = o; v.sg = g;
+      v.update = (cs, sc) => { o.setPeriodicWave(this.wave(cs)); if (sc != null) g.gain.setTargetAtTime(sc, ctx.currentTime, 0.02); };
+    };
+  },
+  sines(list, o = {}) {           // list: [{f, a, tau?}] — ayrı sinüsler (kısmi sesler)
+    return (ctx, out, v) => {
+      for (const p of list) {
+        const os = ctx.createOscillator(); os.frequency.value = p.f;
+        const g = ctx.createGain(); g.gain.value = 0;
+        os.connect(g); g.connect(out);
+        const t = v.t0 + (p.at || 0);
+        if (p.tau) { g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(p.a, t + 0.004); g.gain.setTargetAtTime(0, t + 0.004, p.tau); }
+        else { g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(p.a, t + 0.02); if (p.len) { g.gain.setValueAtTime(p.a, t + p.len - 0.03); g.gain.linearRampToValueAtTime(0, t + p.len); } }
+        os.start(t); if (p.len) os.stop(t + p.len + 0.05);
+        v.nodes.push(os, g);
+      }
+    };
+  },
+  noise() {
+    if (!this.noiseBuf) {
+      const n = this.ctx.sampleRate * 4, b = this.ctx.createBuffer(1, n, this.ctx.sampleRate), d = b.getChannelData(0);
+      for (let i = 0; i < n; i++) d[i] = Math.random() * 2 - 1;
+      this.noiseBuf = b;
+    }
+    const s = this.ctx.createBufferSource(); s.buffer = this.noiseBuf; s.loop = true;
+    return s;
+  }
+};
+
+/* ====================== sahneler ====================== */
+const SCENES = {};
+function scene(name, def) { SCENES[name] = def; }
+const live = new Map();           // slide → sahne örneği
+
+/* ====================== sunu motoru ====================== */
+const slides = $$('.slide');
+let idx = 0, flow = false;
+const stepOf = new Map();
+function maxStep(s) {
+  let m = +(s.dataset.steps || 0);
+  $$('[data-f]', s).forEach(e => m = Math.max(m, +e.dataset.f));
+  return m;
+}
+function applyStep(s, k) {
+  stepOf.set(s, k);
+  $$('[data-f]', s).forEach(e => e.classList.toggle('on', flow || +e.dataset.f <= k));
+  const sc = live.get(s); if (sc && sc.step) sc.step(flow ? maxStep(s) : k);
+}
+function go(i, step = 0) {
+  i = clamp(i, 0, slides.length - 1);
+  const old = slides[idx];
+  if (i !== idx) {
+    AU.stop();
+    const so = live.get(old); if (so && so.leave) so.leave();
+  }
+  slides.forEach((s, j) => s.classList.toggle('active', j === i));
+  const changed = i !== idx; idx = i;
+  const s = slides[i];
+  const k = step === 'max' ? maxStep(s) : step;
+  applyStep(s, k);
+  if (changed || !s._entered) { s._entered = true; const sc = live.get(s); if (sc && sc.enter) sc.enter(); }
+  $('#count').textContent = (i + 1) + ' / ' + slides.length;
+  $('#progress').style.width = (100 * i / (slides.length - 1)) + '%';
+  try { history.replaceState(null, '', '#' + (i + 1)); } catch (e) { }
+}
+function next() { const s = slides[idx], k = stepOf.get(s) || 0; if (k < maxStep(s)) applyStep(s, k + 1); else if (idx < slides.length - 1) go(idx + 1, 0); }
+function prev() { const s = slides[idx], k = stepOf.get(s) || 0; if (k > 0) applyStep(s, k - 1); else if (idx > 0) go(idx - 1, 'max'); }
+
+function layout() {
+  const vw = innerWidth, vh = innerHeight;
+  const wantFlow = vw < 760 || (vw < 1000 && vh > vw * 1.15) || Math.min(vw, vh * 16 / 9) < 880;
+  if (wantFlow !== flow) {
+    flow = wantFlow; document.body.classList.toggle('flow', flow);
+    slides.forEach(s => applyStep(s, flow ? maxStep(s) : (s === slides[idx] ? (stepOf.get(s) || 0) : 0)));
+  }
+  if (flow) U = clamp(vw / 52, 7.2, 8.4);
+  else { const W = Math.min(vw, vh * 16 / 9); U = W / 160; }
+  ROOT.style.setProperty('--u', U + 'px');
+}
+
+function setTheme(t) {
+  ROOT.dataset.theme = t;
+  $$('#bar [data-theme]').forEach(b => b.classList.toggle('on', b.dataset.theme === t));
+  try { localStorage.setItem('mha3-tema', t); } catch (e) { }
+  readColors();
+}
+
+/* ortak denetim bağlayıcıları */
+function bindRange(root, key, fn) {
+  const el = $(`input[data-k="${key}"]`, root);
+  if (!el) return null;
+  const h = () => fn(parseFloat(el.value), el);
+  el.addEventListener('input', h);
+  return { el, get v() { return parseFloat(el.value); }, set(v) { el.value = v; h(); } };
+}
+function out(root, key, html) { const e = $(`[data-o="${key}"]`, root); if (e) e.innerHTML = html; }
+function segOn(btns, b) { btns.forEach(x => x.classList.toggle('on', x === b)); }
+
+/* görünürlük (akış kipinde) */
+const visible = new Set();
+const io = new IntersectionObserver(es => es.forEach(e => {
+  if (e.isIntersecting) {
+    visible.add(e.target);
+    if (flow && !e.target._fe) { e.target._fe = true; const sc = live.get(e.target); if (sc && sc.enter) sc.enter(); }
+  } else visible.delete(e.target);
+}), { rootMargin: '120px' });
+
+function boot() {
+  layout(); readColors();
+  let t = 'light';
+  try { t = localStorage.getItem('mha3-tema') || 'light'; } catch (e) { }
+  setTheme(t);
+  slides.forEach((s, i) => {
+    const pg = $('.pg', s); if (pg) pg.textContent = (i + 1) + ' / ' + slides.length;
+    const def = SCENES[s.dataset.scene];
+    if (def) {
+      try { const inst = def(s); if (inst) live.set(s, inst); } catch (e) { console.error('sahne', s.dataset.scene, e); }
+    }
+    io.observe(s);
+  });
+  addEventListener('resize', () => { layout(); });
+  const st = $('#stage'); st.addEventListener('scroll', () => { if (!flow) { st.scrollTop = 0; st.scrollLeft = 0; } });
+  addEventListener('keydown', e => {
+    const tag = (e.target.tagName || '').toLowerCase(), isRange = e.target.type === 'range';
+    if (e.metaKey || e.ctrlKey || e.altKey) return;
+    if (flow) { if (e.key === 't' || e.key === 'T') cycleTheme(); return; }
+    switch (e.key) {
+      case 'ArrowRight': case 'ArrowDown': if (isRange) return; e.preventDefault(); next(); break;
+      case 'ArrowLeft': case 'ArrowUp': if (isRange) return; e.preventDefault(); prev(); break;
+      case 'PageDown': case ' ': if (tag === 'button' && e.key === ' ') return; e.preventDefault(); next(); break;
+      case 'PageUp': e.preventDefault(); prev(); break;
+      case 'Home': e.preventDefault(); go(0); break;
+      case 'End': e.preventDefault(); go(slides.length - 1, 'max'); break;
+      case 'f': case 'F': toggleFs(); break;
+      case 't': case 'T': cycleTheme(); break;
+      case 'Escape': AU.stop(); break;
+    }
+  });
+  // dokunmatik kaydırma
+  let tx0 = null, ty0 = null;
+  $('#stage').addEventListener('touchstart', e => { if (flow) return; const t = e.touches[0]; tx0 = t.clientX; ty0 = t.clientY; }, { passive: true });
+  $('#stage').addEventListener('touchend', e => {
+    if (flow || tx0 == null) return; const t = e.changedTouches[0], dx = t.clientX - tx0, dy = t.clientY - ty0;
+    if (Math.abs(dx) > 60 && Math.abs(dx) > Math.abs(dy) * 1.5 && !(e.target.type === 'range')) { dx < 0 ? next() : prev(); }
+    tx0 = null;
+  });
+  $$('#bar [data-theme]').forEach(b => b.addEventListener('click', () => setTheme(b.dataset.theme)));
+  $$('#bar [data-nav]').forEach(b => b.addEventListener('click', () => { const n = b.dataset.nav; if (n === 'next') next(); else if (n === 'prev') prev(); else toggleFs(); b.blur(); }));
+  $('#vol').addEventListener('input', e => AU.setVol(parseFloat(e.target.value)));
+  // gezinti çubuğu kendini gizler
+  let idleT; const bar = $('#bar');
+  const wake = () => { bar.classList.remove('idle'); clearTimeout(idleT); idleT = setTimeout(() => { if (!flow) bar.classList.add('idle'); }, 2600); };
+  addEventListener('mousemove', wake); addEventListener('keydown', wake); wake();
+  // düğmeler odakta kalıp boşluk tuşunu yutmasın
+  document.addEventListener('click', e => { const b = e.target.closest('button'); if (b && !flow) setTimeout(() => b.blur(), 0); });
+  const h = parseInt((location.hash || '').slice(1), 10);
+  idx = -1; go(isFinite(h) && h > 0 ? h - 1 : 0);
+  requestAnimationFrame(loop);
+}
+function cycleTheme() { const o = ['light', 'dark', 'proj'], i = o.indexOf(ROOT.dataset.theme); setTheme(o[(i + 1) % 3]); }
+function toggleFs() {
+  const d = document;
+  if (!d.fullscreenElement) { (ROOT.requestFullscreen || ROOT.webkitRequestFullscreen || (() => { })).call(ROOT); }
+  else { (d.exitFullscreen || d.webkitExitFullscreen).call(d); }
+}
+
+let T0 = performance.now(), lastT = 0;
+const FRAME_STATS = { n: 0, ms: 0 };
+function loop(now) {
+  const t = (now - T0) / 1000, dt = Math.min(0.05, Math.max(0, t - lastT)); lastT = t;
+  const t1 = performance.now();
+  const run = s => { const sc = live.get(s); if (sc && sc.frame) { try { sc.frame(t, dt); } catch (e) { console.error(s.dataset.scene, e); sc.frame = null; } } };
+  if (flow) visible.forEach(run); else run(slides[idx]);
+  FRAME_STATS.n++; FRAME_STATS.ms += performance.now() - t1;
+  requestAnimationFrame(loop);
+}
+
+/* ====================== Bölüm 3 yardımcıları ====================== */
+const FT = 0.3048;
+let PINK = null;
+function pinkSource(ctx) {          // Paul Kellet pembe gürültüsü, 5 s döngü
+  if (!PINK) {
+    const n = ctx.sampleRate * 5, b = ctx.createBuffer(1, n, ctx.sampleRate), d = b.getChannelData(0);
+    let b0 = 0, b1 = 0, b2 = 0, b3 = 0, b4 = 0, b5 = 0, b6 = 0;
+    for (let i = 0; i < n; i++) {
+      const x = Math.random() * 2 - 1;
+      b0 = 0.99886 * b0 + x * 0.0555179; b1 = 0.99332 * b1 + x * 0.0750759; b2 = 0.969 * b2 + x * 0.153852;
+      b3 = 0.8665 * b3 + x * 0.3104856; b4 = 0.55 * b4 + x * 0.5329522; b5 = -0.7616 * b5 - x * 0.016898;
+      d[i] = (b0 + b1 + b2 + b3 + b4 + b5 + b6 + x * 0.5362) * 0.11; b6 = x * 0.115926;
+    }
+    PINK = b;
+  }
+  const s = ctx.createBufferSource(); s.buffer = PINK; s.loop = true; return s;
+}
+// dB listesindeki düzeylerde pembe gürültü patlamaları
+function burstSeq(levels, o = {}) {
+  const LEN = o.len || 0.44, STEP = o.step || 0.66, base = o.base || 0.9;
+  const fn = (ctx, out, v) => {
+    const src = pinkSource(ctx), g = ctx.createGain(); g.gain.value = 0;
+    src.connect(g); g.connect(out); src.start(v.t0); v.nodes.push(src, g);
+    const t00 = v.t0 + 0.05;
+    levels.forEach((L, i) => {
+      const t = t00 + i * STEP, a = base * Math.pow(10, L / 20);
+      g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(a, t + 0.015);
+      g.gain.setValueAtTime(a, t + LEN - 0.02); g.gain.linearRampToValueAtTime(0, t + LEN);
+    });
+    v.seq = { t0: t00, STEP, LEN, n: levels.length };
+  };
+  fn.dur = 0.05 + levels.length * STEP + 0.05;
+  return fn;
+}
+function seqIndex(btn) {             // çalan basamağın sırası (yoksa −1)
+  const v = AU.cur; if (!v || !v.seq || AU.curBtn !== btn) return -1;
+  const q = AU.now - v.seq.t0, k = Math.floor(q / v.seq.STEP);
+  return (k >= 0 && k < v.seq.n && q - k * v.seq.STEP < v.seq.LEN) ? k : -1;
+}
+// kuru sinyal: dört koparma (Karplus–Strong) ve iki tık, 2,4 s döngü
+let DRY = null;
+function dryLoop(ctx) {
+  if (!DRY) {
+    const sr = ctx.sampleRate, n = Math.round(sr * 2.4), b = ctx.createBuffer(1, n, sr), d = b.getChannelData(0);
+    const ev = [[0.0, 196], [0.3, 246.9], [0.6, 293.7], [0.9, 392], [1.55, 0], [1.85, 0]];
+    for (const [t, f] of ev) {
+      const i0 = Math.round(t * sr);
+      if (!f) { for (let i = 0; i < sr * 0.012; i++) d[i0 + i] += (Math.random() * 2 - 1) * 0.75 * Math.exp(-i / (sr * 0.0016)); continue; }
+      const P = Math.round(sr / f), buf = new Float32Array(P); for (let i = 0; i < P; i++) buf[i] = Math.random() * 2 - 1;
+      let k = 0; const L = Math.round(sr * 0.55);
+      for (let i = 0; i < L && i0 + i < n; i++) {
+        const a = buf[k], nb = buf[(k + 1) % P];
+        d[i0 + i] += a * 0.55 * Math.exp(-i / (sr * 0.22)) * Math.min(1, i / 24);
+        buf[k] = 0.996 * 0.5 * (a + nb); k = (k + 1) % P;
+      }
+    }
+    DRY = b;
+  }
+  const s = ctx.createBufferSource(); s.buffer = DRY; s.loop = true; return s;
+}
+// örnek yankı kuyruğu: üstel sönen gürültü, her kanalda enerji = 1
+let IRB = null;
+function roomIR(ctx, T60 = 1.4) {
+  if (!IRB) {
+    const sr = ctx.sampleRate, n = Math.round(sr * T60 * 1.1), b = ctx.createBuffer(2, n, sr);
+    for (let ch = 0; ch < 2; ch++) {
+      const d = b.getChannelData(ch); let E = 0, lp = 0;
+      for (let i = 0; i < n; i++) {
+        const t = i / sr, env = t < 0.012 ? 0 : Math.exp(-6.91 * t / T60) * Math.min(1, (t - 0.012) / 0.02);
+        const a = Math.min(0.9, 0.25 + t * 0.9); lp = lp * a + (Math.random() * 2 - 1) * (1 - a);   // zamanla kararan kuyruk
+        d[i] = lp * env; E += d[i] * d[i];
+      }
+      const k = 1 / Math.sqrt(E); for (let i = 0; i < n; i++) d[i] *= k;
+    }
+    IRB = b;
+  }
+  return IRB;
+}
+function roomMix(get) {              // get() → [doğrudan kazanç, yankı kazancı]
+  return (ctx, out, v) => {
+    const src = dryLoop(ctx), dg = ctx.createGain(), cv = ctx.createConvolver(), wg = ctx.createGain();
+    cv.normalize = false; cv.buffer = roomIR(ctx);
+    src.connect(dg); dg.connect(out); src.connect(cv); cv.connect(wg); wg.connect(out);
+    const [a, b] = get(); dg.gain.value = a; wg.gain.value = b;
+    v.set = () => { const [x, y] = get(), t = ctx.currentTime; dg.gain.setTargetAtTime(x, t, 0.06); wg.gain.setTargetAtTime(y, t, 0.06); };
+    src.start(v.t0); v.nodes.push(src, dg, cv, wg);
+  };
+}
+// ISO 9613-1 hava soğurması, dB/m
+function airAlpha(f, T = 20, RH = 70, pa = 101.325) {
+  const T0 = 293.15, T01 = 273.16, Tk = T + 273.15, pr = 101.325;
+  const C = -6.8346 * Math.pow(T01 / Tk, 1.261) + 4.6151, h = RH * Math.pow(10, C) * (pr / pa);
+  const frO = (pa / pr) * (24 + 4.04e4 * h * (0.02 + h) / (0.391 + h));
+  const frN = (pa / pr) * Math.pow(Tk / T0, -0.5) * (9 + 280 * h * Math.exp(-4.170 * (Math.pow(Tk / T0, -1 / 3) - 1)));
+  return 8.686 * f * f * (1.84e-11 * (pr / pa) * Math.sqrt(Tk / T0) + Math.pow(Tk / T0, -2.5) *
+    (0.01275 * Math.exp(-2239.1 / Tk) / (frO + f * f / frO) + 0.1068 * Math.exp(-3352.0 / Tk) / (frN + f * f / frN)));
+}
+// doğrusal fazlı FIR: frekans örnekleme + Hann penceresi
+function firFromMag(ctx, magFn, N = 1024) {
+  const sr = ctx.sampleRate, M = N / 2, h = new Float32Array(N), H = new Float64Array(M + 1);
+  for (let k = 0; k <= M; k++) H[k] = magFn(k * sr / N);
+  const cs = new Float64Array(N); for (let i = 0; i < N; i++) cs[i] = Math.cos(TAU * i / N);
+  for (let n = 0; n < N; n++) {
+    let s = H[0] + H[M] * ((n - M) % 2 ? -1 : 1);
+    for (let k = 1; k < M; k++) s += 2 * H[k] * cs[((k * (n - M)) % N + N) % N];
+    h[n] = s / N * (0.5 - 0.5 * Math.cos(TAU * n / N));
+  }
+  const b = ctx.createBuffer(1, N, sr); b.copyToChannel(h, 0); return b;
+}
+function ptitle(c, s, x, y, o = {}) { tx(c, s, x, y, { size: fs(0.95), wt: 600, col: COL.ink3, ...o }); }
+function ring(c, x, y, R, col, a, w = 1.4, a0 = 0, a1 = TAU) {
+  if (R <= 0) return; c.beginPath(); c.arc(x, y, R, a0, a1); c.strokeStyle = alpha(col, clamp(a, 0, 1)); c.lineWidth = LW(w); c.setLineDash([]); c.stroke();
+}
+function speaker(c, x, y, s, ang = 0, col) {  // küçük hoparlör simgesi, ağzı ang yönünde
+  c.save(); c.translate(x, y); c.rotate(ang); c.fillStyle = col || COL.ink2;
+  c.fillRect(-s * 1.2, -s * 0.55, s * 0.7, s * 1.1);
+  c.beginPath(); c.moveTo(-s * 0.5, -s * 0.45); c.lineTo(s * 0.35, -s * 1.0); c.lineTo(s * 0.35, s * 1.0); c.lineTo(-s * 0.5, s * 0.45); c.closePath(); c.fill();
+  c.restore();
+}
+function clipRect(c, x, y, w, h) { c.save(); c.beginPath(); c.rect(x, y, w, h); c.clip(); }
+function clipPoly(c, pts) { c.save(); c.beginPath(); pts.forEach((p, i) => i ? c.lineTo(p[0], p[1]) : c.moveTo(p[0], p[1])); c.closePath(); c.clip(); }
+
+/* ====================== 1 · Kapak ====================== */
+scene('cover', s => {
+  const F = new Fig($('.band canvas', s)); let T = 0;
+  return {
+    frame(t, dt) {
+      T += dt;
+      const c = F.begin(), w = F.w, h = F.h; if (!w) return;
+      const narrow = w < 700;
+      const x0 = w * (narrow ? 0.07 : 0.1), y0 = h * 0.42, r0 = (w * 0.88 - x0) / 16, yb = h - Math.max(14, U * 3.2);
+      for (let i = 0; i < 26; i++) {
+        const R = ((T * r0 * 0.9 + i * r0 * 0.75) % (r0 * 19.5)) + 1;
+        ring(c, x0, y0, R, COL.c1, 0.7 * Math.min(1, r0 / R) * Math.min(1, R / (r0 * 0.4)), 1.2);
+      }
+      dot(c, x0, y0, Math.max(3, U * 0.55), COL.ink);
+      // ikiye katlanan uzaklıklar ve basınç çubukları (∝ 1/r)
+      ln(c, x0, yb, x0 + 16 * r0, yb, COL.ink3, 1);
+      const H0 = yb - y0 - Math.max(8, U * 2);
+      ['r', '2r', '4r', '8r', '16r'].forEach((lab, k) => {
+        const x = x0 + Math.pow(2, k) * r0, hh = H0 / Math.pow(2, k);
+        ln(c, x, yb, x, yb - hh, COL.c2, LW(2.6)); dot(c, x, yb - hh, Math.max(2.5, U * 0.4), COL.c2);
+        tx(c, lab, x, yb + Math.max(12, U * 1.7), { al: 'center', size: fs(1.05), it: true, font: FONT.serif, col: COL.ink2 });
+        if (!narrow || k % 2 === 0) tx(c, (k ? '−' + 6 * k : '0') + ' dB', x + Math.max(4, U * 0.6), yb - hh - Math.max(4, U * 0.5), { size: fs(1.0), col: COL.c2, wt: 600 });
+      });
+    }
+  };
+});
+
+/* ====================== 3 · Serbest alan: yedi etki ====================== */
+scene('freefield', s => {
+  const F = new Fig($('canvas', s));
+  let free = false, T = 0, fade = 0;
+  const bs = $$('[data-m]', s);
+  bs.forEach(b => b.onclick = () => { free = b.dataset.m === 'free'; segOn(bs, b); });
+  const NAMES = [['Yansıma', 'reflection'], ['Soğurma', 'absorption'], ['Sapma', 'deflection'], ['Kırınım', 'diffraction'],
+    ['Kırılma', 'refraction'], ['Difüzyon', 'diffusion'], ['Rezonans', 'resonance'], ['Serbest alan', 'free field']];
+  // her vinyet: (c, x, y, w, h, R, on, g) — g: hayalet (kaldırılmış) çizim için saydamlık
+  const ghost = (c, f) => { c.save(); c.setLineDash([4, 4]); c.globalAlpha = 0.5; f(); c.restore(); };
+  const V = [
+    (c, x, y, w, h, R, on) => {        // yansıma
+      const sx = x + w * 0.22, sy = y + h * 0.4, yf = y + h * 0.84;
+      if (on > 0) { hatch(c, x, yf, w, h - (yf - y), alpha(COL.ink3, on), 6); ln(c, x, yf, x + w, yf, alpha(COL.ink, on), LW(2)); }
+      ghost(c, () => ln(c, x, yf, x + w, yf, alpha(COL.ink3, 1 - on), 1, [4, 4]));
+      clipRect(c, x, y, w, on > 0.5 ? yf - y : h);
+      [0, 1].forEach(j => ring(c, sx, sy, R - j * w * 0.22, COL.c1, 0.75 - j * 0.3));
+      if (on > 0) [0, 1].forEach(j => { const r = R - j * w * 0.22; if (r > yf - sy) ring(c, sx, 2 * yf - sy, r, COL.c2, (0.7 - j * 0.3) * on); });
+      c.restore();
+      dot(c, sx, sy, U * 0.45, COL.ink);
+    },
+    (c, x, y, w, h, R, on) => {        // soğurma
+      const sx = x + w * 0.2, sy = y + h * 0.5, xa = x + w * 0.66, xw = x + w * 0.86;
+      if (on > 0) { c.fillStyle = alpha(COL.c4, 0.14 * on); c.fillRect(xa, y, xw - xa, h); hatch(c, xa, y, xw - xa, h, alpha(COL.c4, 0.6 * on), 5); ln(c, xw, y, xw, y + h, alpha(COL.ink, on), LW(2)); }
+      ghost(c, () => { c.strokeStyle = alpha(COL.ink3, 1 - on); c.lineWidth = 1; c.strokeRect(xa, y + 1, xw - xa, h - 2); });
+      const rr = j => R - j * w * 0.22;
+      clipRect(c, x, y, xa - x, h); [0, 1].forEach(j => ring(c, sx, sy, rr(j), COL.c1, 0.75 - j * 0.3)); c.restore();
+      clipRect(c, xa, y, xw - xa, h); [0, 1].forEach(j => ring(c, sx, sy, rr(j), COL.c1, (0.75 - j * 0.3) * (1 - 0.75 * on))); c.restore();
+      clipRect(c, xw, y, x + w - xw, h); [0, 1].forEach(j => ring(c, sx, sy, rr(j), COL.c1, (0.75 - j * 0.3) * (1 - on))); c.restore();
+      if (on > 0) { clipRect(c, x, y, xa - x, h); [0, 1].forEach(j => { const r = rr(j); if (r > xw - sx) ring(c, 2 * xw - sx, sy, r, COL.c2, 0.14 * on); }); c.restore(); }
+      dot(c, sx, sy, U * 0.45, COL.ink);
+    },
+    (c, x, y, w, h, R, on) => {        // sapma: rüzgârın taşıması
+      const sx = x + w * 0.24, sy = y + h * 0.55, M = 0.38 * on;
+      clipRect(c, x, y, w, h);
+      [0, 1].forEach(j => { const r = R - j * w * 0.22; if (r > 0) ring(c, sx + M * r, sy, r, COL.c1, 0.75 - j * 0.3); });
+      c.restore();
+      if (on > 0) for (let k = 0; k < 3; k++) { const yy = y + h * (0.12 + k * 0.08), xx = x + w * 0.5 + ((T * w * 0.12 + k * w * 0.2) % (w * 0.45)); arrow(c, xx - w * 0.14, yy, xx, yy, alpha(COL.c3, on), LW(1.4)); }
+      if (on > 0.3) tx(c, 'rüzgâr', x + w - U * 0.6, y + h * 0.36, { al: 'right', size: fs(0.9), col: alpha(COL.c3, on) });
+      dot(c, sx, sy, U * 0.45, COL.ink);
+    },
+    (c, x, y, w, h, R, on) => {        // kırınım
+      const sx = x + w * 0.16, sy = y + h * 0.74, xb = x + w * 0.46, yt = y + h * 0.36;
+      const yl = X => sy + (yt - sy) / (xb - sx) * (X - sx), xr = x + w, yb = y + h;
+      const dE = Math.hypot(xb - sx, yt - sy);
+      if (on > 0.5) {
+        clipRect(c, x, y, xb - x, h); [0, 1].forEach(j => ring(c, sx, sy, R - j * w * 0.22, COL.c1, 0.75 - j * 0.3)); c.restore();
+        clipPoly(c, [[xb, y], [xr, y], [xr, yl(xr)], [xb, yt]]); [0, 1].forEach(j => ring(c, sx, sy, R - j * w * 0.22, COL.c1, 0.75 - j * 0.3)); c.restore();
+        clipPoly(c, [[xb, yt], [xr, yl(xr)], [xr, yb], [xb, yb]]); [0, 1].forEach(j => ring(c, xb, yt, R - dE - j * w * 0.22, COL.c2, 0.6 - j * 0.25)); c.restore();
+        ln(c, xb, yt, xr, yl(xr), alpha(COL.ink3, 0.6), 1, [3, 4]);
+        ln(c, xb, yt, xb, yb, COL.ink, LW(3));
+      } else {
+        clipRect(c, x, y, w, h); [0, 1].forEach(j => ring(c, sx, sy, R - j * w * 0.22, COL.c1, 0.75 - j * 0.3)); c.restore();
+        ln(c, xb, yt, xb, yb, COL.ink3, 1, [4, 4]);
+      }
+      dot(c, sx, sy, U * 0.45, COL.ink);
+    },
+    (c, x, y, w, h, R, on) => {        // kırılma: yukarı doğru azalan ses hızı
+      const sx = x + w * 0.1, sy = y + h * 0.72, kap = on / (w * 1.1);
+      if (on > 0) { const g = c.createLinearGradient(0, y, 0, y + h); g.addColorStop(0, alpha(COL.c3, 0.16 * on)); g.addColorStop(1, alpha(COL.c3, 0)); c.fillStyle = g; c.fillRect(x, y, w, h); }
+      const P = (p0, sv) => kap > 1e-6 ? [sx + (Math.sin(p0 + kap * sv) - Math.sin(p0)) / kap, sy + (Math.cos(p0 + kap * sv) - Math.cos(p0)) / kap] : [sx + sv * Math.cos(p0), sy - sv * Math.sin(p0)];
+      clipRect(c, x, y, w, h);
+      const ang = [-0.3, -0.12, 0.06, 0.24, 0.42];
+      ang.forEach(a0 => { c.beginPath(); for (let k = 0; k <= 40; k++) { const p = P(a0, k / 40 * w * 1.3); k ? c.lineTo(p[0], p[1]) : c.moveTo(p[0], p[1]); } c.strokeStyle = alpha(COL.ink3, 0.55); c.lineWidth = 1; c.stroke(); });
+      [0, 1].forEach(j => { const r = R - j * w * 0.22; if (r <= 0) return; c.beginPath(); for (let k = 0; k <= 24; k++) { const a0 = -0.42 + k / 24 * 1.0, p = P(a0, r); k ? c.lineTo(p[0], p[1]) : c.moveTo(p[0], p[1]); } c.strokeStyle = alpha(COL.c1, 0.75 - j * 0.3); c.lineWidth = LW(1.4); c.stroke(); });
+      c.restore();
+      if (on > 0.3) { arrow(c, x + w - U * 1.2, y + h * 0.62, x + w - U * 1.2, y + h * 0.18, alpha(COL.c3, on), LW(1.3)); tx(c, 'c azalır', x + w - U * 2.2, y + h * 0.3, { al: 'right', size: fs(0.9), col: alpha(COL.c3, on) }); }
+      dot(c, sx, sy, U * 0.45, COL.ink);
+    },
+    (c, x, y, w, h, R, on) => {        // difüzyon: karesel kalıntı yayıcı
+      const sx = x + w * 0.16, sy = y + h * 0.5, xd = x + w * 0.74, N = 7, wy = (h * 0.84) / N, y0 = y + h * 0.08;
+      const dep = [0, 1, 4, 2, 2, 4, 1].map(q => q / 4 * w * 0.09);
+      const drawD = (col, dash) => { c.strokeStyle = col; c.lineWidth = LW(1.4); c.setLineDash(dash || []); for (let j = 0; j < N; j++) { const yy = y0 + j * wy; c.strokeRect(xd, yy + 1, dep[j] + 2, wy - 2); } c.setLineDash([]); ln(c, xd + w * 0.1, y0, xd + w * 0.1, y0 + N * wy, col, LW(2), dash); };
+      if (on > 0.5) {
+        drawD(COL.ink);
+        clipRect(c, x, y, xd - x, h); [0, 1].forEach(j => ring(c, sx, sy, R - j * w * 0.22, COL.c1, 0.75 - j * 0.3));
+        for (let j = 0; j < N; j++) { const wy0 = y0 + (j + 0.5) * wy, d0 = Math.hypot(xd - sx, wy0 - sy); [0, 1].forEach(m => ring(c, xd, wy0, R - d0 - 2 * dep[j] - m * w * 0.22, COL.c2, 0.32 - m * 0.12, 1.1, Math.PI / 2, Math.PI * 1.5)); }
+        c.restore();
+      } else {
+        drawD(alpha(COL.ink3, 0.8), [4, 4]);
+        clipRect(c, x, y, w, h); [0, 1].forEach(j => ring(c, sx, sy, R - j * w * 0.22, COL.c1, 0.75 - j * 0.3)); c.restore();
+      }
+      dot(c, sx, sy, U * 0.45, COL.ink);
+    },
+    (c, x, y, w, h, R, on) => {        // rezonans: Helmholtz rezonatörü
+      const sx = x + w * 0.16, sy = y + h * 0.58, rb = Math.min(w, h) * 0.17, bx = x + w * 0.78, by = sy, nl = rb * 0.8, nw = rb * 0.28;
+      const nx = bx - rb - nl, d0 = nx - sx, lam = w * 0.13;
+      const shape = (col, dash) => {
+        c.beginPath(); const a = Math.asin(nw / 2 / rb);
+        c.arc(bx, by, rb, Math.PI + a, Math.PI - a + TAU); c.lineTo(bx - rb * Math.cos(a) - nl, by + nw / 2); c.moveTo(bx - rb * Math.cos(a), by - nw / 2); c.lineTo(bx - rb * Math.cos(a) - nl, by - nw / 2);
+        c.strokeStyle = col; c.lineWidth = LW(1.8); c.setLineDash(dash || []); c.stroke(); c.setLineDash([]);
+      };
+      clipRect(c, x, y, w, h);
+      [0, 1].forEach(j => ring(c, sx, sy, R - j * w * 0.22, COL.c1, 0.75 - j * 0.3));
+      if (on > 0.5) {
+        const q = R - d0;
+        if (q > 0) for (let m = 0; m < 6; m++) ring(c, nx, by, q - m * lam, COL.c2, 0.55 * Math.pow(0.7, m), 1.2);
+        c.restore(); shape(COL.ink);
+        const dec = q > 0 ? Math.exp(-q / (lam * 3.5)) : 0, off = Math.sin(TAU * q / lam) * nl * 0.28 * dec;
+        c.fillStyle = alpha(COL.c2, 0.5); c.fillRect(nx + nl * 0.3 + off, by - nw / 2 + 2, nl * 0.4, nw - 4);
+      } else { c.restore(); shape(alpha(COL.ink3, 0.8), [4, 4]); }
+      dot(c, sx, sy, U * 0.45, COL.ink);
+    },
+    (c, x, y, w, h, R) => {            // serbest alan
+      const sx = x + w * 0.5, sy = y + h * 0.52;
+      for (let k = 0; k < 12; k++) { const a = k / 12 * TAU; ln(c, sx, sy, sx + Math.cos(a) * w, sy + Math.sin(a) * w, alpha(COL.ink3, 0.25), 1); }
+      clipRect(c, x, y, w, h); [0, 1, 2].forEach(j => ring(c, sx, sy, (R * 0.75 + j * w * 0.2) % (w * 0.75), COL.c1, 0.8 - j * 0.2)); c.restore();
+      dot(c, sx, sy, U * 0.45, COL.ink);
+    }
+  ];
+  return {
+    frame(t, dt) {
+      T += dt; fade = clamp(fade + (free ? 1 : -1) * dt * 2.2, 0, 1);
+      const c = F.begin(), w = F.w, h = F.h; if (!w) return;
+      const cols = w < 640 ? 2 : 4, rows = 8 / cols, gap = Math.max(6, U * 1.1);
+      const cw = (w - gap * (cols + 1)) / cols, ch = (h - gap * (rows + 1)) / rows;
+      const ph = (T / 2.6) % 1;
+      for (let k = 0; k < 8; k++) {
+        const i = k % cols, j = Math.floor(k / cols), x = gap + i * (cw + gap), y = gap + j * (ch + gap);
+        const last = k === 7;
+        c.strokeStyle = last ? COL.c1 : COL.rule; c.lineWidth = last ? LW(1.8) : 1; c.strokeRect(x + .5, y + .5, cw - 1, ch - 1);
+        tx(c, NAMES[k][0], x + U * 0.9, y + U * 2, { size: fs(1.15), wt: 600, col: last ? COL.c1 : COL.ink });
+        tx(c, NAMES[k][1], x + U * 0.9 + tw(c, NAMES[k][0], { size: fs(1.15), wt: 600 }) + U * 0.6, y + U * 2, { size: fs(0.95), it: true, col: COL.ink3 });
+        const ax = x + 2, ay = y + U * 3, aw = cw - 4, ah = ch - U * 3 - 2;
+        const R = ph * aw * 1.3;
+        clipRect(c, ax, ay, aw, ah);
+        V[k](c, ax, ay, aw, ah, R, last ? 1 : 1 - fade);
+        c.restore();
+      }
+    }
+  };
+});
+
+/* ====================== 4 · Yankısız oda ====================== */
+scene('anechoic', s => {
+  const F = new Fig($('canvas', s));
+  let L = 1, fv = 0.5, T = 0;
+  const fOf = v => logMap(v, 31.5, 2000);
+  const refl = (f, fc) => f >= fc ? 0.1 * Math.pow(fc / f, 0.3) : Math.min(0.97, 0.1 * Math.pow(fc / f, 1.6));
+  const upd = () => {
+    const f = fOf(fv), fc = C0 / (4 * L), R = refl(f, fc);
+    out(s, 'L', fmt(L, 2) + ' m'); out(s, 'f', fmtHz(f));
+    out(s, 'ro', '<span class="k">λ</span> ' + fmtLen(C0 / f) + ' · <span class="k">f<sub>c</sub></span> ' + fmtHz(fc) + ' · <span class="k">yansıma</span> ' + fmt(20 * Math.log10(R), 0) + ' dB');
+  };
+  bindRange(s, 'L', v => { L = v; upd(); }); bindRange(s, 'f', v => { fv = v; upd(); }); upd();
+  const bd = $('[data-a="dry"]', s), bw = $('[data-a="wet"]', s);
+  bd.onclick = () => AU.toggle(bd, roomMix(() => [0.8, 0]), { level: 1 });
+  bw.onclick = () => AU.toggle(bw, roomMix(() => [0.42, 0.68]), { level: 1 });
+  return {
+    frame(t, dt) {
+      T += dt;
+      const c = F.begin(), w = F.w, h = F.h; if (!w) return;
+      const narrow = w < 640, f = fOf(fv), fc = C0 / (4 * L), R = refl(f, fc);
+      // oda kesiti, sabit ölçek 9 m × 6 m
+      const rw = narrow ? w - U * 4 : w * 0.68, rh = narrow ? h * 0.56 : h - U * 9.6;
+      const k = Math.min(rw / 9, rh / 6), ox = U * 2, oy = U * 2.6;
+      const X = m => ox + m * k, Y = m => oy + m * k;
+      ptitle(c, 'KESİT · 9 m × 6 m', ox, oy - U * 0.9);
+      c.strokeStyle = COL.ink; c.lineWidth = LW(2); c.strokeRect(X(0), Y(0), 9 * k, 6 * k);
+      // kamalar
+      c.fillStyle = alpha(COL.c4, 0.22); c.strokeStyle = alpha(COL.c4, 0.8); c.lineWidth = 1;
+      const wedge = (x0, y0, x1, y1, tx_, ty_) => { c.beginPath(); c.moveTo(X(x0), Y(y0)); c.lineTo(X(tx_), Y(ty_)); c.lineTo(X(x1), Y(y1)); c.closePath(); c.fill(); c.stroke(); };
+      const bwid = 0.5;
+      for (let m = 0; m < 9 - 1e-6; m += bwid) { wedge(m, 0, m + bwid, 0, m + bwid / 2, L); wedge(m, 6, m + bwid, 6, m + bwid / 2, 6 - L); }
+      for (let m = 0; m < 6 - 1e-6; m += bwid) { wedge(0, m, 0, m + bwid, L, m + bwid / 2); wedge(9, m, 9, m + bwid, 9 - L, m + bwid / 2); }
+      // tel ağ zemin
+      ln(c, X(L), Y(6 - L - 0.12), X(9 - L), Y(6 - L - 0.12), COL.ink2, LW(1.2), [2, 3]);
+      tx(c, 'tel ağ zemin', X(9 - L) - U * 0.5, Y(6 - L - 0.12) - U * 0.6, { al: 'right', size: fs(0.9), col: COL.ink3 });
+      // kaynak, mikrofon, darbe
+      const sx = 2.6, sy = 3.0, mx = 6.4;
+      const inner = () => clipRect(c, X(L), Y(L), (9 - 2 * L) * k, (6 - 2 * L) * k);
+      const Rm = ((T % 2.2) / 2.2) * 9.5;
+      inner();
+      ring(c, X(sx), Y(sy), Rm * k, COL.c1, 0.85, 1.6);
+      const imgs = [[-sx, sy, sx], [18 - sx, sy, 9 - sx], [sx, -sy, sy], [sx, 12 - sy, 6 - sy]];
+      imgs.forEach(([ix, iy, dw]) => { if (Rm > dw) ring(c, X(ix), Y(iy), Rm * k, COL.c2, Math.max(0.04, R * 0.95), 1.6); });
+      c.restore();
+      speaker(c, X(sx), Y(sy), U * 0.9, 0, COL.ink);
+      dot(c, X(mx), Y(sy), U * 0.5, COL.ink); ln(c, X(mx), Y(sy), X(mx), Y(sy) + U * 2.6, COL.ink, LW(1.4));
+      tx(c, 'mikrofon', X(mx), Y(sy) + U * 3.8, { al: 'center', size: fs(0.95), col: COL.ink2 });
+      // kama boyu ile λ/4, aynı ölçekte
+      const q = C0 / f / 4, qq = Math.min(q, 9), sy0 = Y(6) + U * 2.2, good = q <= L;
+      ln(c, X(0), sy0, X(L), sy0, COL.c4, LW(3));
+      tx(c, 'kama boyu L = ' + fmt(L, 2) + ' m', X(L) + U * 0.8, sy0, { bl: 'middle', size: fs(1.0), col: COL.c4, wt: 600 });
+      ln(c, X(0), sy0 + U * 2, X(qq), sy0 + U * 2, good ? COL.c4 : COL.c2, LW(3));
+      if (q > qq) arrow(c, X(qq) - U, sy0 + U * 2, X(qq) + U * 0.4, sy0 + U * 2, COL.c2, LW(2));
+      tx(c, 'λ/4 = ' + fmtLen(q) + (good ? ' ≤ L: yansıma bastırılır' : ' > L: kamalar yetmez'), X(qq) + U * 1.2, sy0 + U * 2, { bl: 'middle', size: fs(1.0), col: good ? COL.c4 : COL.c2, wt: 600 });
+      // yansıma–frekans eğrisi (şematik)
+      const gx0 = narrow ? U * 5 : w * 0.73 + U * 2.4, gx1 = w - U * 1.6, gy1 = narrow ? h * 0.74 + U * 2.4 : U * 4, gy0 = narrow ? h - U * 2.6 : h * 0.66;
+      ptitle(c, 'YANSIMA, dB (ŞEMATİK)', gx0 - (narrow ? 0 : U * 1.4), gy1 - U * 1.2);
+      const GX = logAxis(31.5, 2000, gx0, gx1), GY = d => gy1 + (-d) / 40 * (gy0 - gy1);
+      [0, -20, -40].forEach(d => { ln(c, gx0, GY(d), gx1, GY(d), d === -20 ? alpha(COL.c3, 0.7) : COL.grid, 1, d === -20 ? [4, 3] : null); tx(c, fmt(d, 0), gx0 - U * 0.4, GY(d), { al: 'right', bl: 'middle', size: fs(0.85), col: COL.ink3 }); });
+      [31.5, 125, 500, 2000].forEach(fq => { ln(c, GX(fq), gy0, GX(fq), gy0 + U * 0.4, COL.ink3, 1); tx(c, fq < 1000 ? fmt(fq, fq % 1 ? 1 : 0) : fmt(fq / 1000, 0) + 'k', GX(fq), gy0 + U * 1.6, { al: 'center', size: fs(0.85), col: COL.ink3 }); });
+      plot(c, 0, 1, 120, v => GX(logMap(v, 31.5, 2000)), v => GY(Math.max(-40, 20 * Math.log10(refl(logMap(v, 31.5, 2000), fc)))), COL.c2, LW(1.8));
+      if (fc >= 31.5 && fc <= 2000) { ln(c, GX(fc), gy0, GX(fc), gy1, alpha(COL.c4, 0.8), 1, [3, 3]); tx(c, 'f_c', GX(fc) + U * 0.4, gy1 + U * 1.2, { size: fs(0.95), it: true, col: COL.c4 }); }
+      dot(c, GX(f), GY(Math.max(-40, 20 * Math.log10(R))), U * 0.5, COL.c2);
+    }
+  };
+});
+
+/* ====================== 5 · Katı açı (Şekil 3-1) ====================== */
+scene('solid', s => {
+  const F = new Fig($('canvas', s));
+  let n = 2, T = 0;
+  const P = []; for (let i = 0; i < 260; i++) P.push([Math.random() - 0.5, Math.random() - 0.5, Math.random() * 4.6]);
+  const upd = () => {
+    out(s, 'n', fmt(n, 2) + ' r'); out(s, 'r', fmt(n, 2) + ' r');
+    out(s, 'A', fmt(n * n, 2) + ' · A₁'); out(s, 'I', 'I₁ / ' + fmt(n * n, 2) + ' = ' + fmt(1 / (n * n), 3) + ' I₁');
+    out(s, 'L', fmt(-20 * Math.log10(n), 1) + ' dB');
+  };
+  bindRange(s, 'n', v => { n = v; upd(); }); upd();
+  return {
+    frame(t, dt) {
+      T += dt;
+      const c = F.begin(), w = F.w, h = F.h; if (!w) return;
+      const narrow = w < 640;
+      const fw = narrow ? w : w * 0.66, fh = narrow ? h * 0.66 : h;
+      const r0 = Math.min((fw - U * 4) / 8.4, (fh - U * 3) / 8.2), S = [U * 2 + 4.1 * r0, fh / 2 + r0 * 0.15];
+      for (let k = 1; k <= 4; k++) ring(c, S[0], S[1], k * r0, COL.ink2, 0.9, 1.2);
+      const phi = 0.36, ea = [Math.cos(phi), -Math.sin(phi)], ep = [Math.sin(phi), Math.cos(phi)], ed = [-0.42, -0.3], s1 = r0 * 0.36;
+      const pt = (rho, u, v) => [S[0] + rho * ea[0] + rho * (u * s1 / r0) * ep[0] + rho * (v * s1 / r0) * ed[0] * 1.6, S[1] + rho * ea[1] + rho * (u * s1 / r0) * ep[1] + rho * (v * s1 / r0) * ed[1] * 1.6];
+      const quad = (m, col, fill, wdt) => {
+        const q = [pt(m * r0, -0.5, -0.5), pt(m * r0, 0.5, -0.5), pt(m * r0, 0.5, 0.5), pt(m * r0, -0.5, 0.5)];
+        c.beginPath(); q.forEach((p, i) => i ? c.lineTo(p[0], p[1]) : c.moveTo(p[0], p[1])); c.closePath();
+        if (fill) { c.fillStyle = fill; c.fill(); }
+        c.strokeStyle = col; c.lineWidth = wdt; c.stroke();
+        return q;
+      };
+      const q4 = [pt(4 * r0, -0.5, -0.5), pt(4 * r0, 0.5, -0.5), pt(4 * r0, 0.5, 0.5), pt(4 * r0, -0.5, 0.5)];
+      q4.forEach(p => ln(c, S[0], S[1], p[0], p[1], alpha(COL.ink3, 0.7), 1));
+      // enerji parçacıkları
+      c.fillStyle = alpha(COL.c1, 0.85);
+      for (const p of P) { const rho = ((T * 0.55 + p[2]) % 4.6) * r0; if (rho < r0 * 0.15) continue; const q = pt(rho, p[0], p[1]); c.fillRect(q[0] - 1.2, q[1] - 1.2, 2.4, 2.4); }
+      for (let m = 1; m <= 4; m++) {
+        const q = quad(m, COL.ink, alpha(COL.ink, 0.04), LW(1.5));
+        tx(c, 'A_' + m, q[0][0] - U * 0.2, q[0][1] - U * 0.9, { size: fs(1.1), font: FONT.serif, it: true, col: COL.ink });
+      }
+      quad(n, COL.c2, alpha(COL.c2, 0.16), LW(2.4));
+      // yarıçap okları
+      const da = 0.95;
+      for (let m = 1; m <= 4; m++) { const ex = S[0] + Math.cos(da + m * 0.06) * m * r0, ey = S[1] + Math.sin(da + m * 0.06) * m * r0; arrow(c, S[0], S[1], ex, ey, COL.ink2, 1.1); tx(c, (m > 1 ? m : '') + 'r', ex - U * 1.5, ey - U * 0.3, { size: fs(1.05), it: true, font: FONT.serif, col: COL.ink2, al: 'right' }); }
+      dot(c, S[0], S[1], U * 0.5, COL.ink);
+      // alan ve şiddet çubukları
+      const bx0 = narrow ? U * 4 : fw + U * 3, bx1 = w - U * 1.5, by0 = narrow ? fh + U * 3 : U * 3.4, by1 = h - U * 2.4;
+      const half = (by1 - by0 - U * 3) / 2;
+      const bars = (y0, title, val, max, col, lab) => {
+        ptitle(c, title, bx0, y0);
+        const yb = y0 + half, bw = (bx1 - bx0) / 4;
+        ln(c, bx0, yb, bx1, yb, COL.ink3, 1);
+        for (let m = 1; m <= 4; m++) {
+          const v = val(m), hh = v / max * (half - U * 2.6), xm = bx0 + (m - 0.5) * bw;
+          c.fillStyle = alpha(col, 0.75); c.fillRect(xm - bw * 0.28, yb - hh, bw * 0.56, hh);
+          tx(c, lab(m), xm, yb - hh - U * 0.5, { al: 'center', size: fs(0.95), col: COL.ink2 });
+          tx(c, (m > 1 ? m : '') + 'r', xm, yb + U * 1.5, { al: 'center', size: fs(0.95), it: true, font: FONT.serif, col: COL.ink3 });
+        }
+        const xn = bx0 + (n - 0.5) * bw; ln(c, xn, y0 + U * 1.2, xn, yb, alpha(COL.c2, 0.85), LW(1.4), [4, 3]);
+      };
+      bars(by0, 'ALAN', m => m * m, 16, COL.ink2, m => (m > 1 ? m * m : '') + 'A₁');
+      bars(by0 + half + U * 3, 'ŞİDDET', m => 1 / (m * m), 1, COL.c1, m => m > 1 ? 'I₁/' + m * m : 'I₁');
+    }
+  };
+});
+
+/* ====================== 6 · Ters kare yasası ====================== */
+scene('isq', s => {
+  const F = new Fig($('canvas', s));
+  let lW = 0, r = 1;
+  const upd = () => {
+    const W = Math.pow(10, lW), S = 4 * Math.PI * r * r, I = W / S;
+    out(s, 'W', fmtSI(W, 'W')); out(s, 'r', fmt(r, 2) + ' m');
+    out(s, 'S', fmt(S, S < 10 ? 2 : 1) + ' m²'); out(s, 'I', fmtSI(I, 'W/m²'));
+    out(s, 'LI', fmt(10 * Math.log10(I / 1e-12), 1) + ' dB'); out(s, 'LW', fmt(10 * Math.log10(W / 1e-12), 1) + ' dB');
+  };
+  bindRange(s, 'W', v => { lW = v; upd(); }); bindRange(s, 'r', v => { r = v; upd(); }); upd();
+  return {
+    frame(t) {
+      const c = F.begin(), w = F.w, h = F.h; if (!w) return;
+      const narrow = w < 640;
+      // küre kesiti — sabit ölçek (4 m)
+      const kw = narrow ? w : w * 0.4, kh = narrow ? h * 0.46 : h;
+      const k = Math.min(kw - U * 3, kh - U * 6) / 8.2, cx = kw / 2, cy = U * 3.2 + (kh - U * 6) / 2 + U * 0.6;
+      ptitle(c, 'KÜRE KESİTİ · AYNI GÜÇ, 24 IŞIN', U * 1.5, U * 2);
+      const R = r * k;
+      c.beginPath(); c.arc(cx, cy, R, 0, TAU); c.fillStyle = alpha(COL.c1, 0.32 / (r * r)); c.fill();
+      ring(c, cx, cy, R, COL.c1, 0.9, 1.8);
+      for (let i = 0; i < 24; i++) { const a = i / 24 * TAU + 0.13; ln(c, cx, cy, cx + Math.cos(a) * R, cy + Math.sin(a) * R, alpha(COL.ink3, 0.6), 1); dot(c, cx + Math.cos(a) * R, cy + Math.sin(a) * R, U * 0.3, COL.c1); }
+      ring(c, cx, cy, 4 * k, COL.rule, 1, 1); ring(c, cx, cy, 1 * k, COL.ink3, 0.6, 1);
+      tx(c, '1 m', cx + k * 0.72, cy - k * 0.72, { size: fs(0.9), col: COL.ink3 });
+      dot(c, cx, cy, U * 0.45, COL.ink);
+      chip(c, '4πr² = ' + fmt(4 * Math.PI * r * r, 2) + ' m²', cx, cy + Math.min(R, 4 * k) + U * 1.8, { al: 'center', size: fs(1.05), col: COL.c1, wt: 600, clampW: kw });
+      // şiddet–uzaklık
+      const gx0 = narrow ? U * 5 : kw + U * 5, gx1 = w - U * 2, gy0 = h - U * 3.2, gy1 = narrow ? kh + U * 3 : U * 3.4;
+      ptitle(c, 'ŞİDDET, 1 m’DEKİ DEĞERE GÖRE', gx0 - U * 3.5, gy1 - U * 1.3);
+      const X = q => gx0 + (q - 0) / 4.2 * (gx1 - gx0), Y = v => gy0 - v / 4.4 * (gy0 - gy1);
+      for (let q = 0; q <= 4; q++) { ln(c, X(q), gy0, X(q), gy1, COL.grid, 1); tx(c, q + ' m', X(q), gy0 + U * 1.6, { al: 'center', size: fs(0.9), col: COL.ink3 }); }
+      for (let v = 0; v <= 4; v++) { ln(c, gx0, Y(v), gx1, Y(v), COL.grid, 1); tx(c, v + '', gx0 - U * 0.5, Y(v), { al: 'right', bl: 'middle', size: fs(0.9), col: COL.ink3 }); }
+      clipRect(c, gx0, gy1, gx1 - gx0 + U, gy0 - gy1); plot(c, 0.47, 4.2, 200, q => X(q), q => Y(1 / (q * q)), COL.c1, LW(2)); c.restore();
+      [[0.5, '4I', 0], [1, 'I', 0], [2, 'I/4', 0], [3, 'I/9', 0], [4, 'I/16', 0]].forEach(([q, lab]) => {
+        dot(c, X(q), Y(1 / (q * q)), U * 0.45, COL.ink);
+        tx(c, lab, X(q) + U * 0.8, Y(1 / (q * q)) - U * 0.8, { size: fs(1.05), it: true, font: FONT.serif, col: COL.ink });
+      });
+      const yI = Y(1 / (r * r));
+      ln(c, X(r), gy0, X(r), yI, alpha(COL.c2, 0.6), 1, [3, 3]);
+      dot(c, X(r), yI, U * 0.65, COL.c2);
+      chip(c, 'r = ' + fmt(r, 2) + ' m → ' + fmt(1 / (r * r), 3) + ' × I(1 m)', gx1, gy1 + U * 1.4, { al: 'right', size: fs(1.1), col: COL.c2, wt: 600, border: COL.c2 });
+    }
+  };
+});
+
+/* ====================== 7 · Ters uzaklık yasası ====================== */
+scene('pressure', s => {
+  const F = new Fig($('canvas', s));
+  let v = 1 / 3;
+  const frac = x => { const n = Math.round(x); return Math.abs(x - n) < 1e-3 ? (n === 1 ? '1' : '1/' + n) : fmt(1 / x, 3); };
+  const upd = () => {
+    const x = Math.pow(8, v);
+    out(s, 'x', fmt(x, 2));
+    out(s, 'v', '<span class="k">p</span> ' + fmt(1 / x, 3) + ' → ' + fmt(20 * Math.log10(1 / x), 1) + ' dB · <span class="k">I</span> ' + fmt(1 / (x * x), 4) + ' → ' + fmt(10 * Math.log10(1 / (x * x)), 1) + ' dB');
+  };
+  bindRange(s, 'x', q => { v = q; upd(); }); upd();
+  return {
+    frame() {
+      const c = F.begin(), w = F.w, h = F.h; if (!w) return;
+      const x = Math.pow(8, v);
+      const gx0 = U * 6, gx1 = w - U * 9, X = logAxis(1, 8, gx0, gx1);
+      const top0 = U * 3.2, top1 = h * 0.47, bot0 = h * 0.47 + U * 4.4, bot1 = h - U * 3;
+      const Y1 = q => top1 - q * (top1 - top0), Y2 = d => bot0 + (-d) / 20 * (bot1 - bot0);
+      ptitle(c, 'ORANLAR', gx0, top0 - U * 1.2); ptitle(c, 'DESİBEL', gx0, bot0 - U * 1.2);
+      [1, 2, 4, 8].forEach(q => {
+        ln(c, X(q), top0, X(q), top1, COL.grid, 1); ln(c, X(q), bot0, X(q), bot1, COL.grid, 1);
+        tx(c, q === 1 ? 'r_1' : q + 'r_1', X(q), bot1 + U * 1.7, { al: 'center', size: fs(1.0), it: true, font: FONT.serif, col: COL.ink3 });
+      });
+      [0, 0.25, 0.5, 0.75, 1].forEach(q => { ln(c, gx0, Y1(q), gx1, Y1(q), COL.grid, 1); tx(c, fmt(q, 2), gx0 - U * 0.5, Y1(q), { al: 'right', bl: 'middle', size: fs(0.9), col: COL.ink3 }); });
+      [0, -6, -12, -18].forEach(d => { ln(c, gx0, Y2(d), gx1, Y2(d), COL.grid, 1); tx(c, fmt(d, 0) + ' dB', gx0 - U * 0.5, Y2(d), { al: 'right', bl: 'middle', size: fs(0.9), col: COL.ink3 }); });
+      plot(c, 0, Math.log10(8), 120, q => X(Math.pow(10, q)), q => Y1(1 / Math.pow(10, q)), COL.c2, LW(2));
+      plot(c, 0, Math.log10(8), 120, q => X(Math.pow(10, q)), q => Y1(1 / Math.pow(100, q)), COL.c1, LW(2));
+      tx(c, 'p / p₁ = 1/x', gx1 + U * 0.6, Y1(1 / 8) - U * 0.4, { bl: 'middle', size: fs(1.05), col: COL.c2, wt: 600 });
+      tx(c, 'I / I₁ = 1/x²', gx1 + U * 0.6, Y1(1 / 64) + U * 1.4, { bl: 'middle', size: fs(1.05), col: COL.c1, wt: 600 });
+      [2, 4, 8].forEach(q => {
+        dot(c, X(q), Y1(1 / q), U * 0.4, COL.c2); dot(c, X(q), Y1(1 / (q * q)), U * 0.4, COL.c1);
+        const dx = q === 8 ? -U * 0.6 : U * 0.6, al = q === 8 ? 'right' : 'left';
+        tx(c, '1/' + q, X(q) + dx, Y1(1 / q) - U * 0.7, { size: fs(0.95), col: COL.c2, al });
+        tx(c, '1/' + q * q, X(q) + dx, Y1(1 / (q * q)) - U * 0.7, { size: fs(0.95), col: COL.c1, al });
+      });
+      // desibelde ikisi tek doğru
+      plot(c, 0, Math.log10(8), 2, q => X(Math.pow(10, q)), q => Y2(-20 * q), alpha(COL.c1, 0.3), LW(7));
+      plot(c, 0, Math.log10(8), 2, q => X(Math.pow(10, q)), q => Y2(-20 * q), COL.c2, LW(1.6), [6, 4]);
+      tx(c, '10 log(I/I₁) = 20 log(p/p₁)', gx1, bot0 + U * 1.4, { size: fs(1.05), col: COL.ink, wt: 600, al: 'right' });
+      [2, 4, 8].forEach(q => { dot(c, X(q), Y2(-20 * Math.log10(q)), U * 0.45, COL.ink); tx(c, fmt(-20 * Math.log10(q), 1), X(q) + U * 0.7, Y2(-20 * Math.log10(q)) + U * 1.6, { size: fs(0.95), col: COL.ink2 }); });
+      // imleç
+      ln(c, X(x), top0, X(x), bot1, alpha(COL.ink, 0.5), 1, [3, 3]);
+      dot(c, X(x), Y1(1 / x), U * 0.55, COL.c2, 2); dot(c, X(x), Y1(1 / (x * x)), U * 0.55, COL.c1, 2); dot(c, X(x), Y2(-20 * Math.log10(x)), U * 0.6, COL.ink, 2);
+    }
+  };
+});
+
+/* ====================== 8 · Şekil 3-2 ====================== */
+scene('fig32', s => {
+  const F = new Fig($('canvas', s));
+  let lin = false, T = 0, mix = 0;
+  const bs = $$('[data-m]', s); bs.forEach(b => b.onclick = () => { lin = b.dataset.m === 'lin'; segOn(bs, b); });
+  const pb = $('[data-a="steps"]', s), seq = burstSeq([0, -6, -12, -18, -24, -30]);
+  pb.onclick = () => AU.toggle(pb, seq, { dur: seq.dur });
+  return {
+    frame(t, dt) {
+      T += dt; mix = clamp(mix + (lin ? 1 : -1) * dt * 2.5, 0, 1);
+      const c = F.begin(), w = F.w, h = F.h; if (!w) return;
+      const gx0 = U * 7, gx1 = w - U * 3, gy0 = h - U * 4.4, gy1 = U * 2.6;
+      const XL = logAxis(1, 32, gx0, gx1), XN = q => gx0 + q / 32 * (gx1 - gx0);
+      const X = q => lerp(XL(q), XN(q), ease(mix)), Y = d => gy1 + (-d) / 35 * (gy0 - gy1);
+      c.strokeStyle = COL.ink3; c.lineWidth = 1; c.strokeRect(gx0, gy1, gx1 - gx0, gy0 - gy1);
+      const ticks = mix < 0.5 ? [1, 2, 4, 8, 16, 32] : [0, 4, 8, 12, 16, 20, 24, 28, 32];
+      ticks.forEach(q => { if (q === 0 && mix < 0.5) return; const xx = q === 0 ? gx0 : X(q); ln(c, xx, gy0, xx, gy0 + U * 0.5, COL.ink3, 1); tx(c, '' + q, xx, gy0 + U * 1.8, { al: 'center', size: fs(1.0), col: COL.ink2 }); });
+      tx(c, 'Uzaklık birimi' + (mix < 0.5 ? ' (logaritmik)' : ' (doğrusal)'), (gx0 + gx1) / 2, gy0 + U * 3.6, { al: 'center', size: fs(1.0), col: COL.ink2 });
+      [0, -10, -20, -30].forEach(d => { ln(c, gx0 - U * 0.5, Y(d), gx0, Y(d), COL.ink3, 1); tx(c, d === 0 ? '0' : '−' + (-d), gx0 - U * 0.8, Y(d), { al: 'right', bl: 'middle', size: fs(1.0), col: COL.ink2 }); });
+      c.save(); c.translate(U * 2, (gy0 + gy1) / 2); c.rotate(-Math.PI / 2); tx(c, 'Göreli ses basıncı düzeyi (dB)', 0, 0, { al: 'center', size: fs(1.0), col: COL.ink2 }); c.restore();
+      if (mix < 0.01) [2, 4, 8, 16].forEach(q => ln(c, XL(q), gy1, XL(q), gy0, COL.grid, 1));
+      plot(c, 0, 1, 160, q => X(Math.pow(32, q)), q => Y(-20 * Math.log10(Math.pow(32, q))), COL.ink, LW(2));
+      // ◆ on kat
+      ln(c, X(10), Y(-20), X(10), gy0, alpha(COL.c3, 0.7), 1, [4, 3]); ln(c, gx0, Y(-20), X(10), Y(-20), alpha(COL.c3, 0.7), 1, [4, 3]);
+      tx(c, '◆ 10 kat → −20 dB', X(10) - U * 0.7, Y(-20) + U * 1.8, { al: 'right', size: fs(1.0), col: COL.c3 });
+      // kitaptaki ikiye katlama işareti
+      const a = Y(-6.02), b = Y(-12.04), xr = X(6.2);
+      dot(c, X(2), a, U * 0.55, COL.ink); dot(c, X(4), b, U * 0.55, COL.ink);
+      ln(c, X(2), a, xr, a, COL.ink3, 1); ln(c, X(4), b, xr, b, COL.ink3, 1);
+      arrow(c, xr - U * 0.6, a - U * 2.6, xr - U * 0.6, a, COL.ink, 1.2); arrow(c, xr - U * 0.6, b + U * 2.6, xr - U * 0.6, b, COL.ink, 1.2);
+      tx(c, '6 dB', xr + U * 0.4, (a + b) / 2, { bl: 'middle', size: fs(1.05), col: COL.ink, wt: 600 });
+      ln(c, X(2), a, X(2), Y(-19), COL.ink3, 1); ln(c, X(4), b, X(4), Y(-19), COL.ink3, 1);
+      arrow(c, X(2) - U * 3, Y(-18), X(2), Y(-18), COL.ink, 1.2); arrow(c, X(4) + U * 3, Y(-18), X(4), Y(-18), COL.ink, 1.2);
+      tx(c, 'uzaklık', (X(2) + X(4)) / 2, Y(-17.2), { al: 'center', bl: 'middle', size: fs(0.95), col: COL.ink2 });
+      tx(c, 'iki kat', (X(2) + X(4)) / 2, Y(-19.2), { al: 'center', bl: 'middle', size: fs(0.95), col: COL.ink2 });
+      // ses demosu basamakları ya da gezgin nokta
+      const k = seqIndex(pb);
+      if (k >= 0) {
+        const q = Math.pow(2, k); dot(c, X(q), Y(-6.02 * k), U * 0.95, COL.c2);
+        chip(c, q + ' birim · ' + (k ? '−' + fmt(6.02 * k, 1) : '0') + ' dB', X(q) + U * 1.4, Y(-6.02 * k) - U * 1.6, { size: fs(1.1), col: COL.c2, wt: 600, border: COL.c2, clampW: w });
+      } else {
+        const q = Math.pow(32, (T / 9) % 1); dot(c, X(q), Y(-20 * Math.log10(q)), U * 0.55, COL.c1);
+      }
+    }
+  };
+});
+
+/* ====================== 9 · Örnek: 10 ft'te 80 dB ====================== */
+scene('example', s => {
+  const F = new Fig($('canvas', s));
+  let lr = Math.log10(15), unit = 'ft';
+  const pr = $$('[data-pr]', s), us = $$('[data-u]', s);
+  const L2 = r => 80 - 20 * Math.log10(r / 10);
+  const fd = ft => unit === 'ft' ? fmt(ft, ft < 10 ? 1 : 0) + ' ft' : fmt(ft * FT, 2) + ' m';
+  const fv = ft => unit === 'ft' ? fmt(ft, ft < 10 ? 1 : 0) : fmt(ft * FT, 2);
+  const upd = () => {
+    const r = Math.pow(10, lr), L = L2(r);
+    out(s, 'r', fd(r));
+    out(s, 'eq', 'L₂ = 80 − 20 log(' + fv(r) + '/' + fv(10) + ') = <b>' + fmt(L, 1) + ' dB</b>');
+  };
+  const rr = bindRange(s, 'r', v => { lr = v; segOn(pr, null); upd(); });
+  pr.forEach(b => b.onclick = () => { lr = Math.log10(+b.dataset.pr); rr.el.value = lr; segOn(pr, b); upd(); });
+  us.forEach(b => b.onclick = () => { unit = b.dataset.u; segOn(us, b); upd(); });
+  const pb = $('[data-a="cmp"]', s);
+  pb.onclick = () => { const d = L2(Math.pow(10, lr)) - 80, sq = burstSeq([0, d, 0, d], { base: 0.6 * Math.pow(10, -Math.max(0, d) / 20), step: 0.8, len: 0.55 }); AU.toggle(pb, sq, { dur: sq.dur }); };
+  upd();
+  return {
+    frame() {
+      const c = F.begin(), w = F.w, h = F.h; if (!w) return;
+      const r = Math.pow(10, lr), L = L2(r);
+      const gx0 = U * 6.5, gx1 = w - U * 2.5, gy0 = h - U * 4, gy1 = U * 2.4;
+      const X = logAxis(1, 100, gx0, gx1), Y = d => gy0 - (d - 60) / 40 * (gy0 - gy1);
+      const ticks = unit === 'ft' ? [1, 2, 5, 10, 20, 50, 100] : [0.5, 1, 2, 5, 10, 20].map(m => m / FT);
+      ticks.forEach(q => { ln(c, X(q), gy0, X(q), gy1, COL.grid, 1); tx(c, unit === 'ft' ? q + ' ft' : fmt(q * FT, q * FT < 1 ? 1 : 0) + ' m', X(q), gy0 + U * 1.7, { al: 'center', size: fs(0.95), col: COL.ink3 }); });
+      for (let d = 60; d <= 100; d += 10) { ln(c, gx0, Y(d), gx1, Y(d), COL.grid, 1); tx(c, d + ' dB', gx0 - U * 0.5, Y(d), { al: 'right', bl: 'middle', size: fs(0.95), col: COL.ink3 }); }
+      plot(c, 0, 2, 2, q => X(Math.pow(10, q)), q => Y(L2(Math.pow(10, q))), COL.ink, LW(1.8));
+      tx(c, '−6 dB / ikiye katlama', X(30), Y(L2(30)) - U * 1.2, { size: fs(1.0), col: COL.ink2 });
+      // kitabın iki sonucu
+      [[7, 83.1], [15, 76.5]].forEach(([q, d]) => { const x = X(q), y = Y(d); c.beginPath(); c.moveTo(x, y - U * .8); c.lineTo(x + U * .8, y); c.lineTo(x, y + U * .8); c.lineTo(x - U * .8, y); c.closePath(); c.strokeStyle = COL.c3; c.lineWidth = LW(1.5); c.stroke(); });
+      // r1 ve r2
+      ln(c, X(10), gy0, X(10), Y(80), alpha(COL.c1, 0.6), 1, [3, 3]); ln(c, gx0, Y(80), X(10), Y(80), alpha(COL.c1, 0.6), 1, [3, 3]);
+      dot(c, X(10), Y(80), U * 0.7, COL.c1);
+      chip(c, 'r₁ = ' + fd(10) + ' · 80 dB', X(10) - U * 1, Y(80) + U * 2.2, { al: 'right', size: fs(1.05), col: COL.c1, wt: 600 });
+      ln(c, X(r), gy0, X(r), Y(L), alpha(COL.c2, 0.6), 1, [3, 3]);
+      dot(c, X(r), Y(L), U * 0.7, COL.c2);
+      const xb = X(r) + U * 1.6;
+      if (Math.abs(L - 80) > 0.6) { ln(c, X(r), Y(80), xb + U * 0.6, Y(80), alpha(COL.c1, 0.5), 1, [2, 3]); dbl(c, xb, Y(80), xb, Y(L), COL.ink2, 1.2); }
+      chip(c, 'r₂ = ' + fd(r) + ' · ' + fmt(L, 1) + ' dB  (' + (L >= 80 ? '+' : '−') + fmt(Math.abs(L - 80), 1) + ' dB)', xb + U * 1, (Y(80) + Y(L)) / 2 - (Math.abs(L - 80) < 3 ? U * 2.4 : 0), { size: fs(1.1), col: COL.c2, wt: 600, border: COL.c2, clampW: w });
+      tx(c, '◇ kitaptaki sonuçlar', gx1, gy1 + U * 1.2, { al: 'right', size: fs(0.95), col: COL.c3 });
+    }
+  };
+});
+
+/* ====================== 10 · Mikrofon ve açık hava ====================== */
+scene('mic', s => {
+  const F = new Fig($('canvas', s));
+  let d = 10, T = 0;
+  const RC = 8;
+  const free = q => 6 - 20 * Math.log10(q / 5), room = q => 6 + 10 * Math.log10(((RC / q) ** 2 + 1) / ((RC / 5) ** 2 + 1));
+  const upd = () => {
+    out(s, 'd', fmt(d, 1) + ' ft (' + fmt(d * FT, 2) + ' m)');
+    out(s, 'm', '<span class="k">serbest alan</span> ' + (free(d) >= 0 ? '+' : '') + fmt(free(d), 1) + ' dB · <span class="k">oda</span> ' + (room(d) >= 0 ? '+' : '') + fmt(room(d), 1) + ' dB');
+  };
+  bindRange(s, 'd', v => { d = v; upd(); }); upd();
+  return {
+    frame(t, dt) {
+      T += dt;
+      const c = F.begin(), w = F.w, h = F.h; if (!w) return;
+      const narrow = w < 640;
+      // stüdyo
+      const sh = h - U * 17.5, mw = narrow ? U * 15 : U * 19, sx0 = U * 4, sx1 = w - mw - U * 3;
+      const k = (sx1 - sx0) / 20, fy = sh - U * 3.6;
+      ptitle(c, 'STÜDYO · 0–20 ft', U * 1.5, U * 2);
+      ln(c, U * 1.5, fy, sx1 + U * 1, fy, COL.ink3, 1);
+      for (let q = 0; q <= 20; q += 5) { ln(c, sx0 + q * k, fy, sx0 + q * k, fy + U * 0.5, COL.ink3, 1); tx(c, q + ' ft', sx0 + q * k, fy + U * 1.8, { al: 'center', size: fs(0.9), col: COL.ink3 }); }
+      // şarkıcı
+      const hx = sx0, hy = fy - U * 9.5;
+      c.fillStyle = COL.ink2; c.beginPath(); c.arc(hx, hy, U * 1.3, 0, TAU); c.fill();
+      c.beginPath(); c.moveTo(hx - U * 1.6, fy); c.lineTo(hx - U * 1.1, hy + U * 2); c.lineTo(hx + U * 1.1, hy + U * 2); c.lineTo(hx + U * 1.6, fy); c.closePath(); c.fill();
+      clipRect(c, hx + U * 1.4, U * 2.6, sx1 - hx, fy - U * 2.6);
+      for (let i = 0; i < 6; i++) { const R = ((T * k * 3 + i * k * 3.4) % (k * 20.5)) + U; ring(c, hx + U * 1.3, hy, R, COL.c1, 0.6 * Math.min(1, k * 3 / R), 1.2, -0.7, 0.7); }
+      c.restore();
+      // mikrofon
+      const mx = sx0 + d * k;
+      ln(c, mx, fy, mx, hy + U * 1.2, COL.ink, LW(1.6)); ln(c, mx - U * 1.2, fy, mx + U * 1.2, fy, COL.ink, LW(1.6));
+      c.save(); c.translate(mx, hy); c.fillStyle = COL.c2; c.beginPath(); c.ellipse(0, 0, U * 0.9, U * 0.55, 0, 0, TAU); c.fill(); c.restore();
+      dbl(c, hx, fy - U * 1.3, mx, fy - U * 1.3, COL.c2, 1.1);
+      chip(c, fmt(d, 1) + ' ft', (hx + mx) / 2, fy - U * 2.5, { al: 'center', size: fs(1.0), col: COL.c2, wt: 600 });
+      [5, 10].forEach(q => tx(c, '▾', sx0 + q * k, fy - U * 0.2, { al: 'center', size: fs(1.0), col: COL.c3 }));
+      // gösterge
+      const gx = w - mw - U * 0.5, gy0 = fy, gy1 = U * 3.4, G = q => gy0 - (q + 12) / 21 * (gy0 - gy1);
+      ptitle(c, 'KONTROL ODASI', gx, U * 2);
+      for (let q = -12; q <= 9; q += 3) { ln(c, gx + U * 3.2, G(q), gx + mw - U * 1, G(q), q === 0 ? COL.ink3 : COL.grid, 1); tx(c, (q > 0 ? '+' : q < 0 ? '−' : '') + Math.abs(q), gx + U * 2.6, G(q), { al: 'right', bl: 'middle', size: fs(0.85), col: COL.ink3 }); }
+      const bw = (mw - U * 5) / 2;
+      [[free(d), COL.c1, 'serbest'], [room(d), COL.c2, 'oda']].forEach(([v, col, lab], i) => {
+        v = Math.round(v * 10) / 10 || 0; const x = gx + U * 3.6 + i * (bw + U * 0.6), vv = clamp(v, -12, 9);
+        c.fillStyle = alpha(col, 0.8); c.fillRect(x, G(vv), bw, gy0 - G(vv));
+        tx(c, (v > 0 ? '+' : v < 0 ? '−' : '') + fmt(Math.abs(v), 1), x + bw / 2, G(vv) - U * 0.6, { al: 'center', size: fs(1.0), col, wt: 600 });
+        tx(c, lab, x + bw / 2, gy0 + U * 1.8, { al: 'center', size: fs(0.9), col });
+      });
+      // açık hava şeridi — doğrusal uzaklık
+      const ay = h - U * 7.6, ax0 = U * 4, ax1 = w - U * 3, K = (ax1 - ax0) / 200;
+      ptitle(c, 'AÇIK HAVA · DOĞRUSAL UZAKLIK, 0–200 ft (0–61 m)', U * 1.5, sh + U * 1.4);
+      [[10, 20], [20, 40], [40, 80], [80, 160]].forEach(([a, b], i) => {
+        c.fillStyle = alpha(i % 2 ? COL.c4 : COL.c1, 0.16); c.fillRect(ax0 + a * K, ay - U * 4, (b - a) * K, U * 4);
+        ln(c, ax0 + a * K, ay - U * 4, ax0 + a * K, ay, alpha(COL.ink3, 0.8), 1);
+        if ((b - a) * K > tw(c, '−6 dB', { size: fs(0.9), wt: 600 }) + 4) tx(c, '−6 dB', ax0 + (a + b) / 2 * K, ay - U * 1.6, { al: 'center', size: fs(b - a < 15 ? 0.9 : 1.0), col: i % 2 ? COL.c4 : COL.c1, wt: 600 });
+      });
+      c.fillStyle = alpha(COL.c2, 0.14); c.fillRect(ax0 + 100 * K, ay + U * 0.6, 100 * K, U * 2.6);
+      tx(c, '100 → 200 ft: yine −6 dB', ax0 + 150 * K, ay + U * 2.3, { al: 'center', size: fs(1.0), col: COL.c2, wt: 600 });
+      ln(c, ax0, ay, ax1, ay, COL.ink3, 1);
+      for (let q = 0; q <= 200; q += 50) tx(c, q + ' ft', ax0 + q * K, ay + U * 4.8, { al: 'center', size: fs(0.9), col: COL.ink3 });
+      const q = 10 * Math.pow(2, (T / 2.2) % 4.32);
+      dot(c, ax0 + q * K, ay, U * 0.65, COL.ink);
+      chip(c, fmt(q, 0) + ' ft · ' + fmt(-20 * Math.log10(q / 10), 1) + ' dB', clamp(ax0 + q * K, ax0 + U * 6, ax1 - U * 6), ay - U * 5.4, { al: 'center', size: fs(1.0), col: COL.ink, wt: 600 });
+    }
+  };
+});
+
+/* ====================== 11 · Çizgi kaynak ====================== */
+scene('line', s => {
+  const F = new Fig($('canvas', s));
+  let lv = 2.3, T = 0;
+  const cars = []; for (let i = 0; i < 14; i++) cars.push([Math.random(), i % 2 ? 1 : -1, 0.6 + Math.random() * 0.5]);
+  const upd = () => out(s, 'l', fmt(Math.pow(10, lv), 0) + ' m');
+  bindRange(s, 'l', v => { lv = v; upd(); }); upd();
+  const bp = $('[data-a="p"]', s), bc = $('[data-a="c"]', s);
+  const sp = burstSeq([0, -6, -12, -18, -24]), sc = burstSeq([0, -3, -6, -9, -12]);
+  bp.onclick = () => AU.toggle(bp, sp, { dur: sp.dur }); bc.onclick = () => AU.toggle(bc, sc, { dur: sc.dur });
+  return {
+    frame(t, dt) {
+      T += dt;
+      const c = F.begin(), w = F.w, h = F.h; if (!w) return;
+      const narrow = w < 640, ell = Math.pow(10, lv);
+      // yayılma (yukarıdan) — sabit ölçek 1200 m × 400 m
+      const pw = w - U * 2, ph = h * 0.5;
+      const k = Math.min((pw - U * 2) / 1200, (ph - U * 4.5) / 400), cx = U * 1 + pw / 2, ry = U * 3 + 400 * k;
+      ptitle(c, 'YAYILMA · YUKARIDAN, 1200 m × 400 m', U * 1.5, U * 2);
+      const half = Math.min(ell / 2, 640);
+      clipRect(c, cx - 600 * k, U * 2.6, 1200 * k, ry - U * 2.6 + U * 0.5);
+      for (let i = 0; i < 9; i++) {
+        const R = ((T * 70 + i * 50) % 450) + 2, a = 0.75 * Math.sqrt(Math.min(1, 30 / R));
+        c.beginPath();
+        c.arc(cx - half * k, ry, R * k, Math.PI, Math.PI * 1.5); c.lineTo(cx + half * k, ry - R * k); c.arc(cx + half * k, ry, R * k, Math.PI * 1.5, TAU);
+        c.strokeStyle = alpha(COL.c1, a); c.lineWidth = LW(1.3); c.stroke();
+      }
+      c.restore();
+      ln(c, cx - 600 * k, ry, cx + 600 * k, ry, COL.rule, LW(1));
+      ln(c, cx - half * k, ry, cx + half * k, ry, COL.ink, LW(3.2));
+      c.fillStyle = COL.c2;
+      cars.forEach(q => { q[0] = (q[0] + q[1] * q[2] * dt * 0.06 * (300 / Math.max(ell, 300)) + 1) % 1; const x = cx + (q[0] - 0.5) * 2 * half * k; c.fillRect(x - U * 0.5, ry - (q[1] > 0 ? U * 0.75 : -U * 0.15), U * 1, U * 0.6); });
+      // dik ölçüm hattı
+      ln(c, cx, ry, cx, ry - 400 * k, alpha(COL.ink3, 0.7), 1, [3, 3]);
+      [10, 20, 40, 80, 160, 320].forEach(m => { dot(c, cx, ry - m * k, U * 0.3, COL.ink2); if (m >= 40) tx(c, m + ' m', cx + U * 0.6, ry - m * k, { bl: 'middle', size: fs(0.85), col: COL.ink3 }); });
+      tx(c, 'ℓ = ' + fmt(ell, 0) + ' m' + (ell > 1200 ? ' (çerçeveden uzun)' : ''), cx, ry + U * 1.7, { al: 'center', size: fs(1.0), col: COL.ink, wt: 600 });
+      // düzey
+      const gx0 = U * 6, gx1 = w - U * 2, gy0 = h - U * 3.2, gy1 = ph + U * 4.2;
+      ptitle(c, 'DÜZEY · 1 m’DEKİ ÇİZGİ DÜZEYİNE GÖRE', U * 1.5, gy1 - U * 1.4);
+      const X = logAxis(1, 2000, gx0, gx1), Y = d => gy1 + (-d) / 50 * (gy0 - gy1);
+      [1, 10, 100, 1000].forEach(m => { ln(c, X(m), gy0, X(m), gy1, COL.grid, 1); tx(c, fmt(m, 0) + ' m', X(m), gy0 + U * 1.6, { al: 'center', size: fs(0.9), col: COL.ink3 }); });
+      for (let d = 0; d >= -50; d -= 10) { ln(c, gx0, Y(d), gx1, Y(d), COL.grid, 1); tx(c, fmt(d, 0), gx0 - U * 0.5, Y(d), { al: 'right', bl: 'middle', size: fs(0.9), col: COL.ink3 }); }
+      const lgr = q => Math.pow(10, q), lo = 0, hi = Math.log10(2000);
+      const Lfin = r => -10 * Math.log10(r) + 10 * Math.log10(2 * Math.atan(ell / (2 * r)) / Math.PI);
+      const Lpt = r => 10 * Math.log10(ell / Math.PI) - 20 * Math.log10(r);
+      clipRect(c, gx0, gy1, gx1 - gx0, gy0 - gy1);
+      plot(c, lo, hi, 2, q => X(lgr(q)), q => Y(-10 * q), COL.c1, LW(1.4), [6, 4]);
+      plot(c, lo, hi, 2, q => X(lgr(q)), q => Y(Lpt(lgr(q))), COL.c2, LW(1.4), [6, 4]);
+      plot(c, lo, hi, 200, q => X(lgr(q)), q => Y(Lfin(lgr(q))), COL.ink, LW(2.2));
+      c.restore();
+      const rt = ell / Math.PI;
+      if (rt <= 2000) { ln(c, X(rt), gy0, X(rt), gy1, alpha(COL.c3, 0.8), 1, [3, 3]); chip(c, 'r = ℓ/π = ' + fmt(rt, 0) + ' m', X(rt), gy0 - U * 1.6, { al: 'center', size: fs(1.0), col: COL.c3, wt: 600, clampW: w }); }
+      // açıklama
+      const LG = [[COL.ink, null, LW(2.2), 'sonlu yol, ℓ = ' + fmt(ell, 0) + ' m'], [COL.c1, [6, 4], LW(1.4), 'sonsuz çizgi: −3 dB/ikiye katlama'], [COL.c2, [6, 4], LW(1.4), 'nokta kaynak: −6 dB/ikiye katlama']];
+      const lw0 = Math.max(...LG.map(g => tw(c, g[3], { size: fs(1.0), wt: 600 })));
+      const lx = gx1 - lw0 - U * 4.6; let ly = gy1 + U * 1.4;
+      LG.forEach(([col, dash, lw, lab]) => {
+        ln(c, lx, ly, lx + U * 3, ly, col, lw, dash); tx(c, lab, lx + U * 3.8, ly, { bl: 'middle', size: fs(1.0), col: col === COL.ink ? COL.ink : col, wt: 600 }); ly += U * 1.9;
+      });
+    }
+  };
+});
+
+/* ====================== Hopkins–Stryker: Şekil 3-3 ile uyumlu değerler ====================== */
+const HS_LW = 100 + 10 * Math.log10(4 * Math.PI * (4 * FT) ** 2);          // 4 ft'te 100 dB, Q = 1
+const HS_R = 4 / Math.pow(10, (85 - HS_LW) / 10);                           // yankılanma düzeyi 85 dB
+const hsL = (r, Q, R, LW = HS_LW) => LW + 10 * Math.log10(Q / (4 * Math.PI * r * r) + 4 / R);
+const hsD = (r, Q, LW = HS_LW) => LW + 10 * Math.log10(Q / (4 * Math.PI * r * r));
+const hsRev = (R, LW = HS_LW) => LW + 10 * Math.log10(4 / R);
+const hsRc = (Q, R) => Math.sqrt(Q * R / (16 * Math.PI));
+
+/* ====================== 12 · Şekil 3-3 ====================== */
+scene('room', s => {
+  const F = new Fig($('canvas', s));
+  let k = 0, ks = 0;
+  return {
+    step(q) { k = q; },
+    frame(t, dt) {
+      ks += (k - ks) * Math.min(1, dt * 6);
+      const c = F.begin(), w = F.w, h = F.h; if (!w) return;
+      const gx0 = U * 7, gx1 = w - U * 3, gy0 = h - U * 4.6, gy1 = U * 7.4;
+      const X = logAxis(3.2, 100, gx0, gx1), Y = d => gy0 - (d - 70) / 36 * (gy0 - gy1);
+      const L = ft => hsL(ft * FT, 1, HS_R), Ld = ft => hsD(ft * FT, 1);
+      const on = j => clamp(ks - j + 1, 0, 1);
+      // bölge bantları
+      const band = (a, b, col, al) => { if (al <= 0) return; c.fillStyle = alpha(col, 0.09 * al); c.fillRect(X(a), gy1, X(b) - X(a), gy0 - gy1); };
+      band(3.2, 4, COL.c2, on(1)); band(4, 11, COL.c1, on(1)); band(11, 30, COL.c3, on(2) * 0.6); band(30, 100, COL.c4, on(3));
+      // ızgara
+      [4, 5, 6, 7, 8, 9, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100].forEach(q => ln(c, X(q), gy0, X(q), gy1, COL.grid, 1));
+      [4, 10, 20, 30, 50, 100].forEach(q => tx(c, '' + q, X(q), gy0 + U * 1.7, { al: 'center', size: fs(1.0), col: COL.ink2 }));
+      [1.5, 3, 6, 15, 30].forEach(m => { const q = m / FT; tx(c, fmt(m, m < 2 ? 1 : 0) + ' m', X(q), gy1 - U * 0.6, { al: 'center', size: fs(0.85), col: COL.ink3 }); });
+      tx(c, 'Uzaklık (ft)', (gx0 + gx1) / 2, gy0 + U * 3.6, { al: 'center', size: fs(1.0), col: COL.ink2 });
+      for (let d = 70; d <= 100; d += 10) { ln(c, gx0, Y(d), gx1, Y(d), COL.grid, 1); tx(c, '' + d, gx0 - U * 0.6, Y(d), { al: 'right', bl: 'middle', size: fs(1.0), col: COL.ink2 }); }
+      c.save(); c.translate(U * 2.2, (gy0 + gy1) / 2); c.rotate(-Math.PI / 2); tx(c, 'Ses basıncı düzeyi (dB)', 0, 0, { al: 'center', size: fs(1.0), col: COL.ink2 }); c.restore();
+      c.strokeStyle = COL.ink3; c.lineWidth = 1; c.strokeRect(gx0, gy1, gx1 - gx0, gy0 - gy1);
+      // üst etiketler: yakın alan / uzak alan
+      const ty = U * 2.2;
+      dbl(c, X(3.2), ty + U * 1.4, X(4), ty + U * 1.4, COL.ink2, 1); dbl(c, X(4), ty + U * 1.4, X(100), ty + U * 1.4, COL.ink2, 1);
+      tx(c, 'Yakın', X(3.6), ty - U * 0.3, { al: 'center', size: fs(1.0), col: COL.c2, wt: 600 }); tx(c, 'alan', X(3.6), ty + U * 0.7, { al: 'center', size: fs(1.0), col: COL.c2, wt: 600 });
+      tx(c, 'Uzak alan', X(20), ty + U * 0.5, { al: 'center', size: fs(1.05), col: COL.ink, wt: 600 });
+      if (on(1) > 0) tx(c, 'Serbest alan', X(6.6), gy1 + U * 1.8, { al: 'center', size: fs(1.05), col: alpha(COL.c1, on(1)), wt: 600 });
+      if (on(2) > 0) tx(c, 'geçiş', X(18), gy1 + U * 1.8, { al: 'center', size: fs(1.0), col: alpha(COL.c3, on(2)), it: true });
+      if (on(3) > 0) tx(c, 'Yankılanma alanı', X(55), gy1 + U * 1.8, { al: 'center', size: fs(1.05), col: alpha(COL.c4, on(3)), wt: 600 });
+      // eğriler
+      plot(c, Math.log10(4), 2, 80, q => X(Math.pow(10, q)), q => Y(Ld(Math.pow(10, q))), COL.ink2, LW(1.4), [6, 5]);
+      ln(c, gx0, Y(85), gx1, Y(85), alpha(COL.c4, 0.45 + 0.4 * on(3)), 1, [2, 4]);
+      plot(c, Math.log10(3.25), Math.log10(4), 30, q => X(Math.pow(10, q)), q => Y(L(4) + 12 * Math.log2(4 / Math.pow(10, q))), COL.ink, LW(2.4));
+      plot(c, Math.log10(4), 2, 160, q => X(Math.pow(10, q)), q => Y(L(Math.pow(10, q))), COL.ink, LW(2.4));
+      dot(c, X(4), Y(100), U * 0.55, COL.ink);
+      tx(c, 'Doğrudan ses', X(55), Y(Ld(55)) + U * 2.2, { size: fs(1.0), col: COL.ink2, it: true });
+      if (on(1) > 0) { c.globalAlpha = on(1); chip(c, '−6 dB / ikiye katlama', X(6.2), Y(L(6.2)) - U * 2.4, { size: fs(1.0), col: COL.c1, wt: 600 }); c.globalAlpha = 1; }
+      if (on(3) > 0) { c.globalAlpha = on(3); chip(c, 'Yankılanma düzeyi 85 dB', X(98), Y(85) - U * 1.8, { al: 'right', size: fs(1.0), col: COL.c4, wt: 600 }); c.globalAlpha = 1; }
+      // kritik mesafe
+      if (on(2) > 0) {
+        c.globalAlpha = on(2);
+        const bx = X(12.6), byy = Y(L(12.6));
+        dot(c, bx, byy, U * 0.5, COL.ink3, 1.5); ln(c, bx, byy, bx - U * 3, byy - U * 3.4, COL.ink3, 1);
+        tx(c, 'kitaptaki etiket (≈ 13 ft)', bx - U * 3.2, byy - U * 3.8, { al: 'right', size: fs(0.95), col: COL.ink3, it: true });
+        const rc = hsRc(1, HS_R) / FT, xc = X(rc);
+        ln(c, xc, gy0, xc, Y(L(rc)), alpha(COL.c2, 0.8), LW(1.2), [3, 3]);
+        dot(c, xc, Y(85), U * 0.5, COL.c2); dot(c, xc, Y(L(rc)), U * 0.65, COL.c2);
+        chip(c, '◆ kritik mesafe ≈ ' + fmt(rc, 1) + ' ft (' + fmt(rc * FT, 1) + ' m) · toplam ' + fmt(L(rc), 1) + ' dB', xc + U * 1.2, Y(L(rc)) - U * 2.2, { size: fs(1.05), col: COL.c2, wt: 600, border: COL.c2, clampW: w });
+        c.globalAlpha = 1;
+      }
+    }
+  };
+});
+
+/* ====================== 13 · Kritik mesafe ====================== */
+scene('crit', s => {
+  const F = new Fig($('canvas', s));
+  let lR = Math.log10(HS_R), Q = 1, lr = Math.log10(3);
+  const pr = $$('[data-pr]', s), hb = $('[data-a="hear"]', s);
+  const vals = () => { const R = Math.pow(10, lR), r = Math.pow(10, lr), rc = hsRc(Q, R); return { R, r, rc, dr: 20 * Math.log10(rc / r), L: hsL(r, Q, R) }; };
+  const mixG = () => { const v = vals(), g = v.rc / v.r, n = Math.sqrt(g * g + 1); return [0.85 * g / n, 0.85 / n]; };
+  const upd = () => {
+    const v = vals();
+    out(s, 'R', fmt(v.R, 0) + ' m²'); out(s, 'Q', fmt(Q, 1)); out(s, 'r', fmt(v.r, 2) + ' m');
+    out(s, 'dr', '<span class="k">r<sub>c</sub></span> ' + fmt(v.rc, 2) + ' m · <span class="k">doğrudan/yankı</span> ' + (v.dr >= 0 ? '+' : '−') + fmt(Math.abs(v.dr), 1) + ' dB');
+    if (AU.cur && AU.curBtn === hb && AU.cur.set) AU.cur.set();
+  };
+  const rR = bindRange(s, 'R', v => { lR = v; segOn(pr, null); upd(); });
+  const rQ = bindRange(s, 'Q', v => { Q = v; segOn(pr, null); upd(); });
+  const rr = bindRange(s, 'r', v => { lr = v; upd(); });
+  pr.forEach(b => b.onclick = () => {
+    if (b.dataset.pr === 'book') { lR = Math.log10(HS_R); Q = 1; lr = Math.log10(3); } else { lR = Math.log10(40); Q = 4; lr = Math.log10(2.5); }
+    rR.el.value = lR; rQ.el.value = Q; rr.el.value = lr; segOn(pr, b); upd();
+  });
+  hb.onclick = () => AU.toggle(hb, roomMix(mixG));
+  upd();
+  return {
+    frame() {
+      const c = F.begin(), w = F.w, h = F.h; if (!w) return;
+      const v = vals(), narrow = w < 640;
+      const gx0 = U * 6.5, gx1 = w - (narrow ? U * 2 : U * 15), gy0 = h - U * 3.6, gy1 = U * 2.6;
+      const X = logAxis(0.3, 40, gx0, gx1), Y = d => gy0 - (d - 60) / 65 * (gy0 - gy1);
+      [0.3, 1, 3, 10, 30].forEach(m => { ln(c, X(m), gy0, X(m), gy1, COL.grid, 1); tx(c, fmt(m, m < 1 ? 1 : 0) + ' m', X(m), gy0 + U * 1.6, { al: 'center', size: fs(0.9), col: COL.ink3 }); });
+      for (let d = 60; d <= 120; d += 10) { ln(c, gx0, Y(d), gx1, Y(d), COL.grid, 1); tx(c, d + ' dB', gx0 - U * 0.5, Y(d), { al: 'right', bl: 'middle', size: fs(0.9), col: COL.ink3 }); }
+      const lo = Math.log10(0.3), hi = Math.log10(40), P = q => Math.pow(10, q);
+      clipRect(c, gx0, gy1, gx1 - gx0, gy0 - gy1);
+      plot(c, lo, hi, 2, q => X(P(q)), q => Y(hsD(P(q), Q)), COL.c1, LW(1.5), [6, 4]);
+      ln(c, gx0, Y(hsRev(v.R)), gx1, Y(hsRev(v.R)), COL.c2, LW(1.5), [6, 4]);
+      plot(c, lo, hi, 160, q => X(P(q)), q => Y(hsL(P(q), Q, v.R)), COL.ink, LW(2.4));
+      c.restore();
+      tx(c, 'doğrudan', X(0.42), Y(hsD(0.42, Q)) - U * 0.4, { size: fs(1.0), col: COL.c1, wt: 600 });
+      tx(c, 'yankılanma', gx1 - U * 0.5, Y(hsRev(v.R)) + U * 1.7, { al: 'right', size: fs(1.0), col: COL.c2, wt: 600 });
+      if (v.rc >= 0.3 && v.rc <= 40) {
+        ln(c, X(v.rc), gy0, X(v.rc), gy1, alpha(COL.c3, 0.9), LW(1.2), [3, 3]);
+        dot(c, X(v.rc), Y(hsL(v.rc, Q, v.R)), U * 0.55, COL.c3);
+        chip(c, 'r_c = ' + fmt(v.rc, 2) + ' m', X(v.rc), gy1 + U * 1.2, { al: 'center', size: fs(1.05), col: COL.c3, wt: 600, clampW: gx1 + U * 2 });
+      }
+      dot(c, X(v.r), Y(v.L), U * 0.75, COL.c4);
+      chip(c, fmt(v.L, 1) + ' dB', X(v.r) + U * 1.2, Y(v.L) - U * 1.6, { size: fs(1.05), col: COL.c4, wt: 600, border: COL.c4, clampW: gx1 });
+      // doğrudan / yankılanma payı
+      const bx = narrow ? gx0 + U * 1 : gx1 + U * 3, bw = narrow ? (gx1 - gx0) * 0.4 : U * 10, by = narrow ? gy1 + U * 3.4 : U * 6;
+      const ed = Math.pow(10, v.dr / 10), fd = ed / (ed + 1);
+      if (!narrow) {
+        ptitle(c, 'ENERJİ PAYI', bx, by - U * 1.4);
+        const hh = gy0 - by - U * 4;
+        c.fillStyle = alpha(COL.c1, 0.75); c.fillRect(bx, by + hh * (1 - fd), bw * 0.42, hh * fd);
+        c.fillStyle = alpha(COL.c2, 0.75); c.fillRect(bx + bw * 0.58, by + hh * fd, bw * 0.42, hh * (1 - fd));
+        c.strokeStyle = COL.rule; c.strokeRect(bx, by, bw * 0.42, hh); c.strokeRect(bx + bw * 0.58, by, bw * 0.42, hh);
+        tx(c, '%' + fmt(fd * 100, 0), bx + bw * 0.21, by + hh + U * 1.6, { al: 'center', size: fs(1.0), col: COL.c1, wt: 600 });
+        tx(c, '%' + fmt((1 - fd) * 100, 0), bx + bw * 0.79, by + hh + U * 1.6, { al: 'center', size: fs(1.0), col: COL.c2, wt: 600 });
+        tx(c, 'doğr.', bx + bw * 0.21, by + hh + U * 3, { al: 'center', size: fs(0.9), col: COL.ink3 });
+        tx(c, 'yankı', bx + bw * 0.79, by + hh + U * 3, { al: 'center', size: fs(0.9), col: COL.ink3 });
+      }
+    }
+  };
+});
+
+/* ====================== 14 · Yakın alan ====================== */
+scene('near', s => {
+  const F = new Fig($('canvas', s));
+  let a = 0.1, fv = 0.7658;
+  const fOf = v => logMap(v, 200, 10000);
+  const upd = () => {
+    const f = fOf(fv), lam = C0 / f, k = TAU / lam, R0 = Math.PI * a * a / lam;
+    out(s, 'a', fmt(a * 100, 1) + ' cm'); out(s, 'f', fmtHz(f));
+    out(s, 'v', '<span class="k">λ</span> ' + fmtLen(lam) + ' · <span class="k">ka</span> ' + fmt(k * a, 2) + ' · <span class="k">R₀</span> ' + fmtLen(R0));
+  };
+  bindRange(s, 'a', v => { a = v; upd(); }); bindRange(s, 'f', v => { fv = v; upd(); }); upd();
+  return {
+    frame() {
+      const c = F.begin(), w = F.w, h = F.h; if (!w) return;
+      const f = fOf(fv), lam = C0 / f, k = TAU / lam, R0 = Math.PI * a * a / lam;
+      const narrow = w < 640;
+      // piston, eksen üstü
+      const gx0 = U * 6, gx1 = w - U * 2.5, ay0 = narrow ? h * 0.55 : h * 0.56, ay1 = U * 3.2;
+      ptitle(c, 'PİSTON, EKSEN ÜSTÜ · |p| / 2ρcU₀', gx0, ay1 - U * 1.2);
+      const X = logAxis(0.01, 10, gx0, gx1), Y = d => ay1 + (-d + 6) / 56 * (ay0 - ay1);
+      [0.01, 0.1, 1, 10].forEach(m => { ln(c, X(m), ay0, X(m), ay1, COL.grid, 1); tx(c, m < 1 ? fmt(m * 100, 0) + ' cm' : fmt(m, 0) + ' m', X(m), ay0 + U * 1.6, { al: 'center', size: fs(0.9), col: COL.ink3 }); });
+      [0, -20, -40].forEach(d => { ln(c, gx0, Y(d), gx1, Y(d), COL.grid, 1); tx(c, fmt(d, 0) + ' dB', gx0 - U * 0.5, Y(d), { al: 'right', bl: 'middle', size: fs(0.9), col: COL.ink3 }); });
+      const P = r => Math.abs(Math.sin(k / 2 * (Math.sqrt(r * r + a * a) - r)));
+      const ff = r => k * a * a / (4 * r);
+      clipRect(c, gx0, ay1, gx1 - gx0, ay0 - ay1);
+      plot(c, -2, 1, 900, q => X(Math.pow(10, q)), q => Y(Math.max(-52, 20 * Math.log10(P(Math.pow(10, q)) + 1e-9))), COL.c1, LW(1.8));
+      plot(c, -2, 1, 2, q => X(Math.pow(10, q)), q => Y(20 * Math.log10(ff(Math.pow(10, q)))), COL.ink2, LW(1.3), [6, 4]);
+      const L0 = 20 * Math.log10(ff(R0));
+      plot(c, Math.log10(R0 / 2.5), Math.log10(R0), 2, q => X(Math.pow(10, q)), q => Y(L0 + 40 * Math.log10(R0 / Math.pow(10, q))), COL.c3, LW(1.6), [1.5, 4]);
+      c.restore();
+      if (R0 > 0.01 && R0 < 10) { ln(c, X(R0), ay0, X(R0), ay1, alpha(COL.c2, 0.8), 1, [3, 3]); chip(c, 'R₀ = πa²/λ = ' + fmtLen(R0), X(R0) + U * 0.6, ay1 + U * 1.3, { size: fs(1.0), col: COL.c2, wt: 600, clampW: w }); }
+      const xb = R0 / 2.5; if (xb > 0.01) tx(c, 'kitap: −12 dB/ikiye katlama', X(xb) - U * 0.6, Y(Math.min(4, L0 + 40 * Math.log10(R0 / xb))), { al: 'right', bl: 'middle', size: fs(0.95), col: COL.c3, wt: 600 });
+      tx(c, 'uzak alan: −6 dB/ikiye katlama', X(9), Y(20 * Math.log10(ff(9))) - U * 0.8, { al: 'right', size: fs(0.95), col: COL.ink2 });
+      if (a > 0.01) { ln(c, X(a), ay0, X(a), ay0 - U * 1.2, COL.ink, LW(1.4)); tx(c, 'r = a', X(a), ay0 - U * 1.6, { al: 'center', size: fs(0.9), col: COL.ink2 }); }
+      // tek kutup
+      const by0 = h - U * 3.2, by1 = ay0 + U * 5.4;
+      ptitle(c, 'TEK KUTUP · BASINÇ VE PARÇACIK HIZI, kr’YE KARŞI', gx0, by1 - U * 1.2);
+      const XK = logAxis(0.05, 20, gx0, gx1), YK = d => by1 + (55 - d) / 85 * (by0 - by1);
+      [0.1, 1, 10].forEach(q => { ln(c, XK(q), by0, XK(q), by1, COL.grid, 1); tx(c, 'kr = ' + fmt(q, q < 1 ? 1 : 0), XK(q), by0 + U * 1.6, { al: 'center', size: fs(0.9), col: COL.ink3 }); });
+      [40, 20, 0, -20].forEach(d => { ln(c, gx0, YK(d), gx1, YK(d), COL.grid, 1); tx(c, fmt(d, 0) + ' dB', gx0 - U * 0.5, YK(d), { al: 'right', bl: 'middle', size: fs(0.9), col: COL.ink3 }); });
+      const lo = Math.log10(0.05), hi = Math.log10(20);
+      plot(c, lo, hi, 2, q => XK(Math.pow(10, q)), q => YK(-20 * q), COL.c1, LW(2));
+      plot(c, lo, hi, 160, q => XK(Math.pow(10, q)), q => { const kr = Math.pow(10, q); return YK(-20 * q + 10 * Math.log10(1 + 1 / (kr * kr))); }, COL.c2, LW(2));
+      [[COL.c1, 'basınç: −6 dB/ikiye katlama'], [COL.c2, 'parçacık hızı (kr ≪ 1): −12 dB/ikiye katlama']].forEach(([col, lab], i) => {
+        const ly = by0 - U * (3.4 - i * 1.8), lx = gx0 + U * 1; ln(c, lx, ly, lx + U * 3, ly, col, LW(2)); tx(c, lab, lx + U * 3.6, ly, { bl: 'middle', size: fs(0.95), col, wt: 600 });
+      });
+      const r1 = lam / TAU;
+      ln(c, XK(1), by0, XK(1), by1, alpha(COL.c3, 0.8), 1, [3, 3]);
+      tx(c, 'kr = 1: r = λ/2π = ' + fmtLen(r1), XK(1) + U * 0.6, by1 + U * 1.2, { size: fs(0.95), col: COL.c3 });
+    }
+  };
+});
+
+/* ====================== 15 · Yarım küre ve Q ====================== */
+scene('hemi', s => {
+  const F = new Fig($('canvas', s));
+  let Q = 2, T = 0;
+  const qs = $$('[data-q]', s);
+  qs.forEach(b => b.onclick = () => { Q = +b.dataset.q; segOn(qs, b); });
+  const pb = $('[data-a="steps"]', s), seq = burstSeq([0, 3, 6, 9], { base: 0.3, step: 0.75, len: 0.5 });
+  pb.onclick = () => AU.toggle(pb, seq, { dur: seq.dur });
+  const CASES = [[1, 'serbest uzay', '4πr²'], [2, 'zemin', '2πr²'], [4, 'zemin + duvar', 'πr²'], [8, 'köşe', 'πr²/2']];
+  return {
+    frame(t, dt) {
+      T += dt;
+      const c = F.begin(), w = F.w, h = F.h; if (!w) return;
+      const narrow = w < 640, k = seqIndex(pb), sel = k >= 0 ? [1, 2, 4, 8][k] : Q;
+      const cols = narrow ? 2 : 4, rows = 4 / cols, gap = U * 1, ph = narrow ? h * 0.58 : h * 0.5;
+      const cw = (w - gap * (cols + 1)) / cols, chh = (ph - gap * (rows + 1)) / rows;
+      CASES.forEach(([q, name, area], i) => {
+        const x = gap + (i % cols) * (cw + gap), y = gap + Math.floor(i / cols) * (chh + gap), on = q === sel;
+        c.strokeStyle = on ? COL.c1 : COL.rule; c.lineWidth = on ? LW(1.8) : 1; c.strokeRect(x + .5, y + .5, cw - 1, chh - 1);
+        tx(c, 'Q = ' + q, x + U * 0.9, y + U * 2, { size: fs(1.15), wt: 600, col: on ? COL.c1 : COL.ink, font: FONT.serif, it: false });
+        tx(c, name, x + U * 0.9, y + U * 3.5, { size: fs(0.95), col: COL.ink3 });
+        tx(c, area + ' · +' + fmt(10 * Math.log10(q), 1) + ' dB', x + cw - U * 0.9, y + chh - U * 0.9, { al: 'right', size: fs(1.0), col: on ? COL.c1 : COL.ink2, wt: 600 });
+        const m = Math.min(cw, chh) * 0.19, sx = q === 1 ? x + cw / 2 : x + cw * 0.36, sy = q === 1 ? y + chh * 0.55 : y + chh * 0.62;
+        const fl = sy + m * 0.35, wl = sx - m * 0.35;
+        // sınırlar
+        if (q >= 2) { ln(c, x + U * 0.5, fl, x + cw - U * 0.5, fl, COL.ink, LW(2)); hatch(c, x + U * 0.5, fl, cw - U, U * 0.9, COL.ink3, 5); }
+        if (q >= 4) { ln(c, wl, y + U * 4.4, wl, fl, COL.ink, LW(2)); hatch(c, wl - U * 0.9, y + U * 4.4, U * 0.9, fl - y - U * 4.4, COL.ink3, 5); }
+        if (q === 8) { c.fillStyle = alpha(COL.ink3, 0.1); c.fillRect(wl, y + U * 4.4, x + cw - U * 0.5 - wl, fl - y - U * 4.4); tx(c, '+ arka duvar', x + cw - U * 0.9, y + U * 5.6, { al: 'right', size: fs(0.9), col: COL.ink3, it: true }); }
+        // dalga cepheleri
+        const a0 = q === 1 ? 0 : q === 2 ? Math.PI : Math.PI * 1.5, a1 = TAU;
+        clipRect(c, x + 1, y + U * 4, cw - 2, chh - U * 4 - 1);
+        for (let j = 0; j < 4; j++) { const R = ((T * cw * 0.12 + j * cw * 0.14) % (cw * 0.56)) + 2; c.beginPath(); c.arc(sx, sy, R, a0, a1); c.strokeStyle = alpha(COL.c1, 0.75 * Math.min(1, cw * 0.08 / R)); c.lineWidth = LW(1.3); c.stroke(); }
+        c.restore();
+        // ayna kaynaklar
+        const imgs = q === 1 ? [] : q === 2 ? [[sx, 2 * fl - sy]] : [[sx, 2 * fl - sy], [2 * wl - sx, sy], [2 * wl - sx, 2 * fl - sy]];
+        imgs.forEach(([ix, iy]) => { if (iy < y + chh && ix > x) { dot(c, ix, iy, U * 0.42, COL.c2, LW(1.4)); ln(c, sx, sy, ix, iy, alpha(COL.c2, 0.4), 1, [2, 3]); } });
+        if (q === 8) tx(c, '+4 ayna kesit dışında', x + U * 0.9, y + chh - U * 0.9, { size: fs(0.85), col: COL.c2, it: true });
+        dot(c, sx, sy, U * 0.5, COL.ink);
+      });
+      // düzey grafiği
+      const gx0 = U * 6, gx1 = w - U * 7, gy0 = h - U * 3.2, gy1 = ph + U * 3.2;
+      ptitle(c, 'DÜZEY · SABİT GÜÇ, SERBEST ALANDA 1 m’YE GÖRE', gx0, gy1 - U * 1.2);
+      const X = logAxis(1, 16, gx0, gx1), Y = d => gy1 + (12 - d) / 39 * (gy0 - gy1);
+      [1, 2, 4, 8, 16].forEach(m => { ln(c, X(m), gy0, X(m), gy1, COL.grid, 1); tx(c, m + ' m', X(m), gy0 + U * 1.6, { al: 'center', size: fs(0.9), col: COL.ink3 }); });
+      [12, 0, -12, -24].forEach(d => { ln(c, gx0, Y(d), gx1, Y(d), COL.grid, 1); tx(c, (d > 0 ? '+' : '') + fmt(d, 0), gx0 - U * 0.5, Y(d), { al: 'right', bl: 'middle', size: fs(0.9), col: COL.ink3 }); });
+      [1, 2, 4, 8].forEach(q => {
+        const on = q === sel, off = 10 * Math.log10(q);
+        plot(c, 0, Math.log10(16), 2, v => X(Math.pow(10, v)), v => Y(off - 20 * v), on ? COL.c1 : alpha(COL.ink3, 0.8), on ? LW(2.6) : LW(1.2));
+        tx(c, 'Q = ' + q + ' (+' + fmt(off, 0) + ')', gx1 + U * 0.6, Y(off - 20 * Math.log10(16)), { bl: 'middle', size: fs(0.95), col: on ? COL.c1 : COL.ink3, wt: on ? 600 : 400 });
+      });
+    }
+  };
+});
+
+/* ====================== 16 · Zemin yansıması ====================== */
+scene('ground', s => {
+  const F = new Fig($('canvas', s));
+  let hs = 1.52, hr = 1.52, lr = Math.log10(3.048), fv = 0.5, coh = false;
+  const fOf = v => logMap(v, 63, 4000);
+  const geo = (r = Math.pow(10, lr)) => { const r1 = Math.hypot(r, hs - hr), r2 = Math.hypot(r, hs + hr); return { r, r1, r2, D: r2 - r1 }; };
+  const Le = r => { const g = geo(r); return 10 * Math.log10(1 / (g.r1 * g.r1) + 1 / (g.r2 * g.r2)); };
+  const Lc = (r, f) => { const g = geo(r), k = TAU * f / C0; const re = 1 / g.r1 + Math.cos(k * g.D) / g.r2, im = -Math.sin(k * g.D) / g.r2; return 10 * Math.log10(re * re + im * im); };
+  const Lff = r => -20 * Math.log10(geo(r).r1);
+  const hb = $('[data-a="hear"]', s);
+  const upd = () => {
+    const g = geo(), f = fOf(fv);
+    out(s, 'hs', fmt(hs, 2) + ' m'); out(s, 'hr', fmt(hr, 2) + ' m'); out(s, 'r', fmt(g.r, g.r < 10 ? 2 : 1) + ' m'); out(s, 'f', fmtHz(f));
+    if (AU.cur && AU.curBtn === hb && AU.cur.set) AU.cur.set();
+  };
+  bindRange(s, 'hs', v => { hs = v; upd(); }); bindRange(s, 'hr', v => { hr = v; upd(); });
+  bindRange(s, 'r', v => { lr = v; upd(); }); bindRange(s, 'f', v => { fv = v; upd(); });
+  const ms = $$('[data-m]', s); ms.forEach(b => b.onclick = () => { coh = b.dataset.m === 'c'; segOn(ms, b); });
+  hb.onclick = () => AU.toggle(hb, (ctx, o, v) => {
+    const src = pinkSource(ctx), gd = ctx.createGain(), dl = ctx.createDelay(1), gr = ctx.createGain();
+    src.connect(gd); gd.connect(o); src.connect(dl); dl.connect(gr); gr.connect(o);
+    const set = (now) => { const g = geo(), a = g.r1 / g.r2, n = 0.75 / (1 + a), t = ctx.currentTime;
+      if (now) { gd.gain.value = n; gr.gain.value = n * a; dl.delayTime.value = g.D / C0; }
+      else { gd.gain.setTargetAtTime(n, t, 0.05); gr.gain.setTargetAtTime(n * a, t, 0.05); dl.delayTime.setTargetAtTime(g.D / C0, t, 0.05); } };
+    set(true); v.set = () => set(false);
+    src.start(v.t0); v.nodes.push(src, gd, dl, gr);
+  });
+  upd();
+  return {
+    frame() {
+      const c = F.begin(), w = F.w, h = F.h; if (!w) return;
+      const g = geo(), f = fOf(fv), narrow = w < 640;
+      // geometri: yatay 0–24 m sabit, düşey ±5,5 m (abartılı)
+      const gh = narrow ? h * 0.44 : h * 0.4, x0 = U * 3, x1 = w - U * 3, kx = (x1 - x0) / 24, yg = U * 2.4 + gh / 2, ky = (gh / 2 - U * 1.2) / 5.5;
+      ptitle(c, 'GEOMETRİ · 0–24 m, DÜŞEY ÖLÇEK ABARTILI', U * 1.5, U * 1.8);
+      c.fillStyle = alpha(COL.ink3, 0.06); c.fillRect(U * 1.5, yg, w - U * 3, gh / 2 - U * 0.5);
+      ln(c, U * 1.5, yg, w - U * 1.5, yg, COL.ink, LW(2)); hatch(c, U * 1.5, yg, w - U * 3, U * 0.9, COL.ink3, 6);
+      const S = [x0, yg - hs * ky], Sp = [x0, yg + hs * ky], vis = g.r <= 24, Rx = x0 + Math.min(g.r, 24) * kx, Rc = [Rx, yg - hr * ky];
+      const Px = x0 + Math.min(g.r, 24) * hs / (hs + hr) * (vis ? 1 : 1), Pp = [vis ? x0 + g.r * hs / (hs + hr) * kx : Px, yg];
+      ln(c, S[0], S[1], Rc[0], Rc[1], COL.c1, LW(2));
+      ln(c, S[0], S[1], Pp[0], Pp[1], COL.c2, LW(2)); ln(c, Pp[0], Pp[1], Rc[0], Rc[1], COL.c2, LW(2));
+      ln(c, Sp[0], Sp[1], Pp[0], Pp[1], alpha(COL.c2, 0.5), 1, [3, 3]);
+      dot(c, S[0], S[1], U * 0.6, COL.ink); dot(c, Sp[0], Sp[1], U * 0.55, COL.c2, LW(1.4));
+      tx(c, 'kaynak', S[0] + U * 0.9, S[1] - U * 0.6, { size: fs(0.95), col: COL.ink2 }); tx(c, 'ayna kaynak', Sp[0] + U * 0.9, Sp[1] + U * 0.4, { size: fs(0.95), col: COL.c2 });
+      dot(c, Rc[0], Rc[1], U * 0.6, COL.c4);
+      if (!vis) arrow(c, Rc[0] - U * 2, Rc[1] - U * 1.4, Rc[0] + U * 1.2, Rc[1] - U * 1.4, COL.c4, 1.2);
+      tx(c, vis ? 'alıcı' : 'alıcı ' + fmt(g.r, 0) + ' m →', Rc[0] - U * 0.6, Rc[1] - U * 1.0, { al: 'right', size: fs(0.95), col: COL.c4 });
+      const txt = 'Δ = r₂ − r₁ = ' + (g.D < 1 ? fmt(g.D * 100, 1) + ' cm' : fmt(g.D, 2) + ' m') + ' · gecikme ' + fmt(g.D / C0 * 1000, 2) + ' ms · ilk çukur ' + fmtHz(C0 / (2 * g.D));
+      chip(c, txt, w - U * 2, narrow ? U * 3.8 : U * 1.8, { al: 'right', size: fs(1.0), col: COL.ink, wt: 600, clampW: w });
+      // düzey
+      const gx0 = U * 6, gx1 = w - U * 2.5, gy0 = h - U * 3.2, gy1 = gh + U * 5.2;
+      ptitle(c, 'DÜZEY · SERBEST ALANDA 1 m’YE GÖRE', gx0, gy1 - U * 1.3);
+      const X = logAxis(1, 100, gx0, gx1), Y = d => gy1 + (8 - d) / 53 * (gy0 - gy1);
+      [1, 2, 5, 10, 20, 50, 100].forEach(m => { ln(c, X(m), gy0, X(m), gy1, COL.grid, 1); tx(c, m + ' m', X(m), gy0 + U * 1.6, { al: 'center', size: fs(0.9), col: COL.ink3 }); });
+      [0, -20, -40].forEach(d => { ln(c, gx0, Y(d), gx1, Y(d), COL.grid, 1); tx(c, fmt(d, 0), gx0 - U * 0.5, Y(d), { al: 'right', bl: 'middle', size: fs(0.9), col: COL.ink3 }); });
+      clipRect(c, gx0, gy1, gx1 - gx0, gy0 - gy1);
+      plot(c, 0, 2, 120, q => X(Math.pow(10, q)), q => Y(Lff(Math.pow(10, q))), COL.ink2, LW(1.3), [6, 4]);
+      if (coh) plot(c, 0, 2, 900, q => X(Math.pow(10, q)), q => Y(Math.max(-46, Lc(Math.pow(10, q), f))), COL.c2, LW(1.4));
+      plot(c, 0, 2, 200, q => X(Math.pow(10, q)), q => Y(Le(Math.pow(10, q))), COL.c1, LW(2.4));
+      c.restore();
+      const LL = coh ? Lc : (r => Le(r));
+      const r = g.r, a = LL(r, f), b = LL(Math.min(2 * r, 100), f);
+      dot(c, X(r), Y(a), U * 0.6, COL.ink); if (2 * r <= 100) { dot(c, X(2 * r), Y(b), U * 0.6, COL.ink, 1.5); ln(c, X(r), Y(a), X(2 * r), Y(b), COL.ink, 1); }
+      if (2 * r <= 100) chip(c, 'r → 2r: ' + (b - a >= 0 ? '+' : '−') + fmt(Math.abs(b - a), 1) + ' dB  (serbest alan ' + fmt(Lff(2 * r) - Lff(r), 1) + ' dB)', X(r) + U * 1, Math.min(Y(a), Y(b)) - U * 2.2, { size: fs(1.05), col: COL.ink, wt: 600, border: COL.ink3, clampW: w });
+    }
+  };
+});
+
+/* ====================== 17 · Kırılma ====================== */
+scene('refract', s => {
+  const F = new Fig($('canvas', s));
+  let g = -0.1, T = 0, rays = null, lastG = null;
+  const PR = { day: -0.1, night: 0.1, down: 0.15, up: -0.15 };
+  const pr = $$('[data-pr]', s);
+  const HS = 2, HR = 1.5;
+  const upd = () => {
+    out(s, 'g', (g >= 0 ? '+' : '−') + fmt(Math.abs(g), 3) + ' 1/s');
+    const R = Math.abs(g) > 1e-4 ? C0 / Math.abs(g) : Infinity;
+    out(s, 'v', isFinite(R) ? '<span class="k">ışın yarıçapı</span> ≈ ' + fmt(R / 1000, 1) + ' km' + (g < 0 ? ' · <span class="k">gölge sınırı</span> ≈ ' + fmt(Math.sqrt(2 * R) * (Math.sqrt(HS) + Math.sqrt(HR)), 0) + ' m (1,5 m alıcı)' : ' · gölge yok') : 'düz ışınlar');
+  };
+  const rg = bindRange(s, 'g', v => { g = v; segOn(pr, null); upd(); });
+  pr.forEach(b => b.onclick = () => { g = PR[b.dataset.pr]; rg.el.value = g; segOn(pr, b); upd(); });
+  upd();
+  const trace = () => {
+    const out = [];
+    for (const deg of [-8, -6, -4, -3, -2, -1.5, -1, -0.6, -0.3, 0, 0.3, 0.6, 1, 1.5, 2, 3, 4, 5, 6, 8, 10, 12, 14]) {
+      let x = 0, z = HS, th = deg * Math.PI / 180, sl = 0; const pts = [[0, HS, 0]];
+      for (let i = 0; i < 1400; i++) {
+        const cz = C0 + g * z; th += -(g / cz) * Math.cos(th) * 1.5;
+        x += Math.cos(th) * 1.5; z += Math.sin(th) * 1.5; sl += 1.5;
+        if (z < 0) { z = -z; th = -th; }
+        pts.push([x, z, sl]);
+        if (x > 1000 || z > 100) break;
+      }
+      out.push(pts);
+    }
+    return out;
+  };
+  return {
+    frame(t, dt) {
+      T += dt;
+      if (g !== lastG) { rays = trace(); lastG = g; }
+      const c = F.begin(), w = F.w, h = F.h; if (!w) return;
+      const pw = Math.max(U * 9, w * 0.12), x0 = pw + U * 3, x1 = w - U * 2, z0 = h - U * 3.4, z1 = U * 3;
+      const X = q => x0 + q / 1000 * (x1 - x0), Z = q => z0 - q / 100 * (z0 - z1);
+      const ex = ((x1 - x0) / 1000) / ((z0 - z1) / 100);
+      ptitle(c, 'KESİT · 1000 m × 100 m, DÜŞEY ÖLÇEK × ' + fmt(1 / ex, 0), x0, z1 - U * 1.2);
+      // gölge bölgesi
+      if (g < -1e-4) {
+        const R = C0 / -g, xb = q => Math.sqrt(2 * R) * (Math.sqrt(HS) + Math.sqrt(q));
+        c.beginPath(); c.moveTo(X(Math.min(1000, xb(0))), Z(0));
+        for (let q = 0; q <= 100; q += 2) c.lineTo(X(Math.min(1000, xb(q))), Z(q));
+        c.lineTo(X(1000), Z(100)); c.lineTo(X(1000), Z(0)); c.closePath();
+        c.fillStyle = alpha(COL.c2, 0.08); c.fill();
+        if (xb(0) < 900) tx(c, 'gölge bölgesi', X(Math.min(960, xb(0) + 60)), Z(4), { size: fs(1.05), col: COL.c2, wt: 600 });
+      }
+      for (let q = 0; q <= 1000; q += 200) { ln(c, X(q), z0, X(q), z1, COL.grid, 1); tx(c, q + ' m', X(q), z0 + U * 1.6, { al: 'center', size: fs(0.9), col: COL.ink3 }); }
+      [25, 50, 75, 100].forEach(q => { ln(c, x0, Z(q), x1, Z(q), COL.grid, 1); tx(c, q + ' m', x0 - U * 0.5, Z(q), { al: 'right', bl: 'middle', size: fs(0.85), col: COL.ink3 }); });
+      clipRect(c, x0, z1, x1 - x0, z0 - z1);
+      const sp = (T * 160) % 1250;
+      rays.forEach(pts => {
+        c.beginPath(); pts.forEach((p, i) => i ? c.lineTo(X(p[0]), Z(p[1])) : c.moveTo(X(p[0]), Z(p[1]))); c.strokeStyle = alpha(COL.c1, 0.5); c.lineWidth = LW(1.1); c.stroke();
+        const j = pts.findIndex(p => p[2] >= sp); if (j > 0) dot(c, X(pts[j][0]), Z(pts[j][1]), U * 0.32, COL.c1);
+      });
+      c.restore();
+      ln(c, x0, z0, x1, z0, COL.ink, LW(2)); hatch(c, x0, z0, x1 - x0, U * 0.8, COL.ink3, 6);
+      speaker(c, X(0) + U * 0.4, Z(HS), U * 0.7, 0, COL.ink);
+      if (g > 1e-4) tx(c, 'ışınlar yere geri döner', X(560), Z(88), { size: fs(1.05), col: COL.c4, wt: 600 });
+      // profil
+      const px0 = U * 1.6, px1 = pw, PX = cv => px0 + (cv - 325) / 40 * (px1 - px0);
+      ptitle(c, 'PROFİL c(z)', px0, z1 - U * 1.2);
+      [330, 345, 360].forEach(cv => { ln(c, PX(cv), z0, PX(cv), z1, COL.grid, 1); tx(c, cv + '', PX(cv), z0 + U * 1.6, { al: 'center', size: fs(0.8), col: COL.ink3 }); });
+      ln(c, PX(C0), Z(0), PX(C0 + g * 100), Z(100), COL.c3, LW(2.2));
+      tx(c, 'm/s', px1, z0 + U * 2.9, { al: 'right', size: fs(0.8), col: COL.ink3 });
+    }
+  };
+});
+
+/* ====================== 18 · Hava soğurması ====================== */
+scene('air', s => {
+  const F = new Fig($('canvas', s));
+  let T = 20, H = 70, ld = Math.log10(500);
+  const hb = $('[data-a="hear"]', s);
+  let tmr = null;
+  const mag = () => { const d = Math.pow(10, ld), TT = T, HH = H; return f => Math.pow(10, -airAlpha(Math.max(f, 1), TT, HH) * d / 20); };
+  const refresh = () => {
+    const v = AU.cur; if (!v || AU.curBtn !== hb || !v.swap) return;
+    clearTimeout(tmr); tmr = setTimeout(() => v.swap(), 140);
+  };
+  const upd = () => {
+    const d = Math.pow(10, ld);
+    out(s, 'T', fmt(T, 1) + ' °C'); out(s, 'H', '%' + fmt(H, 0)); out(s, 'd', fmt(d, 0) + ' m');
+    out(s, 'v', '<span class="k">α(1 kHz)</span> ' + fmt(airAlpha(1000, T, H) * 1000, 1) + ' dB/km · <span class="k">α(4 kHz)</span> ' + fmt(airAlpha(4000, T, H) * 1000, 1) + ' dB/km · <span class="k">' + fmt(d, 0) + ' m’de 4 kHz</span> −' + fmt(airAlpha(4000, T, H) * d, 1) + ' dB');
+    refresh();
+  };
+  bindRange(s, 'T', v => { T = v; upd(); }); bindRange(s, 'H', v => { H = v; upd(); }); bindRange(s, 'd', v => { ld = v; upd(); });
+  hb.onclick = () => AU.toggle(hb, (ctx, o, v) => {
+    const src = pinkSource(ctx);
+    let cur = null;
+    const make = () => { const cv = ctx.createConvolver(), g = ctx.createGain(); cv.normalize = false; cv.buffer = firFromMag(ctx, mag()); g.gain.value = 0; src.connect(cv); cv.connect(g); g.connect(o); v.nodes.push(cv, g); return { cv, g }; };
+    const swap = () => {
+      const nx = make(), t = ctx.currentTime;
+      nx.g.gain.setTargetAtTime(0.9, t, 0.04);
+      if (cur) { const old = cur; old.g.gain.setTargetAtTime(0, t, 0.04); setTimeout(() => { try { src.disconnect(old.cv); old.cv.disconnect(); old.g.disconnect(); } catch (e) { } }, 400); }
+      cur = nx;
+    };
+    swap(); v.swap = swap;
+    src.start(v.t0); v.nodes.push(src);
+  });
+  upd();
+  return {
+    frame() {
+      const c = F.begin(), w = F.w, h = F.h; if (!w) return;
+      const d = Math.pow(10, ld);
+      const gx0 = U * 7, gx1 = w - U * 2.5, X = logAxis(50, 10000, gx0, gx1);
+      const a0 = h * 0.47, a1 = U * 3, b0 = h - U * 3.2, b1 = h * 0.47 + U * 4.6;
+      const YA = v => a0 - (Math.log10(v) + 2) / 5 * (a0 - a1), YB = v => b1 + v / 60 * (b0 - b1);
+      ptitle(c, 'SOĞURMA KATSAYISI α (dB/km)', gx0, a1 - U * 1.2);
+      ptitle(c, fmt(d, 0) + ' m UZAKLIKTA YALNIZ HAVANIN GETİRDİĞİ KAYIP', gx0, b1 - U * 1.2);
+      [63, 125, 250, 500, 1000, 2000, 4000, 8000].forEach(f => { ln(c, X(f), a0, X(f), a1, COL.grid, 1); ln(c, X(f), b0, X(f), b1, COL.grid, 1); tx(c, f >= 1000 ? f / 1000 + 'k' : '' + f, X(f), b0 + U * 1.6, { al: 'center', size: fs(0.9), col: COL.ink3 }); });
+      tx(c, 'Hz', gx1, b0 + U * 3, { al: 'right', size: fs(0.85), col: COL.ink3 });
+      [0.01, 0.1, 1, 10, 100, 1000].forEach(v => { ln(c, gx0, YA(v), gx1, YA(v), COL.grid, 1); tx(c, v < 1 ? fmt(v, v < 0.1 ? 2 : 1) : '' + v, gx0 - U * 0.5, YA(v), { al: 'right', bl: 'middle', size: fs(0.85), col: COL.ink3 }); });
+      [0, 20, 40, 60].forEach(v => { ln(c, gx0, YB(v), gx1, YB(v), COL.grid, 1); tx(c, fmt(-v, 0) + ' dB', gx0 - U * 0.5, YB(v), { al: 'right', bl: 'middle', size: fs(0.85), col: COL.ink3 }); });
+      const lo = Math.log10(50), hi = 4;
+      clipRect(c, gx0, a1, gx1 - gx0, a0 - a1);
+      plot(c, lo, hi, 160, q => X(Math.pow(10, q)), q => YA(airAlpha(Math.pow(10, q), 20, 70) * 1000), COL.ink3, LW(1.3), [6, 4]);
+      plot(c, lo, hi, 160, q => X(Math.pow(10, q)), q => YA(airAlpha(Math.pow(10, q), T, H) * 1000), COL.c1, LW(2.2));
+      c.restore();
+      [1000, 4000].forEach(f => { const v = airAlpha(f, T, H) * 1000; dot(c, X(f), YA(v), U * 0.5, COL.c1); tx(c, fmt(v, v < 10 ? 1 : 0), X(f) - U * 0.6, YA(v) - U * 0.8, { al: 'right', size: fs(0.95), col: COL.c1, wt: 600 }); });
+      // kayıp spektrumu
+      clipRect(c, gx0, b1, gx1 - gx0, b0 - b1);
+      c.beginPath(); c.moveTo(X(50), YB(0));
+      for (let i = 0; i <= 160; i++) { const f = Math.pow(10, lo + (hi - lo) * i / 160); c.lineTo(X(f), YB(Math.min(62, airAlpha(f, T, H) * d))); }
+      c.lineTo(X(10000), YB(0)); c.closePath(); c.fillStyle = alpha(COL.c2, 0.12); c.fill();
+      plot(c, lo, hi, 160, q => X(Math.pow(10, q)), q => YB(Math.min(62, airAlpha(Math.pow(10, q), T, H) * d)), COL.c2, LW(2.2));
+      c.restore();
+      [1000, 4000, 8000].forEach(f => { const v = airAlpha(f, T, H) * d; if (v < 60) { dot(c, X(f), YB(v), U * 0.5, COL.c2); tx(c, '−' + fmt(v, 1), X(f) + U * 0.7, YB(v) + U * 1.4, { size: fs(0.95), col: COL.c2, wt: 600 }); } });
+      tx(c, '- - 20 °C, %70', gx1, a1 + U * 1.2, { al: 'right', size: fs(0.9), col: COL.ink3 });
+    }
+  };
+});
+
+boot();
+</script>
+</body>
+</html>

@@ -1,0 +1,2350 @@
+<!DOCTYPE html>
+<html lang="tr" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ses Düzeyleri ve Desibel — Bölüm 2 Semineri</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Source+Sans+3:ital,wght@0,400;0,500;0,600;1,400&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400;1,8..60,600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --u:10px;
+  --bg:#ebe9e3; --stage:#fbfaf6; --panel:#ffffff;
+  --ink:#1b1c20; --ink2:#44464d; --ink3:#83858c; --rule:#d5d2c8; --grid:#edebe4;
+  --c1:#1f4e8c; --c2:#b3412b; --c3:#9c6a0c; --c4:#1f6e66; --c5:#664a90;
+  --hl:rgba(31,78,140,.075); --lw:1;
+  --serif:"Source Serif 4","Source Serif Pro",Georgia,"Times New Roman",serif;
+  --sans:"Source Sans 3","Source Sans Pro","Helvetica Neue",Arial,sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
+  color-scheme:light;
+}
+html[data-theme="dark"]{
+  --bg:#0f1114; --stage:#171a1e; --panel:#1d2025;
+  --ink:#e9e7e0; --ink2:#b9b8b1; --ink3:#7f8186; --rule:#363a41; --grid:#262a30;
+  --c1:#82a9e2; --c2:#ea8d74; --c3:#e0b254; --c4:#5fc3b5; --c5:#b59ce2;
+  --hl:rgba(130,169,226,.10); --lw:1; color-scheme:dark;
+}
+html[data-theme="proj"]{
+  --bg:#d9d9d9; --stage:#ffffff; --panel:#ffffff;
+  --ink:#000000; --ink2:#1c1c1c; --ink3:#4f4f4f; --rule:#9a9a9a; --grid:#dedede;
+  --c1:#0034a8; --c2:#c41a00; --c3:#8a5a00; --c4:#00675a; --c5:#55249e;
+  --hl:rgba(0,52,168,.08); --lw:1.55; color-scheme:light;
+}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%;background:var(--bg);color:var(--ink)}
+body{font-family:var(--sans);overflow:hidden;-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
+#deck{position:fixed;inset:0;display:grid;place-items:center}
+#stage{position:relative;width:calc(var(--u)*160);height:calc(var(--u)*90);background:var(--stage);
+  box-shadow:0 0 0 1px var(--rule),0 calc(var(--u)*1.2) calc(var(--u)*5) rgba(0,0,0,.08);overflow:hidden;overflow:clip}
+#progress{position:absolute;left:0;bottom:0;height:calc(var(--u)*.35);background:var(--c1);width:0;transition:width .5s ease;z-index:5}
+
+.slide{position:absolute;inset:0;padding:calc(var(--u)*4.6) calc(var(--u)*7) calc(var(--u)*6.2);display:flex;flex-direction:column;
+  opacity:0;visibility:hidden;transform:translateY(calc(var(--u)*1.2));
+  transition:opacity .5s ease,transform .5s ease,visibility 0s linear .5s}
+.slide.active{opacity:1;visibility:visible;transform:none;transition:opacity .55s ease,transform .55s ease,visibility 0s}
+.kicker{font:600 calc(var(--u)*1.3)/1 var(--sans);letter-spacing:.16em;text-transform:uppercase;color:var(--c2);display:flex;align-items:center;gap:calc(var(--u)*1.2)}
+.kicker::after{content:"";flex:1;height:1px;background:var(--rule)}
+.kicker .num{font-family:var(--serif);letter-spacing:.04em;color:var(--ink3);font-weight:400}
+h2.title{font:600 calc(var(--u)*3.9)/1.12 var(--serif);margin:calc(var(--u)*1.2) 0 calc(var(--u)*2.2);letter-spacing:-.006em;color:var(--ink)}
+h2.title em{font-style:italic;font-weight:400;color:var(--ink2)}
+.body{flex:1;min-height:0;display:grid;gap:calc(var(--u)*3.4);align-content:start}
+.c2{grid-template-columns:1fr 1fr}.ca{grid-template-columns:1.45fr 1fr}.cb{grid-template-columns:1fr 1.45fr}
+.cw{grid-template-columns:1.9fr 1fr}.c3{grid-template-columns:1fr 1fr 1fr}
+.col{display:flex;flex-direction:column;gap:calc(var(--u)*1.5);min-width:0;min-height:0}
+p,li{font-size:calc(var(--u)*1.95);line-height:1.46;margin:0;color:var(--ink)}
+.sm{font-size:calc(var(--u)*1.6);line-height:1.45;color:var(--ink2)}
+.xs{font-size:max(11px,calc(var(--u)*1.35));line-height:1.4;color:var(--ink2)}
+ul.pts{margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:calc(var(--u)*1.1)}
+ul.pts>li{padding-left:calc(var(--u)*2.2);position:relative}
+ul.pts>li::before{content:"";position:absolute;left:calc(var(--u)*.3);top:.62em;width:calc(var(--u)*.75);height:calc(var(--u)*.75);border:1.5px solid var(--c1);transform:rotate(45deg)}
+.serif{font-family:var(--serif)}
+b,strong{font-weight:600}
+.mono,.ro{font-family:var(--mono);font-variant-numeric:tabular-nums}
+.ro{font-size:calc(var(--u)*1.45);color:var(--ink)}
+.ro .k{color:var(--ink3)}
+.fig{background:var(--panel);border:1px solid var(--rule);position:relative;height:calc(var(--u)*var(--h,40));min-height:0}
+.fig canvas{display:block;width:100%;height:100%}
+.fig svg{display:block;width:100%;height:100%}
+.cap{font-size:max(11px,calc(var(--u)*1.32));color:var(--ink2);line-height:1.38;margin-top:calc(var(--u)*-.6)}
+.cap b{color:var(--ink);font-weight:600}
+.ext{color:var(--c3);font-size:.82em;margin-right:.25em}
+.box{border-left:calc(var(--u)*.3) solid var(--c1);background:var(--hl);padding:calc(var(--u)*1.2) calc(var(--u)*1.6)}
+.box.warm{border-color:var(--c3);background:color-mix(in srgb,var(--c3) 8%,transparent)}
+.box.red{border-color:var(--c2);background:color-mix(in srgb,var(--c2) 7%,transparent)}
+.quote{font:italic 400 calc(var(--u)*2.15)/1.42 var(--serif);border-left:2px solid var(--c2);padding:calc(var(--u)*.4) 0 calc(var(--u)*.4) calc(var(--u)*2);color:var(--ink)}
+.quote cite{display:block;font:normal 400 calc(var(--u)*1.35)/1.3 var(--sans);color:var(--ink3);margin-top:calc(var(--u)*.8)}
+
+/* matematik */
+.eq{font-family:var(--serif);font-size:calc(var(--u)*2.15);line-height:1.6;color:var(--ink);white-space:nowrap}
+.eq.l{font-size:calc(var(--u)*2.6)}
+.eq.s{font-size:calc(var(--u)*1.75)}
+.eq i{font-style:italic}
+.eq .op{margin:0 .22em}
+.frac{display:inline-flex;flex-direction:column;vertical-align:middle;text-align:center;margin:0 .12em;line-height:1.12}
+.frac>span{font-size:.86em;padding:0 .18em}
+.frac>span:first-child{border-bottom:1px solid currentColor}
+.rt{border-top:1px solid currentColor;padding:0 .08em 0 .05em;margin-left:-.05em}
+.eqbox{display:flex;flex-direction:column;gap:calc(var(--u)*.5);padding:calc(var(--u)*1.2) calc(var(--u)*1.6);border:1px solid var(--rule);background:var(--panel)}
+.eqbox .lab{font:600 max(10.5px,calc(var(--u)*1.15))/1 var(--sans);letter-spacing:.12em;text-transform:uppercase;color:var(--ink3)}
+
+/* denetimler */
+.ctl{display:flex;flex-wrap:wrap;gap:calc(var(--u)*1) calc(var(--u)*2.2);align-items:center;font-size:max(12px,calc(var(--u)*1.42));color:var(--ink2)}
+.rng{display:inline-flex;align-items:center;gap:calc(var(--u)*.9);white-space:nowrap}
+.rng .ro{min-width:5.2em;display:inline-block}
+input[type=range]{-webkit-appearance:none;appearance:none;width:calc(var(--u)*15);height:calc(var(--u)*2.2);background:transparent;margin:0;cursor:pointer}
+input[type=range]::-webkit-slider-runnable-track{height:2px;background:var(--rule)}
+input[type=range]::-moz-range-track{height:2px;background:var(--rule)}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:calc(var(--u)*1.5);height:calc(var(--u)*1.5);min-width:14px;min-height:14px;border-radius:50%;background:var(--panel);border:2px solid var(--c1);margin-top:calc(var(--u)*-.65)}
+input[type=range]::-moz-range-thumb{width:calc(var(--u)*1.3);height:calc(var(--u)*1.3);border-radius:50%;background:var(--panel);border:2px solid var(--c1)}
+.btn{font:500 max(12px,calc(var(--u)*1.38))/1 var(--sans);padding:calc(var(--u)*.72) calc(var(--u)*1.25);border:1px solid var(--rule);background:var(--panel);color:var(--ink);
+  border-radius:calc(var(--u)*.35);cursor:pointer;white-space:nowrap;transition:border-color .2s,color .2s,background .2s}
+.btn:hover{border-color:var(--ink3)}
+.btn.on{border-color:var(--c1);color:var(--c1);background:var(--hl)}
+.btn.play::before{content:"";display:inline-block;width:0;height:0;border-left:.62em solid currentColor;border-top:.38em solid transparent;border-bottom:.38em solid transparent;margin-right:.55em;vertical-align:-.05em}
+.btn.play.playing{color:var(--c2);border-color:var(--c2)}
+.btn.play.playing::before{border:0;width:.6em;height:.6em;background:currentColor}
+.seg{display:inline-flex}
+.seg .btn{border-radius:0;margin-left:-1px}
+.seg .btn:first-child{border-radius:calc(var(--u)*.35) 0 0 calc(var(--u)*.35);margin-left:0}
+.seg .btn:last-child{border-radius:0 calc(var(--u)*.35) calc(var(--u)*.35) 0}
+.seg .btn.on{position:relative;z-index:1}
+
+/* tablo */
+table.t{border-collapse:collapse;width:100%;font-size:calc(var(--u)*1.5)}
+table.t th{font:600 max(10.5px,calc(var(--u)*1.15))/1.2 var(--sans);letter-spacing:.1em;text-transform:uppercase;color:var(--ink3);text-align:left;padding:calc(var(--u)*.6) calc(var(--u)*.8);border-bottom:1px solid var(--ink3)}
+table.t td{padding:calc(var(--u)*.55) calc(var(--u)*.8);border-bottom:1px solid var(--rule);color:var(--ink);font-variant-numeric:tabular-nums}
+table.t td.n{font-family:var(--mono);font-size:.94em;text-align:right}
+table.t tr.hi td{background:var(--hl)}
+table.t.nocap th{text-transform:none;letter-spacing:.02em;font-size:max(11px,calc(var(--u)*1.3))}
+
+.foot{position:absolute;left:calc(var(--u)*7);right:calc(var(--u)*7);bottom:calc(var(--u)*2.3);display:flex;justify-content:space-between;gap:2em;
+  font:400 max(10.5px,calc(var(--u)*1.18))/1.2 var(--sans);color:var(--ink3);border-top:1px solid var(--rule);padding-top:calc(var(--u)*.9)}
+.foot .pg{font-family:var(--serif);font-variant-numeric:tabular-nums}
+
+.frag{opacity:0;transform:translateY(calc(var(--u)*.7));transition:opacity .5s ease,transform .5s ease}
+.frag.on{opacity:1;transform:none}
+
+/* kapak */
+.cover{padding:calc(var(--u)*11) calc(var(--u)*9)}
+.cover .kicker{max-width:calc(var(--u)*100)}
+.cover .kicker{color:var(--c1)}
+.cover h1{font:600 calc(var(--u)*8.4)/1.02 var(--serif);margin:calc(var(--u)*3) 0 calc(var(--u)*1.6);letter-spacing:-.015em}
+.cover .sub{font:italic 400 calc(var(--u)*2.7)/1.3 var(--serif);color:var(--ink2);max-width:calc(var(--u)*95)}
+.cover .meta{margin-top:calc(var(--u)*3.4);font-size:calc(var(--u)*1.6);line-height:1.6;color:var(--ink2)}
+.cover .meta b{color:var(--ink)}
+.cover .hint{position:absolute;right:calc(var(--u)*9);top:calc(var(--u)*10.2);font-size:max(11px,calc(var(--u)*1.25));color:var(--ink3);text-align:right;line-height:1.6}
+.cover .hint kbd,.kbd{font-family:var(--mono);font-size:.92em;border:1px solid var(--rule);border-radius:3px;padding:0 .35em;background:var(--panel)}
+.cover .band{position:absolute;left:0;right:0;bottom:calc(var(--u)*5.5);height:calc(var(--u)*38)}
+.cover .band canvas{width:100%;height:100%;display:block}
+.cover .inst{position:absolute;left:calc(var(--u)*9);bottom:calc(var(--u)*2.6);font-size:max(11px,calc(var(--u)*1.3));color:var(--ink3);letter-spacing:.06em}
+
+/* akış */
+.plan{display:grid;grid-template-columns:1fr 1fr;grid-template-rows:repeat(4,auto);grid-auto-flow:column;gap:calc(var(--u)*1.2) calc(var(--u)*5);margin:0;padding:0;list-style:none;counter-reset:p}
+.plan li{display:grid;grid-template-columns:calc(var(--u)*6) 1fr auto;align-items:baseline;border-bottom:1px solid var(--rule);padding:calc(var(--u)*2.9) 0;font-size:calc(var(--u)*2.5)}
+.plan li .r{font:italic 400 calc(var(--u)*3)/1 var(--serif);color:var(--c2)}
+.plan li .p{font-size:calc(var(--u)*1.35);color:var(--ink3);font-family:var(--mono)}
+.plan li .d{display:block;font-size:calc(var(--u)*1.65);color:var(--ink2);margin-top:calc(var(--u)*.5)}
+.slide.active .plan li{animation:rise .7s cubic-bezier(.2,.7,.2,1) both;animation-delay:calc(var(--i)*90ms + 150ms)}
+@keyframes rise{from{opacity:0;transform:translateY(calc(var(--u)*1.4))}to{opacity:1;transform:none}}
+
+/* özet */
+ol.sum{margin:0;padding:0;list-style:none;counter-reset:s;display:grid;grid-template-columns:1fr 1fr;grid-template-rows:repeat(4,auto);grid-auto-flow:column;gap:calc(var(--u)*1.8) calc(var(--u)*4.4)}
+ol.sum li{counter-increment:s;display:grid;grid-template-columns:calc(var(--u)*5) 1fr;font-size:calc(var(--u)*2.2);line-height:1.45;padding:calc(var(--u)*2) 0;border-bottom:1px solid var(--rule)}
+ol.sum li::before{content:counter(s);font:italic 400 calc(var(--u)*3.6)/1 var(--serif);color:var(--c1)}
+.slide.active ol.sum li{animation:rise .7s cubic-bezier(.2,.7,.2,1) both;animation-delay:calc(var(--i)*110ms + 150ms)}
+.refs{margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:calc(var(--u)*1.3)}
+.qs>li{font-size:calc(var(--u)*2.1)}
+.qs{gap:calc(var(--u)*2.2) !important}
+.refs li{font-size:calc(var(--u)*1.75);line-height:1.42;padding-left:calc(var(--u)*3);text-indent:calc(var(--u)*-3);color:var(--ink2)}
+.refs li i{color:var(--ink)}
+
+/* analog tablosu */
+table.an{border-collapse:collapse;width:100%}
+table.an th{font:600 max(10.5px,calc(var(--u)*1.15))/1 var(--sans);letter-spacing:.12em;text-transform:uppercase;color:var(--ink3);padding:0 0 calc(var(--u)*.8);text-align:center}
+table.an td{text-align:center;padding:calc(var(--u)*.5) calc(var(--u)*.6);border-top:1px solid var(--rule);vertical-align:middle}
+table.an td svg{width:calc(var(--u)*15);height:calc(var(--u)*6.2);display:block;margin:0 auto}
+table.an td{padding:calc(var(--u)*1) calc(var(--u)*.6) !important}
+table.an td .nm{font-size:calc(var(--u)*1.4);color:var(--ink);display:block;margin-top:calc(var(--u)*.2)}
+table.an td .sy{font:italic 400 calc(var(--u)*1.5)/1 var(--serif);color:var(--c1)}
+.sym path,.sym line,.sym rect,.sym circle,.sym polyline{fill:none;stroke:var(--ink);stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
+.sym .f{fill:var(--ink);stroke:none}
+.sym .h{stroke:var(--ink3);stroke-width:1}
+
+/* eşleme diyagramı */
+.map text{font-family:var(--sans);fill:var(--ink)}
+.map .hd{font-size:13px;font-weight:600;letter-spacing:.14em;fill:var(--ink3)}
+.map .nd{font-size:21px;font-family:var(--serif)}
+.map .lb{font-size:13px;fill:var(--ink2)}
+.map .lbx{font-size:13px;fill:var(--c2);font-style:italic}
+.map rect.n{fill:var(--panel);stroke:var(--ink3);stroke-width:1.2}
+.map rect.n.p{stroke:var(--c1)}
+.map rect.n.q{stroke:var(--c2)}
+.map .ar{fill:none;stroke:var(--ink2);stroke-width:1.6}
+.map .ax{fill:none;stroke:var(--c2);stroke-width:1.5;stroke-dasharray:5 5}
+.map .draw{stroke-dasharray:var(--len,600);stroke-dashoffset:var(--len,600);transition:stroke-dashoffset 1.3s ease}
+.map .ax.draw{stroke-dasharray:5 5}
+.on .map .draw,.map .on .draw,.map g.on .draw{stroke-dashoffset:0}
+.map .fadein{opacity:0;transition:opacity .8s ease .5s}
+.map g.on .fadein{opacity:1}
+.map .hd2{font-size:13px;fill:var(--ink3)}
+
+/* gezinti çubuğu */
+#bar{position:fixed;right:14px;bottom:12px;display:flex;align-items:center;gap:10px;z-index:20;background:color-mix(in srgb,var(--stage) 88%,transparent);
+  border:1px solid var(--rule);border-radius:6px;padding:6px 8px;font:500 12px/1 var(--sans);color:var(--ink2);transition:opacity .4s;backdrop-filter:blur(6px)}
+#bar.idle{opacity:0}
+#bar:hover{opacity:1}
+#bar .btn{font-size:12px;padding:6px 9px}
+#bar .seg .btn{padding:6px 8px}
+#bar .count{font-family:var(--serif);font-size:13px;min-width:4.2em;text-align:center;color:var(--ink)}
+#bar input[type=range]{width:80px;height:18px}
+#bar .vl{display:flex;align-items:center;gap:6px}
+#bar svg{width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:1.6}
+
+/* telefon / dar ekran: dikey akış */
+body.flow{overflow:auto}
+body.flow #deck{position:static;display:block}
+body.flow #stage{width:auto;height:auto;box-shadow:none;background:var(--stage);overflow:visible}
+body.flow #progress{display:none}
+body.flow .slide{position:relative;opacity:1;visibility:visible;transform:none;padding:30px 16px 22px;border-bottom:1px solid var(--rule);transition:none}
+body.flow .body{grid-template-columns:1fr !important;gap:18px}
+body.flow .fig{height:calc(var(--u)*var(--hm,var(--h,40)))}
+body.flow .foot{position:static;margin-top:18px}
+body.flow .frag{opacity:1;transform:none}
+body.flow .cover{padding:34px 16px 26px;min-height:0}
+body.flow .cover .hint{display:none}
+body.flow .cover .band{position:relative;bottom:auto;height:150px;margin:20px -16px 0}
+body.flow .cover .inst{position:static;margin-top:14px}
+body.flow .plan,body.flow ol.sum{grid-template-columns:1fr;grid-template-rows:none;grid-auto-flow:row}
+body.flow .eq{white-space:normal}
+body.flow h2.title{font-size:calc(var(--u)*3.6)}
+body.flow #bar{position:sticky;top:0;right:auto;bottom:auto;width:100%;justify-content:center;border-radius:0;border-width:0 0 1px 0;opacity:1 !important}
+body.flow #bar .nav{display:none}
+body.flow .slide.active .plan li,body.flow .slide.active ol.sum li{animation:none}
+body.flow input[type=range]{width:min(46vw,190px)}
+body.flow .rng{white-space:normal;flex-wrap:wrap}
+body.flow table.an td svg{width:72px;height:30px}
+@media print{#bar{display:none}}
+.plan.p3{grid-template-rows:repeat(3,auto)}
+.plan.p3 li{padding:calc(var(--u)*4.2) 0}
+ol.sum li{padding:calc(var(--u)*2.8) 0}
+body.flow .plan.p3 li,body.flow ol.sum li{padding:14px 0}
+body.flow .plan.p3{grid-template-rows:none}
+</style>
+</head>
+<body>
+<div id="bar">
+  <a class="btn" href="../#sunular" aria-label="Ana sayfa" title="Ana sayfa: tüm sunular" style="text-decoration:none;display:inline-block;line-height:1">⌂</a>
+  <span class="nav"><button class="btn" data-nav="prev" aria-label="Önceki">‹</button></span>
+  <span class="count nav" id="count">1 / 22</span>
+  <span class="nav"><button class="btn" data-nav="next" aria-label="Sonraki">›</button></span>
+  <span class="seg"><button class="btn" data-theme="light">Açık</button><button class="btn" data-theme="dark">Koyu</button><button class="btn" data-theme="proj">Projeksiyon</button></span>
+  <span class="vl" title="Ses düzeyi"><svg viewBox="0 0 16 16"><path d="M2 6h3l4-3v10l-4-3H2z"/><path d="M11.5 5.5c1 1.4 1 3.6 0 5"/></svg><input type="range" id="vol" min="0" max="1" step="0.01" value="0.6" aria-label="Ses düzeyi"></span>
+  <span class="nav"><button class="btn" data-nav="fs" aria-label="Tam ekran">⤢</button></span>
+</div>
+<div id="deck"><div id="stage">
+
+<!-- 1 KAPAK -->
+<section class="slide cover" data-scene="cover">
+  <div class="kicker">Seminer · Akustiğin temelleri</div>
+  <h1>Ses Düzeyleri ve Desibel</h1>
+  <div class="sub">Oran, logaritma ve referans — <span style="font-style:normal">Master Handbook of Acoustics</span>’ın ikinci bölümü üzerine</div>
+  <div class="meta"><b>F. Alton Everest &amp; Ken C. Pohlmann</b> · <i>Master Handbook of Acoustics</i>, 5. baskı · McGraw-Hill, 2009<br>Bölüm 2, “Sound Levels and the Decibel”, s. 19–32</div>
+  <div class="hint">ilerle <kbd>→</kbd> <kbd>boşluk</kbd> · geri <kbd>←</kbd><br>tam ekran <kbd>F</kbd> · tema <kbd>T</kbd><br>sesli demolar için hoparlör ya da kulaklık</div>
+  <div class="band"><canvas></canvas></div>
+  <div class="inst">İnönü Üniversitesi · Müzik Teknolojisi</div>
+</section>
+
+<!-- 2 AKIŞ -->
+<section class="slide" data-scene="plan">
+  <div class="kicker">Akış</div>
+  <h2 class="title">Altı durak: orandan ölçüme</h2>
+  <ol class="plan p3">
+    <li style="--i:0"><span class="r">I</span><span>Oranlar ve sayılar<span class="d">Farklar mı, oranlar mı? Üsler ve önekler</span></span><span class="p">s. 19–21</span></li>
+    <li style="--i:1"><span class="r">II</span><span>Logaritma ve desibel<span class="d">Bel, desibel; 10 log mu, 20 log mu?</span></span><span class="p">s. 21–22</span></li>
+    <li style="--i:2"><span class="r">III</span><span>Referans düzeyleri<span class="d">20 µPa, geri hesap, anlamlı basamak</span></span><span class="p">s. 23–25</span></li>
+    <li style="--i:3"><span class="r">IV</span><span>Akustik güç ve gündelik sesler<span class="d">Watt’tan desibele; 0’dan 194 dB’ye</span></span><span class="p">s. 25–27</span></li>
+    <li style="--i:4"><span class="r">V</span><span>Desibelle hesap<span class="d">Uzaklık, kazanç, yansıma, toplama</span></span><span class="p">s. 27–30</span></li>
+    <li style="--i:5"><span class="r">VI</span><span>Ölçüm<span class="d">A, B, C ağırlıklandırma; tepe, ortalama, RMS</span></span><span class="p">s. 30–32</span></li>
+  </ol>
+  <p class="xs" style="margin-top:calc(var(--u)*3.2)"><span class="ext">◆</span> işaretli kutu ve notlar kitabın ötesine geçen eklerdir (türetim, kesinleştirme, güncel standart, kitaptaki tutarsızlıkların düzeltilmesi). Kitabın inç-fit değerleri SI birimlerine çevrilmiştir.</p>
+  <div class="foot"><span>Everest &amp; Pohlmann (2009) · İçindekiler, s. vii</span><span class="pg"></span></div>
+</section>
+
+<!-- 3 ORANLAR -->
+<section class="slide" data-scene="ratio">
+  <div class="kicker"><span class="num">I</span>Oranlar ve sayılar</div>
+  <h2 class="title">Kulak farkları değil, oranları izler</h2>
+  <div class="body ca">
+    <div class="col">
+      <div class="fig" style="--h:57;--hm:56"><canvas></canvas></div>
+      <div class="ctl">
+        <button class="btn play" data-a="lin">Eşit farklarla artan ses</button>
+        <button class="btn play" data-a="log">Eşit oranlarla artan ses</button>
+      </div>
+      <div class="cap"><b>Şekil ◆</b> Üstte kitabın düşünce deneyi iki eksende: A gözlemi 9 birimlik, B gözlemi 90 000 birimlik bir artıştır, ama ikisi de aynı oranı (10:1) taşır. Altta iki ses dizisinin basamakları dB cinsinden; çalan basamak vurgulanır.</div>
+    </div>
+    <div class="col">
+      <p class="sm">Gürültüden yalıtılmış bir odada basınç önce 1 birimden, sonra 10 000 birimden başlayarak “iki kat yüksek” duyulana kadar artırılır.</p>
+      <table class="t">
+        <tr><th>Gözlem</th><th style="text-align:right">İki basınç</th><th style="text-align:right">Oran</th></tr>
+        <tr><td>A</td><td class="n">10 – 1</td><td class="n">10 : 1</td></tr>
+        <tr><td>B</td><td class="n">100 000 – 10 000</td><td class="n">10 : 1</td></tr>
+      </table>
+      <p class="sm">Aynı algısal değişim için A’da 9, B’de 90 000 birim gerekir: algıyı <b>farklar değil oranlar</b> anlatır. Weber, Fechner ve Helmholtz bunun görmede, işitmede, titreşimde, hatta elektrik çarpmasında geçerli olduğunu gösterdi.</p>
+      <p class="sm">Oranlar <b>boyutsuzdur</b>: 1 W / 100 W = 0,01. Logaritma yalnız boyutsuz sayılardan alınabildiği için bu önemlidir.</p>
+      <div class="box warm"><p class="xs"><span class="ext">◆</span>Kitaptaki 10:1 bir düşünce deneyidir. Ölçülen değer (Stevens’ın sone ölçeği) daha küçüktür: yükseklik yaklaşık <i>p</i><sup>0,6</sup> ile büyür, yani “iki kat yüksek” ≈ +10 dB ≈ basınç × 3,16.</p></div>
+    </div>
+  </div>
+  <div class="foot"><span>Everest &amp; Pohlmann (2009) · s. 19–20 · ◆ Stevens (1957)</span><span class="pg"></span></div>
+</section>
+
+<!-- 4 ÜSLER -->
+<section class="slide" data-scene="powers">
+  <div class="kicker"><span class="num">I</span>Oranlar ve sayılar</div>
+  <h2 class="title">On’un kuvvetleri: dev aralıkları evcilleştirmek</h2>
+  <div class="body ca">
+    <div class="col">
+      <div class="fig" style="--h:50;--hm:44"><canvas></canvas></div>
+      <div class="ctl">
+        <label class="rng">Üs <i class="serif">n</i> <input type="range" data-k="n" min="-12" max="12" step="1" value="-12"><span class="ro" data-o="n"></span></label>
+      </div>
+      <table class="t nocap">
+        <tr><th>Ondalık biçim</th><th>Aritmetik biçim</th><th>Üstel biçim</th><th>Önek</th></tr>
+        <tr class="hi"><td class="n" data-o="dec" style="text-align:left"></td><td class="n" data-o="ari" style="text-align:left"></td><td class="serif" data-o="exp" style="text-align:left;font-size:1.1em"></td><td data-o="pre"></td></tr>
+      </table>
+      <div class="cap"><b>Tablo 2-1 ve 2-4’ün canlandırması.</b> Kaydırıcı sayının üç yazımını ve SI önekini gösterir; şekildeki oklar Tablo 2-1’in alt yarısındaki üs kurallarını sırayla gösterir.</div>
+    </div>
+    <div class="col">
+      <p class="sm">Aynı sayıyı üç biçimde yazabiliriz: ondalık (100 000), aritmetik (10 × 10 × 10 × 10 × 10), üstel (10⁵). Üstel biçim çok büyük ve çok küçük sayıları sadeleştirir: “bir watt’ın milyonda birinin milyonda biri” 10⁻¹² W, yani 1 pW’tır.</p>
+      <div class="eqbox"><span class="lab">Üs kuralları — Tablo 2-1</span>
+        <div class="eq s">10<sup><i>a</i></sup> · 10<sup><i>b</i></sup> = 10<sup><i>a</i>+<i>b</i></sup> &nbsp;·&nbsp; 10<sup><i>a</i></sup> / 10<sup><i>b</i></sup> = 10<sup><i>a</i>−<i>b</i></sup> &nbsp;·&nbsp; <sup><i>n</i></sup>√<span class="rt">10<sup><i>a</i></sup></span> = 10<sup><i>a</i>/<i>n</i></sup></div>
+      </div>
+      <div class="box"><p class="sm">Duyulabilen en zayıf ses şiddeti ≈ 10⁻¹² W/m², ağrı veren bir ses ≈ 10 W/m². Aradaki oran <b>10 000 000 000 000</b>, yani <b>10¹³</b>. Bunu bir üs olarak yazmak çok daha kullanışlıdır.</p></div>
+      <p class="sm">Bir referans seçip (<i>I</i><sub>ref</sub> = 10⁻¹² W/m²) öteki şiddetleri ona oranla anlatırız: 10⁻⁹ W/m², referansın 10³ = 1000 katıdır.</p>
+    </div>
+  </div>
+  <div class="foot"><span>Everest &amp; Pohlmann (2009) · s. 20–21, 25 · Tablo 2-1, 2-4</span><span class="pg"></span></div>
+</section>
+
+<!-- 5 LOGARİTMA -->
+<section class="slide" data-scene="logs">
+  <div class="kicker"><span class="num">II</span>Logaritma ve desibel</div>
+  <h2 class="title">Logaritma çarpmayı toplamaya çevirir</h2>
+  <div class="body ca">
+    <div class="col">
+      <div class="fig" style="--h:55;--hm:52"><canvas></canvas></div>
+      <div class="ctl">
+        <label class="rng"><i class="serif">a</i> <input type="range" data-k="a" min="0" max="1" step="0.001" value="0.30103"><span class="ro" data-o="a"></span></label>
+        <label class="rng"><i class="serif">b</i> <input type="range" data-k="b" min="0" max="1" step="0.001" value="0.4771"><span class="ro" data-o="b"></span></label>
+        <span class="ro" data-o="ab"></span>
+      </div>
+      <div class="cap"><b>Şekil ◆</b> Üstte kitabın örneği: 267 doğrusal cetvelde 100 ile 1000 arasının %19’unda, logaritmik cetvelde %43’ünde durur. Altta hesap cetveli: iki logaritmik ölçeğin uzunlukları toplanınca sayılar çarpılır.</div>
+    </div>
+    <div class="col">
+      <p class="sm">100’ü 10² diye yazmak 10 × 10 = 100 demektir. Peki 267? 267 = 10<sup>2,4265</sup>, yani <b>log 267 = 2,4265</b>: 267, 10’un 2 ile 3 arasında bir kuvvetidir.</p>
+      <div class="eqbox"><span class="lab">Tanım ve kurallar</span>
+        <div class="eq s">log₁₀ 100 = 2 &nbsp;⇔&nbsp; 10² = 100</div>
+        <div class="eq s">log(<i>a</i> · <i>b</i>) = log <i>a</i> + log <i>b</i> &nbsp;·&nbsp; log(<i>a</i>/<i>b</i>) = log <i>a</i> − log <i>b</i></div>
+      </div>
+      <ul class="pts">
+        <li class="sm">Logaritmik ölçek <b>orantılı</b> bir ölçektir: eşit oranlar eşit uzaklıklara düşer.</li>
+        <li class="sm">Ses mühendisi için iki yararı vardır: ölçümleri işitmeyle ilişkilendirir ve çok geniş sayı aralıklarını sıkıştırır.</li>
+        <li class="sm">Desibelin temeli budur: <b>bir düzey, iki güç benzeri niceliğin oranının on tabanlı logaritmasının 10 katıdır</b>.</li>
+      </ul>
+      <p class="xs"><span class="ext">◆</span>Hesap cetveli, logaritmanın bu özelliğinin fiziksel bir aracıdır: 1970’lere kadar mühendislerin cebindeki “bilgisayar”.</p>
+    </div>
+  </div>
+  <div class="foot"><span>Everest &amp; Pohlmann (2009) · s. 21</span><span class="pg"></span></div>
+</section>
+
+<!-- 6 DESİBEL -->
+<section class="slide" data-scene="il">
+  <div class="kicker"><span class="num">II</span>Logaritma ve desibel</div>
+  <h2 class="title">Bel ve desibel: şiddet düzeyi, güç düzeyi</h2>
+  <div class="body ca">
+    <div class="col">
+      <div class="fig" style="--h:54;--hm:46"><canvas></canvas></div>
+      <div class="ctl">
+        <span class="seg"><button class="btn on" data-m="I">Şiddet düzeyi (IL)</button><button class="btn" data-m="W">Güç düzeyi (PWL)</button></span>
+        <label class="rng">Değer <input type="range" data-k="x" min="-12" max="2" step="0.01" value="-6"><span class="ro" data-o="x"></span></label>
+      </div>
+      <table class="t nocap">
+        <tr><th>Nicelik</th><th>Oran</th><th>Bel</th><th>Desibel</th></tr>
+        <tr class="hi"><td class="n" data-o="q" style="text-align:left"></td><td class="n" data-o="r" style="text-align:left"></td><td class="n" data-o="B" style="text-align:left"></td><td class="n" data-o="dB" style="text-align:left"></td></tr>
+      </table>
+    </div>
+    <div class="col">
+      <div class="eqbox"><span class="lab">Denklem 2-1, 2-2, 2-3</span>
+        <div class="eq">log₁₀ <span class="frac"><span><i>I</i></span><span><i>I</i><sub>ref</sub></span></span> bel</div>
+        <div class="eq">IL = 10 log₁₀ <span class="frac"><span><i>I</i></span><span><i>I</i><sub>ref</sub></span></span> dB, &nbsp; <i>I</i><sub>ref</sub> = 10⁻¹² W/m²</div>
+        <div class="eq">PWL = 10 log₁₀ <span class="frac"><span><i>W</i></span><span><i>W</i><sub>ref</sub></span></span> dB, &nbsp; <i>W</i><sub>ref</sub> = 10⁻¹² W</div>
+      </div>
+      <p class="sm">Şiddet boyutsuzdur, ama değeri açık olsun diye <b>bel</b> birimi verilir (Alexander Graham Bell’den). Bel aralığı fazla dar kaldığı için onda biri kullanılır: <b>desibel</b> = 1/10 bel.</p>
+      <p class="sm">Desibel bir kolaylıktır, ama değerleri sesin yüksekliğini nasıl duyduğumuza şiddetin kendisinden daha yakındır.</p>
+      <div class="box warm"><p class="xs"><span class="ext">◆</span>Birim adı 1928’de Bell Telefon Laboratuvarları’nda, iletim kayıplarını ölçmek için kondu (Martin, 1929). “Neper” doğal logaritmayla aynı işi görür: 1 Np = 8,686 dB.</p></div>
+    </div>
+  </div>
+  <div class="foot"><span>Everest &amp; Pohlmann (2009) · s. 21–22 · Denklem 2-1…2-3</span><span class="pg"></span></div>
+</section>
+
+<!-- 7 10 LOG / 20 LOG -->
+<section class="slide" data-scene="tenTwenty">
+  <div class="kicker"><span class="num">II</span>Logaritma ve desibel</div>
+  <h2 class="title">10 log mu, 20 log mu?</h2>
+  <div class="body ca">
+    <div class="col">
+      <div class="fig" style="--h:54;--hm:46"><canvas></canvas></div>
+      <div class="ctl">
+        <label class="rng">Basınç oranı <span><i class="serif">p</i>/<i class="serif">p</i>₀</span> <input type="range" data-k="r" min="-0.6" max="0.6" step="0.001" value="0.30103"><span class="ro" data-o="r"></span></label>
+      </div>
+      <div class="ctl">
+        <button class="btn play" data-a="p2">Genlik × 2 (+6 dB)</button>
+        <button class="btn play" data-a="w2">Güç × 2 (+3 dB)</button>
+        <button class="btn play" data-a="w10">Güç × 10 (+10 dB)</button>
+      </div>
+      <div class="cap"><b>Şekil ◆</b> Kare kenarı basıncı, alanı gücü temsil eder. Basınç iki katına çıkınca güç dört katına çıkar: 20 log 2 = 10 log 4 = 6,02 dB. Ses demolarında referans tonla değiştirilmiş ton art arda çalar.</div>
+    </div>
+    <div class="col">
+      <p class="sm">Ses basıncını ölçmek şiddeti ölçmekten kolaydır. Akustik güç (ve şiddet) <b>basıncın karesiyle</b> orantılı olduğu için tanım biraz değişir:</p>
+      <div class="eqbox"><span class="lab">Denklem 2-4</span>
+        <div class="eq">SPL = 10 log <span class="frac"><span><i>p</i>²</span><span><i>p</i><sub>ref</sub>²</span></span> = 20 log <span class="frac"><span><i>p</i></span><span>20 µPa</span></span> dB</div>
+      </div>
+      <table class="t" style="font-size:calc(var(--u)*1.38)">
+        <tr><th>Tablo 2-2 · nicelik</th><th style="text-align:center">10 log</th><th style="text-align:center">20 log</th></tr>
+        <tr><td>Akustik şiddet, güç</td><td style="text-align:center">●</td><td></td></tr>
+        <tr><td>Parçacık hızı, ses basıncı</td><td></td><td style="text-align:center">●</td></tr>
+        <tr><td>Elektrik gücü</td><td style="text-align:center">●</td><td></td></tr>
+        <tr><td>Akım, gerilim</td><td></td><td style="text-align:center">●</td></tr>
+        <tr><td>Uzaklık (ters kare yasası)</td><td></td><td style="text-align:center">●</td></tr>
+      </table>
+      <div class="box warm"><p class="xs"><span class="ext">◆</span>SPL neden IL’ye “yaklaşık” eşit? Düzlem dalgada <i>I</i> = <i>p</i>²/(<i>ρ</i>₀<i>c</i>); <i>p</i><sub>ref</sub>²/(<i>ρ</i>₀<i>c</i>) = 0,97·10⁻¹² W/m². İki referans arasındaki fark ≈ 0,1 dB’dir.</p></div>
+    </div>
+  </div>
+  <div class="foot"><span>Everest &amp; Pohlmann (2009) · s. 22 · Denklem 2-4, Tablo 2-2</span><span class="pg"></span></div>
+</section>
+
+<!-- 8 SPL REFERANSI -->
+<section class="slide" data-scene="spl">
+  <div class="kicker"><span class="num">III</span>Referans düzeyleri</div>
+  <h2 class="title">20 µPa: ses basıncı düzeyinin sıfır noktası</h2>
+  <div class="body ca">
+    <div class="col">
+      <div class="fig" style="--h:58;--hm:48"><canvas></canvas></div>
+      <div class="ctl">
+        <label class="rng">SPL <input type="range" data-k="L" min="0" max="140" step="0.5" value="94"><span class="ro" data-o="L"></span></label>
+        <span class="ro" data-o="p"></span>
+      </div>
+      <div class="cap"><b>Şekil 2-1’in karşılığı.</b> Ses basıncı düzeyi ile etkin ses basıncı arasındaki ilişki; alt eksen paskal, üst eksen lb/in². Kitapta iki ayrı çizgi olarak çizilen eğri, burada iki ölçekli tek çizgidir.</div>
+    </div>
+    <div class="col">
+      <p class="sm">Ses düzeyi ölçerin okuduğu değer bir SPL’dir: 20 log(<i>p</i>/<i>p</i><sub>ref</sub>). Karşılaştırma yapılabilmesi için <i>p</i><sub>ref</sub> standartlaştırılmıştır. Havada ses için standart referans <b>20 µPa</b>’dır.</p>
+      <p class="sm">Eski birimlerle aynı değer: 0,0002 mikrobar = 0,0002 dyn/cm² = 2 × 10⁻⁵ N/m². Çok küçük bir basınçtır ve 1 kHz’te insanın duyma eşiğine yakındır.</p>
+      <div class="box"><p class="sm">“SPL 82 dB” gibi bir ifade, çoğunlukla başka düzeylerle doğrudan karşılaştırmak için kullanılır. Basınç gerekirse denklemi geriye doğru çözeriz — sonraki slayt.</p></div>
+      <div class="box warm"><p class="xs"><span class="ext">◆</span><b>Kitaptaki iki küçük düzeltme.</b> 20 µPa = 2,9 × 10⁻⁹ lb/in² (kitapta 3,5 × 10⁻⁹). Şekil 2-1’in altyazısı Denklem 2-2’ye gönderme yapar; şekil aslında Denklem 2-4’ün çözümüdür.</p></div>
+    </div>
+  </div>
+  <div class="foot"><span>Everest &amp; Pohlmann (2009) · s. 23 · Şekil 2-1</span><span class="pg"></span></div>
+</section>
+
+<!-- 9 GERİ HESAP -->
+<section class="slide" data-scene="inverse" data-steps="2">
+  <div class="kicker"><span class="num">III</span>Referans düzeyleri</div>
+  <h2 class="title">Geri hesap ve hesap makinesinin yalanı</h2>
+  <div class="body c2">
+    <div class="col">
+      <div class="fig" style="--h:48;--hm:44"><canvas data-c="work"></canvas></div>
+      <div class="ctl">
+        <label class="rng">Verilen SPL <input type="range" data-k="L" min="60" max="100" step="1" value="82"><span class="ro" data-o="L"></span></label>
+      </div>
+      <p class="sm">82 dB iki anlamlı basamaktır; 251 785 µPa ise altı basamak, yani orada olmayan bir kesinlik iddia eder. <b>“Hesap makinesi öyle söylüyor diye öyle değildir.”</b> Daha iyi yanıt: 252 000 µPa, yani 0,252 Pa.</p>
+      <div class="box warm frag" data-f="2"><p class="xs"><span class="ext">◆</span>Daha da sıkı bakalım: tam sayı olarak verilen 82 dB, ±0,5 dB belirsizlik taşır. Bu basınçta ±%6 demektir (0,238–0,267 Pa): üçüncü basamak bile güvenilir değildir. Şekildeki bant bu aralıktır.</p></div>
+    </div>
+    <div class="col">
+      <div class="fig" style="--h:40;--hm:34"><canvas data-c="eq"></canvas></div>
+      <div class="cap"><b>Logaritmik ve üstel biçim (s. 24).</b> Okların gösterdiği gibi üstteki iki “10” farklı yerlerden gelir: biri desibelin tanımındaki çarpan, öteki logaritmanın tabanıdır.</div>
+      <div class="eqbox"><span class="lab">Örnek 1 · 78 dB’de basınç</span>
+        <div class="eq s">78 = 20 log(<i>p</i> / 20·10⁻⁶) &nbsp;→&nbsp; <i>p</i> = 20·10⁻⁶ · 10<sup>3,9</sup> = 20·10⁻⁶ · 7943,3 = <b>0,159 Pa</b></div>
+      </div>
+    </div>
+  </div>
+  <div class="foot"><span>Everest &amp; Pohlmann (2009) · s. 24, 28 · Örnek 1</span><span class="pg"></span></div>
+</section>
+
+<!-- 10 REFERANS NİCELİKLERİ -->
+<section class="slide" data-scene="refq">
+  <div class="kicker"><span class="num">III</span>Referans düzeyleri</div>
+  <h2 class="title">“dB” tek başına bir oran, ardındaki harf referansı söyler</h2>
+  <div class="body ca">
+    <div class="col">
+      <div class="fig" style="--h:59;--hm:50"><canvas></canvas></div>
+      <div class="ctl">
+        <label class="rng">Etkin gerilim <input type="range" data-k="v" min="-3" max="1.3" step="0.005" value="0.0891"><span class="ro" data-o="v"></span></label>
+        <span class="seg"><button class="btn" data-pv="-10">−10 dBV</button><button class="btn on" data-pv="4">+4 dBu</button><button class="btn" data-pv="0">0 dBu</button></span>
+      </div>
+      <div class="cap"><b>Şekil ◆</b> Aynı gerilim dört farklı referansla dört farklı sayı olur. Tüketici (−10 dBV) ile profesyonel (+4 dBu) çalışma düzeyi arasındaki fark 11,8 dB’dir.</div>
+    </div>
+    <div class="col">
+      <table class="t">
+        <tr><th>Tablo 2-3 · düzey</th><th style="text-align:right">Referans</th></tr>
+        <tr><td><b>Akustik</b> · havada SPL</td><td class="n">20 µPa</td></tr>
+        <tr><td>Akustik güç düzeyi (<i>L</i><sub>W</sub>)</td><td class="n">1 pW (10⁻¹² W)</td></tr>
+        <tr><td><b>Elektrik</b> · güç düzeyi, dBm</td><td class="n">1 mW</td></tr>
+        <tr><td>Gerilim düzeyi, dBV</td><td class="n">1 V</td></tr>
+        <tr><td>Ses düzeyi, VU</td><td class="n">1 mW</td></tr>
+        <tr><td><span class="ext">◆</span>dBu</td><td class="n">0,775 V</td></tr>
+        <tr><td><span class="ext">◆</span>dBFS (sayısal)</td><td class="n">tam ölçek</td></tr>
+      </table>
+      <p class="xs"><span class="ext">◆</span>0,775 V, 600 Ω’da 1 mW harcayan gerilimdir (√(0,001 · 600)); dBu bu yüzden eski dBm’nin yük empedansından bağımsız hâlidir. Profesyonel cihazlarda 0 VU genellikle +4 dBu’ya ayarlanır.</p>
+      <p class="xs">Önekler (Tablo 2-4): tera 10¹² · giga 10⁹ · mega 10⁶ · kilo 10³ · mili 10⁻³ · mikro 10⁻⁶ · nano 10⁻⁹ · piko 10⁻¹².</p>
+    </div>
+  </div>
+  <div class="foot"><span>Everest &amp; Pohlmann (2009) · s. 24–25 · Tablo 2-3, 2-4</span><span class="pg"></span></div>
+</section>
+
+<!-- 11 MERDİVEN -->
+<section class="slide" data-scene="ladder">
+  <div class="kicker"><span class="num">IV</span>Akustik güç ve gündelik sesler</div>
+  <h2 class="title">20 µPa’dan 100 000 Pa’ya: on katlık basamaklar</h2>
+  <div class="body ca">
+    <div class="col">
+      <div class="fig" style="--h:57;--hm:62"><canvas></canvas></div>
+      <div class="ctl">
+        <button class="btn play" data-a="s20">20 dB basamakları (× 10)</button>
+        <button class="btn play" data-a="s10">10 dB basamakları (× 3,16)</button>
+        <button class="btn play" data-a="s6">6 dB basamakları (× 2)</button>
+      </div>
+      <div class="cap"><b>Tablo 2-5 ve Şekil 2-2’nin birleşimi.</b> Solda düzey (dB), sağda aynı basınçların doğrusal ölçekte uzunlukları. Ses demoları göreli düzeydedir; mutlak düzey ses kartınıza bağlıdır.</div>
+    </div>
+    <div class="col">
+      <p class="sm">20 µPa ile 100 000 Pa arasındaki 5 × 10⁹ katlık fark, desibelle 0–194 dB’lik rahat bir aralığa iner. Her 20 dB, basıncın <b>on katı</b>dır.</p>
+      <p class="sm">194 dB’lik ses, Satürn roketi fırlatmanın dışında, 3 m uzakta 23 kg TNT patlatarak da elde edilir. Bu düzeyde ses dalgası artık “atmosfer basıncı üzerindeki küçük dalgacık” değildir: atmosfer basıncı mertebesindedir.</p>
+      <div class="box warm"><p class="xs"><span class="ext">◆</span><b>Kesinleştirme.</b> (1) Tablonun sütun başlığı “A-ağırlıklı” der, ama değerler yalnız 20 log(<i>p</i>/20 µPa)’dır; ağırlıklandırma yoktur. (2) 194 dB etkin değerin tepesi 141 kPa’dır ve 101,3 kPa’lık atmosfer basıncını aşar. Seyrelme sıfırın altına inemeyeceği için tam modülasyon ≈ 191 dB’de başlar; bunun üstünde dalga artık doğrusal değildir. (3) SPL değerleri ölçüm uzaklığı belirtilmeden karşılaştırılamaz.</p></div>
+    </div>
+  </div>
+  <div class="foot"><span>Everest &amp; Pohlmann (2009) · s. 26–27 · Tablo 2-5, Şekil 2-2</span><span class="pg"></span></div>
+</section>
+
+<!-- 12 AKUSTİK GÜÇ -->
+<section class="slide" data-scene="power">
+  <div class="kicker"><span class="num">IV</span>Akustik güç ve gündelik sesler</div>
+  <h2 class="title">Gücü iki katına çıkarmak yalnız 3 dB eder</h2>
+  <div class="body ca">
+    <div class="col">
+      <div class="fig" style="--h:51;--hm:46"><canvas></canvas></div>
+      <div class="ctl">
+        <label class="rng">Amfi gücü <input type="range" data-k="P" min="0" max="3" step="0.001" value="2"><span class="ro" data-o="P"></span></label>
+        <label class="rng">Hoparlör duyarlılığı <input type="range" data-k="S" min="84" max="110" step="0.5" value="90"><span class="ro" data-o="S"></span></label>
+      </div>
+      <table class="t nocap">
+        <tr><th>Güç düzeyi farkı (re 1 W)</th><th>Verim (yarım uzay) ◆</th><th>Akustik güç</th><th>1 m’de SPL</th></tr>
+        <tr class="hi"><td class="n" data-o="dP" style="text-align:left"></td><td class="n" data-o="eta" style="text-align:left"></td><td class="n" data-o="Wa" style="text-align:left"></td><td class="n" data-o="spl" style="text-align:left"></td></tr>
+      </table>
+      <div class="ctl">
+        <button class="btn play" data-a="d3">1 W ↔ 2 W (+3 dB)</button>
+        <button class="btn play" data-a="d10">1 W ↔ 10 W (+10 dB)</button>
+      </div>
+    </div>
+    <div class="col">
+      <p class="sm">Çok yüksek sesler için bile çok az akustik güç gerekir. 100 W’lık bir amfi bir hoparlörü sürebilir, ama hoparlörün verimi çok düşüktür; tipik bir hoparlör ≈ 1 W akustik güç yayar.</p>
+      <div class="eqbox"><span class="lab">Güç oranı</span>
+        <div class="eq s">10 log 2 = 3,01 dB &nbsp;·&nbsp; 10 log 10 = 10 dB &nbsp;·&nbsp; 10 log 1000 = 30 dB</div>
+      </div>
+      <p class="sm">1 → 2 W, 100 → 200 W ya da 1000 → 2000 W: hepsi aynı 3 dB’lik artıştır ve yükseklikte küçük bir fark yaratır. Amfi gücünü artırarak yüksek ses elde etmeye çalışmak bu yüzden hayal kırıcı olabilir.</p>
+      <div class="box warm"><p class="xs"><span class="ext">◆</span>Kitap verimi “%10 mertebesinde” verir, ama 100 W’tan 1 W akustik güç %1 demektir. Yarım uzaya yayılan 1 W, 1 m’de ≈ 112 dB SPL verir: verim ≈ 10<sup>(<i>S</i> − 112)/10</sup>. Doğrudan yayıcı hoparlörlerde (<i>S</i> = 85–92 dB/W/m) bu %0,2–1,6 eder; %10 ancak boru (horn) yüklü sistemlerde görülür.</p></div>
+    </div>
+  </div>
+  <div class="foot"><span>Everest &amp; Pohlmann (2009) · s. 25</span><span class="pg"></span></div>
+</section>
+
+<!-- 13 UZAKLIK -->
+<section class="slide" data-scene="distance">
+  <div class="kicker"><span class="num">V</span>Desibelle hesap</div>
+  <h2 class="title">Örnek 2: hoparlörden uzaklaştıkça</h2>
+  <div class="body ca">
+    <div class="col">
+      <div class="fig" style="--h:56;--hm:52"><canvas></canvas></div>
+      <div class="ctl">
+        <label class="rng">Uzaklık <i class="serif">r</i> <input type="range" data-k="r" min="-0.3" max="1.5" step="0.002" value="0.7853"><span class="ro" data-o="r"></span></label>
+        <label class="rng">Giriş gücü <input type="range" data-k="P" min="-1" max="0.5" step="0.002" value="0"><span class="ro" data-o="P"></span></label>
+        <span class="seg"><button class="btn" data-pr="a">Kitap: 6,1 m</button><button class="btn" data-pr="b">Kitap: 0,22 W</button></span>
+      </div>
+      <div class="cap"><b>Şekil ◆</b> Solda serbest alanda yayılan dalga cepheleri; sağda düzeyin uzaklıkla değişimi (logaritmik uzaklık ekseni). Her uzaklık ikiye katlanışında −6 dB.</div>
+    </div>
+    <div class="col">
+      <p class="sm">1 W’lık giriş, 1 m’de 115 dB SPL üretiyor. 6,1 m’de (20 ft) düzey ne olur?</p>
+      <div class="eqbox"><span class="lab">Uzaklık · 20 log</span>
+        <div class="eq s">SPL = 115 − 20 log(6,1/1) = 115 − 15,7 = <b>99,3 dB</b></div>
+      </div>
+      <p class="sm">Aynı hoparlöre 1 W yerine 0,22 W verilirse, 1 m’deki düzey:</p>
+      <div class="eqbox"><span class="lab">Güç · 10 log</span>
+        <div class="eq s">SPL = 115 + 10 log(0,22/1) = 115 − 6,6 = <b>108,4 dB</b></div>
+      </div>
+      <p class="sm">Uzaklıkta 20 log kullanılır, çünkü ters kare yasası <b>şiddeti</b> uzaklığın karesiyle, basıncı uzaklığın kendisiyle düşürür. Güçte 10 log kullanılır, çünkü iki güç karşılaştırılmaktadır.</p>
+      <div class="box"><p class="xs">Varsayım: hoparlör serbest alanda çalışıyor ve ters kare yasası geçerli. Yansıtıcı yüzeylerden uzak bir hoparlör için 6 m’de bu makul bir varsayımdır (Bölüm 3).</p></div>
+    </div>
+  </div>
+  <div class="foot"><span>Everest &amp; Pohlmann (2009) · s. 28 · Örnek 2</span><span class="pg"></span></div>
+</section>
+
+<!-- 14 ELEKTRİKSEL ÖRNEKLER -->
+<section class="slide" data-scene="chain">
+  <div class="kicker"><span class="num">V</span>Desibelle hesap</div>
+  <h2 class="title">Örnek 3–5: gerilim kazancı güç kazancı değildir</h2>
+  <div class="body cb">
+    <div class="col">
+      <div class="eqbox"><span class="lab">Örnek 3 · Mikrofon</span>
+        <p class="xs">Çok yönlü dinamik mikrofonun açık devre gerilimi 150 Ω için −80 dB; 0 dB = 1 V/µbar.</p>
+        <div class="eq s">−80 = 20 log <i>v</i>/1 &nbsp;→&nbsp; <i>v</i> = 0,0001 V = <b>0,1 mV</b> (1 µbar’da)</div>
+        <p class="xs"><span class="ext">◆</span>1 µbar = 0,1 Pa, yani 1 mV/Pa = −60 dBV/Pa: bugünkü veri sayfalarındaki gösterim.</p>
+      </div>
+      <div class="eqbox"><span class="lab">Örnek 4 · Hat amfisi (600 Ω giriş, 600 Ω çıkış)</span>
+        <div class="eq s">37 = 20 log(<i>v</i>/0,2) &nbsp;→&nbsp; <i>v</i> = 0,2 · 10<sup>1,85</sup> = 0,2 · 70,79 = <b>14,16 V</b></div>
+      </div>
+      <div class="eqbox"><span class="lab">Örnek 5 · Genel amaçlı amfi (10 kΩ giriş, 600 Ω çıkış)</span>
+        <div class="eq s">Gerilim kazancı = 20 log(1,5/0,05) = <b>29,5 dB</b></div>
+        <p class="xs">Giriş ve çıkış empedansları farklı olduğu için bu bir güç kazancı değildir; yine de pratikte işe yarar.</p>
+      </div>
+    </div>
+    <div class="col">
+      <div class="fig" style="--h:56;--hm:46"><canvas></canvas></div>
+      <div class="ctl">
+        <label class="rng">Giriş empedansı <input type="range" data-k="ri" min="1.5" max="5" step="0.01" value="4"><span class="ro" data-o="ri"></span></label>
+        <label class="rng">Çıkış yükü <input type="range" data-k="ro" min="0.5" max="4.5" step="0.01" value="2.7782"><span class="ro" data-o="ro"></span></label>
+        <span class="seg"><button class="btn on" data-pr="5">Örnek 5</button><button class="btn" data-pr="4">Örnek 4</button></span>
+      </div>
+      <div class="cap"><b>Şekil ◆</b> 50 mV giriş, 1,5 V çıkış. Güç kazancı = gerilim kazancı + 10 log(<i>R</i><sub>giriş</sub>/<i>R</i><sub>çıkış</sub>). Örnek 5’te 29,5 + 12,2 = 41,8 dB; empedanslar eşitse (Örnek 4) iki kazanç çakışır.</div>
+    </div>
+  </div>
+  <div class="foot"><span>Everest &amp; Pohlmann (2009) · s. 28–29 · Örnek 3, 4, 5</span><span class="pg"></span></div>
+</section>
+
+<!-- 15 KONSER SALONU -->
+<section class="slide" data-scene="hall">
+  <div class="kicker"><span class="num">V</span>Desibelle hesap</div>
+  <h2 class="title">Örnek 6: konser salonunda ilk yansıma</h2>
+  <div class="body ca">
+    <div class="col">
+      <div class="fig" style="--h:53;--hm:56"><canvas></canvas></div>
+      <div class="ctl">
+        <label class="rng">Koltuk uzaklığı <input type="range" data-k="D" min="5" max="45" step="0.1" value="25.6"><span class="ro" data-o="D"></span></label>
+        <label class="rng">Yan duvar <input type="range" data-k="h" min="2" max="25" step="0.05" value="12.77"><span class="ro" data-o="h"></span></label>
+        <button class="btn" data-a="book">Kitaptaki salon</button>
+        <button class="btn play" data-a="hear">Doğrudan + yansıma</button>
+      </div>
+      <div class="cap"><b>Şekil ◆</b> Üstten görünüş ve ayna kaynak (T′). Alttaki ekogram, doğrudan sesin ve ilk yansımanın varış zamanlarını ve düzeylerini gösterir. Ses demosunda kısa bir vuruş ve onun gecikmiş, zayıflamış kopyası çalar.</div>
+    </div>
+    <div class="col">
+      <p class="sm">Koltuk timpaniden 84 ft (25,6 m) uzakta; doğrudan sesin düzeyi 55 dB. Yan duvardan gelen ilk yansıma, mükemmel yansıma varsayılarak:</p>
+      <div class="eqbox"><span class="lab">Çözüm (kitabın <i>c</i> = 1130 ft/s değeriyle, SI’ya çevrilmiş)</span>
+        <div class="eq s">(A) yol = 344,4 · 0,105 = <b>36,2 m</b></div>
+        <div class="eq s">(B) <i>L</i><sub>1 m</sub> = 55 + 20 log 25,6 = 83,2 dB &nbsp;→&nbsp; 83,2 − 20 log 36,2 = <b>52 dB</b></div>
+        <div class="eq s">(C) gecikme = (36,2 − 25,6) / 344,4 = <b>30,7 ms</b></div>
+      </div>
+      <p class="sm">Bu da serbest alan varsayımıdır. 30,7 ms gecikmeli yansıma, “başlangıç hâlindeki yankı” (incipient echo) sayılabilir.</p>
+      <div class="box warm"><p class="xs"><span class="ext">◆</span><b>Kitaptaki tutarsızlık.</b> Soru, yansımanın doğrudan sesten 105 ms <i>sonra</i> geldiğini söyler; çözüm ise 105 ms’yi vuruştan itibaren geçen süre olarak alır. Doğrudan ses 74,3 ms’de geldiğine göre çözümün tutarlı yorumu: yansıma vuruştan 105 ms sonra, doğrudan sesten 30,7 ms sonra gelir.</p></div>
+    </div>
+  </div>
+  <div class="foot"><span>Everest &amp; Pohlmann (2009) · s. 29–30 · Örnek 6</span><span class="pg"></span></div>
+</section>
+
+<!-- 16 TOPLAMA -->
+<section class="slide" data-scene="combine">
+  <div class="kicker"><span class="num">V</span>Desibelle hesap</div>
+  <h2 class="title">Örnek 7: 55 dB + 60 dB ≠ 115 dB</h2>
+  <div class="body ca">
+    <div class="col">
+      <div class="fig" style="--h:57;--hm:52"><canvas></canvas></div>
+      <div class="ctl">
+        <label class="rng"><span><i class="serif">L</i>₁</span> <input type="range" data-k="a" min="40" max="90" step="0.5" value="55"><span class="ro" data-o="a"></span></label>
+        <label class="rng"><span><i class="serif">L</i>₂</span> <input type="range" data-k="b" min="40" max="90" step="0.5" value="60"><span class="ro" data-o="b"></span></label>
+        <span class="seg"><button class="btn on" data-m="inc">İlişkisiz kaynaklar</button><button class="btn" data-m="coh">Aynı sinyal, fazda ◆</button></span>
+      </div>
+      <div class="ctl">
+        <button class="btn play" data-a="s1">Yalnız 1</button>
+        <button class="btn play" data-a="s2">Yalnız 2</button>
+        <button class="btn play" data-a="s12">İkisi birden</button>
+      </div>
+    </div>
+    <div class="col">
+      <p class="sm">Bir stüdyoda yalnız klima çalışırken 55 dB, yalnız vantilatör çalışırken 60 dB ölçülüyor. İkisi birlikte çalışınca düzey 115 dB olmaz:</p>
+      <div class="eqbox"><span class="lab">Toplama ve çıkarma</span>
+        <div class="eq s"><i>L</i> = 10 log(10<sup>55/10</sup> + 10<sup>60/10</sup>) = <b>61,19 dB</b></div>
+        <div class="eq s"><i>L</i> = 10 log(10<sup>80/10</sup> − 10<sup>75/10</sup>) = <b>78,3 dB</b></div>
+      </div>
+      <p class="sm">55 dB’lik ses, 60 dB’lik düzeyi yalnız biraz artırır. İkinci örnekte iki kaynağın toplamı 80 dB, birini kapatınca 75 dB ise öteki 78,3 dB’dir. Düzeyler ancak benzer spektrumdaki sesler için karşılaştırılabilir.</p>
+      <div class="box warm"><p class="xs"><span class="ext">◆</span>Kitabın kuralı <b>ilişkisiz</b> (bağımsız gürültü) kaynaklar içindir: güçler toplanır, eşit iki kaynak +3 dB verir. Aynı sinyal fazda toplanırsa <b>basınçlar</b> toplanır: eşit iki kaynak +6 dB, ters fazda ise sıfır. Bölüm 10’daki tarak süzgeci bunun frekansa bağlı biçimidir.</p></div>
+    </div>
+  </div>
+  <div class="foot"><span>Everest &amp; Pohlmann (2009) · s. 30 · Örnek 7</span><span class="pg"></span></div>
+</section>
+
+<!-- 17 AĞIRLIKLANDIRMA -->
+<section class="slide" data-scene="weight">
+  <div class="kicker"><span class="num">VI</span>Ölçüm</div>
+  <h2 class="title">A, B, C: işitmeyi taklit eden ölçer</h2>
+  <div class="body ca">
+    <div class="col">
+      <div class="fig" style="--h:54;--hm:48"><canvas></canvas></div>
+      <div class="ctl">
+        <label class="rng">Frekans <input type="range" data-k="f" min="0" max="1" step="0.0005" value="0.3029"><span class="ro" data-o="f"></span></label>
+        <span class="ro" data-o="w"></span>
+      </div>
+      <div class="ctl">
+        <button class="btn play" data-a="z">Pembe gürültü · Z (düz)</button>
+        <button class="btn play" data-a="A">A ağırlıklı</button>
+        <button class="btn play" data-a="C">C ağırlıklı</button>
+      </div>
+      <div class="cap"><b>Şekil 2-3’ün karşılığı.</b> Eğriler IEC 61672-1 formüllerinden hesaplanmıştır (B eğrisi eski standarttan). Ses demosunda aynı pembe gürültü süzgeçsiz ve ağırlıklandırma süzgecinden geçirilmiş olarak çalar.</div>
+    </div>
+    <div class="col">
+      <p class="sm">İşitmenin duyarlılığı alçak ve yüksek frekanslarda düşer; bu düşüş kısık seslerde daha belirgindir. Ses düzeyi ölçerler bu yüzden A, B ve C ağırlıklandırma ağları sunar:</p>
+      <ul class="pts">
+        <li class="sm"><b>A</b> — 40 phon eşit yükseklik eğrisinin tersi · kitabın önerisi: 20–55 dB</li>
+        <li class="sm"><b>B</b> — 70 phon eğrisinin tersi · 55–85 dB</li>
+        <li class="sm"><b>C</b> — 100 phon eğrisinin tersi · 85–140 dB</li>
+      </ul>
+      <p class="sm">A ağırlığıyla yapılan ölçüm <b>dBA</b> diye gösterilir ve genellikle ağırlıksız ölçümden düşüktür.</p>
+      <div class="box warm"><p class="xs"><span class="ext">◆</span><b>Bugün:</b> IEC 61672-1 B ağırlığını kaldırmıştır. Gürültü mevzuatı ve iş sağlığı neredeyse her düzeyde A’yı, tepe ve alçak frekans değerlendirmesi C’yi, düz ölçüm Z’yi kullanır. Kitaptaki düzey aralıkları tarihsel bir öneridir.</p></div>
+    </div>
+  </div>
+  <div class="foot"><span>Everest &amp; Pohlmann (2009) · s. 30–31 · Şekil 2-3 · ◆ IEC 61672-1:2013</span><span class="pg"></span></div>
+</section>
+
+<!-- 18 dBA vs dBC -->
+<section class="slide" data-scene="dba">
+  <div class="kicker"><span class="num">VI</span>Ölçüm</div>
+  <h2 class="title">dBA ile ağırlıksız ölçüm arasındaki fark ne söyler?</h2>
+  <div class="body ca">
+    <div class="col">
+      <div class="fig" style="--h:54;--hm:50"><canvas></canvas></div>
+      <div class="ctl">
+        <span class="seg"><button class="btn on" data-s="hvac">Klima uğultusu</button><button class="btn" data-s="pink">Pembe gürültü</button><button class="btn" data-s="speech">Konuşma benzeri</button><button class="btn" data-s="hiss">Tıslama</button></span>
+        <button class="btn play" data-a="play">Çal</button>
+      </div>
+      <table class="t nocap">
+        <tr><th><i>L</i><sub>Z</sub> (ağırlıksız)</th><th><i>L</i><sub>C</sub></th><th><i>L</i><sub>A</sub></th><th><i>L</i><sub>C</sub> − <i>L</i><sub>A</sub></th></tr>
+        <tr class="hi"><td class="n" data-o="Z" style="text-align:left"></td><td class="n" data-o="C" style="text-align:left"></td><td class="n" data-o="A" style="text-align:left"></td><td class="n" data-o="CA" style="text-align:left"></td></tr>
+      </table>
+    </div>
+    <div class="col">
+      <p class="sm">A ağırlığı 1 kHz’in üstünde hemen hemen düz olduğu için, dBA ile ağırlıksız okuma arasındaki fark esas olarak sinyalin <b>alçak frekans içeriğini</b> gösterir. Büyük bir fark, sinyalde belirgin bir alçak frekans içeriği olduğunu söyler.</p>
+      <p class="sm">Yine de basit ağırlıklandırmalar yüksekliği doğru temsil etmez; ancak düzeyleri karşılaştırmak için kullanılır. Kitap, sesin oktav ya da 1/3 oktav bantlarında frekans çözümlemesini önerir.</p>
+      <div class="box warm"><p class="xs"><span class="ext">◆</span>“Hemen hemen düz”: A eğrisi 2,5 kHz’te +1,3 dB’e çıkar, 10 kHz’te −2,5 dB’e iner. Örnek spektrumlar oktav bantlarında tanımlanmış modellerdir (ölçüm değil); toplamlar 10 log Σ 10<sup>(<i>L</i><sub>b</sub> + <i>W</i><sub>b</sub>)/10</sup> ile hesaplanır.</p></div>
+    </div>
+  </div>
+  <div class="foot"><span>Everest &amp; Pohlmann (2009) · s. 31</span><span class="pg"></span></div>
+</section>
+
+<!-- 19 RMS -->
+<section class="slide" data-scene="rms" data-steps="4">
+  <div class="kicker"><span class="num">VI</span>Ölçüm</div>
+  <h2 class="title">Tepe, ortalama, RMS: bir sinüsü okumanın yolları</h2>
+  <div class="body ca">
+    <div class="col">
+      <div class="fig" style="--h:62;--hm:58"><canvas></canvas></div>
+      <div class="cap"><b>Şekil 2-4’ün canlandırması.</b> Adım adım: (a) eşit aralıklarla ordinatlar okunur, (b) her ordinatın karesi alınır, (c) kareler ortalanır, (d) ortalamanın karekökü RMS’i verir.</div>
+    </div>
+    <div class="col">
+      <p class="sm">Osiloskopta en kolay okunan değer <b>tepeden tepeye</b> değerdir; simetrik dalgada bu, tepe değerin iki katıdır.</p>
+      <ul class="pts">
+        <li class="sm frag" data-f="1">(a) Pozitif yarım dalga boyunca eşit aralıklarla ordinatlar okunur.</li>
+        <li class="sm frag" data-f="2">(b) Her ordinatın karesi alınır — negatif değerlerin karesi de pozitiftir.</li>
+        <li class="sm frag" data-f="3">(c) Kareler toplanıp ortalanır.</li>
+        <li class="sm frag" data-f="4">(d) Ortalamanın karekökü: <b>RMS</b> ya da “ısıtma gücü” değeri.</li>
+      </ul>
+      <div class="eqbox"><span class="lab">Yalnız sinüs için — Şekil 2-4</span>
+        <div class="eq s">RMS = tepe/√2 = 0,707 · tepe = 1,11 · ortalama</div>
+        <div class="eq s">tepe = √2 · RMS = 1,414 · RMS = (π/2) · ortalama = 1,571 · ortalama</div>
+      </div>
+      <p class="xs">1 A etkin (RMS) alternatif akım, bilinen bir dirençte 1 A doğru akımla tam olarak aynı ısıyı üretir: alternatif akım yön değiştirse de ısıtır.</p>
+    </div>
+  </div>
+  <div class="foot"><span>Everest &amp; Pohlmann (2009) · s. 31–32 · Şekil 2-4</span><span class="pg"></span></div>
+</section>
+
+<!-- 20 ÖLÇER -->
+<section class="slide" data-scene="meter">
+  <div class="kicker"><span class="num">VI</span>Ölçüm</div>
+  <h2 class="title">Ortalamaya duyarlı ölçer sinüs dışında yanılır</h2>
+  <div class="body ca">
+    <div class="col">
+      <div class="fig" style="--h:57;--hm:56"><canvas></canvas></div>
+      <div class="ctl">
+        <span class="seg"><button class="btn on" data-w="sin">Sinüs</button><button class="btn" data-w="sq">Kare</button><button class="btn" data-w="tri">Üçgen</button><button class="btn" data-w="noise">Gürültü</button></span>
+        <button class="btn play" data-a="play">Eşit RMS’de çal</button>
+      </div>
+      <div class="cap"><b>Şekil ◆</b> Bütün dalgalar aynı gerçek RMS’e ayarlanmıştır. Soldaki gösterge doğrultulmuş ortalamayı okuyup sinüs için RMS’e ölçeklenmiştir (× 1,111); sağdaki gerçek RMS okur.</div>
+    </div>
+    <div class="col">
+      <p class="sm">Yaygın alternatif akım voltmetresi aslında doğrultuculu bir doğru akım ölçeridir: <b>ortalamaya</b> tepki verir, ama ölçeği RMS’e göre çizilmiştir. Sinüs için bu kabul edilebilir bir kurgudur; sinüs olmayan dalgada okuma yanlıştır.</p>
+      <table class="t">
+        <tr><th>Dalga</th><th style="text-align:right">Tepe faktörü</th><th style="text-align:right">Ölçer hatası ◆</th></tr>
+        <tr data-row="sin"><td>Sinüs</td><td class="n">3,01 dB</td><td class="n">0</td></tr>
+        <tr data-row="sq"><td>Kare</td><td class="n">0 dB</td><td class="n">+0,91 dB</td></tr>
+        <tr data-row="tri"><td>Üçgen</td><td class="n">4,77 dB</td><td class="n">−0,34 dB</td></tr>
+        <tr data-row="noise"><td>Gauss gürültüsü</td><td class="n">≈ 12 dB*</td><td class="n">−1,05 dB</td></tr>
+      </table>
+      <p class="xs">* Gürültünün tepe faktörü ölçüm süresine bağlıdır; ≈ 4σ tepe varsayılmıştır.</p>
+      <p class="sm">Bu yüzden Şekil 2-4’teki bağıntılar yalnız sinüs içindir. Ses alanında sık kullanılan bir başka terim <b>tepe faktörü</b>dür: tepe / RMS.</p>
+    </div>
+  </div>
+  <div class="foot"><span>Everest &amp; Pohlmann (2009) · s. 32 · Şekil 2-4</span><span class="pg"></span></div>
+</section>
+
+<!-- 21 ÇIKARIMLAR -->
+<section class="slide" data-scene="summary">
+  <div class="kicker">Çıkarımlar</div>
+  <h2 class="title">Bölüm 2’den yanımıza aldıklarımız</h2>
+  <ol class="sum">
+    <li style="--i:0"><span>Algı oranları izler: aynı “iki kat yüksek” 9 birimle de 90 000 birimle de elde edilir. Oranlar boyutsuzdur ve logaritması alınabilir.</span></li>
+    <li style="--i:1"><span>Logaritma çarpmayı toplamaya çevirir ve 10¹³’lük bir aralığı 130 dB’ye sığdırır.</span></li>
+    <li style="--i:2"><span>Güç benzeri nicelikler 10 log, alan nicelikleri (basınç, gerilim, akım, hız, uzaklık) 20 log ile ifade edilir; ikisi aynı desibeli verir.</span></li>
+    <li style="--i:3"><span>“dB” bir orandır; referans (20 µPa, 1 pW, 1 V, 0,775 V, tam ölçek) söylenmeden düzey anlamsızdır.</span></li>
+    <li style="--i:4"><span>Hesap makinesinin basamakları kesinlik değildir: ±0,5 dB, basınçta ±%6 demektir.</span></li>
+    <li style="--i:5"><span>Gücü ikiye katlamak +3 dB, uzaklığı ikiye katlamak −6 dB, ilişkisiz iki eşit kaynak +3 dB eder.</span></li>
+    <li style="--i:6"><span>Ağırlıklandırma işitmeyi kabaca taklit eder; dBA ile ağırlıksız okuma arasındaki fark alçak frekans içeriğini ele verir.</span></li>
+    <li style="--i:7"><span>Tepe, ortalama ve RMS arasındaki sabit oranlar yalnız sinüs için geçerlidir; gerçek sinyallerde gerçek RMS gerekir.</span></li>
+  </ol>
+  <p class="sm" style="margin-top:calc(var(--u)*3.4);color:var(--ink3)">Sonraki: <b style="color:var(--ink)">Bölüm 3 — Serbest alanda ses.</b> Ters kare yasası nereden gelir?</p>
+  <div class="foot"><span>Everest &amp; Pohlmann (2009) · Bölüm 2</span><span class="pg"></span></div>
+</section>
+
+<!-- 22 TARTIŞMA VE KAYNAKÇA -->
+<section class="slide" data-scene="refs">
+  <div class="kicker">Tartışma ve kaynakça</div>
+  <h2 class="title">Açık sorular</h2>
+  <div class="body c2">
+    <div class="col">
+      <ul class="pts qs">
+        <li>Kitaptaki 10:1 düşünce deneyi ile sone ölçeğinin “10 dB = iki kat” kuralı neden farklıdır? Weber oranı hangi koşullarda bozulur?</li>
+        <li>Alçak frekanslı gürültü şikâyetlerinde dBA neden yetersiz kalır? <i>L</i><sub>C</sub> − <i>L</i><sub>A</sub> farkı bir ölçüt olarak ne kadar bilgi verir?</li>
+        <li>Dijital ses dünyasında dBFS, LUFS ve “gerçek tepe” hangi tanımlara dayanır? Ortalamaya duyarlı ölçerin hatası orada nasıl karşımıza çıkar?</li>
+        <li>Konser salonu örneğindeki 30 ms gecikmeli, 3 dB zayıf yansıma algıda yankı mı, renklenme mi, genişlik mi olarak duyulur?</li>
+      </ul>
+    </div>
+    <div class="col">
+      <ol class="refs">
+        <li>Everest, F. A. &amp; Pohlmann, K. C. (2009). <i>Master Handbook of Acoustics</i> (5. bs.). McGraw-Hill. Bölüm 2, s. 19–32.</li>
+        <li>Fechner, G. T. (1860). <i>Elemente der Psychophysik</i>. Breitkopf &amp; Härtel.</li>
+        <li>Stevens, S. S. (1957). On the psychophysical law. <i>Psychological Review</i>, 64(3), 153–181.</li>
+        <li>Martin, W. H. (1929). DeciBel—The name for the transmission unit. <i>Bell System Technical Journal</i>, 8(1), 1–2.</li>
+        <li>Kinsler, L. E., Frey, A. R., Coppens, A. B. &amp; Sanders, J. V. (2000). <i>Fundamentals of Acoustics</i> (4. bs.). Wiley.</li>
+        <li>IEC 61672-1:2013. <i>Electroacoustics — Sound level meters — Part 1: Specifications</i>.</li>
+        <li>ISO 226:2023. <i>Acoustics — Normal equal-loudness-level contours</i>.</li>
+      </ol>
+    </div>
+  </div>
+  <div class="foot"><span>Kitabın dışındaki kaynaklar yalnız ◆ işaretli ekler içindir.</span><span class="pg"></span></div>
+</section>
+
+<div id="progress"></div>
+</div></div>
+<script>
+'use strict';
+/* ====================== temel yardımcılar ====================== */
+const $ = (s, r = document) => r.querySelector(s);
+const $$ = (s, r = document) => [...r.querySelectorAll(s)];
+const ROOT = document.documentElement;
+const TAU = Math.PI * 2;
+const C0 = 343.2;                       // ses hızı, 20 °C
+const RHO = 1.204;                      // hava yoğunluğu, 20 °C
+let U = 10;                             // 1 birim (px)
+let COL = {};
+const FONT = {
+  sans: '"Source Sans 3","Source Sans Pro","Helvetica Neue",Arial,sans-serif',
+  serif: '"Source Serif 4","Source Serif Pro",Georgia,"Times New Roman",serif',
+  mono: '"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace'
+};
+function readColors() {
+  const cs = getComputedStyle(ROOT);
+  for (const k of ['bg', 'stage', 'panel', 'ink', 'ink2', 'ink3', 'rule', 'grid', 'c1', 'c2', 'c3', 'c4', 'c5'])
+    COL[k] = cs.getPropertyValue('--' + k).trim();
+  COL.lw = parseFloat(cs.getPropertyValue('--lw')) || 1;
+  COL.dark = ROOT.dataset.theme === 'dark';
+}
+const fs = k => Math.max(10.5, k * U);
+const LW = k => Math.max(0.8, k * Math.max(U, 7) / 10 * COL.lw);
+const clamp = (x, a, b) => Math.min(b, Math.max(a, x));
+const lerp = (a, b, t) => a + (b - a) * t;
+const ease = t => t < 0 ? 0 : t > 1 ? 1 : t * t * (3 - 2 * t);
+const ease3 = t => 1 - Math.pow(1 - clamp(t, 0, 1), 3);
+function fmt(x, d = 1) {
+  if (!isFinite(x)) return '—';
+  let s = x.toLocaleString('tr-TR', { minimumFractionDigits: d, maximumFractionDigits: d, useGrouping: false });
+  const neg = s[0] === '-'; if (neg) s = s.slice(1);
+  if (Math.abs(x) >= 10000) { const p = s.split(','); p[0] = p[0].replace(/\B(?=(\d{3})+(?!\d))/g, '\u202F'); s = p.join(','); }
+  return (neg && !/^0(,0*)?$/.test(s) ? '−' : '') + s;
+}
+function fmtHz(f) {
+  if (f >= 10000) return fmt(f / 1000, 1) + ' kHz';
+  if (f >= 1000) return fmt(f / 1000, 2) + ' kHz';
+  if (f >= 100) return fmt(f, 0) + ' Hz';
+  return fmt(f, 1) + ' Hz';
+}
+function fmtLen(m) {
+  const a = Math.abs(m);
+  if (a >= 1) return fmt(m, a >= 10 ? 1 : 2) + ' m';
+  if (a >= 0.01) return fmt(m * 100, a >= 0.1 ? 1 : 2) + ' cm';
+  if (a >= 1e-3) return fmt(m * 1000, 2) + ' mm';
+  if (a >= 1e-6) return fmt(m * 1e6, a >= 1e-5 ? 1 : 2) + ' µm';
+  if (a >= 1e-9) return fmt(m * 1e9, a >= 1e-8 ? 1 : 2) + ' nm';
+  return fmt(m * 1e12, 2) + ' pm';
+}
+function fmtSI(x, unit, d = 3) {        // anlamlı basamakla
+  if (x === 0) return '0 ' + unit;
+  const pre = [[1e-12, 'p'], [1e-9, 'n'], [1e-6, 'µ'], [1e-3, 'm'], [1, ''], [1e3, 'k']];
+  let p = pre[0];
+  for (const q of pre) if (Math.abs(x) >= q[0]) p = q;
+  const v = x / p[0];
+  const dd = Math.max(0, d - 1 - Math.floor(Math.log10(Math.abs(v) + 1e-30)));
+  return fmt(v, Math.min(dd, 3)) + ' ' + p[1] + unit;
+}
+// logaritmik kaydırıcı eşlemesi
+const logMap = (v, a, b) => a * Math.pow(b / a, v);
+const logInv = (x, a, b) => Math.log(x / a) / Math.log(b / a);
+
+/* ====================== tuval ====================== */
+class Fig {
+  constructor(cv) {
+    this.cv = cv; this.ctx = cv.getContext('2d'); this.w = 0; this.h = 0; this.d = 1;
+    new ResizeObserver(() => this.resize()).observe(cv);
+    this.resize();
+  }
+  resize() {
+    const w = this.cv.clientWidth, h = this.cv.clientHeight;
+    if (!w || !h) return;
+    const d = Math.min(2.5, window.devicePixelRatio || 1);
+    if (w !== this.w || h !== this.h || d !== this.d) {
+      this.w = w; this.h = h; this.d = d;
+      this.cv.width = Math.round(w * d); this.cv.height = Math.round(h * d);
+    }
+  }
+  begin() {
+    const c = this.ctx;
+    c.setTransform(this.d, 0, 0, this.d, 0, 0);
+    c.clearRect(0, 0, this.w, this.h);
+    c.lineCap = 'round'; c.lineJoin = 'round';
+    return c;
+  }
+}
+function ln(c, x1, y1, x2, y2, col, w = 1, dash) {
+  c.beginPath(); c.moveTo(x1, y1); c.lineTo(x2, y2);
+  c.strokeStyle = col; c.lineWidth = w; c.setLineDash(dash || []); c.stroke(); c.setLineDash([]);
+}
+function tx(c, s, x, y, o = {}) {
+  const size = o.size || fs(1.3), f = sz => `${o.it ? 'italic ' : ''}${o.wt || 400} ${sz}px ${o.font || FONT.sans}`;
+  c.font = f(size); c.fillStyle = o.col || COL.ink2; c.textBaseline = o.bl || 'alphabetic';
+  if (s.indexOf('_') < 0 && s.indexOf('^{') < 0) { c.textAlign = o.al || 'left'; c.fillText(s, x, y); return; }
+  // "M_A" → M, alt simge A · "10^{4,1}" → üst simge
+  const segs = []; let last = 0; const re = /_([A-Za-z0-9]+)|\^\{([^}]*)\}/g; let m;
+  while ((m = re.exec(s))) { if (m.index > last) segs.push([s.slice(last, m.index), 0]); segs.push(m[1] != null ? [m[1], 1] : [m[2], 2]); last = re.lastIndex; }
+  if (last < s.length) segs.push([s.slice(last), 0]);
+  const ss = size * 0.7;
+  let W = 0; segs.forEach(g => { c.font = f(g[1] ? ss : size); g.w = c.measureText(g[0]).width; W += g.w; });
+  let X = o.al === 'center' ? x - W / 2 : o.al === 'right' ? x - W : x;
+  c.textAlign = 'left';
+  segs.forEach(g => { c.font = f(g[1] ? ss : size); c.fillText(g[0], X, y + (g[1] === 1 ? size * 0.26 : g[1] === 2 ? -size * 0.4 : 0)); X += g.w; });
+}
+function tw(c, s, o = {}) {
+  c.font = `${o.it ? 'italic ' : ''}${o.wt || 400} ${o.size || fs(1.3)}px ${o.font || FONT.sans}`;
+  return c.measureText(s).width;
+}
+function chip(c, s, x, y, o = {}) {   // zemini olan etiket
+  const size = o.size || fs(1.25), w = tw(c, s, o) + size * 0.7, h = size * 1.45;
+  let bx = o.al === 'center' ? x - w / 2 : o.al === 'right' ? x - w : x;
+  if (o.clampW) bx = clamp(bx, 2, o.clampW - w - 2);
+  c.fillStyle = o.bg || COL.panel; c.globalAlpha = o.alpha ?? 0.92; c.fillRect(bx, y - h / 2, w, h); c.globalAlpha = 1;
+  if (o.border) { c.strokeStyle = o.border; c.lineWidth = 1; c.strokeRect(bx + .5, y - h / 2 + .5, w - 1, h - 1); }
+  tx(c, s, bx + size * 0.35, y, { ...o, al: 'left', bl: 'middle', size });
+  return w;
+}
+function arrow(c, x1, y1, x2, y2, col, w = 1.4, hs) {
+  hs = hs || Math.max(6, U * 0.8);
+  const a = Math.atan2(y2 - y1, x2 - x1), L = Math.hypot(x2 - x1, y2 - y1);
+  if (L < 0.5) return;
+  const hh = Math.min(hs, L * 0.6);
+  c.beginPath(); c.moveTo(x1, y1); c.lineTo(x2 - Math.cos(a) * hh * 0.6, y2 - Math.sin(a) * hh * 0.6);
+  c.strokeStyle = col; c.lineWidth = w; c.setLineDash([]); c.stroke();
+  c.beginPath(); c.moveTo(x2, y2);
+  c.lineTo(x2 - Math.cos(a - 0.42) * hh, y2 - Math.sin(a - 0.42) * hh);
+  c.lineTo(x2 - Math.cos(a + 0.42) * hh, y2 - Math.sin(a + 0.42) * hh);
+  c.closePath(); c.fillStyle = col; c.fill();
+}
+function dbl(c, x1, y1, x2, y2, col, w = 1.2) { arrow(c, (x1 + x2) / 2, (y1 + y2) / 2, x1, y1, col, w); arrow(c, (x1 + x2) / 2, (y1 + y2) / 2, x2, y2, col, w); }
+function dot(c, x, y, r, col, stroke) {
+  c.beginPath(); c.arc(x, y, r, 0, TAU);
+  if (stroke) { c.strokeStyle = col; c.lineWidth = stroke; c.stroke(); } else { c.fillStyle = col; c.fill(); }
+}
+function plot(c, x0, x1, n, fx, fy, col, w = 1.5, dash) {   // parametrik çizgi
+  c.beginPath();
+  for (let i = 0; i <= n; i++) {
+    const t = x0 + (x1 - x0) * i / n, X = fx(t), Y = fy(t);
+    if (i) c.lineTo(X, Y); else c.moveTo(X, Y);
+  }
+  c.strokeStyle = col; c.lineWidth = w; c.setLineDash(dash || []); c.stroke(); c.setLineDash([]);
+}
+function hatch(c, x, y, w, h, col, step = 6) {
+  c.save(); c.beginPath(); c.rect(x, y, w, h); c.clip();
+  c.strokeStyle = col; c.lineWidth = 1;
+  for (let k = -h; k < w + h; k += step) { c.beginPath(); c.moveTo(x + k, y + h); c.lineTo(x + k + h, y); c.stroke(); }
+  c.restore();
+}
+function alpha(col, a) {          // hex/rgb renge saydamlık
+  if (col.startsWith('#')) {
+    let h = col.slice(1); if (h.length === 3) h = h.split('').map(x => x + x).join('');
+    const n = parseInt(h, 16);
+    return `rgba(${n >> 16 & 255},${n >> 8 & 255},${n & 255},${a})`;
+  }
+  return col;
+}
+// log eksen yardımcısı
+function logAxis(a, b, p0, p1) { const la = Math.log10(a), lb = Math.log10(b); return f => p0 + (Math.log10(f) - la) / (lb - la) * (p1 - p0); }
+const NICE = [1, 2, 5];
+function fmtTick(f) { if (f >= 1000) return (f / 1000) + 'k'; return '' + f; }
+
+/* ====================== ses motoru ====================== */
+const AU = {
+  ctx: null, master: null, an: null, vol: 0.6, cur: null, curBtn: null, noiseBuf: null,
+  ensure() {
+    if (!this.ctx) {
+      const AC = window.AudioContext || window.webkitAudioContext;
+      if (!AC) return null;
+      this.ctx = new AC();
+      this.master = this.ctx.createGain(); this.master.gain.value = this.vol;
+      this.an = this.ctx.createAnalyser(); this.an.fftSize = 8192; this.an.smoothingTimeConstant = 0.5;
+      this.an.minDecibels = -110; this.an.maxDecibels = 0;
+      this.master.connect(this.ctx.destination); this.master.connect(this.an);
+    }
+    if (this.ctx.state === 'suspended') this.ctx.resume();
+    return this.ctx;
+  },
+  setVol(v) { this.vol = v; if (this.master) this.master.gain.setTargetAtTime(v, this.ctx.currentTime, 0.03); },
+  get now() { return this.ctx ? this.ctx.currentTime : 0; },
+  stop(fade = 0.05) {
+    const v = this.cur;
+    if (v) {
+      const t = this.ctx.currentTime;
+      try { v.g.gain.cancelScheduledValues(t); v.g.gain.setValueAtTime(v.g.gain.value, t); v.g.gain.setTargetAtTime(0, t, fade / 3); } catch (e) { }
+      if (v.timer) clearTimeout(v.timer);
+      if (v.iv) clearInterval(v.iv);
+      if (v.onstop) v.onstop();
+      setTimeout(() => v.nodes.forEach(n => { try { n.stop && n.stop(); } catch (e) { } try { n.disconnect(); } catch (e) { } }), fade * 1000 + 250);
+      this.cur = null;
+    }
+    if (this.curBtn) { this.curBtn.classList.remove('playing'); this.curBtn = null; }
+  },
+  // build(ctx, out, v) sesi kurar; v.nodes'a eklenen düğümler durdurulur
+  start(build, o = {}) {
+    if (!this.ensure()) return null;
+    this.stop(0.03);
+    const ctx = this.ctx, g = ctx.createGain();
+    g.gain.value = 0; g.connect(this.master);
+    const v = { g, nodes: [g], t0: ctx.currentTime + 0.02, key: o.key };
+    build(ctx, g, v);
+    const lvl = o.level ?? 1;
+    if (!o.noEnv) g.gain.setTargetAtTime(lvl, ctx.currentTime, 0.008); else g.gain.value = lvl;
+    if (o.dur) {
+      g.gain.setTargetAtTime(0, ctx.currentTime + o.dur, 0.03);
+      v.timer = setTimeout(() => { if (this.cur === v) this.stop(); }, (o.dur + 0.25) * 1000);
+    }
+    this.cur = v;
+    if (o.btn) { o.btn.classList.add('playing'); this.curBtn = o.btn; }
+    return v;
+  },
+  isPlaying(btn) { return this.curBtn === btn && !!this.cur; },
+  toggle(btn, build, o = {}) {
+    if (this.isPlaying(btn)) { this.stop(); return null; }
+    return this.start(build, { ...o, btn });
+  },
+  // harmonik listesinden PeriodicWave (normalizasyonsuz)
+  wave(comps) {   // comps: [{n, a, ph}]  →  a·sin(nωt + ph)
+    const N = Math.max(2, ...comps.map(c => c.n)) + 1;
+    const re = new Float32Array(N), im = new Float32Array(N);
+    for (const c of comps) { re[c.n] += c.a * Math.sin(c.ph || 0); im[c.n] += c.a * Math.cos(c.ph || 0); }
+    return this.ctx.createPeriodicWave(re, im, { disableNormalization: true });
+  },
+  harm(f0, comps, scale) {        // tek osilatörlü harmonik ses
+    return (ctx, out, v) => {
+      const o = ctx.createOscillator(); o.frequency.value = f0;
+      o.setPeriodicWave(this.wave(comps));
+      const g = ctx.createGain(); g.gain.value = scale; o.connect(g); g.connect(out);
+      o.start(v.t0); v.nodes.push(o, g); v.osc = o; v.sg = g;
+      v.update = (cs, sc) => { o.setPeriodicWave(this.wave(cs)); if (sc != null) g.gain.setTargetAtTime(sc, ctx.currentTime, 0.02); };
+    };
+  },
+  sines(list, o = {}) {           // list: [{f, a, tau?}] — ayrı sinüsler (kısmi sesler)
+    return (ctx, out, v) => {
+      for (const p of list) {
+        const os = ctx.createOscillator(); os.frequency.value = p.f;
+        const g = ctx.createGain(); g.gain.value = 0;
+        os.connect(g); g.connect(out);
+        const t = v.t0 + (p.at || 0);
+        if (p.tau) { g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(p.a, t + 0.004); g.gain.setTargetAtTime(0, t + 0.004, p.tau); }
+        else { g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(p.a, t + 0.02); if (p.len) { g.gain.setValueAtTime(p.a, t + p.len - 0.03); g.gain.linearRampToValueAtTime(0, t + p.len); } }
+        os.start(t); if (p.len) os.stop(t + p.len + 0.05);
+        v.nodes.push(os, g);
+      }
+    };
+  },
+  noise() {
+    if (!this.noiseBuf) {
+      const n = this.ctx.sampleRate * 4, b = this.ctx.createBuffer(1, n, this.ctx.sampleRate), d = b.getChannelData(0);
+      for (let i = 0; i < n; i++) d[i] = Math.random() * 2 - 1;
+      this.noiseBuf = b;
+    }
+    const s = this.ctx.createBufferSource(); s.buffer = this.noiseBuf; s.loop = true;
+    return s;
+  }
+};
+
+/* ====================== sahneler ====================== */
+const SCENES = {};
+function scene(name, def) { SCENES[name] = def; }
+const live = new Map();           // slide → sahne örneği
+
+/* ====================== sunu motoru ====================== */
+const slides = $$('.slide');
+let idx = 0, flow = false;
+const stepOf = new Map();
+function maxStep(s) {
+  let m = +(s.dataset.steps || 0);
+  $$('[data-f]', s).forEach(e => m = Math.max(m, +e.dataset.f));
+  return m;
+}
+function applyStep(s, k) {
+  stepOf.set(s, k);
+  $$('[data-f]', s).forEach(e => e.classList.toggle('on', flow || +e.dataset.f <= k));
+  const sc = live.get(s); if (sc && sc.step) sc.step(flow ? maxStep(s) : k);
+}
+function go(i, step = 0) {
+  i = clamp(i, 0, slides.length - 1);
+  const old = slides[idx];
+  if (i !== idx) {
+    AU.stop();
+    const so = live.get(old); if (so && so.leave) so.leave();
+  }
+  slides.forEach((s, j) => s.classList.toggle('active', j === i));
+  const changed = i !== idx; idx = i;
+  const s = slides[i];
+  const k = step === 'max' ? maxStep(s) : step;
+  applyStep(s, k);
+  if (changed || !s._entered) { s._entered = true; const sc = live.get(s); if (sc && sc.enter) sc.enter(); }
+  $('#count').textContent = (i + 1) + ' / ' + slides.length;
+  $('#progress').style.width = (100 * i / (slides.length - 1)) + '%';
+  try { history.replaceState(null, '', '#' + (i + 1)); } catch (e) { }
+}
+function next() { const s = slides[idx], k = stepOf.get(s) || 0; if (k < maxStep(s)) applyStep(s, k + 1); else if (idx < slides.length - 1) go(idx + 1, 0); }
+function prev() { const s = slides[idx], k = stepOf.get(s) || 0; if (k > 0) applyStep(s, k - 1); else if (idx > 0) go(idx - 1, 'max'); }
+
+function layout() {
+  const vw = innerWidth, vh = innerHeight;
+  const wantFlow = vw < 760 || (vw < 1000 && vh > vw * 1.15) || Math.min(vw, vh * 16 / 9) < 880;
+  if (wantFlow !== flow) {
+    flow = wantFlow; document.body.classList.toggle('flow', flow);
+    slides.forEach(s => applyStep(s, flow ? maxStep(s) : (s === slides[idx] ? (stepOf.get(s) || 0) : 0)));
+  }
+  if (flow) U = clamp(vw / 52, 7.2, 8.4);
+  else { const W = Math.min(vw, vh * 16 / 9); U = W / 160; }
+  ROOT.style.setProperty('--u', U + 'px');
+}
+
+function setTheme(t) {
+  ROOT.dataset.theme = t;
+  $$('#bar [data-theme]').forEach(b => b.classList.toggle('on', b.dataset.theme === t));
+  try { localStorage.setItem('mha2-tema', t); } catch (e) { }
+  readColors();
+}
+
+/* ortak denetim bağlayıcıları */
+function bindRange(root, key, fn) {
+  const el = $(`input[data-k="${key}"]`, root);
+  if (!el) return null;
+  const h = () => fn(parseFloat(el.value), el);
+  el.addEventListener('input', h);
+  return { el, get v() { return parseFloat(el.value); }, set(v) { el.value = v; h(); } };
+}
+function out(root, key, html) { const e = $(`[data-o="${key}"]`, root); if (e) e.innerHTML = html; }
+function segOn(btns, b) { btns.forEach(x => x.classList.toggle('on', x === b)); }
+
+/* görünürlük (akış kipinde) */
+const visible = new Set();
+const io = new IntersectionObserver(es => es.forEach(e => {
+  if (e.isIntersecting) {
+    visible.add(e.target);
+    if (flow && !e.target._fe) { e.target._fe = true; const sc = live.get(e.target); if (sc && sc.enter) sc.enter(); }
+  } else visible.delete(e.target);
+}), { rootMargin: '120px' });
+
+function boot() {
+  layout(); readColors();
+  let t = 'light';
+  try { t = localStorage.getItem('mha2-tema') || 'light'; } catch (e) { }
+  setTheme(t);
+  slides.forEach((s, i) => {
+    const pg = $('.pg', s); if (pg) pg.textContent = (i + 1) + ' / ' + slides.length;
+    const def = SCENES[s.dataset.scene];
+    if (def) {
+      try { const inst = def(s); if (inst) live.set(s, inst); } catch (e) { console.error('sahne', s.dataset.scene, e); }
+    }
+    io.observe(s);
+  });
+  addEventListener('resize', () => { layout(); });
+  const st = $('#stage'); st.addEventListener('scroll', () => { if (!flow) { st.scrollTop = 0; st.scrollLeft = 0; } });
+  addEventListener('keydown', e => {
+    const tag = (e.target.tagName || '').toLowerCase(), isRange = e.target.type === 'range';
+    if (e.metaKey || e.ctrlKey || e.altKey) return;
+    if (flow) { if (e.key === 't' || e.key === 'T') cycleTheme(); return; }
+    switch (e.key) {
+      case 'ArrowRight': case 'ArrowDown': if (isRange) return; e.preventDefault(); next(); break;
+      case 'ArrowLeft': case 'ArrowUp': if (isRange) return; e.preventDefault(); prev(); break;
+      case 'PageDown': case ' ': if (tag === 'button' && e.key === ' ') return; e.preventDefault(); next(); break;
+      case 'PageUp': e.preventDefault(); prev(); break;
+      case 'Home': e.preventDefault(); go(0); break;
+      case 'End': e.preventDefault(); go(slides.length - 1, 'max'); break;
+      case 'f': case 'F': toggleFs(); break;
+      case 't': case 'T': cycleTheme(); break;
+      case 'Escape': AU.stop(); break;
+    }
+  });
+  // dokunmatik kaydırma
+  let tx0 = null, ty0 = null;
+  $('#stage').addEventListener('touchstart', e => { if (flow) return; const t = e.touches[0]; tx0 = t.clientX; ty0 = t.clientY; }, { passive: true });
+  $('#stage').addEventListener('touchend', e => {
+    if (flow || tx0 == null) return; const t = e.changedTouches[0], dx = t.clientX - tx0, dy = t.clientY - ty0;
+    if (Math.abs(dx) > 60 && Math.abs(dx) > Math.abs(dy) * 1.5 && !(e.target.type === 'range')) { dx < 0 ? next() : prev(); }
+    tx0 = null;
+  });
+  $$('#bar [data-theme]').forEach(b => b.addEventListener('click', () => setTheme(b.dataset.theme)));
+  $$('#bar [data-nav]').forEach(b => b.addEventListener('click', () => { const n = b.dataset.nav; if (n === 'next') next(); else if (n === 'prev') prev(); else toggleFs(); b.blur(); }));
+  $('#vol').addEventListener('input', e => AU.setVol(parseFloat(e.target.value)));
+  // gezinti çubuğu kendini gizler
+  let idleT; const bar = $('#bar');
+  const wake = () => { bar.classList.remove('idle'); clearTimeout(idleT); idleT = setTimeout(() => { if (!flow) bar.classList.add('idle'); }, 2600); };
+  addEventListener('mousemove', wake); addEventListener('keydown', wake); wake();
+  // düğmeler odakta kalıp boşluk tuşunu yutmasın
+  document.addEventListener('click', e => { const b = e.target.closest('button'); if (b && !flow) setTimeout(() => b.blur(), 0); });
+  const h = parseInt((location.hash || '').slice(1), 10);
+  idx = -1; go(isFinite(h) && h > 0 ? h - 1 : 0);
+  requestAnimationFrame(loop);
+}
+function cycleTheme() { const o = ['light', 'dark', 'proj'], i = o.indexOf(ROOT.dataset.theme); setTheme(o[(i + 1) % 3]); }
+function toggleFs() {
+  const d = document;
+  if (!d.fullscreenElement) { (ROOT.requestFullscreen || ROOT.webkitRequestFullscreen || (() => { })).call(ROOT); }
+  else { (d.exitFullscreen || d.webkitExitFullscreen).call(d); }
+}
+
+let T0 = performance.now(), lastT = 0;
+const FRAME_STATS = { n: 0, ms: 0 };
+function loop(now) {
+  const t = (now - T0) / 1000, dt = Math.min(0.05, Math.max(0, t - lastT)); lastT = t;
+  const t1 = performance.now();
+  const run = s => { const sc = live.get(s); if (sc && sc.frame) { try { sc.frame(t, dt); } catch (e) { console.error(s.dataset.scene, e); sc.frame = null; } } };
+  if (flow) visible.forEach(run); else run(slides[idx]);
+  FRAME_STATS.n++; FRAME_STATS.ms += performance.now() - t1;
+  requestAnimationFrame(loop);
+}
+
+/* ====================== 1 · kapak ====================== */
+scene('cover', s => {
+  const F = new Fig($('canvas', s));
+  return {
+    frame(t) {
+      const c = F.begin(), w = F.w, h = F.h; if (!w) return;
+      const x0 = U * 9, x1 = w - U * 9, yc = h * 0.42, Amax = h * 0.34, yA = h * 0.9;
+      const seg = 9, sw = (x1 - x0) / seg;
+      // desibel rampası (zarf) ve taşıyıcı
+      const env = x => Amax * (x - x0) / (x1 - x0);
+      const lin = x => Amax * Math.pow(10, ((x - x0) / (x1 - x0) - 1) * 9);
+      c.save(); c.beginPath(); c.rect(x0, 0, x1 - x0, h); c.clip();
+      plot(c, x0, x1, 900, x => x, x => yc - env(x) * Math.sin((x - x0) / (x1 - x0) * TAU * 34 - t * 3.2), alpha(COL.c1, .85), LW(1.3));
+      plot(c, x0, x1, 300, x => x, x => yc - env(x), COL.c1, LW(1.6));
+      plot(c, x0, x1, 300, x => x, x => yc + env(x), COL.c1, LW(1.6));
+      plot(c, x0, x1, 400, x => x, x => yc - lin(x), COL.c2, LW(1.6), [5, 4]);
+      plot(c, x0, x1, 400, x => x, x => yc + lin(x), COL.c2, LW(1.6), [5, 4]);
+      c.restore();
+      ln(c, x0, yc, x1, yc, COL.rule, 1);
+      // eksen
+      ln(c, x0, yA, x1, yA, COL.ink3, 1);
+      for (let k = 0; k <= seg; k++) {
+        const x = x0 + k * sw;
+        ln(c, x, yA - U * .5, x, yA + U * .5, COL.ink3, 1);
+        tx(c, (20 * k) + ' dB', x, yA + U * 2, { al: 'center', size: fs(1.1), col: COL.ink2, font: FONT.serif });
+        if (k < seg) tx(c, '× 10', x + sw / 2, yA - U * 1.1, { al: 'center', size: fs(0.95), col: COL.ink3 });
+      }
+      tx(c, 'desibel: düz bir rampa', x0 + sw * 0.15, yc - Amax * 0.32, { size: fs(1.1), col: COL.c1, it: true, font: FONT.serif });
+      tx(c, 'aynı basınçlar doğrusal ölçekte', x1 - sw * 0.1, yc - Amax * 1.02, { al: 'right', size: fs(1.1), col: COL.c2, it: true, font: FONT.serif });
+    }
+  };
+});
+
+/* ====================== 3 · oranlar ====================== */
+scene('ratio', s => {
+  const F = new Fig($('canvas', s));
+  const LIN = [0.05, 0.10, 0.15, 0.20, 0.25, 0.30], RAT = LIN.map((_, k) => 0.05 * Math.pow(6, k / 5));
+  const STEP = 0.5, LEN = 0.34;
+  let seq = null, tEnter = 0, T = 0;
+  const play = (key, amps) => {
+    const b = $(`[data-a="${key}"]`, s);
+    b.onclick = () => {
+      const v = AU.toggle(b, AU.sines(amps.map((a, k) => ({ f: 440, a: a * 0.9, at: k * STEP, len: LEN }))), { dur: amps.length * STEP + 0.1 });
+      seq = v ? { key, t0: AU.ctx.currentTime + 0.02 } : null;
+    };
+  };
+  play('lin', LIN); play('log', RAT);
+  return {
+    enter() { tEnter = T; },
+    frame(t, dt) {
+      T += dt;
+      const c = F.begin(), w = F.w, h = F.h; if (!w) return;
+      const g = ease3((T - tEnter - 0.3) / 1.2);
+      const x0 = U * 3, x1 = w - U * 3;
+      // 1 · doğrusal eksen
+      const y1 = h * 0.15, y2 = h * 0.38;
+      const XL = v => x0 + v / 100000 * (x1 - x0), XG = logAxis(1, 100000, x0, x1);
+      tx(c, 'DOĞRUSAL BASINÇ EKSENİ', x0, y1 - U * 4.2, { size: fs(1.0), wt: 600, col: COL.ink3 });
+      ln(c, x0, y1, x1, y1, COL.ink3, 1);
+      for (let v = 0; v <= 100000; v += 20000) { ln(c, XL(v), y1 - U * .4, XL(v), y1 + U * .4, COL.ink3, 1); tx(c, fmt(v, 0), XL(v), y1 + U * 1.9, { al: 'center', size: fs(0.95), col: COL.ink3 }); }
+      tx(c, 'LOGARİTMİK EKSEN', x0, y2 - U * 4.2, { size: fs(1.0), wt: 600, col: COL.ink3 });
+      ln(c, x0, y2, x1, y2, COL.ink3, 1);
+      for (let e = 0; e <= 5; e++) { const v = Math.pow(10, e); ln(c, XG(v), y2 - U * .4, XG(v), y2 + U * .4, COL.ink3, 1); tx(c, fmt(v, 0), XG(v), y2 + U * 1.9, { al: 'center', size: fs(0.95), col: COL.ink3 }); for (let m = 2; m < 10 && e < 5; m++) ln(c, XG(m * v), y2 - U * .2, XG(m * v), y2 + U * .2, COL.ink3, 1); }
+      const arr = (X, a, b, y, col, lab) => {
+        const xa = X(a), xb = lerp(xa, X(b), g);
+        if (xb - xa > 1) arrow(c, xa, y, xb, y, col, LW(2.4)); else dot(c, xa, y, U * .35, col);
+        tx(c, lab, (xa + X(b)) / 2, y - U * 0.9, { al: 'center', size: fs(1.15), col, wt: 600 });
+      };
+      arr(XL, 1, 10, y1 - U * 0.9, COL.c1, '');
+      arr(XL, 10000, 100000, y1 - U * 0.9, COL.c2, 'B · 10 000 → 100 000');
+      chip(c, 'A: 1 → 10 (9 birim — görünmez)', XL(0) + U * 1.5, y1 + U * 4, { size: fs(1.0), col: COL.c1 });
+      arr(XG, 1, 10, y2 - U * 0.9, COL.c1, 'A · 1 → 10');
+      arr(XG, 10000, 100000, y2 - U * 0.9, COL.c2, 'B · 10 000 → 100 000');
+      // 2 · iki ses dizisi
+      const by = h * 0.93, bh = h * 0.36, half = (x1 - x0) / 2;
+      const draw = (amps, xs, title, key) => {
+        const dB = amps.map(a => 20 * Math.log10(a / amps[0]));
+        const bw = (half - U * 6) / amps.length;
+        tx(c, title, xs, by - bh - U * 1.4, { size: fs(1.05), wt: 600, col: COL.ink2 });
+        ln(c, xs, by, xs + half - U * 4, by, COL.ink3, 1);
+        let cur = -1;
+        if (seq && seq.key === key && AU.cur) cur = Math.floor((AU.ctx.currentTime - seq.t0) / STEP);
+        dB.forEach((d, k) => {
+          const H = (d / 16) * (bh - U * 3) + U * 0.6, x = xs + k * bw + bw * 0.15;
+          c.fillStyle = k === cur ? COL.c2 : alpha(COL.c1, .75); c.fillRect(x, by - H, bw * 0.7, H);
+          if (k) tx(c, '+' + fmt(d - dB[k - 1], 1), x + bw * 0.35, by - H - U * 0.6, { al: 'center', size: fs(0.95), col: COL.ink2 });
+        });
+        tx(c, '0 dB', xs - U * .4, by, { al: 'right', bl: 'middle', size: fs(0.9), col: COL.ink3 });
+      };
+      draw(LIN, x0 + U * 3, 'Eşit farklar: 0,05 · 0,10 · … · 0,30', 'lin');
+      draw(RAT, x0 + half + U * 3, 'Eşit oranlar: her basamak × 1,43', 'log');
+      tx(c, 'basamak artışları (dB)', x1, by - bh - U * 1.4, { al: 'right', size: fs(0.95), col: COL.ink3 });
+    }
+  };
+});
+
+/* ====================== 4 · üsler ====================== */
+scene('powers', s => {
+  const F = new Fig($('canvas', s));
+  let n = -12, dn = -12, T = 0;
+  const PRE = { '-12': 'piko (p)', '-9': 'nano (n)', '-6': 'mikro (µ)', '-3': 'mili (m)', '0': '', '3': 'kilo (k)', '6': 'mega (M)', '9': 'giga (G)', '12': 'tera (T)' };
+  const SUP = x => String(x).split('').map(ch => ({ '-': '⁻', '0': '⁰', '1': '¹', '2': '²', '3': '³', '4': '⁴', '5': '⁵', '6': '⁶', '7': '⁷', '8': '⁸', '9': '⁹', '.': '·' })[ch] || ch).join('');
+  function upd() {
+    out(s, 'n', (n > 0 ? '+' : '') + n);
+    let dec;
+    if (n >= 0) dec = ('1' + '0'.repeat(n)).replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
+    else dec = '0,' + '0'.repeat(-n - 1) + '1';
+    out(s, 'dec', dec);
+    let ari;
+    const k = Math.abs(n);
+    if (n === 0) ari = '10/10';
+    else if (k <= 4) ari = (n < 0 ? '1/(' : '') + Array(k).fill('10').join(' × ') + (n < 0 ? ')' : '');
+    else ari = (n < 0 ? '1/(' : '') + '10 × … × 10' + (n < 0 ? ')' : '') + ` <span class="k">(${k} çarpan)</span>`;
+    out(s, 'ari', ari);
+    out(s, 'exp', '10' + SUP(n));
+    const base = 3 * Math.floor(n / 3), m = Math.pow(10, n - base);
+    out(s, 'pre', base === 0 ? (m === 1 ? '1 (öneksiz)' : m + ' (öneksiz)') : (m > 1 ? m + ' ' : '') + PRE[base]);
+  }
+  bindRange(s, 'n', v => { n = v; upd(); });
+  upd();
+  const RULES = [
+    { t: '10² · 10³ = 10²⁺³ = 10⁵', a: [[0, 2], [2, 5]], r: [0, 5] },
+    { t: '10⁴ / 10² = 10⁴⁻² = 10²', a: [[0, 4], [4, 2]], r: [0, 2] },
+    { t: '10⁵ / 10⁴ = 10⁵⁻⁴ = 10¹ = 10', a: [[0, 5], [5, 1]], r: [0, 1] },
+    { t: '√100 = 100^½ = 10', a: [[0, 2]], r: [0, 1], half: true },
+    { t: '∛100 = 100^⅓ = 4,6416', a: [[0, 2]], r: [0, 2 / 3] },
+    { t: '⁴√100³ = 100^¾ = 31,6228', a: [[0, 2]], r: [0, 1.5] }
+  ];
+  return {
+    frame(t, dt) {
+      T += dt;
+      dn += (n - dn) * (1 - Math.exp(-dt / 0.12));
+      const c = F.begin(), w = F.w, h = F.h; if (!w) return;
+      const x0 = U * 3, x1 = w - U * 3, X = e => x0 + (e + 12) / 24 * (x1 - x0), y = h * 0.24;
+      // eşik → ağrı köşeli ayracı
+      const yb = y - U * 4.6;
+      ln(c, X(-12), yb, X(1), yb, COL.c4, LW(1.4)); ln(c, X(-12), yb, X(-12), yb + U * .8, COL.c4, LW(1.4)); ln(c, X(1), yb, X(1), yb + U * .8, COL.c4, LW(1.4));
+      chip(c, 'duyma eşiği 10⁻¹² W/m² → ağrı 10 W/m²: 13 onluk', X(-5.5), yb, { al: 'center', size: fs(1.05), col: COL.c4, bg: COL.panel, alpha: 1 });
+      ln(c, x0, y, x1, y, COL.ink3, 1);
+      for (let e = -12; e <= 12; e++) {
+        const big = e % 3 === 0;
+        ln(c, X(e), y - (big ? U * .8 : U * .4), X(e), y + (big ? U * .8 : U * .4), COL.ink3, 1);
+        if (big) {
+          tx(c, '10' + SUP(e), X(e), y + U * 3.6, { al: 'center', size: fs(1.1), col: COL.ink2, font: FONT.serif });
+          const p = PRE[e]; if (p) tx(c, p.split(' ')[1].replace(/[()]/g, ''), X(e), y - U * 1.4, { al: 'center', size: fs(1.2), col: COL.c1, wt: 600 });
+        }
+      }
+      const xm = X(dn);
+      c.beginPath(); c.moveTo(xm, y + U * .2); c.lineTo(xm - U * .8, y + U * 1.9); c.lineTo(xm + U * .8, y + U * 1.9); c.closePath(); c.fillStyle = COL.c2; c.fill();
+      // üs kuralları
+      const y2 = h * 0.66, R = RULES[Math.floor(T / 4) % RULES.length], ph = (T % 4) / 4;
+      const x2a = x0 + U * 6, x2b = x1 - U * 6, X2 = e => x2a + e / 6 * (x2b - x2a);
+      tx(c, 'ÜS EKSENİ (Tablo 2-1’in alt yarısı)', x0, y2 - U * 6.5, { size: fs(1.0), wt: 600, col: COL.ink3 });
+      ln(c, x2a, y2, x2b, y2, COL.ink3, 1);
+      for (let e = 0; e <= 6; e++) { ln(c, X2(e), y2 - U * .6, X2(e), y2 + U * .6, COL.ink3, 1); tx(c, '10' + SUP(e), X2(e), y2 + U * 2.3, { al: 'center', size: fs(1.05), col: COL.ink3, font: FONT.serif }); }
+      R.a.forEach((seg, i) => {
+        const p = ease((ph * 3 - i * 0.8));
+        if (p <= 0) return;
+        const yy = y2 - U * (2.2 + i * 1.6);
+        arrow(c, X2(seg[0]), yy, lerp(X2(seg[0]), X2(seg[1]), p), yy, i ? COL.c3 : COL.c1, LW(2));
+      });
+      const pr = ease(ph * 3 - 1.8);
+      if (pr > 0) { const yy = y2 + U * 4.2; arrow(c, X2(R.r[0]), yy, lerp(X2(R.r[0]), X2(R.r[1]), pr), yy, COL.c2, LW(2.6)); }
+      tx(c, R.t, (x0 + x1) / 2, h * 0.93, { al: 'center', size: fs(2.2), col: COL.ink, font: FONT.serif });
+    }
+  };
+});
+
+/* ====================== 5 · logaritma ve hesap cetveli ====================== */
+scene('logs', s => {
+  const F = new Fig($('canvas', s));
+  let la = Math.log10(2), lb = Math.log10(3), off = 0, cur = 0, T = 0;
+  const upd = () => {
+    const a = Math.pow(10, la), b = Math.pow(10, lb);
+    out(s, 'a', fmt(a, 2)); out(s, 'b', fmt(b, 2));
+    out(s, 'ab', `<span class="k">a·b =</span> ${fmt(a * b, a * b >= 10 ? 1 : 2)} &nbsp;<span class="k">log a + log b =</span> ${fmt(la, 3)} + ${fmt(lb, 3)} = ${fmt(la + lb, 3)}`);
+  };
+  bindRange(s, 'a', v => { la = v; upd(); });
+  bindRange(s, 'b', v => { lb = v; upd(); });
+  upd();
+  return {
+    enter() { off = 0; cur = 0; },
+    frame(t, dt) {
+      T += dt;
+      const fold = la + lb > 1, tOff = fold ? la - 1 : la, tCur = fold ? la + lb - 1 : la + lb;
+      const k = 1 - Math.exp(-dt / 0.35);
+      off += (tOff - off) * k; cur += (tCur - cur) * k;
+      const c = F.begin(), w = F.w, h = F.h; if (!w) return;
+      const X0 = U * 4, X1 = w - U * 4, L0 = X1 - X0, L = L0 * 0.7, x0 = X0 + (L0 - L) / 2, x1 = x0 + L;
+      // 267 örneği
+      const y1 = h * 0.1, y2 = h * 0.27, XL = v => X0 + (v - 100) / 900 * L0, XG = v => X0 + (Math.log10(v) - 2) * L0;
+      tx(c, 'DOĞRUSAL 100 … 1000', X0, y1 - U * 1.6, { size: fs(0.95), wt: 600, col: COL.ink3 });
+      tx(c, 'LOGARİTMİK 10² … 10³', X0, y2 - U * 1.6, { size: fs(0.95), wt: 600, col: COL.ink3 });
+      ln(c, X0, y1, X1, y1, COL.ink3, 1); ln(c, X0, y2, X1, y2, COL.ink3, 1);
+      for (let v = 100; v <= 1000; v += 100) {
+        ln(c, XL(v), y1 - U * .4, XL(v), y1 + U * .4, COL.ink3, 1); tx(c, '' + v, XL(v), y1 + U * 1.8, { al: 'center', size: fs(0.9), col: COL.ink3 });
+        ln(c, XG(v), y2 - U * .4, XG(v), y2 + U * .4, COL.ink3, 1); tx(c, '' + v, XG(v), y2 + U * 1.8, { al: 'center', size: fs(0.9), col: COL.ink3 });
+      }
+      const pulse = 0.5 + 0.5 * Math.sin(T * 2);
+      ln(c, XL(267), y1, XG(267), y2, alpha(COL.c2, .4), 1, [3, 3]);
+      dot(c, XL(267), y1, U * (0.5 + 0.15 * pulse), COL.c2); dot(c, XG(267), y2, U * (0.5 + 0.15 * pulse), COL.c2);
+      chip(c, '267 → %19', XL(267) + U, y1 - U * 1.1, { size: fs(1.05), col: COL.c2, wt: 600 });
+      chip(c, '267 = 10^2,4265 → %43', XG(267) + U, y2 - U * 1.1, { size: fs(1.05), col: COL.c2, wt: 600 });
+      // hesap cetveli
+      const sy = h * 0.47, sh = h * 0.42, dY = sy + sh * 0.62, cY = sy + sh * 0.38;
+      const body = COL.dark ? '#262a30' : '#f1ece0', slide = COL.dark ? '#2f343b' : '#fbf7ec';
+      c.fillStyle = body; c.fillRect(x0 - U * 3, sy, L + U * 6, sh);
+      c.strokeStyle = COL.rule; c.lineWidth = 1; c.strokeRect(x0 - U * 3 + .5, sy + .5, L + U * 6 - 1, sh - 1);
+      const sx0 = x0 + off * L;
+      c.fillStyle = slide; c.fillRect(sx0 - U * 1.2, sy + sh * 0.16, L + U * 2.4, sh * 0.3);
+      c.strokeStyle = COL.ink3; c.strokeRect(sx0 - U * 1.2 + .5, sy + sh * 0.16 + .5, L + U * 2.4 - 1, sh * 0.3 - 1);
+      const scale = (ox, yy, dir, col, name) => {
+        for (let v = 1; v <= 10.0001; v += (v < 2 ? 0.1 : v < 5 ? 0.2 : 0.5)) {
+          const x = ox + Math.log10(v) * L, major = Math.abs(v - Math.round(v)) < 1e-6, half = !major && Math.abs(v * 2 - Math.round(v * 2)) < 1e-6 && v < 5;
+          const len = major ? U * 1.6 : half ? U * 1.0 : U * 0.6;
+          ln(c, x, yy, x, yy + dir * len, col, 1);
+          if (major) tx(c, '' + Math.round(v), x, yy + dir * (U * 2.8), { al: 'center', bl: 'middle', size: fs(1.15), col, font: FONT.serif });
+        }
+        tx(c, name, ox - U * 1.6, yy + dir * U * 1.2, { al: 'right', bl: 'middle', size: fs(1.0), col: COL.ink3, wt: 600 });
+      };
+      scale(sx0, sy + sh * 0.46, -1, COL.ink, 'C');
+      scale(x0, sy + sh * 0.5, 1, COL.ink, 'D');
+      // imleç
+      const xc = x0 + cur * L;
+      c.fillStyle = alpha(COL.c1, .08); c.fillRect(xc - U * 1.6, sy - U * .6, U * 3.2, sh + U * 1.2);
+      ln(c, xc, sy - U * .6, xc, sy + sh + U * .6, COL.c2, LW(1.4));
+      const a = Math.pow(10, la), b = Math.pow(10, lb), prod = a * b;
+      tx(c, 'imleç: ' + fmt(b, 2) + ' (C) → ' + fmt(fold ? prod / 10 : prod, 3) + (fold ? ' × 10' : '') + ' (D)', xc, sy + sh + U * 2.2, { al: xc > w * 0.6 ? 'right' : 'left', size: fs(1.1), col: COL.c2, wt: 600 });
+      tx(c, fold ? 'C’nin 10 ucu a’ya hizalandı (sonuç ÷ 10)' : 'C’nin 1 ucu a’ya hizalandı', sx0 + (fold ? L : 0), sy + U * 1.4, { al: fold ? 'right' : 'left', size: fs(0.95), col: COL.ink3 });
+      tx(c, 'HESAP CETVELİ', x0 - U * 3, sy - U * 1.2, { size: fs(0.95), wt: 600, col: COL.ink3 });
+    }
+  };
+});
+
+/* ====================== 6 · bel ve desibel ====================== */
+scene('il', s => {
+  const F = new Fig($('canvas', s));
+  let mode = 'I', x = -6, dx = -6;
+  const bs = $$('[data-m]', s);
+  const upd = () => {
+    const v = Math.pow(10, x), unit = mode === 'I' ? 'W/m²' : 'W';
+    out(s, 'x', fmtSI(v, unit).replace(' µ', ' µ'));
+    out(s, 'q', (mode === 'I' ? '<i>I</i> = ' : '<i>W</i> = ') + fmtSI(v, unit));
+    out(s, 'r', '10' + supr(x + 12));
+    out(s, 'B', fmt(x + 12, 2) + ' B');
+    out(s, 'dB', fmt(10 * (x + 12), 1) + ' dB ' + (mode === 'I' ? 'IL' : 'PWL'));
+  };
+  const supr = e => { const r = Math.round(e * 100) / 100; return '<sup>' + fmt(r, Number.isInteger(r) ? 0 : 2) + '</sup>'; };
+  const rX = bindRange(s, 'x', v => { x = v; upd(); });
+  bs.forEach(b => b.onclick = () => { mode = b.dataset.m; segOn(bs, b); upd(); });
+  upd();
+  return {
+    frame(t, dt) {
+      dx += (x - dx) * (1 - Math.exp(-dt / 0.1));
+      const c = F.begin(), w = F.w, h = F.h; if (!w) return;
+      const x0 = U * 4, x1 = w - U * 4, X = e => x0 + (e + 12) / 14 * (x1 - x0);
+      const yq = h * 0.28, yb = h * 0.58, yd = h * 0.7;
+      const unit = mode === 'I' ? 'W/m²' : 'W';
+      tx(c, (mode === 'I' ? 'ŞİDDET ' : 'AKUSTİK GÜÇ ') + '(' + unit + ', logaritmik)', x0, yq - U * 5.2, { size: fs(1.0), wt: 600, col: COL.ink3 });
+      ln(c, x0, yq, x1, yq, COL.ink3, 1);
+      for (let e = -12; e <= 2; e++) {
+        ln(c, X(e), yq - U * .5, X(e), yq + U * .5, COL.ink3, 1);
+        if (e % 2 === 0 || w > 900) tx(c, '10' + ['⁻¹²', '⁻¹¹', '⁻¹⁰', '⁻⁹', '⁻⁸', '⁻⁷', '⁻⁶', '⁻⁵', '⁻⁴', '⁻³', '⁻²', '⁻¹', '⁰', '¹', '²'][e + 12], X(e), yq - U * 1.4, { al: 'center', size: fs(1.0), col: COL.ink2, font: FONT.serif });
+      }
+      tx(c, 'BEL', x0, yb - U * 3.2, { size: fs(1.0), wt: 600, col: COL.ink3 });
+      tx(c, 'DESİBEL', x0, yd + U * 3.6, { size: fs(1.0), wt: 600, col: COL.ink3 });
+      ln(c, x0, yb, x1, yb, COL.ink3, 1); ln(c, x0, yd, x1, yd, COL.ink3, 1);
+      for (let B = 0; B <= 14; B++) {
+        ln(c, X(B - 12), yb - U * .8, X(B - 12), yb, COL.ink2, 1.2);
+        tx(c, '' + B, X(B - 12), yb - U * 1.6, { al: 'center', size: fs(1.05), col: COL.ink2 });
+        for (let d = 0; d < 10 && B < 14; d++) { const xx = X(B - 12 + d / 10); ln(c, xx, yd, xx, yd + (d === 0 ? U * .9 : d === 5 ? U * .6 : U * .35), COL.ink3, 1); }
+        if (B % 2 === 0) tx(c, (B * 10) + '', X(B - 12), yd + U * 2.2, { al: 'center', size: fs(1.0), col: COL.ink3 });
+      }
+      // yer imleri
+      const marks = mode === 'I' ? [[-12, 'duyma eşiği · 0 dB'], [-9, '10⁻⁹ = referansın 1000 katı'], [1, 'ağrı · 130 dB']] : [[-12, 'referans 1 pW · 0 dB'], [0, 'tipik hoparlör ≈ 1 W · 120 dB']];
+      marks.forEach(([e, l], i) => { ln(c, X(e), yq + U * .6, X(e), yq + U * 2.4, COL.c4, 1.2); tx(c, l, X(e) + (e > 0 ? -U * 0.4 : U * 0.4), yq + U * 3.4 + (i % 2) * U * 1.6, { al: e > 0 ? 'right' : 'left', size: fs(1.0), col: COL.c4 }); });
+      // imleç
+      const xm = X(dx);
+      ln(c, xm, yq - U * 3.3, xm, yd + U * 1.2, alpha(COL.c2, .7), LW(1.6));
+      dot(c, xm, yq, U * .55, COL.c2); dot(c, xm, yb, U * .55, COL.c2); dot(c, xm, yd, U * .55, COL.c2);
+      chip(c, fmt(10 * (dx + 12), 1) + ' dB  =  ' + fmt(dx + 12, 2) + ' B', xm, yd + U * 5.6, { al: 'center', size: fs(1.25), col: COL.c2, wt: 600, clampW: w, border: COL.c2 });
+      tx(c, '1 bel = 10 desibel', x1, yb - U * 3.2, { al: 'right', size: fs(1.0), col: COL.ink3, it: true });
+    }
+  };
+});
+
+/* ====================== 7 · 10 log ve 20 log ====================== */
+scene('tenTwenty', s => {
+  const F = new Fig($('canvas', s));
+  let lr = Math.log10(2), dl = 0;
+  const upd = () => { const r = Math.pow(10, lr); out(s, 'r', fmt(r, 2) + ' · ' + (lr >= 0 ? '+' : '') + fmt(20 * lr, 2) + ' dB'); };
+  bindRange(s, 'r', v => { lr = v; upd(); });
+  upd();
+  const alt = (key, ratio) => {
+    const b = $(`[data-a="${key}"]`, s);
+    b.onclick = () => {
+      const a0 = 0.07, list = [];
+      for (let k = 0; k < 4; k++) list.push({ f: 440, a: k % 2 ? a0 * ratio : a0, at: k * 0.75, len: 0.6 });
+      AU.toggle(b, AU.sines(list), { dur: 3.05 });
+    };
+  };
+  alt('p2', 2); alt('w2', Math.SQRT2); alt('w10', Math.sqrt(10));
+  return {
+    enter() { dl = 0; },
+    frame(t, dt) {
+      dl += (lr - dl) * (1 - Math.exp(-dt / 0.15));
+      const c = F.begin(), w = F.w, h = F.h; if (!w) return;
+      const r = Math.pow(10, dl);
+      // kareler (sabit ölçek: referans kenarı = alan/4)
+      const ax = U * 3, ay = h - U * 3, S = Math.min(w * 0.5, h - U * 7) / 4;
+      tx(c, 'BASINÇ = kenar · GÜÇ = alan', ax, U * 2, { size: fs(1.0), wt: 600, col: COL.ink3 });
+      c.fillStyle = alpha(COL.c1, .16); c.fillRect(ax, ay - S * r, S * r, S * r);
+      c.strokeStyle = COL.c1; c.lineWidth = LW(1.8); c.strokeRect(ax + .5, ay - S * r + .5, S * r - 1, S * r - 1);
+      c.setLineDash([4, 4]); c.strokeStyle = COL.ink2; c.lineWidth = 1.2; c.strokeRect(ax + .5, ay - S + .5, S - 1, S - 1); c.setLineDash([]);
+      tx(c, 'p₀', ax + S / 2, ay - S - U * 0.6, { al: 'center', size: fs(1.05), col: COL.ink2, it: true, font: FONT.serif });
+      dbl(c, ax, ay + U * 1.4, ax + S * r, ay + U * 1.4, COL.c1, 1.2);
+      tx(c, 'p = ' + fmt(r, 2) + ' p₀', ax + S * r / 2, ay + U * 2.9, { al: 'center', size: fs(1.1), col: COL.c1, it: true, font: FONT.serif });
+      chip(c, 'güç × ' + fmt(r * r, 2), ax + S * r / 2, ay - S * r / 2, { al: 'center', size: fs(1.2), col: COL.c1, wt: 600 });
+      // ortak dB cetveli
+      const rx = w * 0.72, y0 = U * 4, y1 = h - U * 4, Y = d => y0 + (12 - d) / 24 * (y1 - y0);
+      ln(c, rx, y0, rx, y1, COL.ink3, 1);
+      for (let d = -12; d <= 12; d += 3) { ln(c, rx - U * .5, Y(d), rx + U * .5, Y(d), COL.ink3, 1); tx(c, (d > 0 ? '+' : '') + d + ' dB', rx + U * 1.1, Y(d), { bl: 'middle', size: fs(1.0), col: COL.ink3 }); }
+      const dB = 20 * dl, yy = Y(dB);
+      dot(c, rx, yy, U * .6, COL.c2);
+      const lx = ax + Math.max(S * r, S) + U * 3;
+      arrow(c, lx, yy, rx - U * 1.2, yy, COL.c1, LW(1.6));
+      chip(c, '20 log ' + fmt(r, 2), lx + U * 0.5, yy - U * 1.6, { size: fs(1.15), col: COL.c1, wt: 600 });
+      arrow(c, w - U * 2, yy + U * 2.4, rx + U * 1.2, yy + U * 0.6, COL.c3, LW(1.6));
+      chip(c, '10 log ' + fmt(r * r, 2), w - U * 1.5, yy + U * 3.6, { al: 'right', size: fs(1.15), col: COL.c3, wt: 600, clampW: w });
+      chip(c, (dB >= 0 ? '+' : '') + fmt(dB, 2) + ' dB', rx - U * 1.2, yy + U * 1.8, { al: 'right', size: fs(1.3), col: COL.c2, wt: 600, border: COL.c2 });
+    }
+  };
+});
+
+/* ====================== 8 · SPL ve 20 µPa (Şekil 2-1) ====================== */
+const PSI = 6894.757;
+scene('spl', s => {
+  const F = new Fig($('canvas', s));
+  let L = 94, dL = 94;
+  const upd = () => {
+    const p = 2e-5 * Math.pow(10, L / 20);
+    out(s, 'L', fmt(L, 1) + ' dB');
+    out(s, 'p', `<span class="k">p =</span> ${fmtSI(p, 'Pa')} &nbsp;<span class="k">=</span> ${(p / PSI).toExponential(2).replace('.', ',').replace('e', '·10^')} lb/in²`.replace(/10\^(-?)(\d+)/, (m, sg, d) => '10<sup>' + (sg ? '−' : '') + d + '</sup>'));
+  };
+  bindRange(s, 'L', v => { L = v; upd(); });
+  upd();
+  return {
+    frame(t, dt) {
+      dL += (L - dL) * (1 - Math.exp(-dt / 0.1));
+      const c = F.begin(), w = F.w, h = F.h; if (!w) return;
+      const x0 = U * 6.5, x1 = w - U * 3, y0 = h - U * 4.4, y1 = U * 5.2;
+      const X = logAxis(1e-5, 1e3, x0, x1), Y = d => y0 - d / 140 * (y0 - y1);
+      for (let e = -5; e <= 3; e++) {
+        ln(c, X(Math.pow(10, e)), y0, X(Math.pow(10, e)), y1, COL.rule, 1);
+        for (let m = 2; m < 10 && e < 3; m++) ln(c, X(m * Math.pow(10, e)), y0, X(m * Math.pow(10, e)), y1, COL.grid, 1);
+        tx(c, fmt(Math.pow(10, e), Math.max(0, -e)), X(Math.pow(10, e)), y0 + U * 1.7, { al: 'center', size: fs(0.95), col: COL.ink3 });
+      }
+      for (let d = 0; d <= 140; d += 20) { ln(c, x0, Y(d), x1, Y(d), d % 40 ? COL.grid : COL.rule, 1); tx(c, '' + d, x0 - U * .6, Y(d), { al: 'right', bl: 'middle', size: fs(0.95), col: COL.ink3 }); }
+      tx(c, 'etkin ses basıncı, Pa', (x0 + x1) / 2, y0 + U * 3.3, { al: 'center', size: fs(1.0), col: COL.ink3 });
+      tx(c, 'SPL, dB', x0 - U * .6, y1 - U * 1.2, { al: 'right', size: fs(1.0), col: COL.ink3 });
+      // üst eksen: lb/in²
+      ln(c, x0, y1, x1, y1, COL.ink3, 1);
+      for (let e = -9; e <= -1; e++) {
+        const p = Math.pow(10, e) * PSI; if (p < 1e-5 || p > 1e3) continue;
+        ln(c, X(p), y1, X(p), y1 - U * .5, COL.ink3, 1);
+        tx(c, '10' + ['⁻⁹', '⁻⁸', '⁻⁷', '⁻⁶', '⁻⁵', '⁻⁴', '⁻³', '⁻²', '⁻¹'][e + 9], X(p), y1 - U * 1.2, { al: 'center', size: fs(0.95), col: COL.ink3, font: FONT.serif });
+      }
+      tx(c, 'lb/in²', x1, y1 - U * 2.8, { al: 'right', size: fs(0.95), col: COL.ink3 });
+      c.save(); c.beginPath(); c.rect(x0, y1, x1 - x0, y0 - y1); c.clip();
+      plot(c, -5, 3, 2, e => X(Math.pow(10, e)), e => Y(20 * Math.log10(Math.pow(10, e) / 2e-5)), COL.c1, LW(2.2));
+      c.restore();
+      // yer imleri
+      [[2e-5, 0, '20 µPa · 0 dB'], [1, 94, '1 Pa ≈ 94 dB (kalibratör) ◆']].forEach(([p, d, l]) => { dot(c, X(p), Y(d), U * .45, COL.c4); chip(c, l, X(p) + U * 1, Y(d) - U * 1.4, { size: fs(1.0), col: COL.c4 }); });
+      const p = 2e-5 * Math.pow(10, dL / 20), xp = X(p), yp = Y(dL);
+      ln(c, xp, y0, xp, yp, COL.c2, 1, [4, 4]); ln(c, x0, yp, xp, yp, COL.c2, 1, [4, 4]);
+      dot(c, xp, yp, U * .65, COL.c2);
+      chip(c, fmt(dL, 1) + ' dB  ↔  ' + fmtSI(p, 'Pa'), xp - U * 1.2, yp - U * 1.8, { al: 'right', size: fs(1.2), col: COL.c2, wt: 600, border: COL.c2, clampW: w });
+    }
+  };
+});
+
+/* ====================== 9 · geri hesap ====================== */
+scene('inverse', s => {
+  const FW = new Fig($('canvas[data-c="work"]', s)), FE = new Fig($('canvas[data-c="eq"]', s));
+  let L = 82, k = 0, T = 0, tE = 0;
+  bindRange(s, 'L', v => { L = v; out(s, 'L', L + ' dB'); });
+  out(s, 'L', '82 dB');
+  const sig = (x, n) => { const e = Math.floor(Math.log10(Math.abs(x))); const f = Math.pow(10, e - n + 1); return Math.round(x / f) * f; };
+  return {
+    step(n) { k = n; },
+    enter() { tE = T; },
+    frame(t, dt) {
+      T += dt;
+      let c = FW.begin(), w = FW.w, h = FW.h;
+      if (w) {
+        const p = 2e-5 * Math.pow(10, L / 20), q = Math.pow(10, L / 20);
+        const x0 = U * 2.5, lh = h * 0.115, f = { size: fs(1.45), font: FONT.serif, col: COL.ink };
+        const lines = [
+          `${L} = 20 log (p / 20 µPa)`,
+          `log (p / 20 µPa) = ${L}/20 = ${fmt(L / 20, 2)}`,
+          `p / 20 µPa = 10^{${fmt(L / 20, 2)}} = ${fmt(q, 2)}`,
+        ];
+        lines.forEach((l, i) => { const a = clamp((T - tE - i * 0.5) / 0.6, 0, 1); c.globalAlpha = a; tx(c, l, x0, U * 2.6 + i * lh, f); c.globalAlpha = 1; });
+        const yC = U * 2.6 + 3 * lh;
+        const calc = fmt(p * 1e6, 0) + ' µPa';
+        if (k >= 1 || T - tE > 1.8) {
+          tx(c, 'p = ' + calc, x0, yC, { ...f, col: COL.c2 });
+          const wv = tw(c, 'p = ' + calc, f); ln(c, x0, yC - fs(1.45) * 0.32, x0 + wv, yC - fs(1.45) * 0.32, COL.c2, LW(1.6));
+          tx(c, 'hesap makinesi: 6 basamak', x0 + wv + U * 1.2, yC, { size: fs(1.0), col: COL.c2, it: true });
+          tx(c, 'p ≈ ' + fmt(sig(p * 1e6, 3), 0) + ' µPa = ' + fmt(sig(p, 3), 3) + ' Pa', x0, yC + lh, { ...f, col: COL.c4, wt: 600 });
+        }
+        // belirsizlik bandı
+        const ya = h * 0.86, pa = 2e-5 * Math.pow(10, (L - 0.5) / 20), pb = 2e-5 * Math.pow(10, (L + 0.5) / 20);
+        const lo = p * 0.85, hi = p * 1.15, X = v => x0 + (v - lo) / (hi - lo) * (w - 2 * x0);
+        ln(c, x0, ya, w - x0, ya, COL.ink3, 1);
+        for (let i = 0; i <= 6; i++) { const v = lo + (hi - lo) * i / 6; ln(c, X(v), ya - U * .4, X(v), ya + U * .4, COL.ink3, 1); tx(c, fmtSI(v, 'Pa', 3), X(v), ya + U * 1.8, { al: 'center', size: fs(0.9), col: COL.ink3 }); }
+        if (k >= 2) {
+          c.fillStyle = alpha(COL.c3, .22); c.fillRect(X(pa), ya - U * 1.6, X(pb) - X(pa), U * 3.2);
+          tx(c, '±0,5 dB → ' + fmtSI(pa, 'Pa', 3) + ' … ' + fmtSI(pb, 'Pa', 3), (X(pa) + X(pb)) / 2, ya - U * 2.4, { al: 'center', size: fs(1.05), col: COL.c3, wt: 600 });
+        }
+        dot(c, X(p), ya, U * .5, COL.c2);
+      }
+      c = FE.begin(); w = FE.w; h = FE.h;
+      if (w) {
+        const g = ease((T - tE - 0.4) / 1.4);
+        const row = (y, mult, val, colA) => {
+          const big = fs(1.6), small = fs(1.15), F1 = { size: big, font: FONT.serif, col: COL.ink }, F2 = { size: small, font: FONT.serif, col: COL.ink };
+          const xA = w * 0.2, sA = mult + ' log₁₀ 5 = ' + val;
+          tx(c, sA, xA, y, F1);
+          const xMult = xA + tw(c, mult, F1) / 2, xSub = xA + tw(c, mult + ' log', F1) + tw(c, '₁₀', F1) / 2;
+          const xB = w * 0.5, yB = y + h * 0.24, base = '5 = 10';
+          tx(c, base, xB, yB, F1);
+          const xe = xB + tw(c, base, F1) + 2, ye = yB - big * 0.55, ex = '(' + val + '/' + mult + ')';
+          tx(c, ex, xe, ye, F2);
+          const xDen = xe + tw(c, '(' + val + '/', F2) + tw(c, mult, F2) / 2, x10 = xB + tw(c, '5 = ', F1) + tw(c, '10', F1) / 2;
+          const curve = (xa, ya_, xb, yb_, col) => {
+            const N = 40, cx = xb, cy = ya_;
+            c.beginPath();
+            for (let i = 0; i <= N * g; i++) { const u = i / N; const X = (1 - u) ** 2 * xa + 2 * (1 - u) * u * cx + u * u * xb, Y = (1 - u) ** 2 * ya_ + 2 * (1 - u) * u * cy + u * u * yb_; i ? c.lineTo(X, Y) : c.moveTo(X, Y); }
+            c.strokeStyle = col; c.lineWidth = LW(1.5); c.stroke();
+            if (g > 0.98) arrow(c, xb, yb_ - U * 1.6, xb, yb_, col, LW(1.5));
+          };
+          curve(xMult, y + U * 0.8, xDen, ye - small * 0.9, colA);
+          curve(xSub, y + U * 1.2, x10, yB - big * 0.85, COL.c2);
+        };
+        row(h * 0.2, '10', '6,99', COL.c1);
+        row(h * 0.64, '20', '13,98', COL.c4);
+        tx(c, 'güç oranı', w * 0.02, h * 0.2, { size: fs(1.0), col: COL.c1, wt: 600 });
+        tx(c, 'basınç oranı', w * 0.02, h * 0.64, { size: fs(1.0), col: COL.c4, wt: 600 });
+      }
+    }
+  };
+});
+
+/* ====================== 10 · referans nicelikleri ====================== */
+scene('refq', s => {
+  const F = new Fig($('canvas', s));
+  let lv = Math.log10(1.2277), dv = lv;
+  const pv = $$('[data-pv]', s);
+  const r = bindRange(s, 'v', val => { lv = val; pv.forEach(b => b.classList.remove('on')); upd(); });
+  function upd() { out(s, 'v', fmtSI(Math.pow(10, lv), 'V')); }
+  pv.forEach(b => b.onclick = () => { const d = +b.dataset.pv; lv = d === -10 ? -0.5 : Math.log10(0.7746 * Math.pow(10, d / 20)); r.el.value = lv; segOn(pv, b); upd(); });
+  upd();
+  return {
+    frame(t, dt) {
+      dv += (lv - dv) * (1 - Math.exp(-dt / 0.1));
+      const c = F.begin(), w = F.w, h = F.h; if (!w) return;
+      const y0 = h - U * 4, y1 = U * 5, Y = l => y0 - (l + 3) / 4.3 * (y0 - y1);   // l = log10(V), −3 … 1,3
+      const cols = [
+        { n: 'VOLT', f: l => fmtSI(Math.pow(10, l), 'V', 3), ticks: [-3, -2, -1, 0, 1], lab: e => ['1 mV', '10 mV', '100 mV', '1 V', '10 V'][e + 3] },
+        { n: 'dBV', ref: 1, col: COL.c1 },
+        { n: 'dBu', ref: 0.7746, col: COL.c4 },
+        { n: 'dBm @ 600 Ω', ref: 0.7746, col: COL.c3 }
+      ];
+      const cw = (w * 0.8 - U * 5) / cols.length;
+      cols.forEach((k, i) => {
+        const x = U * 5 + i * cw + cw * 0.25;
+        tx(c, k.n, x, y1 - U * 2, { al: 'center', size: fs(1.05), wt: 600, col: k.col || COL.ink2 });
+        ln(c, x, y0, x, y1, COL.ink3, 1);
+        if (k.ticks) k.ticks.forEach(e => { ln(c, x - U * .6, Y(e), x, Y(e), COL.ink3, 1); tx(c, k.lab(e), x - U * 1, Y(e), { al: 'right', bl: 'middle', size: fs(0.95), col: COL.ink3 }); });
+        else {
+          for (let d = -60; d <= 20; d += 10) {
+            const l = Math.log10(k.ref) + d / 20; if (l < -3 || l > 1.3) continue;
+            ln(c, x, Y(l), x + U * .6, Y(l), COL.ink3, 1); tx(c, (d > 0 ? '+' : '') + d, x + U * 1.0, Y(l), { bl: 'middle', size: fs(0.95), col: COL.ink3 });
+          }
+        }
+        const yy = Y(dv); dot(c, x, yy, U * .55, k.col || COL.c2);
+        const val = k.ref ? (20 * (dv - Math.log10(k.ref))) : null;
+        chip(c, k.ref ? (val >= 0 ? '+' : '') + fmt(val, 1) : k.f(dv), x + (k.ref ? -U * 1.2 : U * 1.2), yy, { al: k.ref ? 'right' : 'left', size: fs(1.1), col: k.col || COL.c2, wt: 600, border: k.col || COL.c2 });
+      });
+      // −10 dBV ve +4 dBu çizgileri
+      const yA = Y(-0.5), yB = Y(Math.log10(1.2277));
+      ln(c, U * 3, yA, w - U * 2, yA, alpha(COL.c1, .5), 1, [4, 4]); ln(c, U * 3, yB, w - U * 2, yB, alpha(COL.c4, .5), 1, [4, 4]);
+      const xl = w * 0.8 + U * 1.5;
+      tx(c, '−10 dBV', xl, yA - U * 0.4, { size: fs(1.05), col: COL.c1, wt: 600 }); tx(c, '0,316 V · tüketici', xl, yA + U * 1.4, { size: fs(0.95), col: COL.c1 });
+      tx(c, '+4 dBu', xl, yB - U * 0.4, { size: fs(1.05), col: COL.c4, wt: 600 }); tx(c, '1,228 V · profesyonel', xl, yB + U * 1.4, { size: fs(0.95), col: COL.c4 });
+      const xb = w - U * 1.5; ln(c, xb, yA, xb, yB, COL.c2, LW(1.4)); tx(c, '11,8 dB', xb - U * 0.6, (yA + yB) / 2 + U * 0.2, { al: 'right', bl: 'middle', size: fs(1.05), col: COL.c2, wt: 600 });
+    }
+  };
+});
+
+/* ====================== 11 · ses basıncı merdiveni ====================== */
+scene('ladder', s => {
+  const F = new Fig($('canvas', s));
+  const ROWS = [[194, 'Satürn roketi', 100000], [160, 'Ramjet', 2000], [140, 'Pervaneli uçak', 200], [120, 'Perçin makinesi', 20], [100, 'Ağır kamyon', 2], [80, 'Gürültülü ofis, yoğun trafik', 0.2], [60, 'Sohbet', 0.02], [40, 'Sessiz konut', 0.002], [20, 'Yaprak hışırtısı', 0.0002], [0, 'Duyma eşiği (en iyi kulak, en duyarlı frekans)', 0.00002]];
+  const EXTRA = [[94, '1 Pa'], [60, 'otoyol yakını (Şekil 2-2)'], [20, 'stüdyo arka plan gürültüsü (Şekil 2-2)'], [191, 'tam modülasyon ◆']];
+  let seq = null, T = 0;
+  const steps = (key, dB, n) => {
+    const b = $(`[data-a="${key}"]`, s);
+    b.onclick = () => {
+      const a0 = 0.45 * Math.pow(10, -dB * (n - 1) / 20), list = [];
+      for (let k = 0; k < n; k++) list.push({ f: 500, a: a0 * Math.pow(10, dB * k / 20), at: k * 0.6, len: 0.45 });
+      const v = AU.toggle(b, AU.sines(list), { dur: n * 0.6 + 0.1 });
+      seq = v ? { t0: AU.ctx.currentTime + 0.02, dB, n } : null;
+    };
+  };
+  steps('s20', 20, 3); steps('s10', 10, 4); steps('s6', 6, 5);
+  return {
+    frame(t, dt) {
+      T += dt;
+      const c = F.begin(), w = F.w, h = F.h; if (!w) return;
+      const y0 = h - U * 2.4, y1 = U * 2.6, Y = d => y0 - d / 200 * (y0 - y1);
+      const xl = w * 0.44, xa = xl + U * 0.8;
+      ln(c, xl, y0, xl, y1, COL.ink3, 1);
+      for (let d = 0; d <= 200; d += 20) { ln(c, xl - U * .5, Y(d), xl + U * .5, Y(d), COL.ink3, 1); }
+      ROWS.forEach(([d, n, p], i) => {
+        const y = Y(d);
+        tx(c, n, xl - U * 1.4, y, { al: 'right', bl: 'middle', size: fs(1.1), col: COL.ink });
+        tx(c, d + ' dB', xl + U * 1.2, y, { bl: 'middle', size: fs(1.05), col: COL.c1, wt: 600, font: FONT.mono });
+        tx(c, fmtSI(p, 'Pa', 2).replace(' kPa', ' kPa'), xl + U * 7.4, y, { bl: 'middle', size: fs(1.0), col: COL.ink3, font: FONT.mono });
+        const bw = (w - xl - U * 16) * p / 100000;
+        c.fillStyle = alpha(COL.c2, .8); c.fillRect(xl + U * 15, y - U * 0.45, Math.max(bw, 0), U * 0.9);
+        if (bw < 1) dot(c, xl + U * 15, y, 1.4, COL.c2);
+      });
+      tx(c, 'doğrusal ölçekte basınç (Satürn = tam boy)', xl + U * 15, y1 - U * 0.6, { size: fs(0.95), col: COL.c2 });
+      EXTRA.forEach(([d, n]) => { const y = Y(d); ln(c, xl - U * .8, y, xl, y, COL.c4, 1.4); tx(c, n, xl - U * 1.4, y + U * 1.5, { al: 'right', bl: 'middle', size: fs(0.9), col: COL.c4, it: true }); });
+      // göreli basamaklar
+      if (seq && AU.cur) {
+        const i = Math.floor((AU.ctx.currentTime - seq.t0) / 0.6);
+        if (i >= 0 && i < seq.n) {
+          const base = 40, y = Y(base + seq.dB * i);
+          c.fillStyle = alpha(COL.c3, .25); c.fillRect(U * 1, y - U * 1.1, xl - U * 1.2, U * 2.2);
+          tx(c, 'çalan basamak: +' + seq.dB * i + ' dB (göreli)', U * 1.6, y - U * 1.6, { size: fs(1.0), col: COL.c3, wt: 600 });
+        }
+      }
+    }
+  };
+});
+
+/* ====================== 12 · akustik güç ====================== */
+scene('power', s => {
+  const F = new Fig($('canvas', s));
+  let lp = 2, S = 90, dp = 2;
+  const upd = () => {
+    const P = Math.pow(10, lp), eta = Math.pow(10, (S - 112) / 10);
+    out(s, 'P', fmt(P, P < 10 ? 1 : 0) + ' W'); out(s, 'S', fmt(S, 1) + ' dB/W/m');
+    out(s, 'dP', '+' + fmt(10 * lp, 1) + ' dB');
+    out(s, 'eta', '%' + fmt(eta * 100, eta < 0.01 ? 2 : 1));
+    out(s, 'Wa', fmtSI(P * eta, 'W'));
+    out(s, 'spl', fmt(S + 10 * lp, 1) + ' dB');
+  };
+  bindRange(s, 'P', v => { lp = v; upd(); });
+  bindRange(s, 'S', v => { S = v; upd(); });
+  upd();
+  const ab = (key, ratio) => {
+    const b = $(`[data-a="${key}"]`, s);
+    b.onclick = () => { const a0 = 0.06, list = []; for (let k = 0; k < 4; k++) list.push({ f: 330, a: k % 2 ? a0 * Math.sqrt(ratio) : a0, at: k * 0.75, len: 0.6 }); AU.toggle(b, AU.sines(list), { dur: 3.05 }); };
+  };
+  ab('d3', 2); ab('d10', 10);
+  return {
+    frame(t, dt) {
+      dp += (lp - dp) * (1 - Math.exp(-dt / 0.12));
+      const c = F.begin(), w = F.w, h = F.h; if (!w) return;
+      const x0 = U * 3, x1 = w - U * 3;
+      const P = Math.pow(10, dp);
+      // doğrusal watt ekseni
+      const y1 = h * 0.22, y2 = h * 0.58;
+      const XW = v => x0 + v / 1000 * (x1 - x0), XD = d => x0 + d / 30 * (x1 - x0);
+      tx(c, 'GÜÇ (W, doğrusal)', x0, y1 - U * 3.2, { size: fs(1.0), wt: 600, col: COL.ink3 });
+      tx(c, 'GÜÇ DÜZEYİ (dB re 1 W)', x0, y2 - U * 3.2, { size: fs(1.0), wt: 600, col: COL.ink3 });
+      ln(c, x0, y1, x1, y1, COL.ink3, 1); ln(c, x0, y2, x1, y2, COL.ink3, 1);
+      for (let v = 0; v <= 1000; v += 200) { ln(c, XW(v), y1, XW(v), y1 + U * .5, COL.ink3, 1); tx(c, v + ' W', XW(v), y1 + U * 1.9, { al: 'center', size: fs(0.95), col: COL.ink3 }); }
+      for (let d = 0; d <= 30; d += 5) { ln(c, XD(d), y2, XD(d), y2 + U * .5, COL.ink3, 1); tx(c, d + ' dB', XD(d), y2 + U * 1.9, { al: 'center', size: fs(0.95), col: COL.ink3 }); }
+      // ikiye katlamalar
+      for (let k = 0; k <= 9; k++) {
+        const v = Math.pow(2, k), on = v <= P + 1e-6;
+        dot(c, XW(v), y1 - U * 0.9, U * .38, on ? COL.c1 : COL.rule);
+        dot(c, XD(10 * Math.log10(v)), y2 - U * 0.9, U * .38, on ? COL.c1 : COL.rule);
+        if (k && k % 2 === 1) tx(c, v + ' W', XD(10 * Math.log10(v)), y2 - U * 2.0, { al: 'center', size: fs(0.9), col: COL.ink3 });
+      }
+      tx(c, 'her nokta bir ikiye katlama: 1, 2, 4, … 512 W', XW(1000), y1 - U * 2.2, { al: 'right', size: fs(0.95), col: COL.ink3 });
+      tx(c, 'her ikiye katlama +3,01 dB', XD(30), y2 - U * 3.2, { al: 'right', size: fs(0.95), col: COL.c1 });
+      c.fillStyle = alpha(COL.c2, .85); c.fillRect(x0, y1 + U * 3.4, XW(P) - x0, U * 1.1);
+      c.fillStyle = alpha(COL.c2, .85); c.fillRect(x0, y2 + U * 3.4, XD(10 * dp) - x0, U * 1.1);
+      chip(c, fmt(P, P < 10 ? 1 : 0) + ' W', XW(P) + U * 0.6, y1 + U * 4, { size: fs(1.1), col: COL.c2, wt: 600, clampW: w });
+      chip(c, '+' + fmt(10 * dp, 1) + ' dB', XD(10 * dp) + U * 0.6, y2 + U * 4, { size: fs(1.1), col: COL.c2, wt: 600, clampW: w });
+      // verim çubuğu
+      const y3 = h * 0.9, eta = Math.pow(10, (S - 112) / 10);
+      const XL = logAxis(1e-3, 1e3, x0, x1);
+      ln(c, x0, y3, x1, y3, COL.ink3, 1);
+      [1e-3, 1e-2, 1e-1, 1, 10, 100, 1000].forEach(v => { ln(c, XL(v), y3, XL(v), y3 + U * .4, COL.ink3, 1); tx(c, fmtSI(v, 'W', 1).replace(',0', ''), XL(v), y3 + U * 1.8, { al: 'center', size: fs(0.9), col: COL.ink3 }); });
+      tx(c, 'ELEKTRİK GÜCÜ → AKUSTİK GÜÇ (logaritmik)', x0, y3 - U * 3.6, { size: fs(1.0), wt: 600, col: COL.ink3 });
+      const xe = XL(P), xa = XL(P * eta);
+      arrow(c, xe, y3 - U * 1.2, xa, y3 - U * 1.2, COL.c3, LW(1.8));
+      dot(c, xe, y3, U * .45, COL.c2); dot(c, xa, y3, U * .45, COL.c3);
+      chip(c, 'verim %' + fmt(eta * 100, eta < 0.01 ? 2 : 1), (xe + xa) / 2, y3 - U * 2.6, { al: 'center', size: fs(1.0), col: COL.c3, wt: 600 });
+    }
+  };
+});
+
+/* ====================== 13 · uzaklık ====================== */
+scene('distance', s => {
+  const F = new Fig($('canvas', s));
+  let lr = Math.log10(6.1), lP = 0, T = 0;
+  const pr = $$('[data-pr]', s);
+  const rR = bindRange(s, 'r', v => { lr = v; segOn(pr, null); upd(); });
+  const rP = bindRange(s, 'P', v => { lP = v; segOn(pr, null); upd(); });
+  pr.forEach(b => b.onclick = () => { if (b.dataset.pr === 'a') { lr = Math.log10(6.1); lP = 0; } else { lr = 0; lP = Math.log10(0.22); } rR.el.value = lr; rP.el.value = lP; segOn(pr, b); upd(); });
+  const spl = (r, P) => 115 + 10 * Math.log10(P) - 20 * Math.log10(r);
+  function upd() { out(s, 'r', fmt(Math.pow(10, lr), 2) + ' m'); out(s, 'P', fmt(Math.pow(10, lP), 2) + ' W'); }
+  upd();
+  return {
+    frame(t, dt) {
+      T += dt;
+      const c = F.begin(), w = F.w, h = F.h; if (!w) return;
+      const r = Math.pow(10, lr), P = Math.pow(10, lP), L = spl(r, P);
+      // fiziksel görünüm (sabit ölçek 0–10 m)
+      const narrow = w < 600, pw = narrow ? w : w * 0.4, ph = narrow ? h * 0.42 : h;
+      const sx = U * 3, sy = ph * 0.5, k = (pw - U * 5) / 10;
+      for (let i = 0; i < 8; i++) {
+        const R = ((T * 1.6 + i * 1.25) % 10) * k;
+        c.beginPath(); c.arc(sx, sy, R, -Math.PI / 2.4, Math.PI / 2.4);
+        c.strokeStyle = alpha(COL.c1, Math.min(0.8, 0.9 / (1 + (R / k) ** 2 * 0.25))); c.lineWidth = LW(1.4); c.stroke();
+      }
+      c.fillStyle = COL.ink2; c.fillRect(sx - U * 1.6, sy - U * 1.6, U * 1.2, U * 3.2);
+      c.beginPath(); c.moveTo(sx - U * 0.4, sy - U * 1.0); c.lineTo(sx + U * 0.8, sy - U * 2.0); c.lineTo(sx + U * 0.8, sy + U * 2.0); c.lineTo(sx - U * 0.4, sy + U * 1.0); c.closePath(); c.fill();
+      ln(c, sx, ph - U * 2.2, sx + 10 * k, ph - U * 2.2, COL.ink3, 1);
+      for (let m = 0; m <= 10; m += 2) { ln(c, sx + m * k, ph - U * 2.2, sx + m * k, ph - U * 1.7, COL.ink3, 1); tx(c, m + ' m', sx + m * k, ph - U * 0.6, { al: 'center', size: fs(0.9), col: COL.ink3 }); }
+      if (r <= 10) { dot(c, sx + r * k, sy, U * .7, COL.c2); chip(c, fmt(L, 1) + ' dB', sx + r * k, sy - U * 2.4, { al: 'center', size: fs(1.1), col: COL.c2, wt: 600 }); }
+      else { arrow(c, sx + 9 * k, sy, sx + 10 * k, sy, COL.c2, LW(2)); chip(c, fmt(r, 1) + ' m →', sx + 9.6 * k, sy - U * 2.2, { al: 'center', size: fs(1.0), col: COL.c2 }); }
+      // düzey–uzaklık grafiği
+      const gx0 = narrow ? U * 5 : w * 0.47, gx1 = w - U * 2.5, gy0 = narrow ? h - U * 3.4 : h - U * 3.4, gy1 = narrow ? h * 0.5 : U * 2.5;
+      const X = logAxis(0.5, 32, gx0, gx1), Y = d => gy0 - (d - 75) / 50 * (gy0 - gy1);
+      [0.5, 1, 2, 4, 8, 16, 32].forEach(m => { ln(c, X(m), gy0, X(m), gy1, COL.grid, 1); tx(c, fmt(m, m < 1 ? 1 : 0) + ' m', X(m), gy0 + U * 1.6, { al: 'center', size: fs(0.9), col: COL.ink3 }); });
+      for (let d = 75; d <= 125; d += 10) { ln(c, gx0, Y(d), gx1, Y(d), COL.grid, 1); tx(c, d + '', gx0 - U * .5, Y(d), { al: 'right', bl: 'middle', size: fs(0.9), col: COL.ink3 }); }
+      tx(c, 'SPL (dB)', gx0, gy1 - U * 0.8, { size: fs(0.95), col: COL.ink3 });
+      plot(c, Math.log10(0.5), Math.log10(32), 2, v => X(Math.pow(10, v)), v => Y(spl(Math.pow(10, v), 1)), COL.ink3, LW(1.2), [5, 4]);
+      plot(c, Math.log10(0.5), Math.log10(32), 2, v => X(Math.pow(10, v)), v => Y(spl(Math.pow(10, v), P)), COL.c1, LW(2));
+      // −6 dB basamakları
+      for (let m = 1; m < 16; m *= 2) { const a = Y(spl(m, P)), b = Y(spl(2 * m, P)); ln(c, X(m), a, X(2 * m), a, alpha(COL.c4, .7), 1); ln(c, X(2 * m), a, X(2 * m), b, alpha(COL.c4, .7), 1); }
+      tx(c, '−6 dB / ikiye katlama', X(2.8), Y(spl(2, P)) + U * 0.2, { size: fs(0.95), col: COL.c4 });
+      [[6.1, 99.3], [1, 108.4]].forEach(([m, d]) => { const x = X(m), y = Y(d); c.beginPath(); c.moveTo(x, y - U * .6); c.lineTo(x + U * .6, y); c.lineTo(x, y + U * .6); c.lineTo(x - U * .6, y); c.closePath(); c.strokeStyle = COL.c3; c.lineWidth = LW(1.4); c.stroke(); });
+      tx(c, '◇ kitaptaki sonuçlar', gx1, gy1 - U * 0.8, { al: 'right', size: fs(0.95), col: COL.c3 });
+      dot(c, X(clamp(r, 0.5, 32)), Y(L), U * .6, COL.c2);
+      chip(c, fmt(L, 1) + ' dB @ ' + fmt(r, 2) + ' m, ' + fmt(P, 2) + ' W', X(clamp(r, 0.5, 32)) + U, Y(L) - U * 1.8, { size: fs(1.05), col: COL.c2, wt: 600, clampW: w, border: COL.c2 });
+    }
+  };
+});
+
+/* ====================== 14 · gerilim ve güç kazancı ====================== */
+scene('chain', s => {
+  const F = new Fig($('canvas', s));
+  const st = { vi: 0.05, vo: 1.5, ri: 10000, ro: 600 };
+  let dG = 0;
+  const pr = $$('[data-pr]', s);
+  const rI = bindRange(s, 'ri', v => { st.ri = Math.pow(10, v); segOn(pr, null); upd(); });
+  const rO = bindRange(s, 'ro', v => { st.ro = Math.pow(10, v); segOn(pr, null); upd(); });
+  pr.forEach(b => b.onclick = () => {
+    if (b.dataset.pr === '5') Object.assign(st, { vi: 0.05, vo: 1.5, ri: 10000, ro: 600 });
+    else Object.assign(st, { vi: 0.2, vo: 0.2 * Math.pow(10, 37 / 20), ri: 600, ro: 600 });
+    rI.el.value = Math.log10(st.ri); rO.el.value = Math.log10(st.ro); segOn(pr, b); upd();
+  });
+  const fR = r => r >= 1000 ? fmt(r / 1000, r >= 10000 ? 0 : 1) + ' kΩ' : fmt(r, 0) + ' Ω';
+  function upd() { out(s, 'ri', fR(st.ri)); out(s, 'ro', fR(st.ro)); }
+  upd();
+  return {
+    frame(t, dt) {
+      const Gv = 20 * Math.log10(st.vo / st.vi), Pi = st.vi ** 2 / st.ri, Po = st.vo ** 2 / st.ro, Gp = 10 * Math.log10(Po / Pi);
+      dG += (Gp - dG) * (1 - Math.exp(-dt / 0.12));
+      const c = F.begin(), w = F.w, h = F.h; if (!w) return;
+      // devre şeması
+      const yT = h * 0.13, yB = h * 0.38, xs = U * 4, xa = w * 0.42, xe = w * 0.66, xl = w - U * 5;
+      c.strokeStyle = COL.ink2; c.lineWidth = LW(1.4);
+      // kaynak
+      dot(c, xs, (yT + yB) / 2, U * 1.6, COL.ink2, LW(1.4));
+      tx(c, '~', xs, (yT + yB) / 2 + U * 0.1, { al: 'center', bl: 'middle', size: fs(1.6), col: COL.ink2 });
+      ln(c, xs, (yT + yB) / 2 - U * 1.6, xs, yT, COL.ink2, LW(1.4)); ln(c, xs, (yT + yB) / 2 + U * 1.6, xs, yB, COL.ink2, LW(1.4));
+      ln(c, xs, yT, xa - U * 2, yT, COL.ink2, LW(1.4)); ln(c, xs, yB, xa - U * 2, yB, COL.ink2, LW(1.4));
+      const res = (x, y0, y1, lab, col) => {
+        const L = y1 - y0, z = 8; c.beginPath(); c.moveTo(x, y0); c.lineTo(x, y0 + L * 0.2);
+        for (let i = 1; i <= z; i++) c.lineTo(x + (i % 2 ? U * .8 : -U * .8), y0 + L * 0.2 + L * 0.6 * i / z);
+        c.lineTo(x, y0 + L * 0.8); c.lineTo(x, y1); c.strokeStyle = col; c.lineWidth = LW(1.4); c.stroke();
+        tx(c, lab, x + U * 1.6, (y0 + y1) / 2, { bl: 'middle', size: fs(1.05), col, wt: 600 });
+      };
+      res(xa - U * 6, yT, yB, 'R giriş ' + fR(st.ri), COL.c1);
+      // amfi üçgeni
+      c.beginPath(); c.moveTo(xa - U * 2, yT - U * 1.5); c.lineTo(xa - U * 2, yB + U * 1.5); c.lineTo(xe - U * 2, (yT + yB) / 2); c.closePath();
+      c.fillStyle = COL.panel; c.fill(); c.strokeStyle = COL.ink; c.lineWidth = LW(1.6); c.stroke();
+      tx(c, 'amfi', (xa + xe) / 2 - U * 3, (yT + yB) / 2, { al: 'center', bl: 'middle', size: fs(1.1), col: COL.ink });
+      ln(c, xe - U * 2, (yT + yB) / 2, xe + U * 2, (yT + yB) / 2, COL.ink2, LW(1.4));
+      ln(c, xe + U * 2, (yT + yB) / 2, xe + U * 2, yT, COL.ink2, LW(1.4)); ln(c, xe + U * 2, yT, xl, yT, COL.ink2, LW(1.4)); ln(c, xe + U * 2, yB, xl, yB, COL.ink2, LW(1.4));
+      res(xl, yT, yB, '', COL.c3); tx(c, 'R yük ' + fR(st.ro), xl - U * 1.4, yB + U * 2, { al: 'right', size: fs(1.05), col: COL.c3, wt: 600 });
+      tx(c, 'v giriş = ' + fmtSI(st.vi, 'V'), xs + U * 2.4, yT - U * 0.8, { size: fs(1.05), col: COL.ink2 });
+      tx(c, 'v çıkış = ' + fmtSI(st.vo, 'V'), xe + U * 3, yT - U * 0.8, { size: fs(1.05), col: COL.ink2 });
+      tx(c, 'P = v²/R = ' + fmtSI(Pi, 'W'), xs + U * 2.4, yB + U * 2, { size: fs(1.0), col: COL.c1 });
+      tx(c, 'P = ' + fmtSI(Po, 'W'), xe + U * 3, yB + U * 2, { size: fs(1.0), col: COL.c3 });
+      // kazanç çubukları
+      const bx0 = U * 14, bx1 = w - U * 4, X = d => bx0 + d / 50 * (bx1 - bx0), y1 = h * 0.6, y2 = h * 0.76, bh = U * 2.2;
+      ln(c, bx0, h * 0.9, bx1, h * 0.9, COL.ink3, 1);
+      for (let d = 0; d <= 50; d += 10) { ln(c, X(d), h * 0.9, X(d), h * 0.9 + U * .4, COL.ink3, 1); tx(c, d + ' dB', X(d), h * 0.9 + U * 1.8, { al: 'center', size: fs(0.9), col: COL.ink3 }); }
+      tx(c, 'gerilim kazancı', bx0 - U * 1, y1, { al: 'right', bl: 'middle', size: fs(1.05), col: COL.ink2 });
+      tx(c, 'güç kazancı', bx0 - U * 1, y2, { al: 'right', bl: 'middle', size: fs(1.05), col: COL.ink2 });
+      c.fillStyle = COL.c1; c.fillRect(bx0, y1 - bh / 2, X(Gv) - bx0, bh);
+      c.fillStyle = COL.c2; c.fillRect(bx0, y2 - bh / 2, Math.max(0, X(dG) - bx0), bh);
+      tx(c, '20 log(v₂/v₁) = ' + fmt(Gv, 1) + ' dB', X(Gv) + U, y1, { bl: 'middle', size: fs(1.1), col: COL.c1, wt: 600 });
+      tx(c, '10 log(P₂/P₁) = ' + fmt(dG, 1) + ' dB', X(dG) + U, y2, { bl: 'middle', size: fs(1.1), col: COL.c2, wt: 600 });
+      const dd = 10 * Math.log10(st.ri / st.ro);
+      if (Math.abs(dd) > 0.3) {
+        const ya = (y1 + y2) / 2; ln(c, X(Gv), y1 + bh / 2 + 2, X(Gv), y2 - bh / 2 - 2, COL.ink3, 1, [2, 3]);
+        tx(c, '10 log(R giriş / R yük) = ' + (dd > 0 ? '+' : '') + fmt(dd, 1) + ' dB', X(Math.min(Gv, dG)) + U * 0.4, ya + U * 0.1, { bl: 'middle', size: fs(0.95), col: COL.ink3 });
+      } else tx(c, 'empedanslar eşit: iki kazanç aynı', X(Gv) + U, (y1 + y2) / 2, { bl: 'middle', size: fs(0.95), col: COL.c4 });
+    }
+  };
+});
+
+/* ====================== 15 · konser salonu ====================== */
+scene('hall', s => {
+  const F = new Fig($('canvas', s));
+  const CB = 1130 * 0.3048, L1 = 55 + 20 * Math.log10(84 * 0.3048);   // kitabın c'si ve 1 m'deki düzey
+  let D = 25.6, H = 12.77, T = 0, pulse = 0;
+  const geo = () => { const P = Math.hypot(D, 2 * H); return { P, td: D / CB, tr: P / CB, Ld: L1 - 20 * Math.log10(D), Lr: L1 - 20 * Math.log10(P) }; };
+  const upd = () => { out(s, 'D', fmt(D, 1) + ' m'); out(s, 'h', fmt(H, 1) + ' m'); };
+  const rD = bindRange(s, 'D', v => { D = v; upd(); });
+  const rH = bindRange(s, 'h', v => { H = v; upd(); });
+  $('[data-a="book"]', s).onclick = () => { D = 25.6; H = 12.77; rD.el.value = D; rH.el.value = H; upd(); pulse = T; };
+  const hb = $('[data-a="hear"]', s);
+  hb.onclick = () => {
+    const g = geo(), dly = g.tr - g.td, rel = Math.pow(10, (g.Lr - g.Ld) / 20);
+    AU.toggle(hb, (ctx, o, v) => {
+      const sr = ctx.sampleRate, n = Math.round((dly + 0.9) * sr * 2), b = ctx.createBuffer(1, n, sr), d = b.getChannelData(0);
+      const click = (t0, a) => { const i0 = Math.round(t0 * sr); for (let i = 0; i < sr * 0.012; i++) d[i0 + i] += a * (Math.random() * 2 - 1) * Math.exp(-i / (sr * 0.0025)); };
+      [0, dly + 0.9].forEach(t0 => { click(t0 + 0.02, 0.5); click(t0 + 0.02 + dly, 0.5 * rel); });
+      const src = ctx.createBufferSource(); src.buffer = b; src.connect(o); src.start(v.t0); v.nodes.push(src);
+    }, { dur: 2 * (dly + 0.9) + 0.2 });
+    pulse = T;
+  };
+  upd();
+  return {
+    enter() { pulse = T; },
+    frame(t, dt) {
+      T += dt;
+      const c = F.begin(), w = F.w, h = F.h; if (!w) return;
+      const g = geo();
+      // plan
+      const ph = h * 0.6, k = Math.min((w - U * 10) / D, (ph - U * 6) / (2 * H));
+      const ty = U * 3.5 + 2 * H * k, tx0 = (w - D * k) / 2, sx = tx0 + D * k, wy = U * 3.5 + H * k, iy = U * 3.5;
+      // duvar
+      ln(c, U * 2, wy, w - U * 2, wy, COL.ink, LW(2)); hatch(c, U * 2, wy - U * 1.2, w - U * 4, U * 1.2, COL.ink3, 7);
+      tx(c, 'yan duvar', w - U * 2, wy - U * 1.8, { al: 'right', size: fs(0.95), col: COL.ink3 });
+      // ayna kaynak
+      dot(c, tx0, iy, U * .55, COL.c2, LW(1.4)); tx(c, 'T′ (ayna kaynak)', tx0 + U * 1.2, iy + U * 0.4, { size: fs(0.95), col: COL.c2 });
+      ln(c, tx0, iy, sx, ty, alpha(COL.c2, .45), 1, [4, 4]);
+      // ışınlar
+      const rx = tx0 + D * k / 2;
+      ln(c, tx0, ty, sx, ty, COL.c1, LW(1.8));
+      ln(c, tx0, ty, rx, wy, COL.c2, LW(1.8)); ln(c, rx, wy, sx, ty, COL.c2, LW(1.8));
+      dot(c, tx0, ty, U * .8, COL.ink); tx(c, 'T (timpani)', tx0, ty + U * 2.2, { al: 'center', size: fs(1.0), col: COL.ink });
+      dot(c, sx, ty, U * .8, COL.c4); tx(c, 'koltuk', sx, ty + U * 2.2, { al: 'center', size: fs(1.0), col: COL.c4 });
+      tx(c, fmt(D, 1) + ' m · ' + fmt(g.Ld, 1) + ' dB', (tx0 + sx) / 2, ty - U * 0.8, { al: 'center', size: fs(1.0), col: COL.c1, wt: 600 });
+      chip(c, fmt(g.P, 1) + ' m · ' + fmt(g.Lr, 1) + ' dB', (rx + sx) / 2 + U * 1, (wy + ty) / 2, { size: fs(1.0), col: COL.c2, wt: 600 });
+      // ağır çekim dalga cephesi (×1/25)
+      const e = (T - pulse) / 25, R = e * CB * k;
+      if (e > 0 && e < g.tr * 1.15) {
+        c.save(); c.beginPath(); c.rect(0, wy, w, ph - wy); c.clip();
+        c.beginPath(); c.arc(tx0, ty, R, 0, TAU); c.strokeStyle = alpha(COL.c1, .7); c.lineWidth = LW(1.4); c.stroke();
+        if (R > ty - wy) { c.beginPath(); c.arc(tx0, iy, R, 0, Math.PI); c.strokeStyle = alpha(COL.c2, .7); c.stroke(); }
+        c.restore();
+        tx(c, 'ağır çekim × 1/25', U * 2.4, ph - U * 1.0, { size: fs(0.95), col: COL.ink3, it: true });
+      }
+      // ölçek çubuğu
+      const sb = 5 * k; ln(c, w - U * 2 - sb, ph - U * 1, w - U * 2, ph - U * 1, COL.ink3, LW(1.4)); tx(c, '5 m', w - U * 2 - sb / 2, ph - U * 1.8, { al: 'center', size: fs(0.9), col: COL.ink3 });
+      // ekogram
+      const ey0 = h - U * 2.6, ey1 = ph + U * 3.4, X = q => U * 5 + q / 0.2 * (w - U * 8), Y = d => ey0 - (d - 30) / 45 * (ey0 - ey1);
+      ln(c, U * 5, ey0, w - U * 3, ey0, COL.ink3, 1);
+      for (let q = 0; q <= 0.2001; q += 0.025) { ln(c, X(q), ey0, X(q), ey0 + U * .4, COL.ink3, 1); tx(c, fmt(q * 1000, 0) + ' ms', X(q), ey0 + U * 1.7, { al: 'center', size: fs(0.85), col: COL.ink3 }); }
+      [40, 60].forEach(d => { ln(c, U * 5, Y(d), w - U * 3, Y(d), COL.grid, 1); tx(c, d + ' dB', U * 4.4, Y(d), { al: 'right', bl: 'middle', size: fs(0.85), col: COL.ink3 }); });
+      tx(c, 'EKOGRAM', U * 5, ey1 - U * 0.6, { size: fs(0.95), wt: 600, col: COL.ink3 });
+      const bar = (q, d, col) => { ln(c, X(q), ey0, X(q), Y(d), col, LW(3)); dot(c, X(q), Y(d), U * .4, col); };
+      bar(g.td, g.Ld, COL.c1); bar(g.tr, g.Lr, COL.c2);
+      const yy = Math.min(Y(g.Ld), Y(g.Lr)) - U * 1.6;
+      dbl(c, X(g.td), yy, X(g.tr), yy, COL.ink2, 1.2);
+      chip(c, 'Δt = ' + fmt((g.tr - g.td) * 1000, 1) + ' ms · ΔL = ' + fmt(g.Lr - g.Ld, 1) + ' dB', (X(g.td) + X(g.tr)) / 2, yy - U * 1.5, { al: 'center', size: fs(1.05), col: COL.ink, wt: 600, clampW: w });
+    }
+  };
+});
+
+/* ====================== 16 · desibel toplama ====================== */
+scene('combine', s => {
+  const F = new Fig($('canvas', s));
+  let L1 = 55, L2 = 60, mode = 'inc', dS = 61.19;
+  const bs = $$('[data-m]', s);
+  bs.forEach(b => b.onclick = () => { mode = b.dataset.m; segOn(bs, b); AU.stop(); });
+  bindRange(s, 'a', v => { L1 = v; out(s, 'a', fmt(L1, 1) + ' dB'); });
+  bindRange(s, 'b', v => { L2 = v; out(s, 'b', fmt(L2, 1) + ' dB'); });
+  out(s, 'a', '55,0 dB'); out(s, 'b', '60,0 dB');
+  const sum = () => mode === 'inc' ? 10 * Math.log10(Math.pow(10, L1 / 10) + Math.pow(10, L2 / 10)) : 20 * Math.log10(Math.pow(10, L1 / 20) + Math.pow(10, L2 / 20));
+  const gain = L => 0.45 * Math.pow(10, (L - 90) / 20);
+  const voice = (which) => (ctx, o, v) => {
+    if (mode === 'inc') {
+      [1, 2].forEach(i => {
+        if (!(which & i)) return;
+        const n = AU.noise(); n.loopStart = 0; const g = ctx.createGain(); g.gain.value = gain(i === 1 ? L1 : L2) * 1.2;
+        n.connect(g); g.connect(o); n.start(v.t0, i === 1 ? 0 : 1.7); v.nodes.push(n, g);
+      });
+    } else {
+      const a = (which & 1 ? gain(L1) : 0) + (which & 2 ? gain(L2) : 0);
+      const os = ctx.createOscillator(); os.frequency.value = 330; const g = ctx.createGain(); g.gain.value = a * 1.4;
+      os.connect(g); g.connect(o); os.start(v.t0); v.nodes.push(os, g);
+    }
+  };
+  [['s1', 1], ['s2', 2], ['s12', 3]].forEach(([k, m]) => { const b = $(`[data-a="${k}"]`, s); b.onclick = () => AU.toggle(b, voice(m)); });
+  return {
+    frame(t, dt) {
+      const S = sum(); dS += (S - dS) * (1 - Math.exp(-dt / 0.12));
+      const c = F.begin(), w = F.w, h = F.h; if (!w) return;
+      // sol: dB çubukları
+      const y0 = h * 0.58, y1 = U * 3, Y = d => y0 - (d - 40) / 60 * (y0 - y1), x0 = U * 6;
+      for (let d = 40; d <= 100; d += 10) { ln(c, x0, Y(d), w * 0.46, Y(d), COL.grid, 1); tx(c, d + '', x0 - U * .5, Y(d), { al: 'right', bl: 'middle', size: fs(0.9), col: COL.ink3 }); }
+      tx(c, 'DÜZEY (dB)', x0, y1 - U * 1.2, { size: fs(0.95), wt: 600, col: COL.ink3 });
+      const bw = (w * 0.46 - x0) / 4;
+      const bar = (i, d, col, lab) => { const x = x0 + bw * (i + 0.25); c.fillStyle = col; c.fillRect(x, Y(d), bw * 0.6, y0 - Y(d)); tx(c, fmt(d, 2), x + bw * 0.3, Y(d) - U * 0.6, { al: 'center', size: fs(1.05), col, wt: 600 }); tx(c, lab, x + bw * 0.3, y0 + U * 1.6, { al: 'center', size: fs(0.95), col: COL.ink2 }); };
+      bar(0, L1, COL.c1, 'kaynak 1'); bar(1, L2, COL.c4, 'kaynak 2'); bar(2.4, dS, COL.c2, 'toplam');
+      tx(c, '+' + fmt(dS - Math.max(L1, L2), 2) + ' dB', x0 + bw * 2.7, Y(dS) - U * 2.2, { al: 'center', size: fs(1.0), col: COL.c2 });
+      // sağ: doğrusal güç ya da basınç
+      const px0 = w * 0.54, px1 = w - U * 3, py = h * 0.12;
+      const q1 = mode === 'inc' ? Math.pow(10, L1 / 10) : Math.pow(10, L1 / 20), q2 = mode === 'inc' ? Math.pow(10, L2 / 10) : Math.pow(10, L2 / 20), Q = q1 + q2;
+      tx(c, mode === 'inc' ? 'GÜÇLER TOPLANIR (doğrusal)' : 'BASINÇLAR TOPLANIR (doğrusal)', px0, py - U * 1.2, { size: fs(0.95), wt: 600, col: COL.ink3 });
+      const BW = px1 - px0;
+      const row = (y, a, b, lab) => { c.fillStyle = COL.c1; c.fillRect(px0, y, BW * a / Q, U * 2); c.fillStyle = COL.c4; c.fillRect(px0 + BW * a / Q, y, BW * b / Q, U * 2); tx(c, lab, px0, y + U * 3.6, { size: fs(0.95), col: COL.ink2 }); };
+      row(py, q1, 0, 'kaynak 1: %' + fmt(100 * q1 / Q, 0));
+      c.fillStyle = COL.c4; c.fillRect(px0, py + U * 6, BW * q2 / Q, U * 2); tx(c, 'kaynak 2: %' + fmt(100 * q2 / Q, 0), px0, py + U * 9.6, { size: fs(0.95), col: COL.ink2 });
+      row(py + U * 12, q1, q2, 'toplam = %100 → ' + (mode === 'inc' ? '10' : '20') + ' log Σ');
+      // alt: kural eğrisi
+      const gy0 = h - U * 2.8, gy1 = h * 0.7, gx0 = U * 6, gx1 = w - U * 3, X = d => gx0 + d / 20 * (gx1 - gx0), Yg = v => gy0 - v / 6.5 * (gy0 - gy1);
+      ln(c, gx0, gy0, gx1, gy0, COL.ink3, 1);
+      for (let d = 0; d <= 20; d += 2) { ln(c, X(d), gy0, X(d), gy0 + U * .4, COL.ink3, 1); tx(c, d + '', X(d), gy0 + U * 1.6, { al: 'center', size: fs(0.85), col: COL.ink3 }); }
+      [0, 3, 6].forEach(v => { ln(c, gx0, Yg(v), gx1, Yg(v), COL.grid, 1); tx(c, '+' + v, gx0 - U * .5, Yg(v), { al: 'right', bl: 'middle', size: fs(0.85), col: COL.ink3 }); });
+      tx(c, 'iki düzey arasındaki fark (dB) → büyüğe eklenecek', gx1, gy1 - U * 0.8, { al: 'right', size: fs(0.95), col: COL.ink3 });
+      plot(c, 0, 20, 120, X, d => Yg(10 * Math.log10(1 + Math.pow(10, -d / 10))), COL.c1, LW(mode === 'inc' ? 2.2 : 1.2));
+      plot(c, 0, 20, 120, X, d => Yg(20 * Math.log10(1 + Math.pow(10, -d / 20))), COL.c3, LW(mode === 'coh' ? 2.2 : 1.2), [5, 4]);
+      tx(c, 'ilişkisiz (+3 dB)', X(0.4), Yg(3.3), { size: fs(0.95), col: COL.c1 });
+      tx(c, 'fazda (+6 dB) ◆', X(0.4), Yg(6.3), { size: fs(0.95), col: COL.c3 });
+      const d = Math.abs(L1 - L2), add = mode === 'inc' ? 10 * Math.log10(1 + Math.pow(10, -d / 10)) : 20 * Math.log10(1 + Math.pow(10, -d / 20));
+      dot(c, X(Math.min(d, 20)), Yg(add), U * .55, COL.c2);
+    }
+  };
+});
+
+/* ====================== ağırlıklandırma yardımcıları ====================== */
+const RA = f => 12194 ** 2 * f ** 4 / ((f * f + 20.6 ** 2) * Math.sqrt((f * f + 107.7 ** 2) * (f * f + 737.9 ** 2)) * (f * f + 12194 ** 2));
+const RB = f => 12194 ** 2 * f ** 3 / ((f * f + 20.6 ** 2) * Math.sqrt(f * f + 158.5 ** 2) * (f * f + 12194 ** 2));
+const RC = f => 12194 ** 2 * f ** 2 / ((f * f + 20.6 ** 2) * (f * f + 12194 ** 2));
+const WA = f => 20 * Math.log10(RA(f)) + 2.0, WB = f => 20 * Math.log10(RB(f)) + 0.17, WC = f => 20 * Math.log10(RC(f)) + 0.06;
+// IEC 61672 ağırlık süzgeçleri: analog bölümler + çift doğrusal dönüşüm → IIRFilterNode zinciri
+function weightChain(ctx, kind) {
+  const fs_ = ctx.sampleRate, K = 2 * fs_, w = f => TAU * f;
+  const w1 = w(20.6), w2 = w(107.7), w3 = w(737.9), w4 = w(12194);
+  const secs = kind === 'A'
+    ? [[[1, 0, 0], [1, 2 * w1, w1 * w1]], [[1, 0, 0], [1, w2 + w3, w2 * w3]], [[0, 0, w4 * w4], [1, 2 * w4, w4 * w4]]]
+    : [[[1, 0, 0], [1, 2 * w1, w1 * w1]], [[0, 0, w4 * w4], [1, 2 * w4, w4 * w4]]];
+  const dig = secs.map(([b, a]) => {
+    const B0 = b[0] * K * K + b[1] * K + b[2], B1 = 2 * b[2] - 2 * b[0] * K * K, B2 = b[0] * K * K - b[1] * K + b[2];
+    const A0 = a[0] * K * K + a[1] * K + a[2], A1 = 2 * a[2] - 2 * a[0] * K * K, A2 = a[0] * K * K - a[1] * K + a[2];
+    return { ff: [B0 / A0, B1 / A0, B2 / A0], fb: [1, A1 / A0, A2 / A0] };
+  });
+  // 1 kHz'te 0 dB'e normalize
+  const om = TAU * 1000 / fs_; let mag = 1;
+  dig.forEach(d => {
+    const ev = c => { let re = 0, im = 0; c.forEach((v, k) => { re += v * Math.cos(-k * om); im += v * Math.sin(-k * om); }); return Math.hypot(re, im); };
+    mag *= ev(d.ff) / ev(d.fb);
+  });
+  dig[dig.length - 1].ff = dig[dig.length - 1].ff.map(v => v / mag);
+  const nodes = dig.map(d => ctx.createIIRFilter(d.ff, d.fb));
+  for (let i = 0; i < nodes.length - 1; i++) nodes[i].connect(nodes[i + 1]);
+  return nodes;
+}
+let PINK = null;
+function pinkSource(ctx) {
+  if (!PINK) {
+    const n = ctx.sampleRate * 5, b = ctx.createBuffer(1, n, ctx.sampleRate), d = b.getChannelData(0);
+    let b0 = 0, b1 = 0, b2 = 0, b3 = 0, b4 = 0, b5 = 0, b6 = 0;
+    for (let i = 0; i < n; i++) {
+      const x = Math.random() * 2 - 1;
+      b0 = 0.99886 * b0 + x * 0.0555179; b1 = 0.99332 * b1 + x * 0.0750759; b2 = 0.969 * b2 + x * 0.153852;
+      b3 = 0.8665 * b3 + x * 0.3104856; b4 = 0.55 * b4 + x * 0.5329522; b5 = -0.7616 * b5 - x * 0.016898;
+      d[i] = (b0 + b1 + b2 + b3 + b4 + b5 + b6 + x * 0.5362) * 0.11; b6 = x * 0.115926;
+    }
+    PINK = b;
+  }
+  const s = ctx.createBufferSource(); s.buffer = PINK; s.loop = true; return s;
+}
+
+/* ====================== 17 · A, B, C ====================== */
+scene('weight', s => {
+  const F = new Fig($('canvas', s));
+  let f = 100, df = 100;
+  const upd = () => { out(s, 'f', fmtHz(f)); out(s, 'w', `<span class="k">A</span> ${fmt(WA(f), 1)} &nbsp;<span class="k">B</span> ${fmt(WB(f), 1)} &nbsp;<span class="k">C</span> ${fmt(WC(f), 1)} dB`); };
+  bindRange(s, 'f', v => { f = logMap(v, 10, 20000); upd(); });
+  upd();
+  const play = (key, kind) => {
+    const b = $(`[data-a="${key}"]`, s);
+    b.onclick = () => AU.toggle(b, (ctx, o, v) => {
+      const src = pinkSource(ctx), g = ctx.createGain(); g.gain.value = 0.55;
+      if (kind === 'Z') { src.connect(g); v.nodes.push(src, g); }
+      else { const ch = weightChain(ctx, kind); src.connect(ch[0]); ch[ch.length - 1].connect(g); v.nodes.push(src, g, ...ch); }
+      g.connect(o); src.start(v.t0);
+    });
+  };
+  play('z', 'Z'); play('A', 'A'); play('C', 'C');
+  return {
+    frame(t, dt) {
+      df = Math.exp(Math.log(df) + (Math.log(f) - Math.log(df)) * (1 - Math.exp(-dt / 0.1)));
+      const c = F.begin(), w = F.w, h = F.h; if (!w) return;
+      const x0 = U * 5.5, x1 = w - U * 3, y0 = h - U * 3.6, y1 = U * 2.4;
+      const X = logAxis(10, 20000, x0, x1), Y = d => y1 + (5 - d) / 55 * (y0 - y1);
+      [10, 20, 50, 100, 200, 500, 1000, 2000, 5000, 10000, 20000].forEach(q => { ln(c, X(q), y0, X(q), y1, [10, 100, 1000, 10000].includes(q) ? COL.rule : COL.grid, 1); tx(c, fmtTick(q), X(q), y0 + U * 1.6, { al: 'center', size: fs(0.9), col: COL.ink3 }); });
+      for (let d = -50; d <= 5; d += 10) { ln(c, x0, Y(d), x1, Y(d), d === 0 ? COL.ink3 : COL.grid, 1); tx(c, (d > 0 ? '+' : '') + d, x0 - U * .5, Y(d), { al: 'right', bl: 'middle', size: fs(0.9), col: COL.ink3 }); }
+      tx(c, 'göreli yanıt, dB', x0, y1 - U * 0.6, { size: fs(0.95), col: COL.ink3 });
+      tx(c, 'frekans, Hz', x1, y0 + U * 3.0, { al: 'right', size: fs(0.95), col: COL.ink3 });
+      c.save(); c.beginPath(); c.rect(x0, y1, x1 - x0, y0 - y1); c.clip();
+      const curve = (fn, col, w2, dash) => plot(c, Math.log10(10), Math.log10(20000), 300, v => X(Math.pow(10, v)), v => Y(fn(Math.pow(10, v))), col, w2, dash);
+      curve(WC, COL.c2, LW(2)); curve(WB, COL.c3, LW(1.6), [6, 4]); curve(WA, COL.c1, LW(2.4));
+      c.restore();
+      chip(c, 'A', X(40), Y(WA(40)), { al: 'center', size: fs(1.1), col: COL.c1, wt: 600, border: COL.c1 });
+      chip(c, 'B', X(60), Y(WB(60)), { al: 'center', size: fs(1.1), col: COL.c3, wt: 600, border: COL.c3 });
+      chip(c, 'C', X(25), Y(WC(25)), { al: 'center', size: fs(1.1), col: COL.c2, wt: 600, border: COL.c2 });
+      const xf = X(df); ln(c, xf, y0, xf, y1, alpha(COL.ink, .5), 1, [3, 3]);
+      [[WA, COL.c1], [WB, COL.c3], [WC, COL.c2]].forEach(([fn, col]) => { const v = fn(df); if (v > -55) dot(c, xf, Y(v), U * .45, col); });
+      chip(c, fmtHz(df), xf, y1 + U * 1.2, { al: 'center', size: fs(1.0), col: COL.ink, clampW: w });
+    }
+  };
+});
+
+/* ====================== 18 · dBA ve ağırlıksız ====================== */
+scene('dba', s => {
+  const F = new Fig($('canvas', s));
+  const FC = [31.5, 63, 125, 250, 500, 1000, 2000, 4000, 8000];
+  const SP = {
+    hvac: [80, 76, 71, 65, 59, 53, 47, 41, 35],
+    pink: [60, 60, 60, 60, 60, 60, 60, 60, 60],
+    speech: [38, 46, 55, 61, 63, 59, 53, 47, 40],
+    hiss: [30, 33, 36, 39, 42, 45, 48, 51, 54]
+  };
+  let key = 'hvac', disp = SP.hvac.slice();
+  const tot = (L, W) => 10 * Math.log10(L.reduce((a, l, i) => a + Math.pow(10, (l + (W ? W(FC[i]) : 0)) / 10), 0));
+  const upd = () => {
+    const L = SP[key], z = tot(L), a = tot(L, WA), cc = tot(L, WC);
+    out(s, 'Z', fmt(z, 1) + ' dB'); out(s, 'C', fmt(cc, 1) + ' dBC'); out(s, 'A', fmt(a, 1) + ' dBA'); out(s, 'CA', fmt(cc - a, 1) + ' dB');
+  };
+  const btn = $('[data-a="play"]', s);
+  const voice = () => (ctx, o, v) => {
+    const src = pinkSource(ctx), L = SP[key], mx = Math.max(...L), sumG = ctx.createGain(); sumG.gain.value = 0.9;
+    FC.forEach((fc, i) => { const bp = ctx.createBiquadFilter(); bp.type = 'bandpass'; bp.frequency.value = fc; bp.Q.value = 1.41; const g = ctx.createGain(); g.gain.value = Math.pow(10, (L[i] - mx) / 20); src.connect(bp); bp.connect(g); g.connect(sumG); v.nodes.push(bp, g); });
+    sumG.connect(o); src.start(v.t0); v.nodes.push(src, sumG);
+  };
+  const bs = $$('[data-s]', s);
+  bs.forEach(b => b.onclick = () => { key = b.dataset.s; segOn(bs, b); upd(); if (AU.isPlaying(btn)) AU.start(voice(), { btn }); });
+  btn.onclick = () => AU.toggle(btn, voice());
+  upd();
+  return {
+    frame(t, dt) {
+      const L = SP[key];
+      for (let i = 0; i < 9; i++) disp[i] += (L[i] - disp[i]) * (1 - Math.exp(-dt / 0.15));
+      const c = F.begin(), w = F.w, h = F.h; if (!w) return;
+      const x0 = U * 6, x1 = w - U * 3, y0 = h - U * 3.6, y1 = U * 3, Y = d => y0 - (d - 0) / 90 * (y0 - y1);
+      for (let d = 0; d <= 90; d += 10) { ln(c, x0, Y(d), x1, Y(d), d % 30 ? COL.grid : COL.rule, 1); tx(c, '' + d, x0 - U * .5, Y(d), { al: 'right', bl: 'middle', size: fs(0.9), col: COL.ink3 }); }
+      tx(c, 'oktav bandı düzeyi, dB', x0, y1 - U * 1, { size: fs(0.95), col: COL.ink3 });
+      const bw = (x1 - x0) / 9;
+      FC.forEach((fc, i) => {
+        const x = x0 + i * bw + bw * 0.15, wA = WA(fc), la = disp[i] + wA;
+        c.strokeStyle = COL.c1; c.lineWidth = LW(1.4); c.strokeRect(x + .5, Y(disp[i]), bw * 0.7 - 1, y0 - Y(disp[i]));
+        if (la > 0) { c.fillStyle = alpha(COL.c1, .55); c.fillRect(x + bw * 0.08, Y(la), bw * 0.54, y0 - Y(la)); }
+        tx(c, fmtTick(fc).replace('.', ','), x + bw * 0.35, y0 + U * 1.6, { al: 'center', size: fs(0.9), col: COL.ink3 });
+        tx(c, fmt(wA, wA > -10 ? 1 : 0), x + bw * 0.35, Y(disp[i]) - U * 0.6, { al: 'center', size: fs(0.85), col: COL.c2 });
+      });
+      tx(c, 'çerçeve: ağırlıksız bant · dolu: A ağırlıklı · kırmızı: A düzeltmesi (dB)', x1, y1 - U * 1, { al: 'right', size: fs(0.9), col: COL.ink3 });
+      tx(c, 'Hz', x1, y0 + U * 3.0, { al: 'right', size: fs(0.9), col: COL.ink3 });
+    }
+  };
+});
+
+/* ====================== 19 · RMS ====================== */
+scene('rms', s => {
+  const F = new Fig($('canvas', s));
+  let k = 0, T = 0, tk = [0, 0, 0, 0, 0];
+  return {
+    step(n) { if (n !== k) { k = n; tk[n] = T; } },
+    enter() { tk = [T, T, T, T, T]; },
+    frame(t, dt) {
+      T += dt;
+      const c = F.begin(), w = F.w, h = F.h; if (!w) return;
+      const x0 = U * 6, x1 = w - U * 9, X = q => x0 + q / TAU * (x1 - x0);
+      const ya = h * 0.27, A = h * 0.2, yb = h * 0.93, B = h * 0.3;
+      // üst: sinüs
+      ln(c, x0, ya, x1, ya, COL.ink3, 1);
+      ln(c, x0, ya - A * 1.1, x0, ya + A * 1.1, COL.ink3, 1);
+      plot(c, 0, TAU, 300, X, q => ya - A * Math.sin(q), COL.ink, LW(2));
+      // tepe ve tepeden tepeye
+      ln(c, X(Math.PI / 2), ya - A, x1 + U * 1.5, ya - A, COL.ink3, 1, [3, 3]); ln(c, X(1.5 * Math.PI), ya + A, x1 + U * 4.5, ya + A, COL.ink3, 1, [3, 3]);
+      dbl(c, x1 + U * 1.5, ya, x1 + U * 1.5, ya - A, COL.c2, 1.2); tx(c, 'tepe', x1 + U * 2.2, ya - A * 0.5, { bl: 'middle', size: fs(1.0), col: COL.c2 });
+      dbl(c, x1 + U * 4.5, ya - A, x1 + U * 4.5, ya + A, COL.c3, 1.2); tx(c, 'tepeden', x1 + U * 5.2, ya - U * 0.6, { size: fs(0.95), col: COL.c3 }); tx(c, 'tepeye', x1 + U * 5.2, ya + U * 0.9, { size: fs(0.95), col: COL.c3 });
+      const N = 24, pa = ease((T - tk[1]) / 1.6), pb = ease((T - tk[2]) / 1.6), pc = ease((T - tk[3]) / 1.2), pd = ease((T - tk[4]) / 1.2);
+      if (k >= 1) for (let i = 0; i < N; i++) { if (i / N > pa) break; const q = (i + 0.5) / N * TAU; ln(c, X(q), ya, X(q), ya - A * Math.sin(q), COL.c1, LW(1.6)); }
+      // alt: kareler
+      if (k >= 2) {
+        ln(c, x0, yb, x1, yb, COL.ink3, 1); ln(c, x0, yb, x0, yb - B * 1.1, COL.ink3, 1);
+        tx(c, '1', x0 - U * .6, yb - B, { al: 'right', bl: 'middle', size: fs(0.9), col: COL.ink3 }); tx(c, '0', x0 - U * .6, yb, { al: 'right', bl: 'middle', size: fs(0.9), col: COL.ink3 });
+        for (let i = 0; i < N; i++) { if (i / N > pb) break; const q = (i + 0.5) / N * TAU, v = Math.sin(q) ** 2; ln(c, X(q), yb, X(q), yb - B * v, COL.c2, LW(1.6)); }
+        plot(c, 0, TAU * pb, 200, X, q => yb - B * Math.sin(q) ** 2, alpha(COL.c2, .7), LW(1.2));
+        tx(c, '(b) ordinatların kareleri: sin²', x0 + U, yb - B * 1.15, { size: fs(1.0), col: COL.c2, wt: 600 });
+      }
+      if (k >= 3) {
+        const yy = yb - B * 0.5; ln(c, x0, yy, lerp(x0, x1, pc), yy, COL.c4, LW(2));
+        chip(c, '(c) karelerin ortalaması = 0,5 · tepe²', x1, yy - U * 1.4, { al: 'right', size: fs(1.0), col: COL.c4, wt: 600 });
+      }
+      if (k >= 1) tx(c, '(a) eşit aralıklı ordinatlar', x0 + U, ya - A * 1.15, { size: fs(1.0), col: COL.c1, wt: 600 });
+      if (k >= 4) {
+        const yr = ya - A * Math.SQRT1_2 * pd, yv = ya - A * (2 / Math.PI);
+        ln(c, x0, yr, x1, yr, COL.c4, LW(2));
+        chip(c, '(d) RMS = √0,5 = 0,707 · tepe', X(Math.PI * 0.75), yr - U * 1.4, { size: fs(1.05), col: COL.c4, wt: 600 });
+        if (pd > 0.95) {
+          ln(c, x0, yv, x1, yv, COL.c3, LW(1.6), [6, 4]);
+          plot(c, Math.PI, TAU, 120, X, q => ya - A * Math.abs(Math.sin(q)), alpha(COL.c3, .6), LW(1.2), [3, 3]);
+          chip(c, 'ortalama (doğrultulmuş) = 0,637 · tepe', X(Math.PI) + U, yv + U * 1.6, { size: fs(1.0), col: COL.c3, wt: 600 });
+        }
+      }
+      if (k === 0) tx(c, '→ ilerleyin: ordinatlar, kareler, ortalama, karekök', x0, yb - B * 0.5, { size: fs(1.15), col: COL.ink3, it: true });
+    }
+  };
+});
+
+/* ====================== 20 · ortalamaya duyarlı ölçer ====================== */
+scene('meter', s => {
+  const F = new Fig($('canvas', s));
+  const FF = Math.PI / (2 * Math.SQRT2);
+  const NZ = (() => { let r = 777; const rnd = () => (r = (r * 16807) % 2147483647) / 2147483647; const a = []; for (let i = 0; i < 900; i++) { const u = rnd() || 1e-9, v = rnd(); a.push(Math.sqrt(-2 * Math.log(u)) * Math.cos(TAU * v)); } const m = Math.sqrt(a.reduce((x, y) => x + y * y, 0) / a.length); return a.map(x => x / m); })();
+  const WV = {
+    sin: { f: q => Math.SQRT2 * Math.sin(q), pk: Math.SQRT2, avg: 2 * Math.SQRT2 / Math.PI },
+    sq: { f: q => Math.sin(q) >= 0 ? 1 : -1, pk: 1, avg: 1 },
+    tri: { f: q => Math.sqrt(3) * 2 / Math.PI * Math.asin(Math.sin(q)), pk: Math.sqrt(3), avg: Math.sqrt(3) / 2 },
+    noise: { pk: 4, avg: Math.sqrt(2 / Math.PI) }
+  };
+  let wk = 'sin', nL = 1, nR = 1, T = 0;
+  const btn = $('[data-a="play"]', s);
+  const comps = k => { const r = []; if (k === 'sin') r.push({ n: 1, a: 1, ph: 0 }); if (k === 'sq') for (let n = 1; n < 60; n += 2) r.push({ n, a: 4 / (Math.PI * n), ph: 0 }); if (k === 'tri') for (let n = 1; n < 60; n += 2) r.push({ n, a: 8 / (Math.PI ** 2 * n * n), ph: ((n - 1) / 2) % 2 ? Math.PI : 0 }); return r; };
+  const voice = () => {
+    if (wk === 'noise') return (ctx, o, v) => { const n = AU.noise(), g = ctx.createGain(); g.gain.value = 0.12 / 0.577; n.connect(g); g.connect(o); n.start(v.t0); v.nodes.push(n, g); };
+    const cs = comps(wk), rms = Math.sqrt(cs.reduce((a, c) => a + c.a * c.a / 2, 0));
+    return AU.harm(220, cs, 0.12 / rms);
+  };
+  const rows = $$('tr[data-row]', s), bs = $$('[data-w]', s);
+  const sel = () => rows.forEach(r => r.classList.toggle('hi', r.dataset.row === wk));
+  bs.forEach(b => b.onclick = () => { wk = b.dataset.w; segOn(bs, b); sel(); if (AU.isPlaying(btn)) AU.start(voice(), { btn }); });
+  btn.onclick = () => AU.toggle(btn, voice());
+  sel();
+  return {
+    frame(t, dt) {
+      T += dt;
+      const W = WV[wk];
+      const tgtL = FF * W.avg * (wk === 'noise' ? 1 + 0.03 * Math.sin(T * 7.3) * Math.sin(T * 3.1) : 1), tgtR = wk === 'noise' ? 1 + 0.025 * Math.sin(T * 5.7) : 1;
+      nL += (tgtL - nL) * (1 - Math.exp(-dt / 0.3)); nR += (tgtR - nR) * (1 - Math.exp(-dt / 0.3));
+      const c = F.begin(), w = F.w, h = F.h; if (!w) return;
+      // dalga
+      const x0 = U * 6, x1 = w - U * 3, ya = h * 0.27, A = h * 0.11;
+      ln(c, x0, ya, x1, ya, COL.rule, 1);
+      if (wk === 'noise') { const off = Math.floor(T * 60) % NZ.length; c.beginPath(); for (let i = 0; i < 300; i++) { const v = NZ[(off + i) % NZ.length], X = x0 + i / 299 * (x1 - x0), Y = ya - A * clamp(v, -2.4, 2.4); i ? c.lineTo(X, Y) : c.moveTo(X, Y); } c.strokeStyle = COL.ink; c.lineWidth = LW(1.2); c.stroke(); }
+      else plot(c, 0, 3 * TAU, 600, q => x0 + q / (3 * TAU) * (x1 - x0), q => ya - A * W.f(q + T * 0.8), COL.ink, LW(2));
+      const hl = (v, col, lab, dash) => { ln(c, x0, ya - A * v, x1, ya - A * v, col, LW(1.4), dash); tx(c, lab, x0 - U * .5, ya - A * v, { al: 'right', bl: 'middle', size: fs(0.9), col }); };
+      hl(1, COL.c4, 'RMS'); hl(-1, COL.c4, ''); hl(W.avg, COL.c3, 'ort.', [6, 4]);
+      if (wk !== 'noise') hl(W.pk, COL.c2, 'tepe', [2, 3]);
+      tx(c, 'Bütün dalgalar aynı gerçek RMS’te (= 1)', x0, U * 1.8, { size: fs(1.0), col: COL.ink3, wt: 600 });
+      // iki gösterge
+      const meter = (cx, cy, R, val, title, col) => {
+        const a0 = Math.PI * 1.15, a1 = Math.PI * 1.85, A_ = v => a0 + (a1 - a0) * clamp(v / 1.5, 0, 1);
+        c.beginPath(); c.arc(cx, cy, R, a0, a1); c.strokeStyle = COL.ink3; c.lineWidth = LW(1.4); c.stroke();
+        for (let v = 0; v <= 1.5001; v += 0.1) { const a = A_(v), big = Math.abs(v * 2 - Math.round(v * 2)) < 1e-6; ln(c, cx + Math.cos(a) * R, cy + Math.sin(a) * R, cx + Math.cos(a) * (R - (big ? U * 1.4 : U * 0.7)), cy + Math.sin(a) * (R - (big ? U * 1.4 : U * 0.7)), COL.ink3, 1); if (big) tx(c, fmt(v, 1), cx + Math.cos(a) * (R + U * 1.4), cy + Math.sin(a) * (R + U * 1.4), { al: 'center', bl: 'middle', size: fs(0.9), col: COL.ink3 }); }
+        const a = A_(1); ln(c, cx + Math.cos(a) * (R - U * 2.4), cy + Math.sin(a) * (R - U * 2.4), cx + Math.cos(a) * (R + U * 0.4), cy + Math.sin(a) * (R + U * 0.4), COL.c4, LW(2.4));
+        const an = A_(val); ln(c, cx, cy, cx + Math.cos(an) * (R - U * 0.6), cy + Math.sin(an) * (R - U * 0.6), col, LW(2.2)); dot(c, cx, cy, U * .6, COL.ink);
+        tx(c, title, cx, cy + U * 2.2, { al: 'center', size: fs(1.05), col: COL.ink, wt: 600 });
+        tx(c, fmt(val, 3) + '  (' + (val >= 1 ? '+' : '') + fmt(20 * Math.log10(val), 2) + ' dB)', cx, cy + U * 4, { al: 'center', size: fs(1.05), col, font: FONT.mono });
+      };
+      const R = Math.min(w * 0.17, h * 0.26), cy = h * 0.84;
+      meter(w * 0.3, cy, R, nL, 'Ortalamaya duyarlı, RMS ölçekli', COL.c2);
+      meter(w * 0.72, cy, R, nR, 'Gerçek RMS', COL.c1);
+    }
+  };
+});
+
+boot();
+</script>
+</body>
+</html>
