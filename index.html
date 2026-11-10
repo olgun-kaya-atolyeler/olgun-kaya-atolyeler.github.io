@@ -362,6 +362,32 @@ div.ccard .go{color:var(--ink-3)}
   color:var(--ink-3);text-transform:none}
 .hero .byline b{font:600 14px/1.2 "Chakra Petch",system-ui,sans-serif;color:var(--ink)}
 @media (max-width:560px){.hero .byline{display:flex}}
+
+/* ---------- sekmeler ---------- */
+.tabs{position:sticky; top:0; z-index:5; display:flex; gap:0; margin:6px 0 0; background:var(--ground);
+  border-bottom:2px solid var(--line); overflow:visible}
+.tabs::-webkit-scrollbar{display:none}
+.tabs button{flex:0 0 auto; display:inline-flex; align-items:baseline; gap:9px; cursor:pointer;
+  font-family:var(--font-display); font-weight:600; letter-spacing:var(--track); text-transform:uppercase;
+  font-size:clamp(1rem,2.4vw,1.3rem); color:var(--ink-3); background:transparent; border:0;
+  border-bottom:3px solid transparent; margin-bottom:-2px; padding:14px 18px 11px}
+.tabs button:first-child{padding-left:2px}
+.tabs button .num{font-family:var(--font-mono); font-size:.62em; color:var(--brass); font-weight:600}
+.tabs button{position:relative}
+.tabs button .count{display:none; font-family:var(--font-mono); font-size:.46em; font-weight:500; color:var(--ink-3);
+  border:1px solid var(--line); border-radius:99px; padding:1px 6px; letter-spacing:.04em; align-self:center}
+.tabs button:hover{color:var(--ink)}
+.tabs button[aria-selected="true"]{color:var(--ink); text-shadow:0 0 14px color-mix(in srgb,var(--sin) 45%,transparent)}
+.tabs button[aria-selected="true"]::after{content:""; position:absolute; left:0; right:0; bottom:-2px; height:5px;
+  border-radius:3px; background:var(--sin); box-shadow:0 0 10px var(--sin),0 0 22px color-mix(in srgb,var(--sin) 55%,transparent)}
+.tabs button:first-child[aria-selected="true"]::after{left:2px}
+.tabs button[aria-selected="true"] .count{display:inline-block; border-color:var(--sin); color:var(--ink)}
+.tabs button:focus-visible{outline:2px solid var(--arc); outline-offset:-2px}
+html.has-tabs section.tabpanel{margin-block:26px 40px}
+html.has-tabs section.tabpanel > h2{position:absolute; width:1px; height:1px; overflow:hidden; clip-path:inset(50%); white-space:nowrap; border:0; padding:0; margin:0}
+.tabs[hidden]{display:none!important}
+html.has-tabs .hero{border-bottom:0; margin-bottom:0}
+@media (max-width:560px){ .tabs{justify-content:space-between} .tabs button{padding:12px 4px 9px; gap:5px; font-size:.94rem} .tabs button .num{display:none} .tabs button .count{font-size:.58em; padding:0 5px} .tabs button:first-child{padding-left:0} }
 </style>
 </head>
 <body>
@@ -383,7 +409,13 @@ div.ccard .go{color:var(--ink-3)}
   </div>
 </header>
 
-<section id="dersler">
+<nav class="tabs" role="tablist" aria-label="Bölümler" hidden>
+  <button type="button" role="tab" id="tab-dersler" aria-controls="dersler" aria-selected="true"><span class="num">01</span>Dersler<span class="count">6</span></button>
+  <button type="button" role="tab" id="tab-sunular" aria-controls="sunular" aria-selected="false" tabindex="-1"><span class="num">02</span>Sunular<span class="count">6</span></button>
+  <button type="button" role="tab" id="tab-makineler" aria-controls="makineler" aria-selected="false" tabindex="-1"><span class="num">03</span>Makineler<span class="count">10</span></button>
+</nav>
+
+<section id="dersler" class="tabpanel" role="tabpanel" aria-labelledby="tab-dersler">
   <h2><span class="num">01</span> Dersler</h2>
 
   <div class="cgrid">
@@ -437,7 +469,7 @@ div.ccard .go{color:var(--ink-3)}
   </div>
 </section>
 
-<section id="sunular">
+<section id="sunular" class="tabpanel" role="tabpanel" aria-labelledby="tab-sunular">
   <h2><span class="num">02</span> Sunular</h2>
   <p class="grp-note"><b>Master Handbook of Acoustics</b> (F. A. Everest &amp; K. C. Pohlmann, 5. baskı, McGraw-Hill, 2009) kitabı üzerine bölüm bölüm hazırlanmış, animasyonlu ve sesli akademik seminer sunuları. Her sunu tarayıcıda tam ekran açılır: <b>→</b> ya da <b>boşluk</b> ile ilerlenir, <b>F</b> tam ekran, <b>T</b> tema değiştirir. ◆ işaretli kutular kitabın ötesine geçen ekler ve kitaptaki yanlışların düzeltmeleridir; bazı demolar kulaklık ister.</p>
   <p class="grp-note" style="font-size:.84em;color:var(--ink-3);margin-top:-6px">Sunular kitabın yerine geçmez; kitap üzerine hazırlanmış, kaynak gösterilen ders notlarıdır. Kitabın kendisi için yayınevine başvurunuz.</p>
@@ -493,7 +525,7 @@ div.ccard .go{color:var(--ink-3)}
   </div>
 </section>
 
-<section id="makineler">
+<section id="makineler" class="tabpanel" role="tabpanel" aria-labelledby="tab-makineler">
   <h2><span class="num">03</span> Makineler</h2>
   <p class="grp-note">Bir müzik kavramını <b>gerçek, çalışan bir makine</b> olarak kuran izometrik figürler. Kavram bir mekanizmaya dönüşür: uyum iki tarağın dişlerinin buluşmasıyla, dizi delikli bir diskin dönmesiyle, Hammond'un sesi dişlilerle çevrilen çarklarla görülür. Her makine elle çalıştırılır, gerçek sayılarla hesap yapar ve sesini düğmeye basınca çalar. Dizi ve akor kadranlarında adım adım ilerleyen bir ders akışı vardır.</p>
 
@@ -537,11 +569,46 @@ div.ccard .go{color:var(--ink-3)}
       <div class="meta">yavaş / hızlı · Doppler grafiği · ses</div>
       <div class="go">Makineyi aç →</div>
     </a>
+    <a class="ccard" href="makineler/06-dinleme-masasi.html">
+      <div class="tag">MAKİNE 6 · KULAK EĞİTİMİ</div>
+      <h3>Dinleme Masası</h3>
+      <p>Kendini dene: uyumlu mu uyumsuz mu, hangi aralık, hangi akor? Kolay başlar, doğru cevaplarla seçenekler çoğalır. Yanlışta önce senin cevabını, sonra doğrusunu çalar; en çok karıştırdıklarını gösterir.</p>
+      <div class="meta">3 kart · uyarlamalı seviye · sonuçlar yalnız tarayıcıda</div>
+      <div class="go">Makineyi aç →</div>
+    </a>
+    <a class="ccard" href="makineler/07-soyleme-makinesi.html">
+      <div class="tag">MAKİNE 7 · SÖYLEYEREK SINA</div>
+      <h3>Söyleme Makinesi</h3>
+      <p>Makine iki, üç ya da dört sesi birlikte çalar ve susar; sonra sırayla sorar: 1. ses, 2. ses… Her sesi 3–4 saniye içinde mikrofona söylersin; ibre aradığın sese kaç sent uzak olduğunu gösterir. Bulamazsan sıradakine geçer. Kulaklıkla kullan.</p>
+      <div class="meta">mikrofon · aralık ve akorlar · ses kaydedilmez</div>
+      <div class="go">Makineyi aç →</div>
+    </a>
+    <a class="ccard" href="makineler/08-dizi-merdiveni.html">
+      <div class="tag">MAKİNE 8 · DİZİ TÜRÜ</div>
+      <h3>Dizi Merdiveni</h3>
+      <p>Bir top merdiveni çıkıp inerken dizi çalar; sen türünü seçersin. Cevaptan sonra basamaklar gerçek yüksekliğine kalkar: tam ses uzun, yarım ses kısa basamak. Yanlışta iki dizi art arda çalar, ayrıldıkları basamak işaretlenir.</p>
+      <div class="meta">majör, minörler, pentatonik, blues, modlar · 6 seviye</div>
+      <div class="go">Makineyi aç →</div>
+    </a>
+    <a class="ccard" href="makineler/09-eq-db-kulagi.html">
+      <div class="tag">MAKİNE 9 · TEKNİK KULAK</div>
+      <h3>EQ ve dB Kulağı</h3>
+      <p>On bantlı bir grafik ekolayzır: makine bir bandı gizlice yükseltir ya da keser, sesi birkaç desibel açar; düz ve işlenmiş ses iki saniyede bir yer değiştirir. Sen farkı söylersin, sürgü yerini gösterir.</p>
+      <div class="meta">hangi bant · yükseltme/kesme · dB farkı · serbest deneme</div>
+      <div class="go">Makineyi aç →</div>
+    </a>
+    <a class="ccard" href="makineler/10-perde-esigi.html">
+      <div class="tag">MAKİNE 10 · PSİKOAKUSTİK</div>
+      <h3>Perde Ayırt Etme Eşiği</h3>
+      <p>Bir ses jeneratörü iki ses çalar, sen hangisinin daha tiz olduğunu söylersin. Doğru bildikçe fark daralır, yanıldıkça açılır; sonunda kulağının eşiği sent olarak bulunur ve merdiven grafiği çizilir. Vuru denemesinde osiloskop iki sesin kabarıp sönmesini gösterir.</p>
+      <div class="meta">eşik ölçümü · aynı mı farklı mı · 250 Hz / 1 kHz / 4 kHz · vuru</div>
+      <div class="go">Makineyi aç →</div>
+    </a>
   </div>
 </section>
 
 <section id="kullanim">
-  <h2><span class="num">04</span> Nasıl kullanılır</h2>
+  <h2>Nasıl kullanılır</h2>
   <div class="howto">
     <div>
       <h4>Derste</h4>
@@ -594,4 +661,52 @@ if(mqDark.addEventListener) mqDark.addEventListener('change',syncTheme);
 })();
 </script>
 
+
+<script>
+(function(){
+'use strict';
+// tabs: Dersler, Sunular, Makineler. Without script every section stays visible, one under the other.
+var nav=document.querySelector('.tabs');
+if(!nav) return;
+var tabs=[].slice.call(nav.querySelectorAll('[role="tab"]'));
+var panels=tabs.map(function(t){ return document.getElementById(t.getAttribute('aria-controls')); });
+var ids=panels.map(function(p){ return p.id; });
+document.documentElement.classList.add('has-tabs');
+nav.hidden=false;
+function show(id,focus,push){
+  var i=ids.indexOf(id); if(i<0) i=0;
+  tabs.forEach(function(t,j){
+    var on=j===i;
+    t.setAttribute('aria-selected',on?'true':'false');
+    t.tabIndex=on?0:-1;
+    panels[j].hidden=!on;
+  });
+  if(focus) tabs[i].focus();
+  try{ localStorage.setItem('mt-sekme',ids[i]); }catch(e){}
+  if(push && history.replaceState) history.replaceState(null,'','#'+ids[i]);
+}
+tabs.forEach(function(t,i){
+  t.addEventListener('click',function(){
+    show(ids[i],false,true);
+    var top=nav.getBoundingClientRect().top;
+    if(top<0) nav.scrollIntoView({block:'start'});
+  });
+  t.addEventListener('keydown',function(e){
+    var k=e.key, j=i;
+    if(k==='ArrowRight') j=(i+1)%tabs.length;
+    else if(k==='ArrowLeft') j=(i-1+tabs.length)%tabs.length;
+    else if(k==='Home') j=0;
+    else if(k==='End') j=tabs.length-1;
+    else return;
+    e.preventDefault(); show(ids[j],true,true);
+  });
+});
+function fromHash(){ var h=(location.hash||'').slice(1); return ids.indexOf(h)>=0?h:null; }
+var start=fromHash();
+if(!start){ try{ start=localStorage.getItem('mt-sekme'); }catch(e){} }
+show(start||ids[0],false,false);
+if(fromHash()) nav.scrollIntoView({block:'start'});
+window.addEventListener('hashchange',function(){ var h=fromHash(); if(h){ show(h,false,false); nav.scrollIntoView({block:'start'}); } });
+})();
+</script>
 </body></html>
